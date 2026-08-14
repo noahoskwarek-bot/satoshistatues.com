@@ -154,6 +154,9 @@
     .zoom-out-btn:hover {
       background: #484f58;
     }
+    .hidden {
+      display: none !important;
+    }
     @media (max-width: 768px) {
       .container { flex-direction: column; }
       .sidebar { width: 100%; max-height: 42vh; border-left: none; border-top: 1px solid #30363d; }
@@ -329,6 +332,29 @@
     const markers = [];
     const listEl = document.getElementById('list');
 
+    // Helper to update button visibility based on current zoom
+    function updateZoomButtons() {
+      const zoom = map.getZoom();
+      const zoomInBtns = document.querySelectorAll('.zoom-in-btn');
+      const zoomOutBtns = document.querySelectorAll('.zoom-out-btn');
+
+      zoomInBtns.forEach(btn => {
+        if (zoom >= 12) {
+          btn.classList.add('hidden');
+        } else {
+          btn.classList.remove('hidden');
+        }
+      });
+
+      zoomOutBtns.forEach(btn => {
+        if (zoom < 12) {
+          btn.classList.add('hidden');
+        } else {
+          btn.classList.remove('hidden');
+        }
+      });
+    }
+
     function goToStatue(s, marker) {
       const currentZoom = map.getZoom();
       const targetZoom = Math.max(currentZoom, 4);
@@ -340,6 +366,7 @@
 
       setTimeout(() => {
         marker.openPopup();
+        updateZoomButtons();
       }, 300);
     }
 
@@ -348,6 +375,7 @@
         animate: true,
         duration: 0.7
       });
+      setTimeout(updateZoomButtons, 400);
     }
 
     function zoomOut() {
@@ -355,11 +383,14 @@
         animate: true,
         duration: 0.8
       });
+      setTimeout(updateZoomButtons, 400);
     }
 
     map.on('popupclose', function() {
       zoomOut();
     });
+
+    map.on('zoomend', updateZoomButtons);
 
     statues.forEach((s) => {
       const fullLocation = `${s.city}, ${s.country}`;
@@ -378,10 +409,10 @@
           ${s.note}
         </div>
         <div class="btn-row">
-          <button class="zoom-btn" onclick="zoomToStatue(${s.lat}, ${s.lng})">
+          <button class="zoom-btn zoom-in-btn" onclick="zoomToStatue(${s.lat}, ${s.lng})">
             Zoom in
           </button>
-          <button class="zoom-btn zoom-out-btn" onclick="zoomOut()">
+          <button class="zoom-btn zoom-out-btn hidden" onclick="zoomOut()">
             Zoom out
           </button>
         </div>
