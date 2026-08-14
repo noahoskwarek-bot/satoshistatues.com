@@ -94,4 +94,256 @@
     }
     .leaflet-popup-content-wrapper {
       background: #161b22;
-     
+      color: #e6edf3;
+      border-radius: 10px;
+      max-width: 330px;
+    }
+    .leaflet-popup-tip {
+      background: #161b22;
+    }
+    .leaflet-popup-content {
+      margin: 13px;
+    }
+    .leaflet-popup-content h3 {
+      margin: 0 0 4px 0;
+      color: #f7931a;
+      font-size: 1.08rem;
+    }
+    .popup-location {
+      font-size: 0.88rem;
+      color: #8b949e;
+      margin-bottom: 10px;
+    }
+    .popup-img {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 11px;
+      border: 1px solid #30363d;
+      background: #0d1117;
+    }
+    .popup-meta {
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+    @media (max-width: 768px) {
+      .container { flex-direction: column; }
+      .sidebar { width: 100%; max-height: 42vh; border-left: none; border-top: 1px solid #30363d; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>🟠 Satoshi Nakamoto Statues</h1>
+      <p>Global interactive map • Click any marker or card to see photo + details</p>
+    </div>
+  </header>
+
+  <div class="container">
+    <div id="map"></div>
+    <div class="sidebar">
+      <h2>Locations</h2>
+      <div id="list"></div>
+      <div class="note">
+        <strong>Note:</strong> The main “disappearing” series by Valentina Picozzi (Satoshigallery) aims for 21 statues worldwide. Budapest and Fornelli are separate designs. Photos are the best publicly available images.
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const statues = [
+      {
+        name: "Budapest",
+        country: "Hungary",
+        city: "Budapest",
+        place: "Graphisoft Park",
+        lat: 47.5607,
+        lng: 19.0544,
+        year: 2021,
+        artist: "Réka Gergely & Tamás Gilly",
+        type: "Mirrored-face bronze bust",
+        note: "World’s first Satoshi statue. Reflective face so visitors see themselves (“We are all Satoshi”). Free public access 24/7.",
+        img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Bust_of_Satoshi_Nakamoto_in_Budapest2.jpg/800px-Bust_of_Satoshi_Nakamoto_in_Budapest2.jpg"
+      },
+      {
+        name: "Lugano",
+        country: "Switzerland",
+        city: "Lugano",
+        place: "Parco Ciani",
+        lat: 46.0044,
+        lng: 8.9566,
+        year: "2024 (restored 2025)",
+        artist: "Valentina Picozzi (Satoshigallery)",
+        type: "Disappearing metal (1st of series)",
+        note: "First of the optical-illusion series. Vandalized and recovered from Lake Lugano; later reinstalled.",
+        img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Satoshi_Nakamoto_Statue_in_Lugano_001.jpg/600px-Satoshi_Nakamoto_Statue_in_Lugano_001.jpg"
+      },
+      {
+        name: "El Zonte",
+        country: "El Salvador",
+        city: "El Zonte",
+        place: "Bitcoin Beach",
+        lat: 13.495,
+        lng: -89.440,
+        year: 2025,
+        artist: "Valentina Picozzi (Satoshigallery)",
+        type: "Disappearing metal",
+        note: "Located in the famous Bitcoin Beach community that helped inspire El Salvador’s Bitcoin adoption.",
+        img: "https://pbs.twimg.com/media/GobpChUWAAEiJU7.jpg"
+      },
+      {
+        name: "Tokyo",
+        country: "Japan",
+        city: "Tokyo",
+        place: "Tokyo Bitcoin Base (Shinjuku)",
+        lat: 35.6890,
+        lng: 139.7286,
+        year: 2025,
+        artist: "Valentina Picozzi (Satoshigallery)",
+        type: "Disappearing metal",
+        note: "At Tokyo Bitcoin Base near Yotsuya Station.",
+        img: "https://pbs.twimg.com/media/GpYP-xyWUAAHV0D.jpg"
+      },
+      {
+        name: "Hanoi",
+        country: "Vietnam",
+        city: "Hanoi",
+        place: "Times City – 1Matrix HQ",
+        lat: 20.9955,
+        lng: 105.8685,
+        year: 2025,
+        artist: "Valentina Picozzi (Satoshigallery)",
+        type: "Disappearing metal",
+        note: "Inside the Blockchain Gallery at 1Matrix headquarters. Open to the public on Saturdays.",
+        img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Satoshi_Nakamoto_Statue_in_Lugano_001.jpg/600px-Satoshi_Nakamoto_Statue_in_Lugano_001.jpg"
+      },
+      {
+        name: "Miami",
+        country: "USA",
+        city: "Miami",
+        place: "Miami (waterfront park planned)",
+        lat: 25.7617,
+        lng: -80.1918,
+        year: 2025,
+        artist: "Valentina Picozzi (Satoshigallery)",
+        type: "Disappearing metal",
+        note: "Unveiled with support from Cantor Fitzgerald and Michael Saylor. Permanent waterfront park location planned.",
+        img: "https://pbs.twimg.com/media/G5lYbhVWgAI3fLC.jpg"
+      },
+      {
+        name: "New York",
+        country: "USA",
+        city: "New York",
+        place: "New York Stock Exchange (NYSE)",
+        lat: 40.7069,
+        lng: -74.0113,
+        year: 2025,
+        artist: "Valentina Picozzi (Satoshigallery)",
+        type: "Disappearing metal (6th of series)",
+        note: "Installed at the New York Stock Exchange by Twenty One Capital.",
+        img: "https://pbs.twimg.com/media/G71-N5BXEAAmiK1.jpg"
+      },
+      {
+        name: "Fornelli",
+        country: "Italy",
+        city: "Fornelli",
+        place: "Piazza Umberto I",
+        lat: 41.6070,
+        lng: 14.1405,
+        year: 2025,
+        artist: "Mattia Pannoni",
+        type: "Stainless steel (separate design)",
+        note: "Municipality-funded monument. The village has high Bitcoin merchant adoption.",
+        img: "https://pbs.twimg.com/media/GqTYTuQbAAA39K8.jpg"
+      },
+      {
+        name: "Hong Kong",
+        country: "Hong Kong / China",
+        city: "Hong Kong",
+        place: "Web3 Festival (donated to government)",
+        lat: 22.3193,
+        lng: 114.1694,
+        year: 2026,
+        artist: "Valentina Picozzi (Satoshigallery)",
+        type: "Disappearing metal",
+        note: "Unveiled at the Web3 Festival and donated to the Hong Kong government.",
+        img: "https://pbs.twimg.com/media/HGUq0rsbEAAEBzO.jpg"
+      }
+    ];
+
+    const map = L.map('map', {
+      center: [20, 20],
+      zoom: 2,
+      minZoom: 2
+    });
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap &copy; CARTO',
+      subdomains: 'abcd',
+      maxZoom: 19
+    }).addTo(map);
+
+    const orangeIcon = L.divIcon({
+      className: 'custom-marker',
+      html: `<div style="
+        width: 18px; height: 18px;
+        background: #f7931a;
+        border: 2px solid #fff;
+        border-radius: 50%;
+        box-shadow: 0 0 8px rgba(247,147,26,0.7);
+      "></div>`,
+      iconSize: [18, 18],
+      iconAnchor: [9, 9]
+    });
+
+    const markers = [];
+    const listEl = document.getElementById('list');
+
+    statues.forEach((s) => {
+      const fullLocation = `${s.city}, ${s.country}`;
+      
+      const popupContent = `
+        <img class="popup-img" 
+             src="${s.img}" 
+             alt="${s.name} statue"
+             onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Satoshi_Nakamoto_Statue_in_Lugano_001.jpg/600px-Satoshi_Nakamoto_Statue_in_Lugano_001.jpg'">
+        <h3>${s.name}</h3>
+        <div class="popup-location">${fullLocation} · ${s.place}</div>
+        <div class="popup-meta">
+          <strong>Year:</strong> ${s.year}<br>
+          <strong>Artist:</strong> ${s.artist}<br>
+          <strong>Type:</strong> ${s.type}<br><br>
+          ${s.note}
+        </div>
+      `;
+
+      const marker = L.marker([s.lat, s.lng], { icon: orangeIcon })
+        .addTo(map)
+        .bindPopup(popupContent, { maxWidth: 340 });
+      markers.push(marker);
+
+      const card = document.createElement('div');
+      card.className = 'statue-card';
+      card.innerHTML = `
+        <h3>${s.name}</h3>
+        <div class="location">${fullLocation}</div>
+        <div class="meta">${s.year} · ${s.artist}</div>
+        <span class="type">${s.type}</span>
+      `;
+      card.onclick = () => {
+        map.setView([s.lat, s.lng], 13);
+        marker.openPopup();
+      };
+      listEl.appendChild(card);
+    });
+
+    if (markers.length) {
+      const group = L.featureGroup(markers);
+      map.fitBounds(group.getBounds().pad(0.25));
+    }
+  </script>
+</body>
+</html>
