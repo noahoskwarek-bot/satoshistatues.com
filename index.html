@@ -332,27 +332,27 @@
     const markers = [];
     const listEl = document.getElementById('list');
 
-    // Helper to update button visibility based on current zoom
+    // Update buttons inside the currently open popup
     function updateZoomButtons() {
       const zoom = map.getZoom();
-      const zoomInBtns = document.querySelectorAll('.zoom-in-btn');
-      const zoomOutBtns = document.querySelectorAll('.zoom-out-btn');
+      const isZoomedIn = zoom >= 12;
 
-      zoomInBtns.forEach(btn => {
-        if (zoom >= 12) {
-          btn.classList.add('hidden');
-        } else {
-          btn.classList.remove('hidden');
-        }
-      });
+      // Find buttons inside the open popup
+      const popup = document.querySelector('.leaflet-popup-content');
+      if (!popup) return;
 
-      zoomOutBtns.forEach(btn => {
-        if (zoom < 12) {
-          btn.classList.add('hidden');
+      const zoomInBtn = popup.querySelector('.zoom-in-btn');
+      const zoomOutBtn = popup.querySelector('.zoom-out-btn');
+
+      if (zoomInBtn && zoomOutBtn) {
+        if (isZoomedIn) {
+          zoomInBtn.classList.add('hidden');
+          zoomOutBtn.classList.remove('hidden');
         } else {
-          btn.classList.remove('hidden');
+          zoomInBtn.classList.remove('hidden');
+          zoomOutBtn.classList.add('hidden');
         }
-      });
+      }
     }
 
     function goToStatue(s, marker) {
@@ -366,8 +366,7 @@
 
       setTimeout(() => {
         marker.openPopup();
-        updateZoomButtons();
-      }, 300);
+      }, 350);
     }
 
     function zoomToStatue(lat, lng) {
@@ -375,7 +374,6 @@
         animate: true,
         duration: 0.7
       });
-      setTimeout(updateZoomButtons, 400);
     }
 
     function zoomOut() {
@@ -383,14 +381,22 @@
         animate: true,
         duration: 0.8
       });
-      setTimeout(updateZoomButtons, 400);
     }
 
+    // When popup opens → set correct button
+    map.on('popupopen', function() {
+      setTimeout(updateZoomButtons, 50);
+    });
+
+    // When zoom changes → update buttons
+    map.on('zoomend', function() {
+      updateZoomButtons();
+    });
+
+    // When popup closes → zoom out
     map.on('popupclose', function() {
       zoomOut();
     });
-
-    map.on('zoomend', updateZoomButtons);
 
     statues.forEach((s) => {
       const fullLocation = `${s.city}, ${s.country}`;
