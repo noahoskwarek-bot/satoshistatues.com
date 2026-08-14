@@ -154,6 +154,23 @@
       font-size: 0.85rem;
       line-height: 1.5;
     }
+    .directions-btn {
+      display: inline-block;
+      margin-top: 12px;
+      background: #f7931a;
+      color: #0d1117;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .directions-btn:hover {
+      background: #ffb347;
+    }
     @media (max-width: 768px) {
       .container { flex-direction: column; }
       .sidebar { width: 100%; max-height: 42vh; border-left: none; border-top: 1px solid #30363d; }
@@ -390,6 +407,7 @@
 
     statues.forEach((s, index) => {
       const fullLocation = `${s.city}, ${s.country}`;
+      const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`;
      
       const popupContent = `
         <img class="popup-img"
@@ -404,6 +422,9 @@
           <strong>Type:</strong> ${s.type}<br><br>
           ${s.note}
         </div>
+        <a class="directions-btn" href="${mapsUrl}" target="_blank" rel="noopener noreferrer">
+          Get Directions
+        </a>
       `;
 
       const marker = L.marker([s.lat, s.lng], { icon: orangeIcon })
