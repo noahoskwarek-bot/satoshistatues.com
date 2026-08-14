@@ -144,7 +144,7 @@
   <div class="container">
     <div id="map"></div>
     <div class="sidebar">
-      <h2>Locations</h2>
+      <h2 id="locations-title">Locations</h2>
       <div id="list"></div>
       <div class="note">
         <strong>Note:</strong> The main “disappearing” series by Valentina Picozzi (Satoshigallery) aims for 21 statues worldwide. Budapest and Fornelli are separate designs. Photos are the best publicly available images.
@@ -301,6 +301,9 @@
 
     const markers = [];
     const listEl = document.getElementById('list');
+
+    // Update the title with the count
+    document.getElementById('locations-title').textContent = `Locations - ${statues.length}`;
 
     function goToStatue(s, marker) {
       const currentZoom = map.getZoom();
