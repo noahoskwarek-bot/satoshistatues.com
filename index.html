@@ -3,7 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Satoshi Nakamoto Statues – Global Map</title>
+  
+  <!-- Primary SEO -->
+  <title>Satoshi Nakamoto Statues – Global Interactive Map</title>
+  <meta name="description" content="Explore every known Satoshi Nakamoto statue around the world on an interactive map. Track locations, photos, artists, and the journey toward 21 statues." />
+  <meta name="keywords" content="Satoshi Nakamoto, Satoshi statue, Bitcoin statue, Satoshi map, Bitcoin monuments, Valentina Picozzi, Satoshigallery, Bitcoin art, crypto landmarks" />
+  <meta name="author" content="Satoshi Statues Map" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://satoshistatues.com/" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://satoshistatues.com/" />
+  <meta property="og:title" content="Satoshi Nakamoto Statues – Global Interactive Map" />
+  <meta property="og:description" content="Explore every known Satoshi Nakamoto statue around the world. Photos, locations, artists, and the path toward 21 statues." />
+  <meta property="og:image" content="https://satoshistatues.com/satoshi-nakamoto-87.jpg" />
+  <meta property="og:site_name" content="Satoshi Statues" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Satoshi Nakamoto Statues – Global Interactive Map" />
+  <meta name="twitter:description" content="Explore every known Satoshi Nakamoto statue around the world on an interactive map." />
+  <meta name="twitter:image" content="https://satoshistatues.com/satoshi-nakamoto-87.jpg" />
+
+  <!-- Theme -->
+  <meta name="theme-color" content="#0d1117" />
+  <meta name="msapplication-TileColor" content="#0d1117" />
+
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -24,9 +50,7 @@
       justify-content: space-between;
       gap: 16px;
     }
-    .header-left {
-      flex: 1;
-    }
+    .header-left { flex: 1; }
     header h1 {
       font-size: 1.35rem;
       font-weight: 600;
@@ -44,9 +68,6 @@
       line-height: 1.45;
       max-width: 520px;
     }
-    .tip-box strong {
-      color: #e6edf3;
-    }
     .btc-address {
       display: inline-block;
       margin-top: 6px;
@@ -61,9 +82,7 @@
       cursor: pointer;
       user-select: all;
     }
-    .btc-address:hover {
-      border-color: #f7931a;
-    }
+    .btc-address:hover { border-color: #f7931a; }
     .header-right {
       display: flex;
       align-items: center;
@@ -119,9 +138,7 @@
       transition: border-color 0.2s, background 0.2s;
       -webkit-tap-highlight-color: transparent;
     }
-    .statue-card:hover {
-      border-color: #f7931a;
-    }
+    .statue-card:hover { border-color: #f7931a; }
     .statue-card.active {
       border-color: #f7931a;
       background: #1c2128;
@@ -203,9 +220,7 @@
       color: #f7931a;
       text-decoration: none;
     }
-    .popup-meta a:hover {
-      text-decoration: underline;
-    }
+    .popup-meta a:hover { text-decoration: underline; }
     .directions-btn {
       display: inline-block;
       margin-top: 12px;
@@ -220,9 +235,7 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    .directions-btn:hover {
-      background: #ffb347;
-    }
+    .directions-btn:hover { background: #ffb347; }
     .bitcoin-marker {
       background: #f7931a;
       border: 2px solid #fff;
