@@ -122,22 +122,10 @@
       margin-top: 7px;
       font-weight: 500;
     }
-    .status-installed {
-      background: #1a3a2a;
-      color: #3fb950;
-    }
-    .status-restored {
-      background: #3a2e1a;
-      color: #f7931a;
-    }
-    .status-planned {
-      background: #1a2a3a;
-      color: #58a6ff;
-    }
-    .status-removed {
-      background: #3a1a1a;
-      color: #f85149;
-    }
+    .status-installed { background: #1a3a2a; color: #3fb950; }
+    .status-restored  { background: #3a2e1a; color: #f7931a; }
+    .status-planned   { background: #1a2a3a; color: #58a6ff; }
+    .status-removed   { background: #3a1a1a; color: #f85149; }
     .note {
       font-size: 0.8rem;
       color: #8b949e;
@@ -150,12 +138,8 @@
       border-radius: 10px;
       max-width: 330px;
     }
-    .leaflet-popup-tip {
-      background: #161b22;
-    }
-    .leaflet-popup-content {
-      margin: 13px;
-    }
+    .leaflet-popup-tip { background: #161b22; }
+    .leaflet-popup-content { margin: 13px; }
     .leaflet-popup-content h3 {
       margin: 0 0 4px 0;
       color: #f7931a;
@@ -179,6 +163,13 @@
       font-size: 0.85rem;
       line-height: 1.5;
     }
+    .popup-meta a {
+      color: #f7931a;
+      text-decoration: none;
+    }
+    .popup-meta a:hover {
+      text-decoration: underline;
+    }
     .directions-btn {
       display: inline-block;
       margin-top: 12px;
@@ -195,6 +186,21 @@
     }
     .directions-btn:hover {
       background: #ffb347;
+    }
+    .bitcoin-marker {
+      background: #f7931a;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0d1117;
+      font-weight: 700;
+      font-size: 15px;
+      box-shadow: 0 0 10px rgba(247, 147, 26, 0.6);
+      line-height: 1;
     }
     @media (max-width: 768px) {
       .container { flex-direction: column; }
@@ -235,6 +241,7 @@
         lng: 19.0544,
         year: 2021,
         artist: "Réka Gergely & Tamás Gilly",
+        artistUrl: null,
         type: "Mirrored-face bronze bust",
         status: "Installed",
         note: "World’s first Satoshi statue. Reflective face so visitors see themselves (“We are all Satoshi”). Free public access 24/7.",
@@ -249,6 +256,7 @@
         lng: 8.9566,
         year: "2024 (restored 2025)",
         artist: "Valentina Picozzi (Satoshigallery)",
+        artistUrl: "https://satoshigallery.com",
         type: "Disappearing metal (1st of series)",
         status: "Restored",
         note: "First of the optical-illusion series. Vandalized and recovered from Lake Lugano; later reinstalled.",
@@ -263,6 +271,7 @@
         lng: -89.440,
         year: 2025,
         artist: "Valentina Picozzi (Satoshigallery)",
+        artistUrl: "https://satoshigallery.com",
         type: "Disappearing metal",
         status: "Installed",
         note: "Located in the famous Bitcoin Beach community that helped inspire El Salvador’s Bitcoin adoption.",
@@ -277,6 +286,7 @@
         lng: 139.7286,
         year: 2025,
         artist: "Valentina Picozzi (Satoshigallery)",
+        artistUrl: "https://satoshigallery.com",
         type: "Disappearing metal",
         status: "Installed",
         note: "At Tokyo Bitcoin Base near Yotsuya Station.",
@@ -291,6 +301,7 @@
         lng: 105.8685,
         year: 2025,
         artist: "Valentina Picozzi (Satoshigallery)",
+        artistUrl: "https://satoshigallery.com",
         type: "Disappearing metal",
         status: "Installed",
         note: "Inside the Blockchain Gallery at 1Matrix headquarters. Open to the public on Saturdays.",
@@ -305,6 +316,7 @@
         lng: -80.1918,
         year: 2025,
         artist: "Valentina Picozzi (Satoshigallery)",
+        artistUrl: "https://satoshigallery.com",
         type: "Disappearing metal",
         status: "Planned",
         note: "Unveiled with support from Cantor Fitzgerald and Michael Saylor. Permanent waterfront park location planned.",
@@ -319,6 +331,7 @@
         lng: -74.0113,
         year: 2025,
         artist: "Valentina Picozzi (Satoshigallery)",
+        artistUrl: "https://satoshigallery.com",
         type: "Disappearing metal (6th of series)",
         status: "Installed",
         note: "Installed at the New York Stock Exchange by Twenty One Capital.",
@@ -333,6 +346,7 @@
         lng: 14.1405,
         year: 2025,
         artist: "Mattia Pannoni",
+        artistUrl: null,
         type: "Stainless steel (separate design)",
         status: "Installed",
         note: "Municipality-funded monument. The village has high Bitcoin merchant adoption.",
@@ -347,6 +361,7 @@
         lng: 114.1694,
         year: 2026,
         artist: "Valentina Picozzi (Satoshigallery)",
+        artistUrl: "https://satoshigallery.com",
         type: "Disappearing metal",
         status: "Installed",
         note: "Unveiled at the Web3 Festival and donated to the Hong Kong government.",
@@ -366,17 +381,12 @@
       maxZoom: 19
     }).addTo(map);
 
-    const orangeIcon = L.divIcon({
-      className: 'custom-marker',
-      html: `<div style="
-        width: 18px; height: 18px;
-        background: #f7931a;
-        border: 2px solid #fff;
-        border-radius: 50%;
-        box-shadow: 0 0 8px rgba(247,147,26,0.7);
-      "></div>`,
-      iconSize: [18, 18],
-      iconAnchor: [9, 9]
+    const bitcoinIcon = L.divIcon({
+      className: '',
+      html: `<div class="bitcoin-marker">₿</div>`,
+      iconSize: [28, 28],
+      iconAnchor: [14, 14],
+      popupAnchor: [0, -16]
     });
 
     const markers = [];
@@ -388,10 +398,10 @@
     function getStatusClass(status) {
       switch (status) {
         case "Installed": return "status-installed";
-        case "Restored": return "status-restored";
-        case "Planned": return "status-planned";
-        case "Removed": return "status-removed";
-        default: return "status-installed";
+        case "Restored":  return "status-restored";
+        case "Planned":   return "status-planned";
+        case "Removed":   return "status-removed";
+        default:          return "status-installed";
       }
     }
 
@@ -453,6 +463,11 @@
       const fullLocation = `${s.city}, ${s.country}`;
       const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`;
       const statusClass = getStatusClass(s.status);
+
+      // Make artist name a link when URL exists
+      const artistHtml = s.artistUrl
+        ? `<a href="${s.artistUrl}" target="_blank" rel="noopener noreferrer">${s.artist}</a>`
+        : s.artist;
      
       const popupContent = `
         <img class="popup-img"
@@ -463,7 +478,7 @@
         <div class="popup-location">${fullLocation} · ${s.place}</div>
         <div class="popup-meta">
           <strong>Year:</strong> ${s.year}<br>
-          <strong>Artist:</strong> ${s.artist}<br>
+          <strong>Artist:</strong> ${artistHtml}<br>
           <strong>Type:</strong> ${s.type}<br>
           <strong>Status:</strong> <span class="status-badge ${statusClass}">${s.status}</span><br><br>
           ${s.note}
@@ -473,7 +488,7 @@
         </a>
       `;
 
-      const marker = L.marker([s.lat, s.lng], { icon: orangeIcon })
+      const marker = L.marker([s.lat, s.lng], { icon: bitcoinIcon })
         .addTo(map)
         .bindPopup(popupContent, { maxWidth: 340 });
 
