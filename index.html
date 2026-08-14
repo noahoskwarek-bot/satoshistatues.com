@@ -306,29 +306,29 @@
     document.getElementById('locations-title').textContent = `Locations - ${statues.length}`;
 
     function goToStatue(s, marker) {
-      const zoom = Math.max(map.getZoom(), 4);
+      // Close any open popup first
+      map.closePopup();
 
-      // Calculate offset so marker sits in bottom 2/3
+      const zoom = Math.max(map.getZoom(), 4);
       const mapHeight = map.getSize().y;
       const offsetY = mapHeight * 0.22;
 
-      // Temporarily go to location (no animation) to calculate projection
+      // Calculate the offset position
       map.setView([s.lat, s.lng], zoom, { animate: false });
-
       const point = map.project([s.lat, s.lng], zoom);
       const newPoint = L.point(point.x, point.y - offsetY);
       const newLatLng = map.unproject(newPoint, zoom);
 
-      // Animate to the adjusted position
+      // Move to the adjusted position
       map.setView(newLatLng, zoom, {
         animate: true,
-        duration: 0.45
+        duration: 0.5
       });
 
-      // Open popup after the move finishes
-      map.once('moveend', function() {
+      // Open popup after a fixed delay (more reliable than moveend)
+      setTimeout(() => {
         marker.openPopup();
-      });
+      }, 550);
     }
 
     function zoomOut() {
