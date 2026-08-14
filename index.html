@@ -127,36 +127,6 @@
       font-size: 0.85rem;
       line-height: 1.5;
     }
-    .btn-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-    }
-    .zoom-btn {
-      flex: 1;
-      background: #f7931a;
-      color: #0d1117;
-      border: none;
-      padding: 7px 10px;
-      border-radius: 6px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .zoom-btn:hover {
-      background: #ffb347;
-    }
-    .zoom-out-btn {
-      background: #30363d;
-      color: #e6edf3;
-    }
-    .zoom-out-btn:hover {
-      background: #484f58;
-    }
-    .hidden {
-      display: none !important;
-    }
     @media (max-width: 768px) {
       .container { flex-direction: column; }
       .sidebar { width: 100%; max-height: 42vh; border-left: none; border-top: 1px solid #30363d; }
@@ -332,30 +302,6 @@
     const markers = [];
     const listEl = document.getElementById('list');
 
-    // Flag to prevent auto zoom-out when we intentionally close the popup to zoom in
-    let isZoomingIn = false;
-
-    function updateZoomButtons() {
-      const zoom = map.getZoom();
-      const isZoomedIn = zoom >= 12;
-
-      const popup = document.querySelector('.leaflet-popup-content');
-      if (!popup) return;
-
-      const zoomInBtn = popup.querySelector('.zoom-in-btn');
-      const zoomOutBtn = popup.querySelector('.zoom-out-btn');
-
-      if (zoomInBtn && zoomOutBtn) {
-        if (isZoomedIn) {
-          zoomInBtn.classList.add('hidden');
-          zoomOutBtn.classList.remove('hidden');
-        } else {
-          zoomInBtn.classList.remove('hidden');
-          zoomOutBtn.classList.add('hidden');
-        }
-      }
-    }
-
     function goToStatue(s, marker) {
       const currentZoom = map.getZoom();
       const targetZoom = Math.max(currentZoom, 4);
@@ -370,21 +316,6 @@
       }, 350);
     }
 
-    // Zoom in + close the popup
-    function zoomToStatue(lat, lng) {
-      isZoomingIn = true;          // prevent auto zoom-out
-      map.closePopup();
-      map.setView([lat, lng], 14, {
-        animate: true,
-        duration: 0.7
-      });
-
-      // Reset the flag after the zoom finishes
-      setTimeout(() => {
-        isZoomingIn = false;
-      }, 800);
-    }
-
     function zoomOut() {
       map.setView([20, 20], 2, {
         animate: true,
@@ -392,19 +323,9 @@
       });
     }
 
-    map.on('popupopen', function() {
-      setTimeout(updateZoomButtons, 50);
-    });
-
-    map.on('zoomend', function() {
-      updateZoomButtons();
-    });
-
+    // When popup is closed → return to global view
     map.on('popupclose', function() {
-      // Only auto zoom-out if we are NOT intentionally zooming in
-      if (!isZoomingIn && map.getZoom() < 10) {
-        zoomOut();
-      }
+      zoomOut();
     });
 
     statues.forEach((s) => {
@@ -422,14 +343,6 @@
           <strong>Artist:</strong> ${s.artist}<br>
           <strong>Type:</strong> ${s.type}<br><br>
           ${s.note}
-        </div>
-        <div class="btn-row">
-          <button class="zoom-btn zoom-in-btn" onclick="zoomToStatue(${s.lat}, ${s.lng})">
-            Zoom in
-          </button>
-          <button class="zoom-btn zoom-out-btn hidden" onclick="zoomOut()">
-            Zoom out
-          </button>
         </div>
       `;
 
