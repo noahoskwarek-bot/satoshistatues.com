@@ -20,9 +20,12 @@
       border-bottom: 1px solid #30363d;
       padding: 14px 20px;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
-      gap: 12px;
+      gap: 16px;
+    }
+    .header-left {
+      flex: 1;
     }
     header h1 {
       font-size: 1.35rem;
@@ -33,6 +36,39 @@
       font-size: 0.9rem;
       color: #8b949e;
       margin-top: 4px;
+    }
+    .tip-box {
+      margin-top: 10px;
+      font-size: 0.82rem;
+      color: #8b949e;
+      line-height: 1.45;
+      max-width: 520px;
+    }
+    .tip-box strong {
+      color: #e6edf3;
+    }
+    .btc-address {
+      display: inline-block;
+      margin-top: 6px;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      color: #f7931a;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.78rem;
+      word-break: break-all;
+      cursor: pointer;
+      user-select: all;
+    }
+    .btc-address:hover {
+      border-color: #f7931a;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
     }
     .reset-btn {
       background: #21262d;
@@ -206,16 +242,25 @@
       .container { flex-direction: column; }
       .sidebar { width: 100%; max-height: 42vh; border-left: none; border-top: 1px solid #30363d; }
       header { flex-wrap: wrap; }
+      .header-right { width: 100%; justify-content: flex-end; }
     }
   </style>
 </head>
 <body>
   <header>
-    <div>
+    <div class="header-left">
       <h1>🟠 Satoshi Nakamoto Statues</h1>
       <p>Global interactive map • Click any marker or card to see photo + details</p>
+      <div class="tip-box">
+        If this site helped you, consider dropping a sat as a thank you. Every bit helps keep the map alive and growing toward 21.
+        <div class="btc-address" title="Click to select address">
+          bc1qy5u3uarfgqspuxj807qj8egq0w5ncdft7wem8v
+        </div>
+      </div>
     </div>
-    <button class="reset-btn" onclick="resetMap()">Reset Map</button>
+    <div class="header-right">
+      <button class="reset-btn" onclick="resetMap()">Reset Map</button>
+    </div>
   </header>
 
   <div class="container">
@@ -459,12 +504,20 @@
       zoomOut();
     });
 
+    // Make address easy to select/copy
+    document.querySelector('.btc-address').addEventListener('click', function() {
+      const range = document.createRange();
+      range.selectNodeContents(this);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
+
     statues.forEach((s, index) => {
       const fullLocation = `${s.city}, ${s.country}`;
       const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`;
       const statusClass = getStatusClass(s.status);
 
-      // Make artist name a link when URL exists
       const artistHtml = s.artistUrl
         ? `<a href="${s.artistUrl}" target="_blank" rel="noopener noreferrer">${s.artist}</a>`
         : s.artist;
