@@ -455,3 +455,474 @@
   </script>
 </body>
 </html>
+What was fixed:
+
+Now uses popupopen event to correctly update buttons when the popup appears
+Targets the buttons inside the currently open popup
+Updates again on every zoomend
+
+Expected behavior:
+
+Zoomed out → only Zoom in button visible
+After clicking Zoom in → only Zoom out button visible
+
+Push this version and hard-refresh. It should work correctly now.when you zoom into location you should hide the popup windowHere’s the updated version.
+When you click Zoom in, the popup now closes and the map zooms into the location.
+HTML<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Satoshi Nakamoto Statues – Global Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 14px 20px;
+    }
+    header h1 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: #f7931a;
+    }
+    header p {
+      font-size: 0.9rem;
+      color: #8b949e;
+      margin-top: 4px;
+    }
+    .container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    #map {
+      flex: 1;
+      height: 100%;
+      background: #0d1117;
+    }
+    .sidebar {
+      width: 360px;
+      background: #161b22;
+      border-left: 1px solid #30363d;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    .sidebar h2 {
+      font-size: 1rem;
+      margin-bottom: 14px;
+      color: #f7931a;
+    }
+    .statue-card {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .statue-card:hover {
+      border-color: #f7931a;
+    }
+    .statue-card h3 {
+      font-size: 0.98rem;
+      margin-bottom: 3px;
+    }
+    .statue-card .location {
+      font-size: 0.82rem;
+      color: #f7931a;
+      margin-bottom: 4px;
+    }
+    .statue-card .meta {
+      font-size: 0.78rem;
+      color: #8b949e;
+    }
+    .statue-card .type {
+      display: inline-block;
+      font-size: 0.7rem;
+      background: #21262d;
+      color: #f7931a;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-top: 7px;
+    }
+    .note {
+      font-size: 0.8rem;
+      color: #8b949e;
+      margin-top: 18px;
+      line-height: 1.45;
+    }
+    .leaflet-popup-content-wrapper {
+      background: #161b22;
+      color: #e6edf3;
+      border-radius: 10px;
+      max-width: 330px;
+    }
+    .leaflet-popup-tip {
+      background: #161b22;
+    }
+    .leaflet-popup-content {
+      margin: 13px;
+    }
+    .leaflet-popup-content h3 {
+      margin: 0 0 4px 0;
+      color: #f7931a;
+      font-size: 1.08rem;
+    }
+    .popup-location {
+      font-size: 0.88rem;
+      color: #8b949e;
+      margin-bottom: 10px;
+    }
+    .popup-img {
+      width: 100%;
+      max-height: 220px;
+      object-fit: contain;
+      border-radius: 6px;
+      margin-bottom: 11px;
+      border: 1px solid #30363d;
+      background: #0d1117;
+    }
+    .popup-meta {
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .zoom-btn {
+      flex: 1;
+      background: #f7931a;
+      color: #0d1117;
+      border: none;
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .zoom-btn:hover {
+      background: #ffb347;
+    }
+    .zoom-out-btn {
+      background: #30363d;
+      color: #e6edf3;
+    }
+    .zoom-out-btn:hover {
+      background: #484f58;
+    }
+    .hidden {
+      display: none !important;
+    }
+    @media (max-width: 768px) {
+      .container { flex-direction: column; }
+      .sidebar { width: 100%; max-height: 42vh; border-left: none; border-top: 1px solid #30363d; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>🟠 Satoshi Nakamoto Statues</h1>
+      <p>Global interactive map • Click any marker or card to see photo + details</p>
+    </div>
+  </header>
+
+  <div class="container">
+    <div id="map"></div>
+    <div class="sidebar">
+      <h2>Locations</h2>
+      <div id="list"></div>
+      <div class="note">
+        <strong>Note:</strong> The main “disappearing” series by Valentina Picozzi (Satoshigallery) aims for 21 statues worldwide. Budapest and Fornelli are separate designs. Photos are the best publicly available images.
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const statues = [
+      {
+        name: "Budapest",
+        country: "Hungary",
+        city: "Budapest",
+        place: "Graphisoft Park",
+        lat: 47.5607,
+        lng: 19.0544,
+        year: 2021,
+        artist: "Réka Gergely & Tamás Gilly",
+        type: "Mirrored-face bronze bust",
+        note: "World’s first Satoshi statue. Reflective face so visitors see themselves (“We are all Satoshi”). Free public access 24/7.",
+        img: "satoshi-nakamoto-87.jpg"
+      },
+      {
+        name: "Lugano",
+        country: "Switzerland",
+        city: "Lugano",
+        place: "Parco Ciani",
+        lat: 46.0044,
+        lng: 8.9566,
+        year: "2024 (restored 2025)",
+        artist: "Valentina Picozzi (Satoshigallery)",
+        type: "Disappearing metal (1st of series)",
+        note: "First of the optical-illusion series. Vandalized and recovered from Lake Lugano; later reinstalled.",
+        img: "464209387_18424822771076669_4342153522642907768_n.jpg"
+      },
+      {
+        name: "El Zonte",
+        country: "El Salvador",
+        city: "El Zonte",
+        place: "Bitcoin Beach",
+        lat: 13.495,
+        lng: -89.440,
+        year: 2025,
+        artist: "Valentina Picozzi (Satoshigallery)",
+        type: "Disappearing metal",
+        note: "Located in the famous Bitcoin Beach community that helped inspire El Salvador’s Bitcoin adoption.",
+        img: "https://pbs.twimg.com/media/GobpChUWAAEiJU7.jpg"
+      },
+      {
+        name: "Tokyo",
+        country: "Japan",
+        city: "Tokyo",
+        place: "Tokyo Bitcoin Base (Shinjuku)",
+        lat: 35.6890,
+        lng: 139.7286,
+        year: 2025,
+        artist: "Valentina Picozzi (Satoshigallery)",
+        type: "Disappearing metal",
+        note: "At Tokyo Bitcoin Base near Yotsuya Station.",
+        img: "https://pbs.twimg.com/media/GpYP-xyWUAAHV0D.jpg"
+      },
+      {
+        name: "Hanoi",
+        country: "Vietnam",
+        city: "Hanoi",
+        place: "Times City – 1Matrix HQ",
+        lat: 20.9955,
+        lng: 105.8685,
+        year: 2025,
+        artist: "Valentina Picozzi (Satoshigallery)",
+        type: "Disappearing metal",
+        note: "Inside the Blockchain Gallery at 1Matrix headquarters. Open to the public on Saturdays.",
+        img: "satoshi-5.jpg"
+      },
+      {
+        name: "Miami",
+        country: "USA",
+        city: "Miami",
+        place: "Miami (waterfront park planned)",
+        lat: 25.7617,
+        lng: -80.1918,
+        year: 2025,
+        artist: "Valentina Picozzi (Satoshigallery)",
+        type: "Disappearing metal",
+        note: "Unveiled with support from Cantor Fitzgerald and Michael Saylor. Permanent waterfront park location planned.",
+        img: "https://pbs.twimg.com/media/G5lYbhVWgAI3fLC.jpg"
+      },
+      {
+        name: "New York",
+        country: "USA",
+        city: "New York",
+        place: "New York Stock Exchange (NYSE)",
+        lat: 40.7069,
+        lng: -74.0113,
+        year: 2025,
+        artist: "Valentina Picozzi (Satoshigallery)",
+        type: "Disappearing metal (6th of series)",
+        note: "Installed at the New York Stock Exchange by Twenty One Capital.",
+        img: "1aaeab81ddd9484a87148c81dca1f6f1.jpg"
+      },
+      {
+        name: "Fornelli",
+        country: "Italy",
+        city: "Fornelli",
+        place: "Piazza Umberto I",
+        lat: 41.6070,
+        lng: 14.1405,
+        year: 2025,
+        artist: "Mattia Pannoni",
+        type: "Stainless steel (separate design)",
+        note: "Municipality-funded monument. The village has high Bitcoin merchant adoption.",
+        img: "https://pbs.twimg.com/media/GqTYTuQbAAA39K8.jpg"
+      },
+      {
+        name: "Hong Kong",
+        country: "Hong Kong / China",
+        city: "Hong Kong",
+        place: "Web3 Festival (donated to government)",
+        lat: 22.3193,
+        lng: 114.1694,
+        year: 2026,
+        artist: "Valentina Picozzi (Satoshigallery)",
+        type: "Disappearing metal",
+        note: "Unveiled at the Web3 Festival and donated to the Hong Kong government.",
+        img: "https://pbs.twimg.com/media/HGUq0rsbEAAEBzO.jpg"
+      }
+    ];
+
+    const map = L.map('map', {
+      center: [20, 20],
+      zoom: 2,
+      minZoom: 2
+    });
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap &copy; CARTO',
+      subdomains: 'abcd',
+      maxZoom: 19
+    }).addTo(map);
+
+    const orangeIcon = L.divIcon({
+      className: 'custom-marker',
+      html: `<div style="
+        width: 18px; height: 18px;
+        background: #f7931a;
+        border: 2px solid #fff;
+        border-radius: 50%;
+        box-shadow: 0 0 8px rgba(247,147,26,0.7);
+      "></div>`,
+      iconSize: [18, 18],
+      iconAnchor: [9, 9]
+    });
+
+    const markers = [];
+    const listEl = document.getElementById('list');
+
+    function updateZoomButtons() {
+      const zoom = map.getZoom();
+      const isZoomedIn = zoom >= 12;
+
+      const popup = document.querySelector('.leaflet-popup-content');
+      if (!popup) return;
+
+      const zoomInBtn = popup.querySelector('.zoom-in-btn');
+      const zoomOutBtn = popup.querySelector('.zoom-out-btn');
+
+      if (zoomInBtn && zoomOutBtn) {
+        if (isZoomedIn) {
+          zoomInBtn.classList.add('hidden');
+          zoomOutBtn.classList.remove('hidden');
+        } else {
+          zoomInBtn.classList.remove('hidden');
+          zoomOutBtn.classList.add('hidden');
+        }
+      }
+    }
+
+    function goToStatue(s, marker) {
+      const currentZoom = map.getZoom();
+      const targetZoom = Math.max(currentZoom, 4);
+
+      map.setView([s.lat, s.lng], targetZoom, {
+        animate: true,
+        duration: 0.6
+      });
+
+      setTimeout(() => {
+        marker.openPopup();
+      }, 350);
+    }
+
+    // Zoom in + close the popup
+    function zoomToStatue(lat, lng) {
+      map.closePopup();               // hide the popup
+      map.setView([lat, lng], 14, {
+        animate: true,
+        duration: 0.7
+      });
+    }
+
+    function zoomOut() {
+      map.setView([20, 20], 2, {
+        animate: true,
+        duration: 0.8
+      });
+    }
+
+    map.on('popupopen', function() {
+      setTimeout(updateZoomButtons, 50);
+    });
+
+    map.on('zoomend', function() {
+      updateZoomButtons();
+    });
+
+    map.on('popupclose', function() {
+      // Only zoom out if we are still relatively zoomed out
+      // (prevents conflict when we intentionally close to zoom in)
+      if (map.getZoom() < 10) {
+        zoomOut();
+      }
+    });
+
+    statues.forEach((s) => {
+      const fullLocation = `${s.city}, ${s.country}`;
+     
+      const popupContent = `
+        <img class="popup-img"
+             src="${s.img}"
+             alt="${s.name} statue"
+             onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Satoshi_Nakamoto_Statue_in_Lugano_001.jpg/600px-Satoshi_Nakamoto_Statue_in_Lugano_001.jpg'">
+        <h3>${s.name}</h3>
+        <div class="popup-location">${fullLocation} · ${s.place}</div>
+        <div class="popup-meta">
+          <strong>Year:</strong> ${s.year}<br>
+          <strong>Artist:</strong> ${s.artist}<br>
+          <strong>Type:</strong> ${s.type}<br><br>
+          ${s.note}
+        </div>
+        <div class="btn-row">
+          <button class="zoom-btn zoom-in-btn" onclick="zoomToStatue(${s.lat}, ${s.lng})">
+            Zoom in
+          </button>
+          <button class="zoom-btn zoom-out-btn hidden" onclick="zoomOut()">
+            Zoom out
+          </button>
+        </div>
+      `;
+
+      const marker = L.marker([s.lat, s.lng], { icon: orangeIcon })
+        .addTo(map)
+        .bindPopup(popupContent, { maxWidth: 340 });
+
+      marker.on('click', () => {
+        goToStatue(s, marker);
+      });
+
+      markers.push(marker);
+
+      const card = document.createElement('div');
+      card.className = 'statue-card';
+      card.innerHTML = `
+        <h3>${s.name}</h3>
+        <div class="location">${fullLocation}</div>
+        <div class="meta">${s.year} · ${s.artist}</div>
+        <span class="type">${s.type}</span>
+      `;
+      card.onclick = () => {
+        goToStatue(s, marker);
+      };
+      listEl.appendChild(card);
+    });
+
+    if (markers.length) {
+      const group = L.featureGroup(markers);
+      map.fitBounds(group.getBounds().pad(0.25));
+    }
+  </script>
+</body>
+</html>
