@@ -19,6 +19,10 @@
       background: #161b22;
       border-bottom: 1px solid #30363d;
       padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
     }
     header h1 {
       font-size: 1.35rem;
@@ -29,6 +33,23 @@
       font-size: 0.9rem;
       color: #8b949e;
       margin-top: 4px;
+    }
+    .reset-btn {
+      background: #21262d;
+      color: #e6edf3;
+      border: 1px solid #30363d;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .reset-btn:hover {
+      background: #30363d;
+      border-color: #f7931a;
+      color: #f7931a;
     }
     .container {
       display: flex;
@@ -136,6 +157,7 @@
     @media (max-width: 768px) {
       .container { flex-direction: column; }
       .sidebar { width: 100%; max-height: 42vh; border-left: none; border-top: 1px solid #30363d; }
+      header { flex-wrap: wrap; }
     }
   </style>
 </head>
@@ -145,6 +167,7 @@
       <h1>🟠 Satoshi Nakamoto Statues</h1>
       <p>Global interactive map • Click any marker or card to see photo + details</p>
     </div>
+    <button class="reset-btn" onclick="resetMap()">Reset Map</button>
   </header>
 
   <div class="container">
@@ -306,7 +329,7 @@
     });
 
     const markers = [];
-    const cards = []; // store references to sidebar cards
+    const cards = [];
     const listEl = document.getElementById('list');
 
     document.getElementById('locations-title').textContent = `Locations - ${statues.length}`;
@@ -319,7 +342,6 @@
       clearActiveCards();
       if (cards[index]) {
         cards[index].classList.add('active');
-        // Optional: scroll the card into view in the sidebar
         cards[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     }
@@ -353,6 +375,12 @@
         animate: true,
         duration: 0.7
       });
+    }
+
+    function resetMap() {
+      map.closePopup();
+      clearActiveCards();
+      zoomOut();
     }
 
     map.on('popupclose', function() {
