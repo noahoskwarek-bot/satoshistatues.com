@@ -137,7 +137,7 @@
   <header>
     <div>
       <h1>🟠 Satoshi Nakamoto Statues</h1>
-      <p>Global interactive map • Click any marker or card to see photo + details</p>
+      <p>Global interactive map • Click any marker or card to center the map + see details</p>
     </div>
   </header>
 
@@ -147,7 +147,7 @@
       <h2>Locations</h2>
       <div id="list"></div>
       <div class="note">
-        <strong>Note:</strong> The main “disappearing” series by Valentina Picozzi (Satoshigallery) aims for 21 statues worldwide. Budapest and Fornelli are separate designs. Photos are the best publicly available images.
+        <strong>Note:</strong> The main “disappearing” series by Valentina Picozzi (Satoshigallery) aims for 21 statues worldwide. Budapest and Fornelli are separate designs.
       </div>
     </div>
   </div>
@@ -323,8 +323,15 @@
       const marker = L.marker([s.lat, s.lng], { icon: orangeIcon })
         .addTo(map)
         .bindPopup(popupContent, { maxWidth: 340 });
+
+      // Center map when clicking the marker
+      marker.on('click', function() {
+        map.setView([s.lat, s.lng], 13);
+      });
+
       markers.push(marker);
 
+      // Sidebar card
       const card = document.createElement('div');
       card.className = 'statue-card';
       card.innerHTML = `
@@ -333,10 +340,12 @@
         <div class="meta">${s.year} · ${s.artist}</div>
         <span class="type">${s.type}</span>
       `;
+      
       card.onclick = () => {
         map.setView([s.lat, s.lng], 13);
         marker.openPopup();
       };
+      
       listEl.appendChild(card);
     });
 
