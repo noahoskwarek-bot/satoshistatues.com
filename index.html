@@ -127,21 +127,32 @@
       font-size: 0.85rem;
       line-height: 1.5;
     }
-    .zoom-btn {
-      display: inline-block;
+    .btn-row {
+      display: flex;
+      gap: 8px;
       margin-top: 12px;
+    }
+    .zoom-btn {
+      flex: 1;
       background: #f7931a;
       color: #0d1117;
       border: none;
-      padding: 7px 14px;
+      padding: 7px 10px;
       border-radius: 6px;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
       transition: background 0.2s;
     }
     .zoom-btn:hover {
       background: #ffb347;
+    }
+    .zoom-out-btn {
+      background: #30363d;
+      color: #e6edf3;
+    }
+    .zoom-out-btn:hover {
+      background: #484f58;
     }
     @media (max-width: 768px) {
       .container { flex-direction: column; }
@@ -320,9 +331,8 @@
 
     // Soft pan (stays zoomed out)
     function goToStatue(s, marker) {
-      // Keep current zoom level (or use a gentle zoom)
       const currentZoom = map.getZoom();
-      const targetZoom = Math.max(currentZoom, 4); // don't zoom in tighter than 4
+      const targetZoom = Math.max(currentZoom, 4);
 
       map.setView([s.lat, s.lng], targetZoom, {
         animate: true,
@@ -334,13 +344,26 @@
       }, 300);
     }
 
-    // Strong zoom (only when user clicks the button inside the popup)
+    // Zoom in tightly
     function zoomToStatue(lat, lng) {
       map.setView([lat, lng], 14, {
         animate: true,
         duration: 0.7
       });
     }
+
+    // Zoom out to global view
+    function zoomOut() {
+      map.setView([20, 20], 2, {
+        animate: true,
+        duration: 0.8
+      });
+    }
+
+    // When any popup is closed → zoom out
+    map.on('popupclose', function() {
+      zoomOut();
+    });
 
     statues.forEach((s) => {
       const fullLocation = `${s.city}, ${s.country}`;
@@ -358,23 +381,26 @@
           <strong>Type:</strong> ${s.type}<br><br>
           ${s.note}
         </div>
-        <button class="zoom-btn" onclick="zoomToStatue(${s.lat}, ${s.lng})">
-          Zoom to location
-        </button>
+        <div class="btn-row">
+          <button class="zoom-btn" onclick="zoomToStatue(${s.lat}, ${s.lng})">
+            Zoom in
+          </button>
+          <button class="zoom-btn zoom-out-btn" onclick="zoomOut()">
+            Zoom out
+          </button>
+        </div>
       `;
 
       const marker = L.marker([s.lat, s.lng], { icon: orangeIcon })
         .addTo(map)
         .bindPopup(popupContent, { maxWidth: 340 });
 
-      // Click on marker → soft pan only
       marker.on('click', () => {
         goToStatue(s, marker);
       });
 
       markers.push(marker);
 
-      // Sidebar card → soft pan only
       const card = document.createElement('div');
       card.className = 'statue-card';
       card.innerHTML = `
