@@ -306,26 +306,27 @@
     document.getElementById('locations-title').textContent = `Locations - ${statues.length}`;
 
     function goToStatue(s, marker) {
-      // Close any open popup first
       map.closePopup();
 
-      const zoom = Math.max(map.getZoom(), 4);
+      const targetZoom = 5; // gentle zoom level
       const mapHeight = map.getSize().y;
-      const offsetY = mapHeight * 0.22;
+      const offsetY = mapHeight * 0.25; // push marker into bottom 2/3
 
-      // Calculate the offset position
-      map.setView([s.lat, s.lng], zoom, { animate: false });
-      const point = map.project([s.lat, s.lng], zoom);
-      const newPoint = L.point(point.x, point.y - offsetY);
-      const newLatLng = map.unproject(newPoint, zoom);
+      // First jump to the location (no animation)
+      map.setView([s.lat, s.lng], targetZoom, { animate: false });
 
-      // Move to the adjusted position
-      map.setView(newLatLng, zoom, {
+      // Calculate the offset so the marker sits lower on the screen
+      const point = map.project([s.lat, s.lng], targetZoom);
+      const offsetPoint = L.point(point.x, point.y - offsetY);
+      const offsetLatLng = map.unproject(offsetPoint, targetZoom);
+
+      // Animate to the offset position
+      map.panTo(offsetLatLng, {
         animate: true,
         duration: 0.5
       });
 
-      // Open popup after a fixed delay (more reliable than moveend)
+      // Open the popup after the pan
       setTimeout(() => {
         marker.openPopup();
       }, 550);
