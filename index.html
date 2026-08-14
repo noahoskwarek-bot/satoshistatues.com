@@ -302,21 +302,35 @@
     const markers = [];
     const listEl = document.getElementById('list');
 
-    // Update the title with the count
+    // Show location count
     document.getElementById('locations-title').textContent = `Locations - ${statues.length}`;
 
+    // Place the marker in the bottom 2/3 of the map
     function goToStatue(s, marker) {
-      const currentZoom = map.getZoom();
-      const targetZoom = Math.max(currentZoom, 4);
+      const zoom = Math.max(map.getZoom(), 4);
 
-      map.setView([s.lat, s.lng], targetZoom, {
-        animate: true,
-        duration: 0.6
-      });
+      // First move to the location
+      map.setView([s.lat, s.lng], zoom);
 
+      // Then shift the view so the marker sits lower (bottom ~2/3)
       setTimeout(() => {
-        marker.openPopup();
-      }, 350);
+        const mapHeight = map.getSize().y;
+        const offsetY = mapHeight * 0.22; // pushes marker into bottom 2/3
+
+        const point = map.project([s.lat, s.lng], zoom);
+        const newPoint = L.point(point.x, point.y - offsetY);
+        const newLatLng = map.unproject(newPoint, zoom);
+
+        map.panTo(newLatLng, {
+          animate: true,
+          duration: 0.3
+        });
+
+        // Open popup after the pan
+        setTimeout(() => {
+          marker.openPopup();
+        }, 320);
+      }, 50);
     }
 
     function zoomOut() {
