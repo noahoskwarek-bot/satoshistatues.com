@@ -115,6 +115,7 @@
       border-radius: 6px;
       margin-bottom: 10px;
       border: 1px solid #30363d;
+      background: #0d1117;
     }
     .popup-meta {
       font-size: 0.85rem;
@@ -140,7 +141,7 @@
       <h2>Locations</h2>
       <div id="list"></div>
       <div class="note">
-        <strong>Note:</strong> The main “disappearing” series by Valentina Picozzi / Satoshigallery aims for <strong>21 statues</strong> worldwide. Budapest and Fornelli are separate designs. Photos are publicly available images (Wikimedia or reported photos). Some newer locations have limited open high-res photos.
+        <strong>Note:</strong> The main “disappearing” series by Valentina Picozzi / Satoshigallery aims for <strong>21 statues</strong> worldwide. Budapest and Fornelli are separate designs. Photos are the best publicly available images.
       </div>
     </div>
   </div>
@@ -165,7 +166,7 @@
         year: "2024 (restored 2025)",
         artist: "Valentina Picozzi (Satoshigallery)",
         type: "Disappearing metal (1st of series)",
-        note: "First of the optical-illusion series. Vandalized & recovered from Lake Lugano; reinstalled with orange ‘scars’.",
+        note: "First of the optical-illusion series. Vandalized & recovered from Lake Lugano; reinstalled.",
         img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Satoshi_Nakamoto_Statue_in_Lugano_001.jpg/600px-Satoshi_Nakamoto_Statue_in_Lugano_001.jpg"
       },
       {
@@ -185,7 +186,7 @@
         year: 2025,
         artist: "Valentina Picozzi (Satoshigallery)",
         type: "Disappearing metal",
-        note: "At Tokyo Bitcoin Base (Shinjuku / near Yotsuya Station). Address: 2-8 Honshiocho, Shinjuku.",
+        note: "At Tokyo Bitcoin Base (Shinjuku / near Yotsuya Station).",
         img: "https://pbs.twimg.com/media/GpYP-xyWUAAHV0D.jpg"
       },
       {
@@ -195,7 +196,7 @@
         year: 2025,
         artist: "Valentina Picozzi (Satoshigallery)",
         type: "Disappearing metal",
-        note: "Inside Blockchain Gallery at 1Matrix HQ, Century Tower, Times City. Open to public on Saturdays.",
+        note: "Inside Blockchain Gallery at 1Matrix HQ, Times City. Open to public on Saturdays.",
         img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Satoshi_Nakamoto_Statue_in_Lugano_001.jpg/600px-Satoshi_Nakamoto_Statue_in_Lugano_001.jpg"
       },
       {
@@ -205,8 +206,8 @@
         year: 2025,
         artist: "Valentina Picozzi (Satoshigallery)",
         type: "Disappearing metal",
-        note: "Fifth in the Picozzi series. Exact permanent site may be a waterfront park.",
-        img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Satoshi_Nakamoto_Statue_in_Lugano_001.jpg/600px-Satoshi_Nakamoto_Statue_in_Lugano_001.jpg"
+        note: "Unveiled with support from Cantor Fitzgerald / Michael Saylor. Planned permanent waterfront park location.",
+        img: "https://pbs.twimg.com/media/G5lYbhVWgAI3fLC.jpg"
       },
       {
         name: "New York – NYSE",
@@ -215,8 +216,8 @@
         year: 2025,
         artist: "Valentina Picozzi (Satoshigallery)",
         type: "Disappearing metal (6th of series)",
-        note: "Installed at the New York Stock Exchange with Twenty One Capital.",
-        img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Satoshi_Nakamoto_Statue_in_Lugano_001.jpg/600px-Satoshi_Nakamoto_Statue_in_Lugano_001.jpg"
+        note: "Installed at the New York Stock Exchange by Twenty One Capital.",
+        img: "https://pbs.twimg.com/media/G71-N5BXEAAmiK1.jpg"
       },
       {
         name: "Fornelli, Italy",
@@ -226,7 +227,7 @@
         artist: "Mattia Pannoni",
         type: "Stainless steel (separate design)",
         note: "Municipality-funded monument in Piazza Umberto I. High Bitcoin merchant adoption in the village.",
-        img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Satoshi_Nakamoto_Statue_in_Lugano_001.jpg/600px-Satoshi_Nakamoto_Statue_in_Lugano_001.jpg"
+        img: "https://pbs.twimg.com/media/GqTYTuQbAAA39K8.jpg"
       },
       {
         name: "Hong Kong",
@@ -235,8 +236,8 @@
         year: 2026,
         artist: "Valentina Picozzi (Satoshigallery)",
         type: "Disappearing metal",
-        note: "Unveiled / donated at a Web3 event and transferred to the Hong Kong government.",
-        img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Satoshi_Nakamoto_Statue_in_Lugano_001.jpg/600px-Satoshi_Nakamoto_Statue_in_Lugano_001.jpg"
+        note: "Unveiled / donated at Web3 Festival and transferred to the Hong Kong government.",
+        img: "https://pbs.twimg.com/media/HGUq0rsbEAAEBzO.jpg"
       }
     ];
 
@@ -270,7 +271,8 @@
 
     statues.forEach((s) => {
       const popupContent = `
-        <img class="popup-img" src="${s.img}" alt="${s.name}" onerror="this.style.display='none'">
+        <img class="popup-img" src="${s.img}" alt="${s.name}" 
+             onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Satoshi_Nakamoto_Statue_in_Lugano_001.jpg/600px-Satoshi_Nakamoto_Statue_in_Lugano_001.jpg'">
         <h3>${s.name}</h3>
         <div class="popup-meta">
           <strong>Year:</strong> ${s.year}<br>
