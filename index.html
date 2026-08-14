@@ -112,6 +112,31 @@
       padding: 2px 7px;
       border-radius: 4px;
       margin-top: 7px;
+      margin-right: 6px;
+    }
+    .status-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-top: 7px;
+      font-weight: 500;
+    }
+    .status-installed {
+      background: #1a3a2a;
+      color: #3fb950;
+    }
+    .status-restored {
+      background: #3a2e1a;
+      color: #f7931a;
+    }
+    .status-planned {
+      background: #1a2a3a;
+      color: #58a6ff;
+    }
+    .status-removed {
+      background: #3a1a1a;
+      color: #f85149;
     }
     .note {
       font-size: 0.8rem;
@@ -211,6 +236,7 @@
         year: 2021,
         artist: "Réka Gergely & Tamás Gilly",
         type: "Mirrored-face bronze bust",
+        status: "Installed",
         note: "World’s first Satoshi statue. Reflective face so visitors see themselves (“We are all Satoshi”). Free public access 24/7.",
         img: "satoshi-nakamoto-87.jpg"
       },
@@ -224,6 +250,7 @@
         year: "2024 (restored 2025)",
         artist: "Valentina Picozzi (Satoshigallery)",
         type: "Disappearing metal (1st of series)",
+        status: "Restored",
         note: "First of the optical-illusion series. Vandalized and recovered from Lake Lugano; later reinstalled.",
         img: "464209387_18424822771076669_4342153522642907768_n.jpg"
       },
@@ -237,6 +264,7 @@
         year: 2025,
         artist: "Valentina Picozzi (Satoshigallery)",
         type: "Disappearing metal",
+        status: "Installed",
         note: "Located in the famous Bitcoin Beach community that helped inspire El Salvador’s Bitcoin adoption.",
         img: "https://pbs.twimg.com/media/GobpChUWAAEiJU7.jpg"
       },
@@ -250,6 +278,7 @@
         year: 2025,
         artist: "Valentina Picozzi (Satoshigallery)",
         type: "Disappearing metal",
+        status: "Installed",
         note: "At Tokyo Bitcoin Base near Yotsuya Station.",
         img: "https://pbs.twimg.com/media/GpYP-xyWUAAHV0D.jpg"
       },
@@ -263,6 +292,7 @@
         year: 2025,
         artist: "Valentina Picozzi (Satoshigallery)",
         type: "Disappearing metal",
+        status: "Installed",
         note: "Inside the Blockchain Gallery at 1Matrix headquarters. Open to the public on Saturdays.",
         img: "satoshi-5.jpg"
       },
@@ -276,6 +306,7 @@
         year: 2025,
         artist: "Valentina Picozzi (Satoshigallery)",
         type: "Disappearing metal",
+        status: "Planned",
         note: "Unveiled with support from Cantor Fitzgerald and Michael Saylor. Permanent waterfront park location planned.",
         img: "https://pbs.twimg.com/media/G5lYbhVWgAI3fLC.jpg"
       },
@@ -289,6 +320,7 @@
         year: 2025,
         artist: "Valentina Picozzi (Satoshigallery)",
         type: "Disappearing metal (6th of series)",
+        status: "Installed",
         note: "Installed at the New York Stock Exchange by Twenty One Capital.",
         img: "1aaeab81ddd9484a87148c81dca1f6f1.jpg"
       },
@@ -302,6 +334,7 @@
         year: 2025,
         artist: "Mattia Pannoni",
         type: "Stainless steel (separate design)",
+        status: "Installed",
         note: "Municipality-funded monument. The village has high Bitcoin merchant adoption.",
         img: "https://pbs.twimg.com/media/GqTYTuQbAAA39K8.jpg"
       },
@@ -315,6 +348,7 @@
         year: 2026,
         artist: "Valentina Picozzi (Satoshigallery)",
         type: "Disappearing metal",
+        status: "Installed",
         note: "Unveiled at the Web3 Festival and donated to the Hong Kong government.",
         img: "https://pbs.twimg.com/media/HGUq0rsbEAAEBzO.jpg"
       }
@@ -350,6 +384,16 @@
     const listEl = document.getElementById('list');
 
     document.getElementById('locations-title').textContent = `Locations - ${statues.length}`;
+
+    function getStatusClass(status) {
+      switch (status) {
+        case "Installed": return "status-installed";
+        case "Restored": return "status-restored";
+        case "Planned": return "status-planned";
+        case "Removed": return "status-removed";
+        default: return "status-installed";
+      }
+    }
 
     function clearActiveCards() {
       cards.forEach(card => card.classList.remove('active'));
@@ -408,6 +452,7 @@
     statues.forEach((s, index) => {
       const fullLocation = `${s.city}, ${s.country}`;
       const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`;
+      const statusClass = getStatusClass(s.status);
      
       const popupContent = `
         <img class="popup-img"
@@ -419,7 +464,8 @@
         <div class="popup-meta">
           <strong>Year:</strong> ${s.year}<br>
           <strong>Artist:</strong> ${s.artist}<br>
-          <strong>Type:</strong> ${s.type}<br><br>
+          <strong>Type:</strong> ${s.type}<br>
+          <strong>Status:</strong> <span class="status-badge ${statusClass}">${s.status}</span><br><br>
           ${s.note}
         </div>
         <a class="directions-btn" href="${mapsUrl}" target="_blank" rel="noopener noreferrer">
@@ -444,6 +490,7 @@
         <div class="location">${fullLocation}</div>
         <div class="meta">${s.year} · ${s.artist}</div>
         <span class="type">${s.type}</span>
+        <span class="status-badge ${statusClass}">${s.status}</span>
       `;
       card.onclick = () => {
         goToStatue(s, marker, index);
