@@ -116,7 +116,7 @@
     }
     .popup-img {
       width: 100%;
-      max-height: 200px;
+      max-height: 180px;          /* slightly reduced so popup fits better */
       object-fit: cover;
       border-radius: 6px;
       margin-bottom: 11px;
@@ -137,7 +137,7 @@
   <header>
     <div>
       <h1>🟠 Satoshi Nakamoto Statues</h1>
-      <p>Global interactive map • Click any marker or card to center the map + see details</p>
+      <p>Global interactive map • Click any marker or card to center + show details</p>
     </div>
   </header>
 
@@ -302,6 +302,20 @@
     const markers = [];
     const listEl = document.getElementById('list');
 
+    // Helper function to center + open popup reliably
+    function goToStatue(s, marker) {
+      map.flyTo([s.lat, s.lng], 13, {
+        animate: true,
+        duration: 0.75
+      });
+
+      // Small delay so the map finishes moving before the popup opens
+      // This allows Leaflet's autoPan to keep the full popup (photo + text) visible
+      setTimeout(() => {
+        marker.openPopup();
+      }, 400);
+    }
+
     statues.forEach((s) => {
       const fullLocation = `${s.city}, ${s.country}`;
       
@@ -322,11 +336,15 @@
 
       const marker = L.marker([s.lat, s.lng], { icon: orangeIcon })
         .addTo(map)
-        .bindPopup(popupContent, { maxWidth: 340 });
+        .bindPopup(popupContent, {
+          maxWidth: 340,
+          autoPan: true,
+          autoPanPadding: [40, 40]   // extra space so popup isn't cut off
+        });
 
-      // Center map when clicking the marker
+      // Click on marker
       marker.on('click', function() {
-        map.setView([s.lat, s.lng], 13);
+        goToStatue(s, marker);
       });
 
       markers.push(marker);
@@ -342,8 +360,7 @@
       `;
       
       card.onclick = () => {
-        map.setView([s.lat, s.lng], 13);
-        marker.openPopup();
+        goToStatue(s, marker);
       };
       
       listEl.appendChild(card);
