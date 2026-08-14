@@ -127,6 +127,22 @@
       font-size: 0.85rem;
       line-height: 1.5;
     }
+    .zoom-btn {
+      display: inline-block;
+      margin-top: 12px;
+      background: #f7931a;
+      color: #0d1117;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .zoom-btn:hover {
+      background: #ffb347;
+    }
     @media (max-width: 768px) {
       .container { flex-direction: column; }
       .sidebar { width: 100%; max-height: 42vh; border-left: none; border-top: 1px solid #30363d; }
@@ -302,12 +318,36 @@
     const markers = [];
     const listEl = document.getElementById('list');
 
+    // Soft pan (stays zoomed out)
+    function goToStatue(s, marker) {
+      // Keep current zoom level (or use a gentle zoom)
+      const currentZoom = map.getZoom();
+      const targetZoom = Math.max(currentZoom, 4); // don't zoom in tighter than 4
+
+      map.setView([s.lat, s.lng], targetZoom, {
+        animate: true,
+        duration: 0.6
+      });
+
+      setTimeout(() => {
+        marker.openPopup();
+      }, 300);
+    }
+
+    // Strong zoom (only when user clicks the button inside the popup)
+    function zoomToStatue(lat, lng) {
+      map.setView([lat, lng], 14, {
+        animate: true,
+        duration: 0.7
+      });
+    }
+
     statues.forEach((s) => {
       const fullLocation = `${s.city}, ${s.country}`;
-      
+     
       const popupContent = `
-        <img class="popup-img" 
-             src="${s.img}" 
+        <img class="popup-img"
+             src="${s.img}"
              alt="${s.name} statue"
              onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Satoshi_Nakamoto_Statue_in_Lugano_001.jpg/600px-Satoshi_Nakamoto_Statue_in_Lugano_001.jpg'">
         <h3>${s.name}</h3>
@@ -318,13 +358,23 @@
           <strong>Type:</strong> ${s.type}<br><br>
           ${s.note}
         </div>
+        <button class="zoom-btn" onclick="zoomToStatue(${s.lat}, ${s.lng})">
+          Zoom to location
+        </button>
       `;
 
       const marker = L.marker([s.lat, s.lng], { icon: orangeIcon })
         .addTo(map)
         .bindPopup(popupContent, { maxWidth: 340 });
+
+      // Click on marker → soft pan only
+      marker.on('click', () => {
+        goToStatue(s, marker);
+      });
+
       markers.push(marker);
 
+      // Sidebar card → soft pan only
       const card = document.createElement('div');
       card.className = 'statue-card';
       card.innerHTML = `
@@ -334,8 +384,7 @@
         <span class="type">${s.type}</span>
       `;
       card.onclick = () => {
-        map.setView([s.lat, s.lng], 13);
-        marker.openPopup();
+        goToStatue(s, marker);
       };
       listEl.appendChild(card);
     });
