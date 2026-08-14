@@ -193,7 +193,7 @@
         artist: "Réka Gergely & Tamás Gilly",
         type: "Mirrored-face bronze bust",
         note: "World’s first Satoshi statue. Reflective face so visitors see themselves (“We are all Satoshi”). Free public access 24/7.",
-        img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Bust_of_Satoshi_Nakamoto_in_Budapest2.jpg/800px-Bust_of_Satoshi_Nakamoto_in_Budapest2.jpg"
+        img: "satoshi-nakamoto-87.jpg"
       },
       {
         name: "Lugano",
@@ -329,7 +329,6 @@
     const markers = [];
     const listEl = document.getElementById('list');
 
-    // Soft pan (stays zoomed out)
     function goToStatue(s, marker) {
       const currentZoom = map.getZoom();
       const targetZoom = Math.max(currentZoom, 4);
@@ -344,7 +343,6 @@
       }, 300);
     }
 
-    // Zoom in tightly
     function zoomToStatue(lat, lng) {
       map.setView([lat, lng], 14, {
         animate: true,
@@ -352,7 +350,6 @@
       });
     }
 
-    // Zoom out to global view
     function zoomOut() {
       map.setView([20, 20], 2, {
         animate: true,
@@ -360,7 +357,6 @@
       });
     }
 
-    // When any popup is closed → zoom out
     map.on('popupclose', function() {
       zoomOut();
     });
