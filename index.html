@@ -59,11 +59,16 @@
       padding: 12px 14px;
       margin-bottom: 10px;
       cursor: pointer;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, background 0.2s;
       -webkit-tap-highlight-color: transparent;
     }
     .statue-card:hover {
       border-color: #f7931a;
+    }
+    .statue-card.active {
+      border-color: #f7931a;
+      background: #1c2128;
+      box-shadow: 0 0 0 1px #f7931a;
     }
     .statue-card h3 {
       font-size: 0.98rem;
@@ -301,34 +306,45 @@
     });
 
     const markers = [];
+    const cards = []; // store references to sidebar cards
     const listEl = document.getElementById('list');
 
     document.getElementById('locations-title').textContent = `Locations - ${statues.length}`;
 
-    function goToStatue(s, marker) {
+    function clearActiveCards() {
+      cards.forEach(card => card.classList.remove('active'));
+    }
+
+    function setActiveCard(index) {
+      clearActiveCards();
+      if (cards[index]) {
+        cards[index].classList.add('active');
+        // Optional: scroll the card into view in the sidebar
+        cards[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    function goToStatue(s, marker, index) {
       map.closePopup();
 
-      const targetZoom = 5; // gentle zoom level
+      const targetZoom = 5;
       const mapHeight = map.getSize().y;
-      const offsetY = mapHeight * 0.25; // push marker into bottom 2/3
+      const offsetY = mapHeight * 0.25;
 
-      // First jump to the location (no animation)
       map.setView([s.lat, s.lng], targetZoom, { animate: false });
 
-      // Calculate the offset so the marker sits lower on the screen
       const point = map.project([s.lat, s.lng], targetZoom);
       const offsetPoint = L.point(point.x, point.y - offsetY);
       const offsetLatLng = map.unproject(offsetPoint, targetZoom);
 
-      // Animate to the offset position
       map.panTo(offsetLatLng, {
         animate: true,
         duration: 0.5
       });
 
-      // Open the popup after the pan
       setTimeout(() => {
         marker.openPopup();
+        setActiveCard(index);
       }, 550);
     }
 
@@ -340,10 +356,11 @@
     }
 
     map.on('popupclose', function() {
+      clearActiveCards();
       zoomOut();
     });
 
-    statues.forEach((s) => {
+    statues.forEach((s, index) => {
       const fullLocation = `${s.city}, ${s.country}`;
      
       const popupContent = `
@@ -366,7 +383,7 @@
         .bindPopup(popupContent, { maxWidth: 340 });
 
       marker.on('click', () => {
-        goToStatue(s, marker);
+        goToStatue(s, marker, index);
       });
 
       markers.push(marker);
@@ -380,9 +397,10 @@
         <span class="type">${s.type}</span>
       `;
       card.onclick = () => {
-        goToStatue(s, marker);
+        goToStatue(s, marker, index);
       };
       listEl.appendChild(card);
+      cards.push(card);
     });
 
     if (markers.length) {
