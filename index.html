@@ -19,7 +19,6 @@
       background: #161b22;
       border-bottom: 1px solid #30363d;
       padding: 14px 20px;
-      z-index: 1000;
     }
     header h1 {
       font-size: 1.35rem;
@@ -117,7 +116,7 @@
     }
     .popup-img {
       width: 100%;
-      max-height: 170px;
+      max-height: 200px;
       object-fit: cover;
       border-radius: 6px;
       margin-bottom: 11px;
@@ -138,7 +137,7 @@
   <header>
     <div>
       <h1>🟠 Satoshi Nakamoto Statues</h1>
-      <p>Global interactive map • Click any marker or card to center + show details</p>
+      <p>Global interactive map • Click any marker or card to see photo + details</p>
     </div>
   </header>
 
@@ -148,7 +147,7 @@
       <h2>Locations</h2>
       <div id="list"></div>
       <div class="note">
-        <strong>Note:</strong> The main “disappearing” series by Valentina Picozzi (Satoshigallery) aims for 21 statues worldwide. Budapest and Fornelli are separate designs.
+        <strong>Note:</strong> The main “disappearing” series by Valentina Picozzi (Satoshigallery) aims for 21 statues worldwide. Budapest and Fornelli are separate designs. Photos are the best publicly available images.
       </div>
     </div>
   </div>
@@ -303,38 +302,6 @@
     const markers = [];
     const listEl = document.getElementById('list');
 
-    // Place the marker in the bottom 2/3 of the map viewport
-    function goToStatue(s, marker) {
-      const targetZoom = 13;
-
-      // First move to the location
-      map.flyTo([s.lat, s.lng], targetZoom, {
-        animate: true,
-        duration: 0.7
-      });
-
-      // After the fly finishes, shift the view so the marker sits lower
-      setTimeout(() => {
-        const mapHeight = map.getSize().y;
-        // Push the center upward on the screen → marker appears lower
-        const offsetY = mapHeight * 0.22;   // ~22% of map height
-
-        const point = map.project([s.lat, s.lng], targetZoom);
-        const newPoint = L.point(point.x, point.y - offsetY);
-        const newLatLng = map.unproject(newPoint, targetZoom);
-
-        map.panTo(newLatLng, {
-          animate: true,
-          duration: 0.35
-        });
-
-        // Open popup after the final pan
-        setTimeout(() => {
-          marker.openPopup();
-        }, 380);
-      }, 750);
-    }
-
     statues.forEach((s) => {
       const fullLocation = `${s.city}, ${s.country}`;
       
@@ -355,17 +322,7 @@
 
       const marker = L.marker([s.lat, s.lng], { icon: orangeIcon })
         .addTo(map)
-        .bindPopup(popupContent, {
-          maxWidth: 340,
-          autoPan: true,
-          autoPanPaddingTopLeft: [40, 80],
-          autoPanPaddingBottomRight: [40, 40]
-        });
-
-      marker.on('click', function() {
-        goToStatue(s, marker);
-      });
-
+        .bindPopup(popupContent, { maxWidth: 340 });
       markers.push(marker);
 
       const card = document.createElement('div');
@@ -376,11 +333,10 @@
         <div class="meta">${s.year} · ${s.artist}</div>
         <span class="type">${s.type}</span>
       `;
-      
       card.onclick = () => {
-        goToStatue(s, marker);
+        map.setView([s.lat, s.lng], 13);
+        marker.openPopup();
       };
-      
       listEl.appendChild(card);
     });
 
