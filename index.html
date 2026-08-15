@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
+ 
   <!-- Primary SEO -->
   <title>Satoshi Nakamoto Statues – Global Interactive Map</title>
   <meta name="description" content="Explore every known Satoshi Nakamoto statue and Bitcoin monuments around the world on an interactive map. Track locations, photos, artists, and the journey toward 21 statues." />
@@ -11,7 +11,6 @@
   <meta name="author" content="Satoshi Statues Map" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://satoshistatues.com/" />
-
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://satoshistatues.com/" />
@@ -19,16 +18,13 @@
   <meta property="og:description" content="Explore every known Satoshi Nakamoto statue and Bitcoin monuments around the world. Photos, locations, artists, and the path toward 21 statues." />
   <meta property="og:image" content="https://satoshistatues.com/satoshi-nakamoto-87.jpg" />
   <meta property="og:site_name" content="Satoshi Statues" />
-
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Satoshi Nakamoto Statues – Global Interactive Map" />
   <meta name="twitter:description" content="Explore every known Satoshi Nakamoto statue and Bitcoin monuments around the world on an interactive map." />
   <meta name="twitter:image" content="https://satoshistatues.com/satoshi-nakamoto-87.jpg" />
-
   <meta name="theme-color" content="#0d1117" />
   <meta name="msapplication-TileColor" content="#0d1117" />
-
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -175,9 +171,9 @@
       font-weight: 500;
     }
     .status-installed { background: #1a3a2a; color: #3fb950; }
-    .status-restored  { background: #3a2e1a; color: #f7931a; }
-    .status-planned   { background: #1a2a3a; color: #58a6ff; }
-    .status-removed   { background: #3a1a1a; color: #f85149; }
+    .status-restored { background: #3a2e1a; color: #f7931a; }
+    .status-planned { background: #1a2a3a; color: #58a6ff; }
+    .status-removed { background: #3a1a1a; color: #f85149; }
     .note {
       font-size: 0.8rem;
       color: #8b949e;
@@ -252,11 +248,11 @@
     }
     @media (max-width: 768px) {
       .container { flex-direction: column; }
-      .sidebar { 
-        width: 100%; 
+      .sidebar {
+        width: 100%;
         max-height: 32vh;
-        border-left: none; 
-        border-top: 1px solid #30363d; 
+        border-left: none;
+        border-top: 1px solid #30363d;
       }
       header { flex-wrap: wrap; }
       .header-right { width: 100%; justify-content: flex-end; }
@@ -280,7 +276,6 @@
       <button class="reset-btn" onclick="resetMap()">Reset Map</button>
     </div>
   </header>
-
   <div class="container">
     <div id="map"></div>
     <div class="sidebar">
@@ -291,7 +286,6 @@
       </div>
     </div>
   </div>
-
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const statues = [
@@ -462,18 +456,26 @@
       }
     ];
 
+    // Sort newest → oldest
+    function getSortYear(year) {
+      if (typeof year === 'number') return year;
+      const matches = String(year).match(/\d{4}/g);
+      if (!matches) return 0;
+      return Math.max(...matches.map(Number)); // use highest year found (handles "2024 (restored 2025)")
+    }
+
+    statues.sort((a, b) => getSortYear(b.year) - getSortYear(a.year));
+
     const map = L.map('map', {
       center: [20, 20],
       zoom: 2,
       minZoom: 2
     });
-
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; OpenStreetMap &copy; CARTO',
       subdomains: 'abcd',
       maxZoom: 19
     }).addTo(map);
-
     const bitcoinIcon = L.divIcon({
       className: '',
       html: `<div class="bitcoin-marker">₿</div>`,
@@ -481,27 +483,22 @@
       iconAnchor: [14, 14],
       popupAnchor: [0, -16]
     });
-
     const markers = [];
     const cards = [];
     const listEl = document.getElementById('list');
-
     document.getElementById('locations-title').textContent = `Locations - ${statues.length}`;
-
     function getStatusClass(status) {
       switch (status) {
         case "Installed": return "status-installed";
-        case "Restored":  return "status-restored";
-        case "Planned":   return "status-planned";
-        case "Removed":   return "status-removed";
-        default:          return "status-installed";
+        case "Restored": return "status-restored";
+        case "Planned": return "status-planned";
+        case "Removed": return "status-removed";
+        default: return "status-installed";
       }
     }
-
     function clearActiveCards() {
       cards.forEach(card => card.classList.remove('active'));
     }
-
     function setActiveCard(index) {
       clearActiveCards();
       if (cards[index]) {
@@ -509,49 +506,39 @@
         cards[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     }
-
     function goToStatue(s, marker, index) {
       map.closePopup();
-
       const targetZoom = 5;
       const mapHeight = map.getSize().y;
       const offsetY = mapHeight * 0.25;
-
       map.setView([s.lat, s.lng], targetZoom, { animate: false });
-
       const point = map.project([s.lat, s.lng], targetZoom);
       const offsetPoint = L.point(point.x, point.y - offsetY);
       const offsetLatLng = map.unproject(offsetPoint, targetZoom);
-
       map.panTo(offsetLatLng, {
         animate: true,
         duration: 0.5
       });
-
       setTimeout(() => {
         marker.openPopup();
         setActiveCard(index);
       }, 550);
     }
-
     function zoomOut() {
       map.setView([20, 20], 2, {
         animate: true,
         duration: 0.7
       });
     }
-
     function resetMap() {
       map.closePopup();
       clearActiveCards();
       zoomOut();
     }
-
     map.on('popupclose', function() {
       clearActiveCards();
       zoomOut();
     });
-
     document.querySelector('.btc-address').addEventListener('click', function() {
       const range = document.createRange();
       range.selectNodeContents(this);
@@ -559,16 +546,14 @@
       sel.removeAllRanges();
       sel.addRange(range);
     });
-
     statues.forEach((s, index) => {
       const fullLocation = `${s.city}, ${s.country}`;
       const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`;
       const statusClass = getStatusClass(s.status);
-
       const artistHtml = s.artistUrl
         ? `<a href="${s.artistUrl}" target="_blank" rel="noopener noreferrer">${s.artist}</a>`
         : s.artist;
-     
+    
       const popupContent = `
         <img class="popup-img"
              src="${s.img}"
@@ -587,17 +572,13 @@
           Get Directions
         </a>
       `;
-
       const marker = L.marker([s.lat, s.lng], { icon: bitcoinIcon })
         .addTo(map)
         .bindPopup(popupContent, { maxWidth: 340 });
-
       marker.on('click', () => {
         goToStatue(s, marker, index);
       });
-
       markers.push(marker);
-
       const card = document.createElement('div');
       card.className = 'statue-card';
       card.innerHTML = `
@@ -613,7 +594,6 @@
       listEl.appendChild(card);
       cards.push(card);
     });
-
     if (markers.length) {
       const group = L.featureGroup(markers);
       map.fitBounds(group.getBounds().pad(0.25));
