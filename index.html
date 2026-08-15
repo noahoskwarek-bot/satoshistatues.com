@@ -219,6 +219,7 @@
     .directions-btn {
       display: inline-block;
       margin-top: 12px;
+      margin-right: 8px;
       background: #f7931a;
       color: #0d1117;
       border: none;
@@ -231,6 +232,25 @@
       transition: background 0.2s;
     }
     .directions-btn:hover { background: #ffb347; }
+    .earth-btn {
+      display: inline-block;
+      margin-top: 12px;
+      background: #21262d;
+      color: #e6edf3;
+      border: 1px solid #30363d;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .earth-btn:hover {
+      background: #30363d;
+      border-color: #58a6ff;
+      color: #58a6ff;
+    }
     .bitcoin-marker {
       background: #f7931a;
       border: 2px solid #fff;
@@ -332,7 +352,8 @@
         type: "Disappearing metal",
         status: "Installed",
         note: "Located in the famous Bitcoin Beach community that helped inspire El Salvador’s Bitcoin adoption.",
-        img: "https://pbs.twimg.com/media/GobpChUWAAEiJU7.jpg"
+        img: "https://pbs.twimg.com/media/GobpChUWAAEiJU7.jpg",
+        earthUrl: "https://earth.google.com/web/search/Bitcoin+Beach+Office,+El+Zonte,+El+Salvador/@13.49544537,-89.44233576,13.06595228a,56.6161827d,35y,3.19353596h,0t,0r/data=CmUaNxIxCiUweDhmN2QyYjAwMjUzODhjZWQ6MHgxMjVjNjJjYjQyNmMyY2Q0KggiU2F0b3NoaRgCIAEiJgokCRrRnJ9Pw0RAEaLiqsKpwURAGRM6cLajR1LAIdyH2tIpSlLAQgIIAToDCgEwQgIIAEoNCP___________wEQAA?authuser=0"
       },
       {
         name: "Tokyo",
@@ -461,9 +482,8 @@
       if (typeof year === 'number') return year;
       const matches = String(year).match(/\d{4}/g);
       if (!matches) return 0;
-      return Math.max(...matches.map(Number)); // use highest year found (handles "2024 (restored 2025)")
+      return Math.max(...matches.map(Number));
     }
-
     statues.sort((a, b) => getSortYear(b.year) - getSortYear(a.year));
 
     const map = L.map('map', {
@@ -553,6 +573,11 @@
       const artistHtml = s.artistUrl
         ? `<a href="${s.artistUrl}" target="_blank" rel="noopener noreferrer">${s.artist}</a>`
         : s.artist;
+
+      // Google Earth button only for El Zonte
+      const earthBtn = s.earthUrl
+        ? `<a class="earth-btn" href="${s.earthUrl}" target="_blank" rel="noopener noreferrer">Google Earth</a>`
+        : '';
     
       const popupContent = `
         <img class="popup-img"
@@ -571,6 +596,7 @@
         <a class="directions-btn" href="${mapsUrl}" target="_blank" rel="noopener noreferrer">
           Get Directions
         </a>
+        ${earthBtn}
       `;
       const marker = L.marker([s.lat, s.lng], { icon: bitcoinIcon })
         .addTo(map)
