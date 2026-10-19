@@ -266,6 +266,163 @@
       box-shadow: 0 0 10px rgba(247, 147, 26, 0.6);
       line-height: 1;
     }
+
+    /* ---------- Passport / comments / corrections ---------- */
+    .passport-btn {
+      background: #21262d;
+      color: #f7931a;
+      border: 1px solid #f7931a;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .passport-btn:hover { background: #30363d; }
+    .popup-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .popup-actions .directions-btn,
+    .popup-actions .earth-btn { margin: 0; }
+    .ghost-btn {
+      display: inline-block;
+      background: #21262d;
+      color: #e6edf3;
+      border: 1px solid #30363d;
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .ghost-btn:hover { background: #30363d; border-color: #f7931a; color: #f7931a; }
+    .ghost-btn:disabled { opacity: 0.6; cursor: wait; }
+    .checkin-btn { border-color: #3fb950; color: #3fb950; }
+    .checkin-btn:hover { border-color: #3fb950; color: #56d364; }
+    .stamp {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 2px dashed #3fb950;
+      color: #3fb950;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      transform: rotate(-2deg);
+      letter-spacing: 0.02em;
+    }
+    .checkin-msg {
+      margin-top: 8px;
+      font-size: 0.82rem;
+      line-height: 1.4;
+      color: #e6edf3;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 7px 9px;
+    }
+    .checkin-msg.ok { border-color: #3fb950; color: #3fb950; }
+    .checkin-msg.warn { border-color: #f7931a; }
+    .popup-links { margin-top: 10px; font-size: 0.78rem; }
+    .popup-links a { color: #8b949e; text-decoration: none; }
+    .popup-links a:hover { color: #f7931a; text-decoration: underline; }
+    .card-stamp {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-top: 7px;
+      margin-left: 6px;
+      font-weight: 700;
+      color: #3fb950;
+      border: 1px dashed #3fb950;
+    }
+    .card-stamp[hidden] { display: none; }
+    .statue-card.visited { border-left: 3px solid #3fb950; }
+    .bitcoin-marker.visited { background: #3fb950; box-shadow: 0 0 10px rgba(63, 185, 80, 0.6); font-size: 16px; }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(1, 4, 9, 0.72);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 680px;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 18px 20px 22px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+    .modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .modal-head h2 { color: #f7931a; font-size: 1.15rem; }
+    .modal-head .sub { color: #8b949e; font-size: 0.85rem; margin-top: 3px; }
+    .modal-close {
+      background: none;
+      border: 1px solid #30363d;
+      color: #8b949e;
+      border-radius: 6px;
+      width: 32px;
+      height: 32px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .modal-close:hover { color: #f7931a; border-color: #f7931a; }
+    .modal-note { font-size: 0.82rem; color: #8b949e; line-height: 1.45; margin: 10px 0; }
+    .modal-note a { color: #f7931a; }
+    .passport-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; margin: 12px 0; }
+    .passport-list li {
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 9px 11px;
+      font-size: 0.85rem;
+      background: #0d1117;
+      color: #8b949e;
+    }
+    .passport-list li.got { border: 2px dashed #3fb950; color: #e6edf3; }
+    .passport-list li .when { display: block; font-size: 0.75rem; color: #3fb950; margin-top: 2px; }
+    .passport-list li .where { display: block; font-size: 0.75rem; margin-top: 2px; }
+    .passport-progress { height: 8px; background: #21262d; border-radius: 4px; overflow: hidden; margin-top: 6px; }
+    .passport-progress span { display: block; height: 100%; background: #f7931a; width: 0; transition: width 0.4s; }
+    .share-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 6px; }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      background: #21262d;
+      color: #e6edf3;
+      border: 1px solid #f7931a;
+      border-radius: 8px;
+      padding: 9px 14px;
+      font-size: 0.85rem;
+      z-index: 3000;
+      display: none;
+    }
+    .toast.show { display: block; }
+    .comments-fallback {
+      border: 1px dashed #30363d;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 0.85rem;
+      color: #8b949e;
+      line-height: 1.5;
+    }
+    .comments-fallback a { color: #f7931a; }
+    #giscus-container { min-height: 120px; }
     @media (max-width: 768px) {
       .container { flex-direction: column; }
       .sidebar {
@@ -277,6 +434,9 @@
       header { flex-wrap: wrap; }
       .header-right { width: 100%; justify-content: flex-end; }
       .tip-box { font-size: 0.78rem; }
+      .modal-backdrop { padding: 0; align-items: flex-end; }
+      .modal { max-height: 90vh; border-radius: 12px 12px 0 0; padding: 16px 14px 20px; }
+      .passport-list { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
@@ -293,6 +453,7 @@
       </div>
     </div>
     <div class="header-right">
+      <button class="passport-btn" id="passport-btn" type="button" onclick="openPassport()">🛂 Passport</button>
       <button class="reset-btn" onclick="resetMap()">Reset Map</button>
     </div>
   </header>
@@ -306,6 +467,37 @@
       </div>
     </div>
   </div>
+  <div class="modal-backdrop" id="passport-modal" role="dialog" aria-modal="true" aria-labelledby="passport-title">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <h2 id="passport-title">🛂 Satoshi Passport</h2>
+          <div class="sub" id="passport-sub"></div>
+          <div class="passport-progress"><span id="passport-bar"></span></div>
+        </div>
+        <button class="modal-close" type="button" aria-label="Close" onclick="closeModals()">✕</button>
+      </div>
+      <div class="share-row">
+        <button class="directions-btn" type="button" style="margin:0" onclick="sharePassport()">Share my badge</button>
+      </div>
+      <ul class="passport-list" id="passport-list"></ul>
+      <p class="modal-note">To collect a stamp, open a statue on the map and tap <strong>Check in</strong> while you're within about 200 m of it. Stamps are kept only in this browser on this device. Nothing is uploaded, and clearing your browser data erases them. Statues that aren't installed yet can't be stamped.</p>
+    </div>
+  </div>
+  <div class="modal-backdrop" id="comments-modal" role="dialog" aria-modal="true" aria-labelledby="comments-title">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <h2 id="comments-title">Comments</h2>
+          <div class="sub" id="comments-sub"></div>
+        </div>
+        <button class="modal-close" type="button" aria-label="Close" onclick="closeModals()">✕</button>
+      </div>
+      <p class="modal-note">Share tips, visit reports and photos links. Comments are powered by <a href="https://giscus.app" target="_blank" rel="noopener noreferrer">giscus</a> and need a GitHub account. Spotted a mistake? <a id="comments-correction" href="#" target="_blank" rel="noopener noreferrer">Suggest a correction</a>.</p>
+      <div id="giscus-container"></div>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const statues = [
@@ -501,6 +693,66 @@
     }
     statues.sort((a, b) => getSortYear(b.year) - getSortYear(a.year));
 
+    // ---------- Passport, comments & corrections ----------
+    const REPO = 'noahoskwarek-bot/satoshistatues.com';
+    const CHECKIN_RADIUS_M = 200;
+    const PASSPORT_KEY = 'satoshiPassport.v1';
+    // Stable per-location id (used for passport stamps and the comment thread term)
+    function slugOf(s) {
+      return s.id || s.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    }
+    statues.forEach(s => { s.slug = slugOf(s); });
+    function isCheckable(s) { return s.status === 'Installed' || s.status === 'Restored'; }
+    const checkable = statues.filter(isCheckable);
+    function loadPassport() {
+      try { return JSON.parse(localStorage.getItem(PASSPORT_KEY)) || {}; } catch (e) { return {}; }
+    }
+    let passport = loadPassport();
+    function savePassport() {
+      try { localStorage.setItem(PASSPORT_KEY, JSON.stringify(passport)); return true; } catch (e) { return false; }
+    }
+    function isVisited(s) { return !!passport[s.slug]; }
+    function visitedCount() { return checkable.filter(isVisited).length; }
+    function fmtDate(iso) {
+      try { return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); } catch (e) { return iso; }
+    }
+    function haversineM(lat1, lon1, lat2, lon2) {
+      const R = 6371000, toRad = d => d * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(a));
+    }
+    function fmtDist(m) {
+      if (m < 1000) return `${Math.round(m)} m`;
+      const km = m / 1000;
+      return `${km < 10 ? km.toFixed(1) : Math.round(km).toLocaleString()} km`;
+    }
+    function correctionUrl(s) {
+      const title = `Correction: ${s.name}`;
+      const body = [
+        `**Location:** ${s.name} (${s.city}, ${s.country})`,
+        `**Location id:** ${s.slug}`,
+        '',
+        '**What needs fixing?** (place, year, artist, status, coordinates, photo, note…)',
+        '',
+        '**What it says now:**',
+        '',
+        '**What it should say:**',
+        '',
+        '**Source (link, photo, article):**',
+        ''
+      ].join('\n');
+      return `https://github.com/${REPO}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+    }
+    let toastTimer;
+    function toast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+    }
+
     const map = L.map('map', {
       center: [20, 20],
       zoom: 2,
@@ -513,6 +765,13 @@
     const bitcoinIcon = L.divIcon({
       className: '',
       html: `<div class="bitcoin-marker">₿</div>`,
+      iconSize: [28, 28],
+      iconAnchor: [14, 14],
+      popupAnchor: [0, -16]
+    });
+    const visitedIcon = L.divIcon({
+      className: '',
+      html: `<div class="bitcoin-marker visited" title="Visited">✓</div>`,
       iconSize: [28, 28],
       iconAnchor: [14, 14],
       popupAnchor: [0, -16]
@@ -580,20 +839,29 @@
       sel.removeAllRanges();
       sel.addRange(range);
     });
-    statues.forEach((s, index) => {
+    const checkinMsgs = {};
+    function buildPopup(s) {
       const fullLocation = `${s.city}, ${s.country}`;
       const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`;
       const statusClass = getStatusClass(s.status);
       const artistHtml = s.artistUrl
         ? `<a href="${s.artistUrl}" target="_blank" rel="noopener noreferrer">${s.artist}</a>`
         : s.artist;
-
       // Google Earth button only for El Zonte
       const earthBtn = s.earthUrl
         ? `<a class="earth-btn" href="${s.earthUrl}" target="_blank" rel="noopener noreferrer">Google Earth</a>`
         : '';
-    
-      const popupContent = `
+      let checkinHtml;
+      if (!isCheckable(s)) {
+        checkinHtml = `<span class="ghost-btn" style="cursor:default;opacity:0.7" title="This statue isn't installed yet">No stamp yet (not installed)</span>`;
+      } else if (isVisited(s)) {
+        checkinHtml = `<span class="stamp">✓ Stamped ${fmtDate(passport[s.slug].date)}</span>`;
+      } else {
+        checkinHtml = `<button class="ghost-btn checkin-btn" type="button" data-checkin="${s.slug}">📍 Check in</button>`;
+      }
+      const m = checkinMsgs[s.slug];
+      const msgHtml = m ? `<div class="checkin-msg ${m.cls}">${m.text}</div>` : '';
+      return `
         ${s.img ? `<img class="popup-img"
              src="${s.img}"
              alt="${s.name} statue"
@@ -607,17 +875,179 @@
           <strong>Status:</strong> <span class="status-badge ${statusClass}">${s.status}</span><br><br>
           ${s.note}
         </div>
-        <a class="directions-btn" href="${mapsUrl}" target="_blank" rel="noopener noreferrer">
-          Get Directions
-        </a>
-        ${earthBtn}
+        <div class="popup-actions">
+          <a class="directions-btn" href="${mapsUrl}" target="_blank" rel="noopener noreferrer">Get Directions</a>
+          ${earthBtn}
+          ${checkinHtml}
+          <button class="ghost-btn" type="button" data-comments="${s.slug}">💬 Comments</button>
+        </div>
+        ${msgHtml}
+        <div class="popup-links"><a href="${correctionUrl(s)}" target="_blank" rel="noopener noreferrer">✏️ Suggest a correction</a></div>
       `;
-      const marker = L.marker([s.lat, s.lng], { icon: bitcoinIcon })
+    }
+    function bySlug(slug) { return statues.find(s => s.slug === slug); }
+    function setMsg(s, cls, text) {
+      checkinMsgs[s.slug] = { cls, text };
+      if (s.marker && s.marker.isPopupOpen()) s.marker.getPopup().update();
+    }
+    function refreshVisitedUI(s) {
+      if (s.marker) s.marker.setIcon(isVisited(s) ? visitedIcon : bitcoinIcon);
+      if (s.card) {
+        s.card.classList.toggle('visited', isVisited(s));
+        const st = s.card.querySelector('.card-stamp');
+        if (st) st.hidden = !isVisited(s);
+      }
+      updatePassportCounter();
+    }
+    function checkIn(s, btn) {
+      if (!isCheckable(s)) return;
+      if (!('geolocation' in navigator)) {
+        setMsg(s, 'warn', "Your browser can't share its location, so check-in isn't available here.");
+        return;
+      }
+      if (btn) { btn.disabled = true; btn.textContent = '📡 Locating…'; }
+      navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude, longitude, accuracy } = pos.coords;
+        const d = haversineM(latitude, longitude, s.lat, s.lng);
+        if (d <= CHECKIN_RADIUS_M) {
+          passport[s.slug] = { date: new Date().toISOString() };
+          const saved = savePassport();
+          refreshVisitedUI(s);
+          setMsg(s, 'ok', saved
+            ? `🟠 Stamped! ${s.name} is in your passport. That's ${visitedCount()} of ${checkable.length}.`
+            : `🟠 You're here, but this browser won't let us save the stamp (private mode?).`);
+        } else {
+          const acc = accuracy && accuracy > CHECKIN_RADIUS_M ? ` (your location fix is only accurate to about ${fmtDist(accuracy)})` : '';
+          setMsg(s, 'warn', `So close… well, sort of! You're about <strong>${fmtDist(d)}</strong> from ${s.name}${acc}. Get within ${CHECKIN_RADIUS_M} m to collect the stamp.`);
+        }
+      }, err => {
+        let text;
+        if (err.code === 1) text = 'Location access was blocked. Allow location for this site in your browser settings, then try again.';
+        else if (err.code === 3) text = "Finding your location took too long. Step outside or try again in a moment.";
+        else text = "We couldn't get your location right now. Check that location services are on and try again.";
+        setMsg(s, 'warn', text);
+      }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+    }
+    function updatePassportCounter() {
+      const n = visitedCount(), total = checkable.length;
+      document.getElementById('passport-btn').textContent = `🛂 Passport: ${n} of ${total} visited`;
+      document.getElementById('passport-sub').textContent = `${n} of ${total} statues visited${n === total && total ? ' 🏆 Full set!' : ''}`;
+      document.getElementById('passport-bar').style.width = `${total ? (100 * n / total) : 0}%`;
+    }
+    function renderPassportList() {
+      const list = document.getElementById('passport-list');
+      list.innerHTML = '';
+      checkable.forEach(s => {
+        const li = document.createElement('li');
+        const got = isVisited(s);
+        if (got) li.className = 'got';
+        li.innerHTML = got
+          ? `✓ <strong>${s.name}</strong><span class="where">${s.city}, ${s.country}</span><span class="when">Stamped ${fmtDate(passport[s.slug].date)}</span>`
+          : `○ ${s.name}<span class="where">${s.city}, ${s.country}</span>`;
+        list.appendChild(li);
+      });
+    }
+    function openModal(id) {
+      document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open'));
+      document.getElementById(id).classList.add('open');
+    }
+    function closeModals() {
+      document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open'));
+    }
+    function openPassport() {
+      updatePassportCounter();
+      renderPassportList();
+      openModal('passport-modal');
+    }
+    function shareText() {
+      return `I've visited ${visitedCount()} of ${checkable.length} Satoshi statues 🟠 satoshistatues.com`;
+    }
+    async function sharePassport() {
+      const text = shareText();
+      if (navigator.share) {
+        try { await navigator.share({ text }); return; }
+        catch (e) { if (e && e.name === 'AbortError') return; }
+      }
+      try {
+        await navigator.clipboard.writeText(text);
+        toast('Badge text copied. Paste it anywhere!');
+      } catch (e) {
+        window.prompt('Copy your badge text:', text);
+      }
+    }
+    // Comments (giscus), loaded only when a location's comment panel is opened
+    const GISCUS = {
+      repo: REPO,
+      repoId: 'R_kgDOT4kDjw',
+      category: 'Announcements',
+      categoryId: 'DIC_kwDOT4kDj84DJD3w'
+    };
+    let giscusFailed = false;
+    function giscusFallback(s, reason) {
+      const c = document.getElementById('giscus-container');
+      c.innerHTML = `<div class="comments-fallback">💬 Comments for <strong>${s.name}</strong> aren't switched on yet${reason ? ` (${reason})` : ''}. Check back soon. Meanwhile you can join the conversation on <a href="https://github.com/${REPO}/discussions" target="_blank" rel="noopener noreferrer">GitHub Discussions</a> or <a href="${correctionUrl(s)}" target="_blank" rel="noopener noreferrer">suggest a correction</a>.</div>`;
+    }
+    let currentCommentsStatue = null;
+    function openComments(s) {
+      currentCommentsStatue = s;
+      document.getElementById('comments-title').textContent = `💬 ${s.name}`;
+      document.getElementById('comments-sub').textContent = `${s.city}, ${s.country} · ${s.place}`;
+      document.getElementById('comments-correction').href = correctionUrl(s);
+      const c = document.getElementById('giscus-container');
+      c.innerHTML = '';
+      openModal('comments-modal');
+      if (giscusFailed) { giscusFallback(s, 'setup pending'); return; }
+      const sc = document.createElement('script');
+      sc.src = 'https://giscus.app/client.js';
+      sc.async = true;
+      sc.crossOrigin = 'anonymous';
+      const attrs = {
+        'data-repo': GISCUS.repo,
+        'data-repo-id': GISCUS.repoId,
+        'data-category': GISCUS.category,
+        'data-category-id': GISCUS.categoryId,
+        'data-mapping': 'specific',
+        'data-term': `statue-${s.slug}`,
+        'data-strict': '1',
+        'data-reactions-enabled': '1',
+        'data-emit-metadata': '0',
+        'data-input-position': 'top',
+        'data-theme': 'dark',
+        'data-lang': 'en',
+        'data-loading': 'lazy'
+      };
+      Object.entries(attrs).forEach(([k, v]) => sc.setAttribute(k, v));
+      sc.onerror = () => giscusFallback(s, "couldn't reach giscus");
+      c.appendChild(sc);
+    }
+    window.addEventListener('message', e => {
+      if (e.origin !== 'https://giscus.app' || !e.data || typeof e.data !== 'object' || !e.data.giscus) return;
+      const err = e.data.giscus.error;
+      if (err && /not installed|installation/i.test(err)) {
+        giscusFailed = true;
+        if (currentCommentsStatue) giscusFallback(currentCommentsStatue, 'setup pending');
+      }
+    });
+    document.addEventListener('click', e => {
+      const ci = e.target.closest('[data-checkin]');
+      if (ci) { const s = bySlug(ci.dataset.checkin); if (s) checkIn(s, ci); return; }
+      const cm = e.target.closest('[data-comments]');
+      if (cm) { const s = bySlug(cm.dataset.comments); if (s) openComments(s); return; }
+      if (e.target.classList && e.target.classList.contains('modal-backdrop')) closeModals();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModals(); });
+    updatePassportCounter();
+
+    statues.forEach((s, index) => {
+      const fullLocation = `${s.city}, ${s.country}`;
+      const statusClass = getStatusClass(s.status);
+      const marker = L.marker([s.lat, s.lng], { icon: isVisited(s) ? visitedIcon : bitcoinIcon })
         .addTo(map)
-        .bindPopup(popupContent, { maxWidth: 340 });
+        .bindPopup(() => buildPopup(s), { maxWidth: 340 });
       marker.on('click', () => {
         goToStatue(s, marker, index);
       });
+      s.marker = marker;
       markers.push(marker);
       const card = document.createElement('div');
       card.className = 'statue-card';
@@ -627,7 +1057,10 @@
         <div class="meta">${s.year} · ${s.artist}</div>
         <span class="type">${s.type}</span>
         <span class="status-badge ${statusClass}">${s.status}</span>
+        <span class="card-stamp" ${isVisited(s) ? '' : 'hidden'}>✓ Visited</span>
       `;
+      if (isVisited(s)) card.classList.add('visited');
+      s.card = card;
       card.onclick = () => {
         goToStatue(s, marker, index);
       };
