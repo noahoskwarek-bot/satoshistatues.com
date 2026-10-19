@@ -10,21 +10,26 @@
   <meta name="keywords" content="Satoshi Nakamoto, Satoshi statue, Bitcoin statue, Satoshi map, Bitcoin monuments, Valentina Picozzi, Satoshigallery, Bitcoin art, crypto landmarks, Kranj Bitcoin monument, Miami Bitcoin Bull" />
   <meta name="author" content="Satoshi Statues Map" />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://satoshistatues.com/" />
+  <link rel="canonical" href="https://www.satoshistatues.com/" />
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://satoshistatues.com/" />
+  <meta property="og:url" content="https://www.satoshistatues.com/" />
   <meta property="og:title" content="Satoshi Nakamoto Statues – Global Interactive Map" />
   <meta property="og:description" content="Explore every known Satoshi Nakamoto statue and Bitcoin monuments around the world. Photos, locations, artists, and the path toward 21 statues." />
-  <meta property="og:image" content="https://satoshistatues.com/satoshi-nakamoto-87.jpg" />
+  <meta property="og:image" content="https://www.satoshistatues.com/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Satoshi Nakamoto Statues: interactive world map of Satoshi statues and Bitcoin monuments" />
   <meta property="og:site_name" content="Satoshi Statues" />
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Satoshi Nakamoto Statues – Global Interactive Map" />
   <meta name="twitter:description" content="Explore every known Satoshi Nakamoto statue and Bitcoin monuments around the world on an interactive map." />
-  <meta name="twitter:image" content="https://satoshistatues.com/satoshi-nakamoto-87.jpg" />
+  <meta name="twitter:image" content="https://www.satoshistatues.com/og-image.jpg" />
+  <meta name="twitter:image:alt" content="Satoshi Nakamoto Statues: interactive world map of Satoshi statues and Bitcoin monuments" />
   <meta name="theme-color" content="#0d1117" />
   <meta name="msapplication-TileColor" content="#0d1117" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23f7931a'/%3E%3Ctext x='32' y='45' font-size='38' font-weight='700' text-anchor='middle' fill='%230d1117' font-family='Arial'%3E%E2%82%BF%3C/text%3E%3C/svg%3E" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -398,6 +403,17 @@
     .passport-progress { height: 8px; background: #21262d; border-radius: 4px; overflow: hidden; margin-top: 6px; }
     .passport-progress span { display: block; height: 100%; background: #f7931a; width: 0; transition: width 0.4s; }
     .share-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 6px; }
+    .share-box { display: grid; grid-template-columns: minmax(0, 300px) 1fr; gap: 16px; align-items: start; margin: 14px 0 6px; }
+    .badge-preview { width: 100%; aspect-ratio: 1 / 1; border-radius: 10px; border: 1px solid #30363d; background: #0d1117; display: block; -webkit-touch-callout: default; }
+    .share-actions { display: flex; flex-direction: column; gap: 8px; }
+    .share-actions .directions-btn { margin: 0; text-align: center; }
+    .share-actions .ghost-btn { text-align: center; }
+    .share-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .share-hint { font-size: 0.78rem; color: #8b949e; line-height: 1.4; }
+    @media (max-width: 560px) {
+      .share-box { grid-template-columns: 1fr; }
+      .badge-preview { max-width: 320px; margin: 0 auto; }
+    }
     .toast {
       position: fixed;
       left: 50%;
@@ -477,8 +493,19 @@
         </div>
         <button class="modal-close" type="button" aria-label="Close" onclick="closeModals()">✕</button>
       </div>
-      <div class="share-row">
-        <button class="directions-btn" type="button" style="margin:0" onclick="sharePassport()">Share my badge</button>
+      <div class="share-box">
+        <img class="badge-preview" id="badge-preview" alt="Your Satoshi Passport badge" />
+        <div class="share-actions">
+          <button class="directions-btn" type="button" id="share-main" onclick="sharePassport()">📤 Share badge</button>
+          <button class="ghost-btn" type="button" onclick="downloadBadge()">⬇️ Download image</button>
+          <div class="share-grid">
+            <a class="ghost-btn" id="share-x" href="#" target="_blank" rel="noopener noreferrer">𝕏 Post on X</a>
+            <a class="ghost-btn" id="share-fb" href="#" target="_blank" rel="noopener noreferrer">Facebook</a>
+            <button class="ghost-btn" type="button" onclick="shareNostr()">⚡ Nostr</button>
+            <button class="ghost-btn" type="button" onclick="copyShareText()">📋 Copy text</button>
+          </div>
+          <div class="share-hint" id="share-hint">Tip: <strong>Share badge</strong> sends the image straight to Instagram, X, WhatsApp, Signal and more on your phone. X and Facebook links share the text and link only, so add the downloaded image yourself. On iPhone you can also long-press the preview to save it.</div>
+        </div>
       </div>
       <ul class="passport-list" id="passport-list"></ul>
       <p class="modal-note">To collect a stamp, open a statue on the map and tap <strong>Check in</strong> while you're within about 200 m of it. Stamps are kept only in this browser on this device. Nothing is uploaded, and clearing your browser data erases them. Statues that aren't installed yet can't be stamped.</p>
@@ -750,7 +777,7 @@
       t.textContent = msg;
       t.classList.add('show');
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+      toastTimer = setTimeout(() => t.classList.remove('show'), Math.min(6000, 2200 + msg.length * 35));
     }
 
     const map = L.map('map', {
@@ -957,23 +984,185 @@
     function openPassport() {
       updatePassportCounter();
       renderPassportList();
+      refreshBadge();
       openModal('passport-modal');
     }
-    function shareText() {
-      return `I've visited ${visitedCount()} of ${checkable.length} Satoshi statues 🟠 satoshistatues.com`;
+    const SITE_URL = 'https://www.satoshistatues.com';
+    function shareBase() {
+      const n = visitedCount(), total = checkable.length;
+      return n > 0
+        ? `I've visited ${n} of ${total} Satoshi statues 🟠`
+        : `Starting my Satoshi Passport 🟠 ${total} Satoshi statues to find around the world.`;
     }
-    async function sharePassport() {
-      const text = shareText();
-      if (navigator.share) {
-        try { await navigator.share({ text }); return; }
-        catch (e) { if (e && e.name === 'AbortError') return; }
-      }
+    function shareText() {
+      return `${shareBase()} Collect yours at ${SITE_URL} #Bitcoin`;
+    }
+    // ----- Badge image (canvas) -----
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+    function fitText(ctx, text, maxW) {
+      if (ctx.measureText(text).width <= maxW) return text;
+      let t = text;
+      while (t.length > 1 && ctx.measureText(t + '…').width > maxW) t = t.slice(0, -1);
+      return t + '…';
+    }
+    const FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+    function drawBadge() {
+      const W = 1080, H = 1080;
+      const c = document.createElement('canvas');
+      c.width = W; c.height = H;
+      const ctx = c.getContext('2d');
+      const n = visitedCount(), total = checkable.length;
+      // background
+      ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, W, H);
+      const g = ctx.createRadialGradient(W * 0.85, 120, 40, W * 0.85, 120, 700);
+      g.addColorStop(0, 'rgba(247,147,26,0.28)'); g.addColorStop(1, 'rgba(247,147,26,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      roundRect(ctx, 30, 30, W - 60, H - 60, 36);
+      ctx.lineWidth = 4; ctx.strokeStyle = '#30363d'; ctx.stroke();
+      ctx.fillStyle = '#f7931a'; ctx.fillRect(30 + 36, 30, W - 60 - 72, 8);
+      // bitcoin coin logo
+      ctx.beginPath(); ctx.arc(120, 140, 44, 0, Math.PI * 2); ctx.fillStyle = '#f7931a'; ctx.fill();
+      ctx.fillStyle = '#0d1117'; ctx.font = `800 54px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('₿', 121, 143);
+      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = '#f7931a'; ctx.font = `800 64px ${FONT}`; ctx.fillText('Satoshi Passport', 190, 162);
+      ctx.fillStyle = '#8b949e'; ctx.font = `500 30px ${FONT}`;
+      ctx.fillText(n > 0 ? 'Satoshi Nakamoto statues around the world' : 'Starting my Satoshi Passport', 80, 250);
+      // count
+      ctx.fillStyle = '#e6edf3'; ctx.font = `800 120px ${FONT}`;
+      const big = `${n} of ${total}`;
+      ctx.fillText(big, 80, 380);
+      const bigW = ctx.measureText(big).width;
+      ctx.fillStyle = '#8b949e'; ctx.font = `600 40px ${FONT}`;
+      ctx.fillText('statues visited', 80 + bigW + 26, 378);
+      // progress
+      roundRect(ctx, 80, 420, W - 160, 26, 13); ctx.fillStyle = '#21262d'; ctx.fill();
+      if (n > 0) { roundRect(ctx, 80, 420, Math.max(26, (W - 160) * n / total), 26, 13); ctx.fillStyle = '#f7931a'; ctx.fill(); }
+      // grid of statues (stamped first)
+      const items = checkable.slice().sort((a, b) => (isVisited(b) - isVisited(a)) ||
+        (isVisited(a) ? passport[a.slug].date.localeCompare(passport[b.slug].date) : 0));
+      const cols = 2, gx = 80, gy = 490, gap = 18, cw = (W - 160 - gap) / cols, ch = 66;
+      items.forEach((s, i) => {
+        const x = gx + (i % cols) * (cw + gap), y = gy + Math.floor(i / cols) * (ch + 12);
+        const got = isVisited(s);
+        roundRect(ctx, x, y, cw, ch, 12);
+        ctx.fillStyle = got ? 'rgba(63,185,80,0.10)' : '#0d1117'; ctx.fill();
+        ctx.setLineDash(got ? [12, 8] : []);
+        ctx.lineWidth = got ? 3 : 2; ctx.strokeStyle = got ? '#3fb950' : '#30363d'; ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = got ? '#3fb950' : '#484f58'; ctx.font = `800 30px ${FONT}`;
+        ctx.fillText(got ? '✓' : '○', x + 18, y + 44);
+        ctx.fillStyle = got ? '#e6edf3' : '#6e7681'; ctx.font = `${got ? 700 : 500} 27px ${FONT}`;
+        const dateStr = got ? fmtDate(passport[s.slug].date) : '';
+        ctx.font = `600 21px ${FONT}`; const dw = got ? ctx.measureText(dateStr).width + 16 : 0;
+        ctx.font = `${got ? 700 : 500} 27px ${FONT}`;
+        ctx.fillText(fitText(ctx, s.name, cw - 66 - dw), x + 58, y + 43);
+        if (got) {
+          ctx.fillStyle = '#3fb950'; ctx.font = `600 21px ${FONT}`; ctx.textAlign = 'right';
+          ctx.fillText(dateStr, x + cw - 16, y + 42); ctx.textAlign = 'left';
+        }
+      });
+      // footer
+      ctx.fillStyle = '#f7931a'; ctx.font = `800 40px ${FONT}`;
+      ctx.fillText('satoshistatues.com', 80, H - 82);
+      ctx.fillStyle = '#8b949e'; ctx.font = `600 30px ${FONT}`; ctx.textAlign = 'right';
+      ctx.fillText(n > 0 ? 'Collect yours  #Bitcoin' : 'Join the hunt  #Bitcoin', W - 80, H - 84);
+      ctx.textAlign = 'left';
+      return c;
+    }
+    function dataUrlToBlob(url) {
+      const [head, b64] = url.split(',');
+      const bin = atob(b64), arr = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      return new Blob([arr], { type: head.match(/:(.*?);/)[1] });
+    }
+    let badge = null; // { url, blob, file }
+    function refreshBadge() {
       try {
-        await navigator.clipboard.writeText(text);
-        toast('Badge text copied. Paste it anywhere!');
-      } catch (e) {
-        window.prompt('Copy your badge text:', text);
+        const url = drawBadge().toDataURL('image/png');
+        const blob = dataUrlToBlob(url);
+        let file = null;
+        try { file = new File([blob], 'satoshi-passport.png', { type: 'image/png' }); } catch (e) {}
+        badge = { url, blob, file };
+        document.getElementById('badge-preview').src = url;
+      } catch (e) { badge = null; }
+      const n = visitedCount();
+      const xText = `${shareBase()} Collect yours at`;
+      document.getElementById('share-x').href =
+        `https://twitter.com/intent/tweet?text=${encodeURIComponent(xText)}&url=${encodeURIComponent(SITE_URL)}&hashtags=Bitcoin`;
+      document.getElementById('share-fb').href =
+        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SITE_URL + '/')}`;
+      document.getElementById('share-main').textContent = n > 0 ? '📤 Share badge' : '📤 Share & start yours';
+    }
+    function canShareFile() {
+      return !!(badge && badge.file && navigator.canShare && navigator.share && navigator.canShare({ files: [badge.file] }));
+    }
+    function sharePassport() {
+      // Keep this synchronous up to navigator.share() so iOS keeps the tap's user-activation.
+      if (!badge) refreshBadge();
+      const text = shareText();
+      if (canShareFile()) {
+        navigator.share({ files: [badge.file], text, title: 'Satoshi Passport' })
+          .catch(e => { if (!e || e.name !== 'AbortError') { downloadBadge(); copyShareText(); } });
+        return;
       }
+      if (navigator.share) {
+        navigator.share({ text, title: 'Satoshi Passport' })
+          .catch(e => { if (!e || e.name !== 'AbortError') copyShareText(); });
+        return;
+      }
+      downloadBadge();
+      copyShareText('Image downloaded and text copied. Paste it into your post!');
+    }
+    function downloadBadge() {
+      if (!badge) refreshBadge();
+      if (!badge) { toast("Couldn't create the image in this browser."); return; }
+      const a = document.createElement('a');
+      const objUrl = URL.createObjectURL(badge.blob);
+      a.href = objUrl;
+      a.download = 'satoshi-passport.png';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(objUrl), 4000);
+    }
+    function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).then(() => true, () => legacyCopy(text));
+      }
+      return Promise.resolve(legacyCopy(text));
+    }
+    function legacyCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed'; ta.style.top = '-1000px';
+      document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      ta.remove();
+      return ok;
+    }
+    function copyShareText(okMsg) {
+      const text = shareText();
+      copyText(text).then(ok => {
+        if (ok) toast(typeof okMsg === 'string' ? okMsg : 'Share text copied!');
+        else window.prompt('Copy your share text:', text);
+      });
+    }
+    function shareNostr() {
+      const text = shareText();
+      copyText(text).then(ok => {
+        if (ok) toast('Copied! Paste it into your Nostr client (Damus, Primal, Amethyst…) and attach the downloaded image.');
+        else window.prompt('Copy this into your Nostr client:', text);
+      });
     }
     // Comments (giscus), loaded only when a location's comment panel is opened
     const GISCUS = {
