@@ -331,6 +331,20 @@
       padding: 7px 9px;
     }
     .checkin-msg.ok { border-color: #3fb950; color: #3fb950; }
+    .checkin-msg details { margin-top: 6px; }
+    .checkin-msg summary { cursor: pointer; color: #f7931a; font-weight: 600; }
+    .checkin-msg ul { margin: 6px 0 0 18px; padding: 0; }
+    .checkin-msg li { margin: 3px 0; }
+    .geo-diag {
+      margin-top: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.7rem;
+      color: #8b949e;
+      word-break: break-word;
+    }
+    .geo-test { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 4px; }
+    #geo-test-result { width: 100%; }
+    #geo-test-result:empty { display: none; }
     .checkin-msg.warn { border-color: #f7931a; }
     .popup-links { margin-top: 10px; font-size: 0.78rem; }
     .popup-links a { color: #8b949e; text-decoration: none; }
@@ -508,6 +522,11 @@
         </div>
       </div>
       <ul class="passport-list" id="passport-list"></ul>
+      <div class="geo-test">
+        <button class="ghost-btn checkin-btn" type="button" id="geo-test-btn" onclick="testLocation()">📡 Test my location</button>
+        <span class="share-hint">Checks that location works here. It doesn't stamp anything.</span>
+        <div class="checkin-msg" id="geo-test-result" aria-live="polite"></div>
+      </div>
       <p class="modal-note">To collect a stamp, open a statue on the map and tap <strong>Check in</strong> while you're within about 200 m of it. Stamps are kept only in this browser on this device. Nothing is uploaded, and clearing your browser data erases them. Statues that aren't installed yet can't be stamped.</p>
     </div>
   </div>
@@ -948,12 +967,110 @@
           setMsg(s, 'warn', `So close… well, sort of! You're about <strong>${fmtDist(d)}</strong> from ${s.name}${acc}. Get within ${CHECKIN_RADIUS_M} m to collect the stamp.`);
         }
       }, err => {
-        let text;
-        if (err.code === 1) text = 'Location access was blocked. Allow location for this site in your browser settings, then try again.';
-        else if (err.code === 3) text = "Finding your location took too long. Step outside or try again in a moment.";
-        else text = "We couldn't get your location right now. Check that location services are on and try again.";
-        setMsg(s, 'warn', text);
-      }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+        geoErrorHtml(err).then(html => setMsg(s, 'warn', html));
+      }, GEO_OPTS);
+    }
+    const GEO_OPTS = { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 };
+    // ----- Location diagnostics & platform help -----
+    function detectPlatform() {
+      const ua = navigator.userAgent || '';
+      const iOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const inApp = /FBAN|FBAV|Instagram|\bLine\/|GSA\/|; wv\)|Twitter|TikTok|Snapchat/i.test(ua);
+      if (inApp) {
+        const m = ua.match(/FBAN|FBAV|Instagram|Line|GSA|Twitter|TikTok|Snapchat/i);
+        const app = m ? ({ FBAN: 'Facebook', FBAV: 'Facebook', GSA: 'Google app' }[m[0]] || m[0]) : 'app';
+        return { key: 'inapp', label: `in-app browser (${iOS ? 'iOS' : /Android/.test(ua) ? 'Android' : 'unknown OS'} · ${app})` };
+      }
+      if (iOS && /CriOS/.test(ua)) return { key: 'ios-chrome', label: 'iOS Chrome' };
+      if (iOS && /FxiOS|EdgiOS|OPiOS/.test(ua)) return { key: 'ios-other', label: 'iOS browser (' + ua.match(/FxiOS|EdgiOS|OPiOS/)[0] + ')' };
+      if (iOS && /Safari/.test(ua)) return { key: 'ios-safari', label: 'iOS Safari' };
+      if (iOS) return { key: 'ios-other', label: 'iOS web view' };
+      if (/Android/.test(ua) && /Chrome\//.test(ua)) return { key: 'android', label: 'Android Chrome' };
+      if (/Android/.test(ua)) return { key: 'android', label: 'Android browser' };
+      if (/Edg\//.test(ua)) return { key: 'desktop', label: 'desktop Edge' };
+      if (/Firefox\//.test(ua)) return { key: 'desktop', label: 'desktop Firefox' };
+      if (/Chrome\//.test(ua)) return { key: 'desktop', label: 'desktop Chrome' };
+      if (/Safari\//.test(ua)) return { key: 'desktop', label: 'desktop Safari' };
+      return { key: 'desktop', label: 'browser' };
+    }
+    async function geoPermissionState() {
+      try {
+        if (!navigator.permissions || !navigator.permissions.query) return 'n/a';
+        const r = await Promise.race([
+          navigator.permissions.query({ name: 'geolocation' }),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 1500))
+        ]);
+        return r.state;
+      } catch (e) { return 'n/a'; }
+    }
+    function escHtml(t) {
+      return String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    function blockedHelp(pf) {
+      switch (pf.key) {
+        case 'ios-chrome': return `<ul>
+          <li>iPhone <strong>Settings › Privacy &amp; Security › Location Services</strong>: on.</li>
+          <li>Same screen › <strong>Chrome</strong>: <strong>While Using the App</strong>, and <strong>Precise Location</strong> on.</li>
+          <li>Chrome may remember a "Don't Allow" for this site. Try an <strong>Incognito tab</strong>, or open the page in <strong>Safari</strong>.</li></ul>`;
+        case 'ios-safari': return `<ul>
+          <li>Tap <strong>aA</strong> in the address bar › <strong>Website Settings</strong> › <strong>Location</strong> › <strong>Allow</strong>.</li>
+          <li>iPhone <strong>Settings › Apps › Safari › Location</strong>: Ask or Allow.</li>
+          <li>Also check <strong>Settings › Privacy &amp; Security › Location Services</strong> is on.</li></ul>`;
+        case 'ios-other': return `<ul>
+          <li>iPhone <strong>Settings › Privacy &amp; Security › Location Services</strong>: on, and allowed for this browser.</li>
+          <li>Or open the page in <strong>Safari</strong>.</li></ul>`;
+        case 'inapp': return `<ul><li>Built-in app browsers often can't share your location. Use the menu (⋯) to <strong>open this page in Safari or Chrome</strong>.</li></ul>`;
+        case 'android': return `<ul>
+          <li>Tap the icon left of the address bar › <strong>Permissions › Location › Allow</strong>.</li>
+          <li>Phone <strong>Settings › Location</strong>: on, and allowed for this browser.</li></ul>`;
+        default: return `<ul>
+          <li>Click the icon left of the address bar › <strong>Location › Allow</strong>, then reload.</li>
+          <li>Make sure your computer's location services are on for this browser.</li></ul>`;
+      }
+    }
+    async function geoErrorHtml(err) {
+      const pf = detectPlatform();
+      const perm = await geoPermissionState();
+      const names = { 1: 'PERMISSION_DENIED', 2: 'POSITION_UNAVAILABLE', 3: 'TIMEOUT' };
+      let main, help;
+      if (err.code === 1) {
+        main = pf.key === 'inapp'
+          ? "This app's built-in browser blocked location access."
+          : 'Location access was blocked for this site.';
+        help = blockedHelp(pf);
+      } else if (err.code === 3) {
+        main = 'Finding your location took too long.';
+        help = '<ul><li>Step outside or near a window and try again.</li><li>Check that Location Services are on.</li></ul>';
+      } else {
+        main = "We couldn't get your location right now.";
+        help = '<ul><li>Check that Location Services are on, then try again.</li></ul>' + (pf.key === 'inapp' ? blockedHelp(pf) : '');
+      }
+      const diag = `Details: code ${err.code} (${names[err.code] || '?'}) · "${escHtml(err.message || '')}" · permission: ${perm} · secure: ${window.isSecureContext ? 'yes' : 'no'} · ${pf.label}`;
+      return `${main}<details><summary>How to fix</summary>${help}</details><div class="geo-diag">${diag}</div>`;
+    }
+    function testLocation() {
+      const out = document.getElementById('geo-test-result');
+      const btn = document.getElementById('geo-test-btn');
+      const show = (cls, html) => { out.className = `checkin-msg ${cls}`; out.innerHTML = html; btn.disabled = false; btn.textContent = '📡 Test my location'; };
+      if (!('geolocation' in navigator)) {
+        show('warn', `This browser can't share its location.<div class="geo-diag">Details: no navigator.geolocation · secure: ${window.isSecureContext ? 'yes' : 'no'} · ${detectPlatform().label}</div>`);
+        return;
+      }
+      btn.disabled = true; btn.textContent = '📡 Locating…';
+      out.className = 'checkin-msg'; out.textContent = 'Asking your browser for your location…';
+      navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude, longitude, accuracy } = pos.coords;
+        let best = null;
+        checkable.forEach(st => {
+          const d = haversineM(latitude, longitude, st.lat, st.lng);
+          if (!best || d < best.d) best = { st, d };
+        });
+        const inRange = best && best.d <= CHECKIN_RADIUS_M;
+        const near = best ? ` Nearest statue: <strong>${best.st.name}</strong>, about ${fmtDist(best.d)} away${inRange ? ', close enough to check in! 🟠' : '.'}` : '';
+        show('ok', `✅ Location works. Accuracy about ±${fmtDist(accuracy || 0)}.${near}<div class="geo-diag">Details: permission granted · secure: ${window.isSecureContext ? 'yes' : 'no'} · ${detectPlatform().label}</div>`);
+      }, err => {
+        geoErrorHtml(err).then(html => show('warn', html));
+      }, GEO_OPTS);
     }
     function updatePassportCounter() {
       const n = visitedCount(), total = checkable.length;
