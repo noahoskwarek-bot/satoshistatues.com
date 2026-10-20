@@ -69,6 +69,12 @@
       line-height: 1.45;
       max-width: 520px;
     }
+    .tip-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+    .tip-btn { background: #21262d; border: 1px solid #30363d; color: #e6edf3; padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; cursor: pointer; text-decoration: none; font-family: inherit; }
+    .tip-btn:hover { border-color: #f7931a; }
+    .tip-primary { background: #f7931a; border-color: #f7931a; color: #0d1117; font-weight: 600; }
+    .tip-qr { display: none; margin-top: 8px; border-radius: 6px; background: #fff; }
+    .tip-qr.show { display: block; }
     .btc-address {
       display: inline-block;
       margin-top: 6px;
@@ -478,9 +484,13 @@
       <p>Global interactive map • Click any marker or card to see photo + details</p>
       <div class="tip-box">
         If this site helped you, consider dropping a sat as a thank you. Every bit helps keep the map alive and growing toward 21.
-        <div class="btc-address" title="Click to select address">
-          bc1qy5u3uarfgqspuxj807qj8egq0w5ncdft7wem8v
+        <div class="btc-address" title="Bitcoin address">bc1qy5u3uarfgqspuxj807qj8egq0w5ncdft7wem8v</div>
+        <div class="tip-actions">
+          <a class="tip-btn tip-primary" href="bitcoin:bc1qy5u3uarfgqspuxj807qj8egq0w5ncdft7wem8v?label=SatoshiStatues.com">⚡ Tip in wallet</a>
+          <button class="tip-btn" type="button" id="tip-copy" onclick="copyTipAddress()">Copy</button>
+          <button class="tip-btn" type="button" onclick="document.getElementById('tip-qr').classList.toggle('show')">QR</button>
         </div>
+        <img id="tip-qr" class="tip-qr" src="btc-tip-qr.png" alt="QR code for Bitcoin tip address" width="140" height="140">
       </div>
     </div>
     <div class="header-right">
@@ -869,6 +879,12 @@
         animate: true,
         duration: 0.7
       });
+    }
+    function copyTipAddress() {
+      const a = "bc1qy5u3uarfgqspuxj807qj8egq0w5ncdft7wem8v", b = document.getElementById("tip-copy");
+      const done = () => { b.textContent = "Copied ✓"; setTimeout(() => b.textContent = "Copy", 2000); };
+      if (navigator.clipboard) navigator.clipboard.writeText(a).then(done, () => prompt("Copy this address:", a));
+      else prompt("Copy this address:", a);
     }
     function resetMap() {
       map.closePopup();
