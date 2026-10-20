@@ -165,7 +165,7 @@ def home_ld(data):
                  f"unveiled so far in {', '.join(s['city'] for s in series[:-1])} and {series[-1]['city']}. The other monuments on the map are separate works: {other_txt}."}},
         ],
     }
-    return ld(item_list) + '\n  ' + ld(faq), faq
+    return site_ld(data) + '\n  ' + ld(item_list) + '\n  ' + ld(faq), faq
 
 
 # ---------------------------------------------------------------- shared page chrome
@@ -264,11 +264,44 @@ FEED_URL = SITE + '/feed.xml'
 FEED_LINK = f'<link rel="alternate" type="application/atom+xml" title="Satoshi Statues – new statues" href="{FEED_URL}" />'
 
 
+def nostr_url(data):
+    npub = (data.get('config') or {}).get('nostr_npub', '').strip()
+    return f'https://njump.me/{npub}' if npub else ''
+
+
+def nostr_json(data):
+    hexkey = (data.get('config') or {}).get('nostr_hex', '').strip().lower()
+    if not hexkey:
+        return None
+    if not re.fullmatch(r'[0-9a-f]{64}', hexkey):
+        raise SystemExit('config.nostr_hex must be 64 lowercase hex chars')
+    return json.dumps({'names': {'_': hexkey}}, separators=(',', ':'))
+
+
+def site_ld(data):
+    same = [u for u in [nostr_url(data)] if u]
+    npub = (data.get('config') or {}).get('nostr_npub', '').strip()
+    if npub:
+        same.append(f'nostr:{npub}')
+    org = {'@context': 'https://schema.org', '@type': 'Organization', '@id': SITE + '/#org',
+           'name': 'Satoshi Statues', 'url': SITE + '/', 'logo': SITE + '/og-image.jpg'}
+    if same:
+        org['sameAs'] = same
+    web = {'@context': 'https://schema.org', '@type': 'WebSite', '@id': SITE + '/#website',
+           'name': 'Satoshi Nakamoto Statues – Global Interactive Map', 'url': SITE + '/',
+           'publisher': {'@id': SITE + '/#org'}}
+    if same:
+        web['sameAs'] = same
+    return ld(org) + '\n  ' + ld(web)
+
+
 def signup_html(data, where):
     # 'Next statue' alert box: live Buttondown form when config.newsletter_action_url is set, else a coming-soon note.
     nxt = len(data['statues']) + 1
     url = (data.get('config') or {}).get('newsletter_action_url', '').strip()
-    feed = '<a class="feed-link" href="/feed.xml" type="application/atom+xml">📡 RSS/Atom feed</a>'
+    follow = ('<span class="alert-follow"><a class="feed-link" href="/feed.xml" type="application/atom+xml">📡 RSS/Atom feed</a>'
+              + (f'<a class="feed-link" href="{e(nostr_url(data))}" target="_blank" rel="noopener noreferrer me">🟣 Follow on Nostr</a>' if nostr_url(data) else '')
+              + '</span>')
     title = '<p class="alert-title">🔔 Get an alert when the next statue is unveiled</p>'
     if url:
         if not url.startswith('https://'):
@@ -282,9 +315,9 @@ def signup_html(data, where):
                 f'<label class="sr-only" for="alert-email-{where}">Email address</label>'
                 f'<input id="alert-email-{where}" type="email" name="email" required autocomplete="email" inputmode="email" placeholder="you@example.com" />'
                 f'<button type="submit">Notify me</button></form>'
-                f'<p class="alert-fine">One email per new statue. Unsubscribe anytime. Or follow the {feed}.</p>')
+                f'<p class="alert-fine">One email per new statue. Unsubscribe anytime.</p>{follow}')
     else:
-        body = f'<p class="alert-fine">Email alerts are coming soon. Follow the {feed} meanwhile.</p>'
+        body = f'<p class="alert-fine">Email alerts are coming soon. Meanwhile, follow along:</p>{follow}'
     return f'<section class="alert-box" aria-label="New statue alerts">{title}{body}</section>'
 
 
@@ -298,6 +331,8 @@ ALERT_CSS = (
     '.alert-fine{font-size:.8rem;color:#8b949e;margin:6px 0 0;line-height:1.45}'
     '.feed-link{color:#f7931a;font-weight:600;display:inline-block;padding:13px 0;margin:-13px 0;text-decoration:none}'
     '.feed-link:hover{text-decoration:underline}'
+    '.alert-follow{display:flex;flex-wrap:wrap;gap:0 18px;margin-top:2px}'
+    '.alert-follow .feed-link{padding:0;margin:0;min-height:44px;display:inline-flex;align-items:center;font-size:.85rem}'
     '.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}'
 )
 
@@ -420,7 +455,7 @@ def statue_page(s, data):
     <p class="note" style="font-size:.85rem;color:#8b949e;margin-bottom:8px">Visit reports, tips and photo links. Powered by giscus (needs a GitHub account). Same thread as on the map.</p>
     <div id="comments"><script src="https://giscus.app/client.js" {gattrs} crossorigin="anonymous" async></script></div>
     {signup_html(data, 'page')}
-    <footer class="site"><a href="/">satoshistatues.com</a> · Interactive map of every known Satoshi Nakamoto statue · <a href="/21-nodes/">21 Nodes tracker</a> · <a href="/feed.xml">Feed</a></footer>
+    <footer class="site"><a href="/">satoshistatues.com</a> · Interactive map of every known Satoshi Nakamoto statue · <a href="/21-nodes/">21 Nodes tracker</a> · <a href="/feed.xml">Feed</a>{f' · <a href="{e(nostr_url(data))}" rel="me">Nostr</a>' if nostr_url(data) else ''}</footer>
   </main>
 '''
     return out + TAIL
@@ -473,7 +508,7 @@ def nodes_page(data):
     <p class="note">Bitcoin Austria’s 21 Nodes page lists six nodes: New York, El Zonte, Lugano, Vienna, Hanoi and Tokyo <a href="https://bitcoin-austria.at/satoshi-statue/" target="_blank" rel="noopener noreferrer">[source]</a>. Miami (unveiled November 2025 as the series’ fifth statue <a href="https://en.cryptonomist.ch/2025/11/12/satoshi-statue-miami/" target="_blank" rel="noopener noreferrer">[source]</a>) and Hong Kong (a Valentina Picozzi statue unveiled in April 2026, described as the next of the same limited edition after Switzerland, El Zonte, Tokyo, Hanoi, Miami and the NYSE <a href="https://www.microbit.ai/en/news/press-releases/microbit-hashkey-group-hong-kong-unveils-its-first-satoshi-nakamoto-statue-at-web3-festival/" target="_blank" rel="noopener noreferrer">[source]</a>) are included from press reports. We count a node as installed once it stands at a public site, so Miami is not counted yet. Sources disagree on the numbering of the early statues. Budapest (2021), Fornelli and the other monuments on the map are separate works and not part of 21 Nodes.</p>
     <p class="note" style="font-size:.85rem;color:#8b949e;margin-top:10px">Know of a new node? <a href="https://github.com/{REPO}/issues/new?title=New%2021%20Nodes%20statue" target="_blank" rel="noopener noreferrer">Tell us</a> with a source link.</p>
     {signup_html(data, 'nodes')}
-    <footer class="site"><a href="/">Back to the map</a> · <a href="/feed.xml">Feed</a> · <a href="/sitemap.xml">Sitemap</a></footer>
+    <footer class="site"><a href="/">Back to the map</a> · <a href="/feed.xml">Feed</a>{f' · <a href="{e(nostr_url(data))}" rel="me">Nostr</a>' if nostr_url(data) else ''} · <a href="/sitemap.xml">Sitemap</a></footer>
   </main>
 '''
     return out + TAIL
@@ -521,9 +556,12 @@ def outputs(data):
         idx = f.read()
     files = {'index.html': build_index(data, idx), 'sitemap.xml': sitemap(data), 'robots.txt': ROBOTS,
              'feed.xml': feed_xml(data),
+             '.nojekyll': '',
              '21-nodes/index.html': nodes_page(data)}
     pages = [s['page'] for s in data['statues']]
     assert len(set(pages)) == len(pages), 'duplicate page slugs'
+    if nostr_json(data):
+        files['.well-known/nostr.json'] = nostr_json(data)
     for s in data['statues']:
         files[f"{s['page']}/index.html"] = statue_page(s, data)
     return files

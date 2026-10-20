@@ -2,7 +2,10 @@
   "_comment": "Single source of truth for satoshistatues.com. Edit here, then run: python3 build.py",
   "config": {
     "_newsletter_help": "Paste your Buttondown embed-subscribe URL to switch on email alerts, e.g. https://buttondown.com/api/emails/embed-subscribe/YOUR_USERNAME . Empty = coming-soon note with feed link. Then run: python3 build.py",
-    "newsletter_action_url": "https://buttondown.com/api/emails/embed-subscribe/satoshistatues"
+    "newsletter_action_url": "https://buttondown.com/api/emails/embed-subscribe/satoshistatues",
+    "_nostr_help": "Nostr profile for the site. nostr_hex is served as NIP-05 _@satoshistatues.com via /.well-known/nostr.json. Then run: python3 build.py",
+    "nostr_npub": "npub1dx7qh8fpp9l45lzrv9ff95f0f3gkrlvjhhptqjrxyhemze68kuhs72vv8h",
+    "nostr_hex": "69bc0b9d21097f5a7c43615292d12f4c5161fd92bdc2b0486625f3b16747b72f"
   },
   "statues": [
     {
