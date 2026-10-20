@@ -4,7 +4,8 @@
 statues.json is the single source of truth. This script:
   * injects the statue array, JSON-LD and the crawlable link list into index.html
   * generates one static page per statue (/<page>/index.html)
-  * generates /21-nodes/index.html, sitemap.xml and robots.txt
+  * generates /21-nodes/index.html, sitemap.xml, robots.txt and feed.xml (Atom)
+  * renders the 'next statue' alert box from config.newsletter_action_url (Buttondown embed URL)
 
 Run `python3 build.py` after editing statues.json and commit the output.
 `python3 build.py --check` exits non-zero if the committed output is stale.
@@ -33,6 +34,7 @@ e = lambda t: html.escape(str(t), quote=True)
 def load():
     with open(os.path.join(ROOT, 'statues.json'), encoding='utf-8') as f:
         data = json.load(f)
+    data.setdefault('config', {})
     for s in data['statues']:
         s['slug'] = slug_of(s)
     return data
@@ -240,8 +242,9 @@ def head(title, desc, canonical, image, iw, ih, img_alt, extra_ld):
   <meta name="twitter:image:alt" content="{e(img_alt)}" />
   <meta name="theme-color" content="#0d1117" />
   <link rel="icon" href="{FAVICON}" />
+  {FEED_LINK}
   {extra_ld}
-  <style>{CSS}</style>
+  <style>{CSS}{ALERT_CSS}</style>
 </head>
 <body>
   <header class="top">
@@ -255,6 +258,82 @@ TAIL = '''  <script data-goatcounter="https://satoshistatues.goatcounter.com/cou
 </body>
 </html>
 '''
+
+
+FEED_URL = SITE + '/feed.xml'
+FEED_LINK = f'<link rel="alternate" type="application/atom+xml" title="Satoshi Statues – new statues" href="{FEED_URL}" />'
+
+
+def signup_html(data, where):
+    # 'Next statue' alert box: live Buttondown form when config.newsletter_action_url is set, else a coming-soon note.
+    nxt = len(data['statues']) + 1
+    url = (data.get('config') or {}).get('newsletter_action_url', '').strip()
+    feed = '<a class="feed-link" href="/feed.xml" type="application/atom+xml">📡 RSS/Atom feed</a>'
+    title = f'<p class="alert-title">🔔 Get an alert when #{nxt} is unveiled</p>'
+    if url:
+        if not url.startswith('https://'):
+            raise SystemExit('config.newsletter_action_url must start with https://')
+        body = (f'<form class="alert-form" action="{e(url)}" method="post" target="_blank">'
+                f'<input type="hidden" name="embed" value="1" />'
+                f'<label class="sr-only" for="alert-email-{where}">Email address</label>'
+                f'<input id="alert-email-{where}" type="email" name="email" required autocomplete="email" inputmode="email" placeholder="you@example.com" />'
+                f'<button type="submit">Notify me</button></form>'
+                f'<p class="alert-fine">One email per new statue. Unsubscribe anytime. Or follow the {feed}.</p>')
+    else:
+        body = f'<p class="alert-fine">Email alerts are coming soon. Follow the {feed} meanwhile.</p>'
+    return f'<section class="alert-box" aria-label="New statue alerts">{title}{body}</section>'
+
+
+ALERT_CSS = (
+    '.alert-box{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}'
+    '.alert-title{font-weight:700;color:#e6edf3;font-size:.95rem;margin:0 0 6px}'
+    '.alert-form{display:flex;gap:8px;flex-wrap:wrap;max-width:520px}'
+    '.alert-form input[type=email]{flex:1 1 180px;min-width:0;min-height:44px;padding:10px 12px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:16px;font-family:inherit}'
+    '.alert-form input[type=email]:focus{outline:2px solid #f7931a;border-color:#f7931a}'
+    '.alert-form button{min-height:44px;padding:10px 16px;border-radius:8px;border:none;background:#f7931a;color:#0d1117;font-weight:700;font-size:.92rem;cursor:pointer;font-family:inherit}'
+    '.alert-fine{font-size:.8rem;color:#8b949e;margin:6px 0 0;line-height:1.45}'
+    '.feed-link{color:#f7931a;font-weight:600;display:inline-block;padding:13px 0;margin:-13px 0;text-decoration:none}'
+    '.feed-link:hover{text-decoration:underline}'
+    '.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}'
+)
+
+
+def feed_xml(data):
+    # Atom feed: one entry per statue, newest unveiling first.
+    items = sorted(data['statues'], key=unveil_key, reverse=True)
+    ts = lambda s: unveil_key(s).strftime('%Y-%m-%dT00:00:00Z')
+    x = lambda t: html.escape(str(t), quote=False)
+    entries = ''
+    for s in items:
+        artist = re.sub(r' *[(].*?[)]', '', s['artist'])
+        if s.get('creatorVerified') is False:
+            artist += ' (credit unverified)'
+        summary = (f"{s['city']}, {s['country']} · {s['place']}. Artist: {artist}. "
+                   f"Status: {s['status']}. Unveiled {s.get('unveiled') or s['year']}.")
+        entries += (
+            '  <entry>\n'
+            f"    <title>{x(s['label'])} ({x(s['city'])}, {x(s['country'])})</title>\n"
+            f'    <link rel="alternate" type="text/html" href="{page_url(s)}" />\n'
+            f'    <id>{page_url(s)}</id>\n'
+            f'    <published>{ts(s)}</published>\n'
+            f'    <updated>{ts(s)}</updated>\n'
+            f'    <author><name>{x(artist)}</name></author>\n'
+            f"    <category term=\"{x(s['status'])}\" />\n"
+            f'    <summary>{x(summary)}</summary>\n'
+            '  </entry>\n')
+    updated = max(unveil_key(s) for s in items).strftime('%Y-%m-%dT00:00:00Z')
+    return (
+        '<?xml version="1.0" encoding="utf-8"?>\n'
+        '<feed xmlns="http://www.w3.org/2005/Atom">\n'
+        '  <title>Satoshi Statues – new Satoshi Nakamoto statues</title>\n'
+        '  <subtitle>Every known Satoshi Nakamoto statue and Bitcoin monument, newest first.</subtitle>\n'
+        f'  <link rel="self" type="application/atom+xml" href="{FEED_URL}" />\n'
+        f'  <link rel="alternate" type="text/html" href="{SITE}/" />\n'
+        f'  <id>{SITE}/</id>\n'
+        f'  <updated>{updated}</updated>\n'
+        f'  <author><name>satoshistatues.com</name><uri>{SITE}/</uri></author>\n'
+        f'  <icon>{SITE}/og-image.jpg</icon>\n'
+        f'{entries}</feed>\n')
 
 
 def status_badge(st):
@@ -336,7 +415,8 @@ def statue_page(s, data):
     <h2 id="comments-title">Comments</h2>
     <p class="note" style="font-size:.85rem;color:#8b949e;margin-bottom:8px">Visit reports, tips and photo links. Powered by giscus (needs a GitHub account). Same thread as on the map.</p>
     <div id="comments"><script src="https://giscus.app/client.js" {gattrs} crossorigin="anonymous" async></script></div>
-    <footer class="site"><a href="/">satoshistatues.com</a> · Interactive map of every known Satoshi Nakamoto statue · <a href="/21-nodes/">21 Nodes tracker</a></footer>
+    {signup_html(data, 'page')}
+    <footer class="site"><a href="/">satoshistatues.com</a> · Interactive map of every known Satoshi Nakamoto statue · <a href="/21-nodes/">21 Nodes tracker</a> · <a href="/feed.xml">Feed</a></footer>
   </main>
 '''
     return out + TAIL
@@ -388,7 +468,8 @@ def nodes_page(data):
     <h2>About the count</h2>
     <p class="note">Bitcoin Austria’s 21 Nodes page lists six nodes: New York, El Zonte, Lugano, Vienna, Hanoi and Tokyo <a href="https://bitcoin-austria.at/satoshi-statue/" target="_blank" rel="noopener noreferrer">[source]</a>. Miami (unveiled November 2025 as the series’ fifth statue <a href="https://en.cryptonomist.ch/2025/11/12/satoshi-statue-miami/" target="_blank" rel="noopener noreferrer">[source]</a>) and Hong Kong (a Valentina Picozzi statue unveiled in April 2026, described as the next of the same limited edition after Switzerland, El Zonte, Tokyo, Hanoi, Miami and the NYSE <a href="https://www.microbit.ai/en/news/press-releases/microbit-hashkey-group-hong-kong-unveils-its-first-satoshi-nakamoto-statue-at-web3-festival/" target="_blank" rel="noopener noreferrer">[source]</a>) are included from press reports. We count a node as installed once it stands at a public site, so Miami is not counted yet. Sources disagree on the numbering of the early statues. Budapest (2021), Fornelli and the other monuments on the map are separate works and not part of 21 Nodes.</p>
     <p class="note" style="font-size:.85rem;color:#8b949e;margin-top:10px">Know of a new node? <a href="https://github.com/{REPO}/issues/new?title=New%2021%20Nodes%20statue" target="_blank" rel="noopener noreferrer">Tell us</a> with a source link.</p>
-    <footer class="site"><a href="/">Back to the map</a> · <a href="/sitemap.xml">Sitemap</a></footer>
+    {signup_html(data, 'nodes')}
+    <footer class="site"><a href="/">Back to the map</a> · <a href="/feed.xml">Feed</a> · <a href="/sitemap.xml">Sitemap</a></footer>
   </main>
 '''
     return out + TAIL
@@ -403,14 +484,15 @@ def sitemap(data):
 ROBOTS = f'User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n'
 
 
-def replace_block(text, name, content, comment=('<!-- ', ' -->'), indent='  '):
-    a, b = comment
+def replace_block(text, name, content, comment=('<!-- ', ' -->')):
+    # Replace everything between the BEGIN and END marker lines (markers keep their own line + indent).
+    a, _ = comment
     begin_re = re.escape(a + f'BUILD:{name}:BEGIN')
-    end_re = re.escape(a + f'BUILD:{name}:END') + r'[^\n]*'
-    pat = re.compile(rf'({begin_re}[^\n]*\n)(.*?)(\s*{end_re})', re.S)
+    end_re = re.escape(a + f'BUILD:{name}:END')
+    pat = re.compile(rf'([ \t]*)({begin_re}[^\n]*)\n.*?[ \t]*({end_re}[^\n]*)', re.S)
     if not pat.search(text):
         raise SystemExit(f'marker {name} not found in index.html')
-    return pat.sub(lambda m: m.group(1) + content + m.group(3), text, count=1)
+    return pat.sub(lambda m: f'{m.group(1)}{m.group(2)}\n{content.rstrip()}\n{m.group(1)}{m.group(3)}', text, count=1)
 
 
 def build_index(data, text):
@@ -425,6 +507,8 @@ def build_index(data, text):
         f'          <li><a href="/{s["page"]}/">{e(s["label"])}</a></li>\n'
         for s in sorted(data['statues'], key=lambda s: -sort_year(s['year']))) + '          <li><a href="/21-nodes/">21 Nodes tracker</a></li>\n        </ul>'
     text = replace_block(text, 'LINKS', links)
+    text = replace_block(text, 'SIGNUP', '        ' + signup_html(data, 'home'))
+    text = replace_block(text, 'HEADLINKS', '  ' + FEED_LINK + '\n  <style>' + ALERT_CSS + '</style>')
     return text
 
 
@@ -432,6 +516,7 @@ def outputs(data):
     with open(os.path.join(ROOT, 'index.html'), encoding='utf-8') as f:
         idx = f.read()
     files = {'index.html': build_index(data, idx), 'sitemap.xml': sitemap(data), 'robots.txt': ROBOTS,
+             'feed.xml': feed_xml(data),
              '21-nodes/index.html': nodes_page(data)}
     pages = [s['page'] for s in data['statues']]
     assert len(set(pages)) == len(pages), 'duplicate page slugs'

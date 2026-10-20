@@ -1,5 +1,9 @@
 {
   "_comment": "Single source of truth for satoshistatues.com. Edit here, then run: python3 build.py",
+  "config": {
+    "_newsletter_help": "Paste your Buttondown embed-subscribe URL to switch on email alerts, e.g. https://buttondown.com/api/emails/embed-subscribe/YOUR_USERNAME . Empty = coming-soon note with feed link. Then run: python3 build.py",
+    "newsletter_action_url": ""
+  },
   "statues": [
     {
       "name": "Budapest",

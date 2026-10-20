@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Satoshi Statues – new Satoshi Nakamoto statues</title>
+  <subtitle>Every known Satoshi Nakamoto statue and Bitcoin monument, newest first.</subtitle>
+  <link rel="self" type="application/atom+xml" href="https://www.satoshistatues.com/feed.xml" />
+  <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/" />
+  <id>https://www.satoshistatues.com/</id>
+  <updated>2026-10-14T00:00:00Z</updated>
+  <author><name>satoshistatues.com</name><uri>https://www.satoshistatues.com/</uri></author>
+  <icon>https://www.satoshistatues.com/og-image.jpg</icon>
+  <entry>
+    <title>Satoshi Statue Vienna (Vienna, Austria)</title>
+    <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/vienna/" />
+    <id>https://www.satoshistatues.com/vienna/</id>
+    <published>2026-10-14T00:00:00Z</published>
+    <updated>2026-10-14T00:00:00Z</updated>
+    <author><name>Valentina Picozzi</name></author>
+    <category term="Installed" />
+    <summary>Vienna, Austria · Viertel Zwei (lakehead next to OMV Hoch Zwei). Artist: Valentina Picozzi. Status: Installed. Unveiled 14 Oct 2026.</summary>
+  </entry>
+  <entry>
+    <title>Satoshi Statue Hong Kong (Hong Kong, China)</title>
+    <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/hong-kong/" />
+    <id>https://www.satoshistatues.com/hong-kong/</id>
+    <published>2026-04-20T00:00:00Z</published>
+    <updated>2026-04-20T00:00:00Z</updated>
+    <author><name>Valentina Picozzi</name></author>
+    <category term="Installed" />
+    <summary>Hong Kong, China · Web3 Festival (donated to government). Artist: Valentina Picozzi. Status: Installed. Unveiled 20 Apr 2026.</summary>
+  </entry>
+  <entry>
+    <title>Satoshi Statue New York (New York, USA)</title>
+    <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/new-york/" />
+    <id>https://www.satoshistatues.com/new-york/</id>
+    <published>2025-12-01T00:00:00Z</published>
+    <updated>2025-12-01T00:00:00Z</updated>
+    <author><name>Valentina Picozzi</name></author>
+    <category term="Installed" />
+    <summary>New York, USA · New York Stock Exchange (NYSE). Artist: Valentina Picozzi. Status: Installed. Unveiled Dec 2025.</summary>
+  </entry>
+  <entry>
+    <title>Satoshi Statue Miami (Valentina Picozzi) (Miami, USA)</title>
+    <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/miami-picozzi/" />
+    <id>https://www.satoshistatues.com/miami-picozzi/</id>
+    <published>2025-11-12T00:00:00Z</published>
+    <updated>2025-11-12T00:00:00Z</updated>
+    <author><name>Valentina Picozzi</name></author>
+    <category term="Planned" />
+    <summary>Miami, USA · Miami (waterfront park planned). Artist: Valentina Picozzi. Status: Planned. Unveiled 12 Nov 2025.</summary>
+  </entry>
+  <entry>
+    <title>Satoshi Statue Hanoi (Hanoi, Vietnam)</title>
+    <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/hanoi/" />
+    <id>https://www.satoshistatues.com/hanoi/</id>
+    <published>2025-09-09T00:00:00Z</published>
+    <updated>2025-09-09T00:00:00Z</updated>
+    <author><name>Valentina Picozzi</name></author>
+    <category term="Installed" />
+    <summary>Hanoi, Vietnam · Times City – 1Matrix HQ. Artist: Valentina Picozzi. Status: Installed. Unveiled 9 Sep 2025.</summary>
+  </entry>
+  <entry>
+    <title>Satoshi Statue Fornelli (Fornelli, Italy)</title>
+    <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/fornelli/" />
+    <id>https://www.satoshistatues.com/fornelli/</id>
+    <published>2025-05-01T00:00:00Z</published>
+    <updated>2025-05-01T00:00:00Z</updated>
+    <author><name>Mattia Pannoni</name></author>
+    <category term="Installed" />
+    <summary>Fornelli, Italy · Piazza Umberto I. Artist: Mattia Pannoni. Status: Installed. Unveiled 1 May 2025.</summary>
+  </entry>
+  <entry>
+    <title>Satoshi Statue Tokyo (Tokyo, Japan)</title>
+    <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/tokyo/" />
+    <id>https://www.satoshistatues.com/tokyo/</id>
+    <published>2025-04-01T00:00:00Z</published>
+    <updated>2025-04-01T00:00:00Z</updated>
+    <author><name>Valentina Picozzi</name></author>
+    <category term="Installed" />
+    <summary>Tokyo, Japan · Tokyo Bitcoin Base (Shinjuku). Artist: Valentina Picozzi. Status: Installed. Unveiled Apr 2025.</summary>
+  </entry>
+  <entry>
+    <title>Satoshi Statue El Zonte (El Zonte, El Salvador)</title>
+    <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/el-zonte/" />
+    <id>https://www.satoshistatues.com/el-zonte/</id>
+    <published>2025-01-01T00:00:00Z</published>
+    <updated>2025-01-01T00:00:00Z</updated>
+    <author><name>Valentina Picozzi</name></author>
+    <category term="Installed" />
+    <summary>El Zonte, El Salvador · Bitcoin Beach. Artist: Valentina Picozzi. Status: Installed. Unveiled Jan 2025.</summary>
+  </entry>
+  <entry>
+    <title>Satoshi Statue Lugano (Lugano, Switzerland)</title>
+    <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/lugano/" />
+    <id>https://www.satoshistatues.com/lugano/</id>
+    <published>2024-10-25T00:00:00Z</published>
+    <updated>2024-10-25T00:00:00Z</updated>
+    <author><name>Valentina Picozzi</name></author>
+    <category term="Restored" />
+    <summary>Lugano, Switzerland · Parco Ciani. Artist: Valentina Picozzi. Status: Restored. Unveiled 25 Oct 2024.</summary>
+  </entry>
+  <entry>
+    <title>Miami Bitcoin Bull (Miami, USA)</title>
+    <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/miami-bull/" />
+    <id>https://www.satoshistatues.com/miami-bull/</id>
+    <published>2022-04-01T00:00:00Z</published>
+    <updated>2022-04-01T00:00:00Z</updated>
+    <author><name>Furio Tedeschi</name></author>
+    <category term="Installed" />
+    <summary>Miami, USA · Miami Dade College Wolfson Campus (NE 1st Ave &amp; NE 4th St). Artist: Furio Tedeschi. Status: Installed. Unveiled Apr 2022.</summary>
+  </entry>
+  <entry>
+    <title>Satoshi Statue Budapest (Budapest, Hungary)</title>
+    <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/budapest/" />
+    <id>https://www.satoshistatues.com/budapest/</id>
+    <published>2021-09-16T00:00:00Z</published>
+    <updated>2021-09-16T00:00:00Z</updated>
+    <author><name>Réka Gergely &amp; Tamás Gilly</name></author>
+    <category term="Installed" />
+    <summary>Budapest, Hungary · Graphisoft Park. Artist: Réka Gergely &amp; Tamás Gilly. Status: Installed. Unveiled 16 Sep 2021.</summary>
+  </entry>
+  <entry>
+    <title>Kranj Bitcoin Monument (Kranj, Slovenia)</title>
+    <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/kranj/" />
+    <id>https://www.satoshistatues.com/kranj/</id>
+    <published>2018-03-01T00:00:00Z</published>
+    <updated>2018-03-01T00:00:00Z</updated>
+    <author><name>Selman Čorović &amp; Aleksander Frančeškin (credit unverified)</name></author>
+    <category term="Installed" />
+    <summary>Kranj, Slovenia · City center roundabout. Artist: Selman Čorović &amp; Aleksander Frančeškin (credit unverified). Status: Installed. Unveiled Mar 2018.</summary>
+  </entry>
+</feed>
