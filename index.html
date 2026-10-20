@@ -3,7 +3,7 @@
 <head>
   <script>if (location.protocol === "http:" && !/^(localhost|127\.)/.test(location.hostname)) location.replace("https:" + location.href.slice(5));</script>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
  
   <!-- Primary SEO -->
   <title>Satoshi Nakamoto Statues – Global Interactive Map</title>
@@ -435,20 +435,60 @@
     .modal-close:hover { color: #f7931a; border-color: #f7931a; }
     .modal-note { font-size: 0.82rem; color: #8b949e; line-height: 1.45; margin: 10px 0; }
     .modal-note a { color: #f7931a; }
-    .passport-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; margin: 12px 0; }
-    .passport-list li {
-      border: 1px solid #30363d;
-      border-radius: 8px;
-      padding: 9px 11px;
-      font-size: 0.85rem;
-      background: #0d1117;
-      color: #8b949e;
-    }
-    .passport-list li.got { border: 2px dashed #3fb950; color: #e6edf3; }
-    .passport-list li .when { display: block; font-size: 0.75rem; color: #3fb950; margin-top: 2px; }
-    .passport-list li .where { display: block; font-size: 0.75rem; margin-top: 2px; }
     .passport-progress { height: 8px; background: #21262d; border-radius: 4px; overflow: hidden; margin-top: 6px; }
     .passport-progress span { display: block; height: 100%; background: #f7931a; width: 0; transition: width 0.4s; }
+    /* ---- Passport modal ---- */
+    #passport-modal .modal { padding-top: 0; padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px)); }
+    .pp-head { position: sticky; top: 0; z-index: 3; background: #161b22; padding: 14px 0 10px; margin-bottom: 4px; align-items: center; }
+    .pp-hero { text-align: center; padding: 6px 0 4px; }
+    .pp-count { font-size: 3rem; font-weight: 800; line-height: 1; color: #e6edf3; letter-spacing: -0.02em; }
+    .pp-count .pp-of { font-size: 1.6rem; color: #8b949e; font-weight: 700; margin-left: 6px; }
+    .pp-label { color: #8b949e; font-size: 0.9rem; margin: 6px 0 10px; }
+    .pp-hero .passport-progress { height: 10px; border-radius: 5px; max-width: 420px; margin: 0 auto; }
+    .pp-hero .passport-progress span { background: linear-gradient(90deg, #f7931a, #ffb347); }
+    .pp-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0 6px; }
+    .pp-primary { min-height: 48px; border-radius: 10px; border: none; background: #f7931a; color: #0d1117; font-weight: 700; font-size: 0.95rem; font-family: inherit; cursor: pointer; padding: 10px 12px; }
+    .pp-primary:hover { background: #ffb347; }
+    .pp-primary:disabled { opacity: 0.7; cursor: wait; }
+    .pp-checkin { background: #238636; color: #fff; }
+    .pp-checkin:hover { background: #2ea043; }
+    #passport-modal #geo-test-result { margin: 8px 0 4px; }
+    #geo-test-result:empty { display: none; }
+    .pp-section { font-size: 0.95rem; color: #e6edf3; margin: 18px 0 10px; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .pp-section-sub { font-size: 0.75rem; color: #8b949e; font-weight: 400; }
+    .stamp-grid { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin: 0; padding: 0; }
+    .stamp-tile { width: 100%; min-height: 124px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 4px; padding: 10px 4px 8px; background: #0d1117; border: 1px solid #21262d; border-radius: 12px; color: #8b949e; font-family: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: border-color 0.2s, transform 0.15s; }
+    .stamp-tile:hover { border-color: #f7931a; }
+    .stamp-tile:active { transform: scale(0.97); }
+    .stamp-ring { position: relative; width: 64px; height: 64px; border-radius: 50%; border: 2px dashed #3d444d; display: flex; align-items: center; justify-content: center; font-size: 1.9rem; }
+    .stamp-flag { filter: grayscale(1); opacity: 0.4; line-height: 1; }
+    .stamp-name { font-size: 0.82rem; font-weight: 600; color: #8b949e; text-align: center; line-height: 1.2; overflow-wrap: anywhere; }
+    .stamp-date { font-size: 0.68rem; color: #6e7681; text-align: center; }
+    .stamp-tile.got { border-color: rgba(63, 185, 80, 0.45); background: radial-gradient(circle at 50% 30%, rgba(63, 185, 80, 0.12), #0d1117 70%); }
+    .stamp-tile.got .stamp-ring { border: 3px solid #3fb950; box-shadow: inset 0 0 0 3px #0d1117, inset 0 0 0 5px rgba(63, 185, 80, 0.6), 0 0 12px rgba(63, 185, 80, 0.35); transform: rotate(-8deg); background: rgba(63, 185, 80, 0.1); }
+    .stamp-tile.got .stamp-flag { filter: none; opacity: 1; }
+    .stamp-tile.got .stamp-name { color: #e6edf3; }
+    .stamp-tile.got .stamp-date { color: #3fb950; font-weight: 600; }
+    .stamp-check { position: absolute; right: -6px; bottom: -4px; width: 24px; height: 24px; border-radius: 50%; background: #f7931a; color: #0d1117; font-size: 0.8rem; font-weight: 800; display: none; align-items: center; justify-content: center; border: 2px solid #0d1117; transform: rotate(8deg); }
+    .stamp-tile.got .stamp-check { display: flex; }
+    .stamp-tile.soon .stamp-ring { border-color: #1f6feb; }
+    .stamp-tile.soon .stamp-flag { opacity: 0.7; filter: grayscale(0.4); }
+    .stamp-tile.soon .stamp-date { color: #58a6ff; }
+    .stamp-tile.just .stamp-ring { animation: stampIn 0.6s cubic-bezier(.2, 1.6, .4, 1); }
+    @keyframes stampIn { 0% { transform: scale(1.8) rotate(-30deg); opacity: 0; } 100% { transform: scale(1) rotate(-8deg); opacity: 1; } }
+    .pp-more { margin-top: 18px; border: 1px solid #30363d; border-radius: 10px; padding: 0 12px; }
+    .pp-more summary { min-height: 46px; display: flex; align-items: center; cursor: pointer; font-weight: 600; color: #f7931a; font-size: 0.9rem; list-style: none; }
+    .pp-more summary::-webkit-details-marker { display: none; }
+    .pp-more summary::after { content: '▾'; margin-left: auto; color: #8b949e; transition: transform 0.2s; }
+    .pp-more[open] summary::after { transform: rotate(180deg); }
+    .pp-more .share-box { margin: 4px 0 12px; grid-template-columns: 220px 1fr; }
+    .pp-more .share-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .pp-more .share-grid .ghost-btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+    .pp-foot { margin-top: 14px; }
+    .pp-foot .modal-note { margin: 0 0 6px; }
+    .pp-link { background: none; border: none; color: #8b949e; font-family: inherit; font-size: 0.8rem; text-decoration: underline; cursor: pointer; min-height: 44px; padding: 0; }
+    .pp-link:hover { color: #f7931a; }
+    .pp-link:disabled { cursor: wait; }
     .share-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 6px; }
     .share-box { display: grid; grid-template-columns: minmax(0, 300px) 1fr; gap: 16px; align-items: start; margin: 14px 0 6px; }
     .badge-preview { width: 100%; aspect-ratio: 1 / 1; border-radius: 10px; border: 1px solid #30363d; background: #0d1117; display: block; -webkit-touch-callout: default; }
@@ -464,7 +504,7 @@
     .toast {
       position: fixed;
       left: 50%;
-      bottom: 24px;
+      bottom: calc(24px + env(safe-area-inset-bottom, 0px));
       transform: translateX(-50%);
       background: #21262d;
       color: #e6edf3;
@@ -513,7 +553,15 @@
       .statue-card { padding: 10px 12px; }
       .modal-backdrop { padding: 0; align-items: flex-end; }
       .modal { max-height: 90vh; border-radius: 12px 12px 0 0; padding: 16px 14px 20px; }
-      .passport-list { grid-template-columns: 1fr 1fr; }
+      #passport-modal .modal { max-height: 92vh; max-height: 92dvh; }
+      .stamp-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+      .stamp-tile { min-height: 118px; }
+      .stamp-ring { width: 58px; height: 58px; font-size: 1.7rem; }
+      .pp-count { font-size: 2.8rem; }
+      .pp-primary { font-size: 0.9rem; padding: 10px 8px; }
+      .pp-more .share-box { grid-template-columns: 1fr; }
+      .pp-more .badge-preview { max-width: 210px; margin: 0 auto; }
+      .sidebar { padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
     }
   </style>
 </head>
@@ -550,36 +598,45 @@
     </div>
   </div>
   <div class="modal-backdrop" id="passport-modal" role="dialog" aria-modal="true" aria-labelledby="passport-title">
-    <div class="modal">
-      <div class="modal-head">
-        <div>
-          <h2 id="passport-title">🛂 Satoshi Passport</h2>
-          <div class="sub" id="passport-sub"></div>
-          <div class="passport-progress"><span id="passport-bar"></span></div>
-        </div>
+    <div class="modal pp-modal">
+      <div class="modal-head pp-head">
+        <h2 id="passport-title">🛂 Satoshi Passport</h2>
         <button class="modal-close" type="button" aria-label="Close" onclick="closeModals()">✕</button>
       </div>
-      <div class="share-box">
-        <img class="badge-preview" id="badge-preview" alt="Your Satoshi Passport badge" />
-        <div class="share-actions">
-          <button class="directions-btn" type="button" id="share-main" onclick="sharePassport()">📤 Share badge</button>
-          <button class="ghost-btn" type="button" onclick="downloadBadge()">⬇️ Download image</button>
-          <div class="share-grid">
-            <a class="ghost-btn" id="share-x" href="#" target="_blank" rel="noopener noreferrer">𝕏 Post on X</a>
-            <a class="ghost-btn" id="share-fb" href="#" target="_blank" rel="noopener noreferrer">Facebook</a>
-            <button class="ghost-btn" type="button" onclick="shareNostr()">⚡ Nostr</button>
-            <button class="ghost-btn" type="button" onclick="copyShareText()">📋 Copy text</button>
+      <div class="pp-hero">
+        <div class="pp-count" aria-live="polite"><span id="pp-n">0</span><span class="pp-of">/ <span id="pp-total">11</span></span></div>
+        <div class="pp-label" id="passport-sub">statues visited</div>
+        <div class="passport-progress"><span id="passport-bar"></span></div>
+      </div>
+      <div class="pp-actions">
+        <button class="pp-primary pp-checkin" type="button" id="checkin-here-btn" onclick="checkInHere()">📍 Check in here</button>
+        <button class="pp-primary" type="button" id="share-main" onclick="sharePassport()">📤 Share my passport</button>
+      </div>
+      <div class="checkin-msg" id="geo-test-result" aria-live="polite"></div>
+      <h3 class="pp-section">Stamps <span class="pp-section-sub">Tap a city to see it on the map</span></h3>
+      <ul class="stamp-grid" id="passport-list"></ul>
+      <h3 class="pp-section" id="pp-soon-title">Coming soon <span class="pp-section-sub">Not counted until installed</span></h3>
+      <ul class="stamp-grid" id="passport-soon"></ul>
+      <details class="pp-more" id="pp-more">
+        <summary>More ways to share</summary>
+        <div class="share-box">
+          <img class="badge-preview" id="badge-preview" alt="Your Satoshi Passport badge" />
+          <div class="share-actions">
+            <div class="share-grid">
+              <a class="ghost-btn" id="share-x" href="#" target="_blank" rel="noopener noreferrer">𝕏 Post</a>
+              <a class="ghost-btn" id="share-fb" href="#" target="_blank" rel="noopener noreferrer">Facebook</a>
+              <button class="ghost-btn" type="button" onclick="shareNostr()">⚡ Nostr</button>
+              <button class="ghost-btn" type="button" onclick="downloadBadge()">⬇️ Save image</button>
+              <button class="ghost-btn" type="button" onclick="copyShareText()">📋 Copy text</button>
+            </div>
+            <div class="share-hint" id="share-hint"><strong>Share my passport</strong> sends the badge image straight to Instagram, X, WhatsApp, Signal and more. X and Facebook links share text only, so attach the saved image. On iPhone you can also long-press the badge to save it.</div>
           </div>
-          <div class="share-hint" id="share-hint">Tip: <strong>Share badge</strong> sends the image straight to Instagram, X, WhatsApp, Signal and more on your phone. X and Facebook links share the text and link only, so add the downloaded image yourself. On iPhone you can also long-press the preview to save it.</div>
         </div>
+      </details>
+      <div class="pp-foot">
+        <p class="modal-note">Tap <strong>Check in here</strong> when you're within about 200 m of a statue to collect its stamp. Stamps live only in this browser on this device. Nothing is uploaded, and clearing browser data erases them.</p>
+        <button class="pp-link" type="button" id="geo-test-btn" onclick="testLocation()">📡 Test my location</button>
       </div>
-      <ul class="passport-list" id="passport-list"></ul>
-      <div class="geo-test">
-        <button class="ghost-btn checkin-btn" type="button" id="geo-test-btn" onclick="testLocation()">📡 Test my location</button>
-        <span class="share-hint">Checks that location works here. It doesn't stamp anything.</span>
-        <div class="checkin-msg" id="geo-test-result" aria-live="polite"></div>
-      </div>
-      <p class="modal-note">To collect a stamp, open a statue on the map and tap <strong>Check in</strong> while you're within about 200 m of it. Stamps are kept only in this browser on this device. Nothing is uploaded, and clearing your browser data erases them. Statues that aren't installed yet can't be stamped.</p>
     </div>
   </div>
   <div class="modal-backdrop" id="comments-modal" role="dialog" aria-modal="true" aria-labelledby="comments-title">
@@ -1183,21 +1240,79 @@
     function updatePassportCounter() {
       const n = visitedCount(), total = checkable.length;
       document.getElementById('passport-btn').innerHTML = `🛂 Passport<span class="pp-full">:&nbsp;${n} of ${total} visited</span><span class="pp-short">&nbsp;${n}/${total}</span>`;
-      document.getElementById('passport-sub').textContent = `${n} of ${total} statues visited${n === total && total ? ' 🏆 Full set!' : ''}`;
+      document.getElementById('pp-n').textContent = n;
+      document.getElementById('pp-total').textContent = total;
+      document.getElementById('passport-sub').textContent = n === total && total ? '🏆 Full set! Every statue stamped.'
+        : n === 0 ? `statues visited · ${total} to collect` : `statues visited · ${total - n} to go`;
       document.getElementById('passport-bar').style.width = `${total ? (100 * n / total) : 0}%`;
     }
-    function renderPassportList() {
-      const list = document.getElementById('passport-list');
-      list.innerHTML = '';
-      checkable.forEach(s => {
-        const li = document.createElement('li');
-        const got = isVisited(s);
-        if (got) li.className = 'got';
-        li.innerHTML = got
-          ? `✓ <strong>${s.name}</strong><span class="where">${s.city}, ${s.country}</span><span class="when">Stamped ${fmtDate(passport[s.slug].date)}</span>`
-          : `○ ${s.name}<span class="where">${s.city}, ${s.country}</span>`;
-        list.appendChild(li);
-      });
+    const FLAGS = { Hungary: '🇭🇺', Switzerland: '🇨🇭', 'El Salvador': '🇸🇻', Japan: '🇯🇵', Vietnam: '🇻🇳', USA: '🇺🇸', Italy: '🇮🇹', China: '🇨🇳', Slovenia: '🇸🇮', Austria: '🇦🇹' };
+    function flagOf(s) { return s.city === 'Hong Kong' ? '🇭🇰' : (FLAGS[s.country] || '🗿'); }
+    const SHORT = { 'kranj-bitcoin-monument': 'Kranj', 'miami-bitcoin-bull': 'Miami Bull' };
+    function shortName(s) { return SHORT[s.slug] || s.name; }
+    function stampTile(s, opts = {}) {
+      const got = !opts.soon && isVisited(s);
+      const cls = ['stamp-tile', got ? 'got' : '', opts.soon ? 'soon' : '', opts.just === s.slug ? 'just' : ''].filter(Boolean).join(' ');
+      const date = opts.soon ? 'Coming soon' : got ? fmtDate(passport[s.slug].date) : 'Not yet';
+      const label = `${s.name}, ${s.city}, ${s.country}: ${opts.soon ? 'coming soon' : got ? 'stamped ' + date : 'not visited yet'}`;
+      return `<li><button class="${cls}" type="button" data-stamp="${s.slug}" aria-label="${escHtml(label)}">
+        <span class="stamp-ring"><span class="stamp-flag">${flagOf(s)}</span><span class="stamp-check">✓</span></span>
+        <span class="stamp-name">${escHtml(shortName(s))}</span>
+        <span class="stamp-date">${date}</span></button></li>`;
+    }
+    function renderPassportList(justSlug) {
+      document.getElementById('passport-list').innerHTML = checkable.map(s => stampTile(s, { just: justSlug })).join('');
+      const soon = statues.filter(s => !isCheckable(s));
+      document.getElementById('passport-soon').innerHTML = soon.map(s => stampTile(s, { soon: true })).join('');
+      document.getElementById('pp-soon-title').hidden = !soon.length;
+    }
+    function showStatueFromPassport(s) {
+      const index = statues.indexOf(s);
+      closeModals();
+      if (isMobile) {
+        map.flyTo([s.lat, s.lng], 6, { duration: 0.6 });
+        openDetail(s, index);
+      } else {
+        goToStatue(s, s.marker, index);
+      }
+    }
+    // One-tap check-in from the passport: finds the nearest statue and stamps it if within range.
+    function checkInHere() {
+      const out = document.getElementById('geo-test-result');
+      const btn = document.getElementById('checkin-here-btn');
+      const show = (cls, html) => { out.className = `checkin-msg ${cls}`; out.innerHTML = html; btn.disabled = false; btn.textContent = '📍 Check in here'; };
+      if (!('geolocation' in navigator)) {
+        show('warn', `This browser can't share its location, so check-in isn't available here.<div class="geo-diag">Details: no navigator.geolocation · secure: ${window.isSecureContext ? 'yes' : 'no'} · ${detectPlatform().label}</div>`);
+        return;
+      }
+      btn.disabled = true; btn.textContent = '📡 Locating…';
+      out.className = 'checkin-msg'; out.textContent = 'Finding your location…';
+      navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude, longitude, accuracy } = pos.coords;
+        let best = null;
+        checkable.forEach(st => {
+          const d = haversineM(latitude, longitude, st.lat, st.lng);
+          if (!best || d < best.d) best = { st, d };
+        });
+        if (!best) { show('warn', 'No statues to check in to yet.'); return; }
+        const s = best.st;
+        if (best.d <= CHECKIN_RADIUS_M) {
+          if (isVisited(s)) { show('ok', `✓ You're at <strong>${s.name}</strong>. Already stamped on ${fmtDate(passport[s.slug].date)}.`); return; }
+          passport[s.slug] = { date: new Date().toISOString() };
+          const saved = savePassport();
+          refreshVisitedUI(s);
+          renderPassportList(s.slug);
+          refreshBadge();
+          show('ok', saved
+            ? `🟠 Stamped! <strong>${s.name}</strong> is in your passport. That's ${visitedCount()} of ${checkable.length}.`
+            : `🟠 You're at ${s.name}, but this browser won't let us save the stamp (private mode?).`);
+        } else {
+          const acc = accuracy && accuracy > CHECKIN_RADIUS_M ? ` Your location is only accurate to about ${fmtDist(accuracy)}.` : '';
+          show('warn', `Nearest statue: <strong>${s.name}</strong>, about <strong>${fmtDist(best.d)}</strong> away. Get within ${CHECKIN_RADIUS_M} m to collect the stamp.${acc}`);
+        }
+      }, err => {
+        geoErrorHtml(err).then(html => show('warn', html));
+      }, GEO_OPTS);
     }
     function openModal(id) {
       document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open'));
@@ -1210,7 +1325,9 @@
       updatePassportCounter();
       renderPassportList();
       refreshBadge();
+      if (!isMobile) document.getElementById('pp-more').open = true;
       openModal('passport-modal');
+      document.querySelector('#passport-modal .modal').scrollTop = 0;
     }
     const SITE_URL = 'https://www.satoshistatues.com';
     function shareBase() {
@@ -1325,7 +1442,7 @@
         `https://twitter.com/intent/tweet?text=${encodeURIComponent(xText)}&url=${encodeURIComponent(SITE_URL)}&hashtags=Bitcoin`;
       document.getElementById('share-fb').href =
         `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SITE_URL + '/')}`;
-      document.getElementById('share-main').textContent = n > 0 ? '📤 Share badge' : '📤 Share & start yours';
+      document.getElementById('share-main').textContent = '📤 Share my passport';
     }
     function canShareFile() {
       return !!(badge && badge.file && navigator.canShare && navigator.share && navigator.canShare({ files: [badge.file] }));
@@ -1445,6 +1562,8 @@
     document.addEventListener('click', e => {
       const ci = e.target.closest('[data-checkin]');
       if (ci) { const s = bySlug(ci.dataset.checkin); if (s) checkIn(s, ci); return; }
+      const sp = e.target.closest('[data-stamp]');
+      if (sp) { const s = bySlug(sp.dataset.stamp); if (s) showStatueFromPassport(s); return; }
       const cm = e.target.closest('[data-comments]');
       if (cm) { const s = bySlug(cm.dataset.comments); if (s) openComments(s); return; }
       if (e.target.classList && e.target.classList.contains('modal-backdrop')) closeModals();
