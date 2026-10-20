@@ -31,7 +31,9 @@
   <meta name="theme-color" content="#0d1117" />
   <meta name="msapplication-TileColor" content="#0d1117" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23f7931a'/%3E%3Ctext x='32' y='45' font-size='38' font-weight='700' text-anchor='middle' fill='%230d1117' font-family='Arial'%3E%E2%82%BF%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://server.arcgisonline.com" crossorigin>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -200,7 +202,7 @@
     }
     .leaflet-popup-tip { background: #161b22; }
     .leaflet-popup-content { margin: 13px; }
-    .leaflet-popup-content h3 {
+    .leaflet-popup-content h3, .detail-body h3 {
       margin: 0 0 4px 0;
       color: #f7931a;
       font-size: 1.08rem;
@@ -211,7 +213,9 @@
       margin-bottom: 10px;
     }
     .popup-img {
+      display: block;
       width: 100%;
+      height: auto;
       max-height: 220px;
       object-fit: contain;
       border-radius: 6px;
@@ -263,6 +267,28 @@
       border-color: #58a6ff;
       color: #58a6ff;
     }
+    .btc-pin { display: flex; align-items: center; justify-content: center; }
+    .bitcoin-cluster {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #f7931a;
+      color: #0d1117;
+      border: 3px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 0 5px rgba(247, 147, 26, 0.35), 0 0 12px rgba(247, 147, 26, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .tip-toggle { display: none; }
+    .pp-short { display: none; }
+    .detail-body .popup-img { max-height: 38vh; }
+    .detail-body .popup-meta { font-size: 0.9rem; }
+    .detail-body h3 { display: none; }
+    #detail-modal .modal-head { position: sticky; top: -16px; background: #161b22; margin: -16px -14px 8px; padding: 12px 14px 8px; z-index: 1; }
+    #detail-modal .modal-head h2 { font-size: 1rem; }
     .bitcoin-marker {
       background: #f7931a;
       border: 2px solid #fff;
@@ -471,9 +497,20 @@
         border-left: none;
         border-top: 1px solid #30363d;
       }
-      header { flex-wrap: wrap; }
-      .header-right { width: 100%; justify-content: flex-end; }
-      .tip-box { font-size: 0.78rem; }
+      header { flex-wrap: wrap; padding: 10px 12px; gap: 8px; }
+      header h1 { font-size: 1.12rem; }
+      header p { font-size: 0.78rem; margin-top: 2px; }
+      .header-right { width: 100%; justify-content: flex-start; gap: 8px; }
+      .header-right button { min-height: 44px; padding: 8px 12px; }
+      .tip-toggle { display: inline-block; }
+      .tip-box { display: none; font-size: 0.78rem; margin-top: 6px; }
+      header.tip-open .tip-box { display: block; }
+      .pp-full { display: none; }
+      .pp-short { display: inline; }
+      .tip-btn, .reset-btn, .passport-btn, .ghost-btn, .directions-btn, .earth-btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+      .modal-close { width: 44px; height: 44px; }
+      .popup-links a { display: inline-flex; align-items: center; min-height: 44px; }
+      .statue-card { padding: 10px 12px; }
       .modal-backdrop { padding: 0; align-items: flex-end; }
       .modal { max-height: 90vh; border-radius: 12px 12px 0 0; padding: 16px 14px 20px; }
       .passport-list { grid-template-columns: 1fr 1fr; }
@@ -484,8 +521,8 @@
   <header>
     <div class="header-left">
       <h1>🟠 Satoshi Nakamoto Statues</h1>
-      <p>Global interactive map • Click any marker or card to see photo + details</p>
-      <div class="tip-box">
+      <p>Global interactive map • Tap any marker or card to see photo + details</p>
+      <div class="tip-box" id="tip-box">
         If this site helped you, consider dropping a sat as a thank you. Every bit helps keep the map alive and growing toward 21.
         <div class="btc-address" title="Bitcoin address">bc1qy5u3uarfgqspuxj807qj8egq0w5ncdft7wem8v</div>
         <div class="tip-actions">
@@ -493,12 +530,13 @@
           <button class="tip-btn" type="button" id="tip-copy" onclick="copyTipAddress()">Copy</button>
           <button class="tip-btn" type="button" onclick="document.getElementById('tip-qr').classList.toggle('show')">QR</button>
         </div>
-        <img id="tip-qr" class="tip-qr" src="btc-tip-qr.png" alt="QR code for Bitcoin tip address" width="140" height="140">
+        <img id="tip-qr" class="tip-qr" src="btc-tip-qr.png" alt="QR code for Bitcoin tip address" width="140" height="140" loading="lazy">
       </div>
     </div>
     <div class="header-right">
       <button class="passport-btn" id="passport-btn" type="button" onclick="openPassport()">🛂 Passport</button>
-      <button class="reset-btn" onclick="resetMap()">Reset Map</button>
+      <button class="reset-btn" type="button" onclick="resetMap()">Reset Map</button>
+      <button class="tip-btn tip-primary tip-toggle" id="tip-toggle" type="button" aria-expanded="false" aria-controls="tip-box" onclick="toggleTip()">₿ Tip</button>
     </div>
   </header>
   <div class="container">
@@ -557,8 +595,18 @@
       <div id="giscus-container"></div>
     </div>
   </div>
+  <div class="modal-backdrop" id="detail-modal" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 id="detail-title">Statue</h2>
+        <button class="modal-close" type="button" aria-label="Close" onclick="closeModals()">✕</button>
+      </div>
+      <div class="detail-body" id="detail-body"></div>
+    </div>
+  </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script>
     const statues = [
       {
@@ -574,7 +622,7 @@
         type: "Mirrored-face bronze bust",
         status: "Installed",
         note: "World’s first Satoshi statue. Reflective face so visitors see themselves (“We are all Satoshi”). Free public access 24/7.",
-        img: "satoshi-nakamoto-87.jpg"
+        img: "satoshi-nakamoto-87.jpg", imgW: 1200, imgH: 800
       },
       {
         name: "Lugano",
@@ -589,7 +637,7 @@
         type: "Disappearing metal (1st of series)",
         status: "Restored",
         note: "First of the optical-illusion series. Vandalized and recovered from Lake Lugano; later reinstalled.",
-        img: "464209387_18424822771076669_4342153522642907768_n.jpg"
+        img: "464209387_18424822771076669_4342153522642907768_n.jpg", imgW: 512, imgH: 640
       },
       {
         name: "El Zonte",
@@ -604,7 +652,7 @@
         type: "Disappearing metal",
         status: "Installed",
         note: "Located in the famous Bitcoin Beach community that helped inspire El Salvador’s Bitcoin adoption.",
-        img: "https://pbs.twimg.com/media/GobpChUWAAEiJU7.jpg",
+        img: "https://pbs.twimg.com/media/GobpChUWAAEiJU7.jpg", imgW: 1043, imgH: 1200,
         earthUrl: "https://earth.google.com/web/search/Bitcoin+Beach+Office,+El+Zonte,+El+Salvador/@13.49544537,-89.44233576,13.06595228a,56.6161827d,35y,3.19353596h,0t,0r/data=CmUaNxIxCiUweDhmN2QyYjAwMjUzODhjZWQ6MHgxMjVjNjJjYjQyNmMyY2Q0KggiU2F0b3NoaRgCIAEiJgokCRrRnJ9Pw0RAEaLiqsKpwURAGRM6cLajR1LAIdyH2tIpSlLAQgIIAToDCgEwQgIIAEoNCP___________wEQAA?authuser=0"
       },
       {
@@ -620,7 +668,7 @@
         type: "Disappearing metal",
         status: "Installed",
         note: "At Tokyo Bitcoin Base near Yotsuya Station.",
-        img: "https://pbs.twimg.com/media/GpYP-xyWUAAHV0D.jpg"
+        img: "https://pbs.twimg.com/media/GpYP-xyWUAAHV0D.jpg", imgW: 1200, imgH: 887
       },
       {
         name: "Hanoi",
@@ -635,7 +683,7 @@
         type: "Disappearing metal",
         status: "Installed",
         note: "Inside the Blockchain Gallery at 1Matrix headquarters. Open to the public on Saturdays.",
-        img: "satoshi-5.jpg"
+        img: "satoshi-5.jpg", imgW: 660, imgH: 990
       },
       {
         name: "Miami",
@@ -650,7 +698,7 @@
         type: "Disappearing metal",
         status: "Planned",
         note: "Unveiled with support from Cantor Fitzgerald and Michael Saylor. Permanent waterfront park location planned.",
-        img: "https://pbs.twimg.com/media/G5lYbhVWgAI3fLC.jpg"
+        img: "https://pbs.twimg.com/media/G5lYbhVWgAI3fLC.jpg", imgW: 1200, imgH: 900
       },
       {
         name: "New York",
@@ -665,7 +713,7 @@
         type: "Disappearing metal (6th of series)",
         status: "Installed",
         note: "Installed at the New York Stock Exchange by Twenty One Capital.",
-        img: "1aaeab81ddd9484a87148c81dca1f6f1.jpg"
+        img: "satoshi-nyse.webp", imgW: 800, imgH: 1199
       },
       {
         name: "Fornelli",
@@ -680,11 +728,11 @@
         type: "Stainless steel (separate design)",
         status: "Installed",
         note: "Municipality-funded monument. The village has high Bitcoin merchant adoption.",
-        img: "https://pbs.twimg.com/media/GqTYTuQbAAA39K8.jpg"
+        img: "https://pbs.twimg.com/media/GqTYTuQbAAA39K8.jpg", imgW: 1200, imgH: 800
       },
       {
         name: "Hong Kong",
-        country: "Hong Kong / China",
+        country: "China",
         city: "Hong Kong",
         place: "Web3 Festival (donated to government)",
         lat: 22.3193,
@@ -695,7 +743,7 @@
         type: "Disappearing metal",
         status: "Installed",
         note: "Unveiled at the Web3 Festival and donated to the Hong Kong government.",
-        img: "https://pbs.twimg.com/media/HGUq0rsbEAAEBzO.jpg"
+        img: "https://pbs.twimg.com/media/HGUq0rsbEAAEBzO.jpg", imgW: 1200, imgH: 800
       },
       {
         name: "Kranj Bitcoin Monument",
@@ -710,7 +758,7 @@
         type: "Metal Bitcoin “B” monument",
         status: "Installed",
         note: "Often called the world’s first public Bitcoin monument. Large metal structure featuring the Bitcoin “B” symbol (about 3 tonnes, ~7 meters across). Located on a roundabout near the city center. Linked to Slovenia’s early crypto scene (Bitstamp was founded there).",
-        img: "fhtd3yfouxe61.jpg"
+        img: "fhtd3yfouxe61.jpg", imgW: 680, imgH: 453
       },
       {
         name: "Miami Bitcoin Bull",
@@ -725,7 +773,7 @@
         type: "Chrome / fiberglass robotic bull",
         status: "Installed",
         note: "Chrome/fiberglass robotic bull with blue laser eyes, commissioned by TradeStation and designed by Furio Tedeschi. Debuted at the Bitcoin 2022 conference in Miami Beach, then moved to its permanent home at Miami Dade College. A modern take on the Wall Street bull.",
-        img: "173248.png"
+        img: "miami-bitcoin-bull.webp", imgW: 707, imgH: 557
       },
       {
         name: "Vienna",
@@ -740,7 +788,7 @@
         type: "Disappearing metal",
         status: "Installed",
         note: "Unveiled Oct 14, 2026 by Bitcoin Austria for its 15th anniversary. Crowdfunded with over 1.3 BTC from 120+ donors (Genesis sponsor Bitpanda). Open to the public 24/7, near U2 Krieau.",
-        img: "satoshi-vienna.jpg"
+        img: "satoshi-vienna.jpg", imgW: 1200, imgH: 783
       }
     ];
 
@@ -813,30 +861,53 @@
       toastTimer = setTimeout(() => t.classList.remove('show'), Math.min(6000, 2200 + msg.length * 35));
     }
 
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
     const map = L.map('map', {
       center: [20, 20],
       zoom: 2,
-      minZoom: 2
+      minZoom: isMobile ? 1 : 2,
+      zoomSnap: 0.25
     });
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
-      maxZoom: 16
+      maxZoom: 16,
+      detectRetina: true
     }).addTo(map);
     const bitcoinIcon = L.divIcon({
-      className: '',
+      className: 'btc-pin',
       html: `<div class="bitcoin-marker">₿</div>`,
-      iconSize: [28, 28],
-      iconAnchor: [14, 14],
+      iconSize: [44, 44],
+      iconAnchor: [22, 22],
       popupAnchor: [0, -16]
     });
     const visitedIcon = L.divIcon({
-      className: '',
+      className: 'btc-pin',
       html: `<div class="bitcoin-marker visited" title="Visited">✓</div>`,
-      iconSize: [28, 28],
-      iconAnchor: [14, 14],
+      iconSize: [44, 44],
+      iconAnchor: [22, 22],
       popupAnchor: [0, -16]
     });
     const markers = [];
+    const cluster = L.markerClusterGroup({
+      maxClusterRadius: 40,
+      showCoverageOnHover: false,
+      spiderfyOnMaxZoom: true,
+      iconCreateFunction: c => L.divIcon({
+        className: 'btc-pin',
+        html: `<div class="bitcoin-cluster">${c.getChildCount()}</div>`,
+        iconSize: [44, 44],
+        iconAnchor: [22, 22]
+      })
+    }).addTo(map);
+    function popupMaxHeight() { return Math.max(200, Math.round(map.getSize().y * 0.85)); }
+    function fitAll(animate) {
+      if (!markers.length) return;
+      map.fitBounds(L.featureGroup(markers).getBounds(), {
+        padding: isMobile ? [18, 18] : [40, 40],
+        animate: !!animate,
+        duration: 0.7
+      });
+    }
     const cards = [];
     const listEl = document.getElementById('list');
     document.getElementById('locations-title').textContent = `Locations - ${statues.length}`;
@@ -859,29 +930,41 @@
         cards[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     }
+    let suppressZoomOut = false;
     function goToStatue(s, marker, index) {
+      // Desktop: centre on the statue and let Leaflet's popup auto-pan keep the whole popup in view.
+      suppressZoomOut = true;
       map.closePopup();
-      const targetZoom = 5;
-      const mapHeight = map.getSize().y;
-      const offsetY = mapHeight * 0.25;
-      map.setView([s.lat, s.lng], targetZoom, { animate: false });
-      const point = map.project([s.lat, s.lng], targetZoom);
-      const offsetPoint = L.point(point.x, point.y - offsetY);
-      const offsetLatLng = map.unproject(offsetPoint, targetZoom);
-      map.panTo(offsetLatLng, {
-        animate: true,
-        duration: 0.5
-      });
-      setTimeout(() => {
+      map.setView([s.lat, s.lng], Math.max(5, Math.min(map.getZoom(), 16)), { animate: false });
+      cluster.zoomToShowLayer(marker, () => {
+        marker.getPopup().options.maxHeight = popupMaxHeight();
         marker.openPopup();
+        suppressZoomOut = false;
         setActiveCard(index);
-      }, 550);
-    }
-    function zoomOut() {
-      map.setView([20, 20], 2, {
-        animate: true,
-        duration: 0.7
       });
+    }
+    // Mobile: details open in a bottom sheet so nothing is clipped by the short map.
+    let detailStatue = null;
+    function renderDetail() {
+      if (!detailStatue) return;
+      document.getElementById('detail-title').textContent = detailStatue.name;
+      document.getElementById('detail-body').innerHTML = buildPopup(detailStatue);
+    }
+    function openDetail(s, index) {
+      detailStatue = s;
+      renderDetail();
+      openModal('detail-modal');
+      document.querySelector('#detail-modal .modal').scrollTop = 0;
+      setActiveCard(index);
+    }
+    function isDetailOpen() { return document.getElementById('detail-modal').classList.contains('open'); }
+    function zoomOut() {
+      fitAll(true);
+    }
+    function toggleTip() {
+      const h = document.querySelector('header');
+      const open = h.classList.toggle('tip-open');
+      document.getElementById('tip-toggle').setAttribute('aria-expanded', open ? 'true' : 'false');
     }
     function copyTipAddress() {
       const a = "bc1qy5u3uarfgqspuxj807qj8egq0w5ncdft7wem8v", b = document.getElementById("tip-copy");
@@ -895,9 +978,11 @@
       zoomOut();
     }
     map.on('popupclose', function() {
+      if (suppressZoomOut) return;
       clearActiveCards();
       zoomOut();
     });
+    map.on('resize', () => markers.forEach(m => { const p = m.getPopup(); if (p) p.options.maxHeight = popupMaxHeight(); }));
     document.querySelector('.btc-address').addEventListener('click', function() {
       const range = document.createRange();
       range.selectNodeContents(this);
@@ -931,7 +1016,9 @@
         ${s.img ? `<img class="popup-img"
              src="${s.img}"
              alt="${s.name} statue"
-             onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Satoshi_Nakamoto_Statue_in_Lugano_001.jpg/600px-Satoshi_Nakamoto_Statue_in_Lugano_001.jpg'">` : ''}
+             ${s.imgW ? `width="${s.imgW}" height="${s.imgH}"` : ''}
+             loading="lazy" decoding="async"
+             onerror="this.onerror=null;this.style.display='none'">` : ''}
         <h3>${s.name}</h3>
         <div class="popup-location">${fullLocation} · ${s.place}</div>
         <div class="popup-meta">
@@ -955,6 +1042,7 @@
     function setMsg(s, cls, text) {
       checkinMsgs[s.slug] = { cls, text };
       if (s.marker && s.marker.isPopupOpen()) s.marker.getPopup().update();
+      if (detailStatue === s && isDetailOpen()) renderDetail();
     }
     function refreshVisitedUI(s) {
       if (s.marker) s.marker.setIcon(isVisited(s) ? visitedIcon : bitcoinIcon);
@@ -1094,7 +1182,7 @@
     }
     function updatePassportCounter() {
       const n = visitedCount(), total = checkable.length;
-      document.getElementById('passport-btn').textContent = `🛂 Passport: ${n} of ${total} visited`;
+      document.getElementById('passport-btn').innerHTML = `🛂 Passport<span class="pp-full">:&nbsp;${n} of ${total} visited</span><span class="pp-short">&nbsp;${n}/${total}</span>`;
       document.getElementById('passport-sub').textContent = `${n} of ${total} statues visited${n === total && total ? ' 🏆 Full set!' : ''}`;
       document.getElementById('passport-bar').style.width = `${total ? (100 * n / total) : 0}%`;
     }
@@ -1367,12 +1455,16 @@
     statues.forEach((s, index) => {
       const fullLocation = `${s.city}, ${s.country}`;
       const statusClass = getStatusClass(s.status);
-      const marker = L.marker([s.lat, s.lng], { icon: isVisited(s) ? visitedIcon : bitcoinIcon })
-        .addTo(map)
-        .bindPopup(() => buildPopup(s), { maxWidth: 340 });
-      marker.on('click', () => {
-        goToStatue(s, marker, index);
-      });
+      const marker = L.marker([s.lat, s.lng], { icon: isVisited(s) ? visitedIcon : bitcoinIcon, title: s.name });
+      if (isMobile) {
+        marker.on('click', () => openDetail(s, index));
+      } else {
+        marker.bindPopup(() => buildPopup(s), { maxWidth: 340, maxHeight: popupMaxHeight(), autoPanPadding: [20, 20] });
+        marker.on('click', () => {
+          goToStatue(s, marker, index);
+        });
+      }
+      cluster.addLayer(marker);
       s.marker = marker;
       markers.push(marker);
       const card = document.createElement('div');
@@ -1388,15 +1480,17 @@
       if (isVisited(s)) card.classList.add('visited');
       s.card = card;
       card.onclick = () => {
-        goToStatue(s, marker, index);
+        if (isMobile) {
+          map.flyTo([s.lat, s.lng], 6, { duration: 0.6 });
+          openDetail(s, index);
+        } else {
+          goToStatue(s, marker, index);
+        }
       };
       listEl.appendChild(card);
       cards.push(card);
     });
-    if (markers.length) {
-      const group = L.featureGroup(markers);
-      map.fitBounds(group.getBounds().pad(0.25));
-    }
+    fitAll(false);
   </script>
   <script data-goatcounter="https://satoshistatues.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
