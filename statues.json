@@ -52,8 +52,8 @@
       "artist": "Valentina Picozzi (Satoshigallery)",
       "artistUrl": "https://satoshigallery.com",
       "type": "Disappearing metal (1st of series)",
-      "status": "Restored",
-      "note": "First of the optical-illusion series. Vandalized and recovered from Lake Lugano; later reinstalled.",
+      "status": "Damaged",
+      "note": "First of the optical-illusion series. On the night of 1–2 Aug 2025 vandals threw it into Lake Lugano; divers recovered it in pieces. The artist repaired it with the kintsugi technique and it was re-inaugurated in Parco Ciani on 24 Oct 2025. On 19 Apr 2026 it was vandalized again and found seriously damaged in its central body. No repair or removal had been reported as of Oct 2026.",
       "img": "464209387_18424822771076669_4342153522642907768_n.jpg",
       "imgW": 512,
       "imgH": 640,
@@ -77,9 +77,26 @@
         {
           "label": "Trending Topics",
           "url": "https://www.trendingtopics.eu/vienna-unveils-a-satoshi-statue-in-tribute-to-bitcoin/"
+        },
+        {
+          "label": "RSI (19 Apr 2026)",
+          "url": "https://www.rsi.ch/info/ticino-grigioni-e-insubria/Vandalizzata-ancora-la-statua-di-Nakamoto--3678644.html"
+        },
+        {
+          "label": "Ticinonline (19 Apr 2026)",
+          "url": "https://www.tio.ch/ticino/cronaca/1919347/vandalizzata-per-la-seconda-volta-la-statua-del-creatore-di-bitcoin"
+        },
+        {
+          "label": "laRegione (19 Apr 2026)",
+          "url": "https://www.laregione.ch/cantone/luganese/1919368/opera-statua-vandalizzata-dedicata-nakamoto"
+        },
+        {
+          "label": "Tether: Oct 2025 reinstallation",
+          "url": "https://tether.io/news/fourth-annual-planb-forum-concludes-in-lugano-with-record-attendance-and-new-milestones-for-bitcoin-adoption/"
         }
       ],
-      "label": "Satoshi Statue Lugano"
+      "label": "Satoshi Statue Lugano",
+      "statusLabel": "Damaged (Apr 2026), repair pending"
     },
     {
       "name": "El Zonte",

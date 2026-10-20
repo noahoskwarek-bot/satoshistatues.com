@@ -308,6 +308,7 @@
     .status-restored { background: #3a2e1a; color: #f7931a; }
     .status-planned { background: #1a2a3a; color: #58a6ff; }
     .status-removed { background: #3a1a1a; color: #f85149; }
+    .status-damaged { background: #3a2a1a; color: #f0883e; }
     .note {
       font-size: 0.8rem;
       color: #8b949e;
@@ -850,8 +851,8 @@
         "artist": "Valentina Picozzi (Satoshigallery)",
         "artistUrl": "https://satoshigallery.com",
         "type": "Disappearing metal (1st of series)",
-        "status": "Restored",
-        "note": "First of the optical-illusion series. Vandalized and recovered from Lake Lugano; later reinstalled.",
+        "status": "Damaged",
+        "note": "First of the optical-illusion series. On the night of 1–2 Aug 2025 vandals threw it into Lake Lugano; divers recovered it in pieces. The artist repaired it with the kintsugi technique and it was re-inaugurated in Parco Ciani on 24 Oct 2025. On 19 Apr 2026 it was vandalized again and found seriously damaged in its central body. No repair or removal had been reported as of Oct 2026.",
         "img": "464209387_18424822771076669_4342153522642907768_n.jpg",
         "imgW": 512,
         "imgH": 640,
@@ -859,6 +860,7 @@
         "unveiled": "25 Oct 2024",
         "series21": true,
         "access": "In Parco Ciani, a public park open every day: 6:30–23:30 (March–October) and 6:30–21:00 (November–February). Free entry.",
+        "statusLabel": "Damaged (Apr 2026), repair pending",
         "label": "Satoshi Statue Lugano"
       },
       {
@@ -1098,7 +1100,8 @@
       return s.id || s.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     }
     statues.forEach(s => { s.slug = slugOf(s); });
-    function isCheckable(s) { return s.status === 'Installed' || s.status === 'Restored'; }
+    // Damaged statues are still in place, so they count and can be stamped.
+    function isCheckable(s) { return s.status === 'Installed' || s.status === 'Restored' || s.status === 'Damaged'; }
     const checkable = statues.filter(isCheckable);
     function loadPassport() {
       try { return JSON.parse(localStorage.getItem(PASSPORT_KEY)) || {}; } catch (e) { return {}; }
@@ -1203,6 +1206,7 @@
       switch (status) {
         case "Installed": return "status-installed";
         case "Restored": return "status-restored";
+        case "Damaged": return "status-damaged";
         case "Planned": return "status-planned";
         case "Removed": return "status-removed";
         default: return "status-installed";
@@ -1313,7 +1317,7 @@
           <strong>Year:</strong> ${s.year}<br>
           <strong>Artist:</strong> ${artistHtml}<br>
           <strong>Type:</strong> ${s.type}<br>
-          <strong>Status:</strong> <span class="status-badge ${statusClass}">${s.status}</span><br><br>
+          <strong>Status:</strong> <span class="status-badge ${statusClass}">${s.statusLabel || s.status}</span><br><br>
           ${s.note}
         </div>
         <div class="popup-actions">
@@ -1824,7 +1828,7 @@
         <div class="location">${fullLocation}</div>
         <div class="meta">${s.year} · ${s.artist}</div>
         <span class="type">${s.type}</span>
-        <span class="status-badge ${statusClass}">${s.status}</span>
+        <span class="status-badge ${statusClass}">${s.statusLabel || s.status}</span>
         <span class="card-stamp" ${isVisited(s) ? '' : 'hidden'}>✓ Visited</span>
       `;
       if (isVisited(s)) card.classList.add('visited');

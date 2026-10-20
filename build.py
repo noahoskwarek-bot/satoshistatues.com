@@ -25,7 +25,7 @@ REPO = 'noahoskwarek-bot/satoshistatues.com'
 GISCUS = dict(repoId='R_kgDOT4kDjw', category='Announcements', categoryId='DIC_kwDOT4kDj84DJD3w')
 COUNTRY_ISO = {'Hungary': 'HU', 'Switzerland': 'CH', 'El Salvador': 'SV', 'Japan': 'JP', 'Vietnam': 'VN',
                'USA': 'US', 'Italy': 'IT', 'China': 'HK', 'Slovenia': 'SI', 'Austria': 'AT'}
-CHECKABLE = ('Installed', 'Restored')
+CHECKABLE = ('Installed', 'Restored', 'Damaged')  # Damaged = still in place (counts as installed and can be stamped)
 BUILD_DATE = os.environ.get('BUILD_DATE') or datetime.date.today().isoformat()
 
 e = lambda t: html.escape(str(t), quote=True)
@@ -190,7 +190,7 @@ figcaption{font-size:.75rem;color:#8b949e;margin-top:4px}
 .facts{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px 16px;font-size:.92rem}
 .facts dt{color:#8b949e}
 .badge{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:4px;font-weight:600}
-.b-installed{background:#1a3a2a;color:#3fb950}.b-restored{background:#3a2e1a;color:#f7931a}.b-planned{background:#1a2a3a;color:#58a6ff}
+.b-installed{background:#1a3a2a;color:#3fb950}.b-restored{background:#3a2e1a;color:#f7931a}.b-planned{background:#1a2a3a;color:#58a6ff}.b-damaged{background:#3a2a1a;color:#f0883e}
 .actions{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
 .btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;border-radius:8px;font-weight:700;text-decoration:none;font-size:.92rem;border:1px solid #30363d;color:#e6edf3;background:#21262d}
 .btn.primary{background:#f7931a;border-color:#f7931a;color:#0d1117}
@@ -313,7 +313,7 @@ def feed_xml(data):
         if s.get('creatorVerified') is False:
             artist += ' (credit unverified)'
         summary = (f"{s['city']}, {s['country']} · {s['place']}. Artist: {artist}. "
-                   f"Status: {s['status']}. Unveiled {s.get('unveiled') or s['year']}.")
+                   f"Status: {s.get('statusLabel') or s['status']}. Unveiled {s.get('unveiled') or s['year']}.")
         entries += (
             '  <entry>\n'
             f"    <title>{x(s['label'])} ({x(s['city'])}, {x(s['country'])})</title>\n"
@@ -340,8 +340,8 @@ def feed_xml(data):
         f'{entries}</feed>\n')
 
 
-def status_badge(st):
-    return f'<span class="badge b-{st.lower()}">{e(st)}</span>'
+def status_badge(st, label=None):
+    return f'<span class="badge b-{st.lower()}">{e(label or st)}</span>'
 
 
 def src_list(sources):
@@ -398,7 +398,7 @@ def statue_page(s, data):
       <dt>Year</dt><dd>{e(s['year'])}</dd>
       <dt>Artist</dt><dd>{artist}</dd>
       <dt>Type</dt><dd>{e(s['type'])}</dd>
-      <dt>Status</dt><dd>{status_badge(s['status'])}</dd>
+      <dt>Status</dt><dd>{status_badge(s['status'], s.get('statusLabel'))}</dd>
       <dt>Access</dt><dd>{acc}</dd>
       <dt>Coordinates</dt><dd>{s['lat']}, {s['lng']}</dd>
     </dl>
@@ -441,7 +441,7 @@ def nodes_page(data):
     rows = ''
     for i, s in enumerate(series, 1):
         cites = ' '.join(f'<a href="{e(x["url"])}" target="_blank" rel="noopener noreferrer">[{j}]</a>' for j, x in enumerate(s.get('sources', []), 1))
-        st = s['status'] if s['status'] in CHECKABLE else 'Unveiled, awaiting permanent site'
+        st = (s.get('statusLabel') or s['status']) if s['status'] in CHECKABLE else 'Unveiled, awaiting permanent site'
         cls = 'planned' if s['status'] not in CHECKABLE else s['status'].lower()
         rows += (f'<tr><td>{i}</td><td><a href="/{s["page"]}/">{e(s["city"])}</a><br><span style="color:#8b949e;font-size:.8rem">{e(s["country"])}</span></td>'
                  f'<td>{e(s.get("unveiled") or s["year"])}</td><td><span class="badge b-{cls}">{e(st)}</span></td><td>{cites}</td></tr>')
