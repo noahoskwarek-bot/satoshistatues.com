@@ -462,9 +462,12 @@
     #giscus-container { min-height: 120px; }
     @media (max-width: 768px) {
       .container { flex-direction: column; }
+      #map { flex: none; height: 28vh; min-height: 190px; }
       .sidebar {
         width: 100%;
-        max-height: 32vh;
+        flex: 1;
+        max-height: none;
+        min-height: 0;
         border-left: none;
         border-top: 1px solid #30363d;
       }
