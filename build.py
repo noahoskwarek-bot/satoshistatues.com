@@ -269,7 +269,7 @@ def signup_html(data, where):
     nxt = len(data['statues']) + 1
     url = (data.get('config') or {}).get('newsletter_action_url', '').strip()
     feed = '<a class="feed-link" href="/feed.xml" type="application/atom+xml">📡 RSS/Atom feed</a>'
-    title = f'<p class="alert-title">🔔 Get an alert when #{nxt} is unveiled</p>'
+    title = '<p class="alert-title">🔔 Get an alert when the next statue is unveiled</p>'
     if url:
         if not url.startswith('https://'):
             raise SystemExit('config.newsletter_action_url must start with https://')
