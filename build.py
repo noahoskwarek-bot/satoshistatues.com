@@ -94,7 +94,7 @@ def statue_ld(s):
     image = s['img'] if s.get('img', '').startswith('http') else img
     o = {
         '@context': 'https://schema.org',
-        '@type': 'TouristAttraction',
+        '@type': ['TouristAttraction', 'Sculpture'],
         'name': s['label'],
         'description': s['note'],
         'url': page_url(s),
