@@ -273,7 +273,11 @@ def signup_html(data, where):
     if url:
         if not url.startswith('https://'):
             raise SystemExit('config.newsletter_action_url must start with https://')
-        body = (f'<form class="alert-form" action="{e(url)}" method="post" target="_blank">'
+        # Buttondown embed: POST opens in a named popup/tab that first shows the public subscribe page.
+        m = re.match(r'https://buttondown\.com/api/emails/embed-subscribe/([^/?#]+)', url)
+        public = f'https://buttondown.com/{m.group(1)}' if m else url
+        body = (f'<form class="alert-form" action="{e(url)}" method="post" target="popupwindow" '
+                f'onsubmit="window.open(\'{e(public)}\', \'popupwindow\')">'
                 f'<input type="hidden" name="embed" value="1" />'
                 f'<label class="sr-only" for="alert-email-{where}">Email address</label>'
                 f'<input id="alert-email-{where}" type="email" name="email" required autocomplete="email" inputmode="email" placeholder="you@example.com" />'
