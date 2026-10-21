@@ -507,8 +507,7 @@ def photo_js(data):
             'document.addEventListener("click",function(ev){var a=ev.target.closest&&ev.target.closest("[data-photo-subject]");if(!a)return;'
             'ev.preventDefault();location.href="mailto:"+to()+"?subject="+encodeURIComponent(a.getAttribute("data-photo-subject"))'
             '+"&body="+encodeURIComponent(body(a.getAttribute("data-photo-label")||"statue"));},true);'
-            'function fill(){var l=document.querySelectorAll("[data-photo-addr]");for(var i=0;i<l.length;i++){l[i].textContent=to();}}'
-            'fill();document.addEventListener("DOMContentLoaded",fill);})();</script>')
+            '})();</script>')
 
 
 def photo_cta(s, data):
@@ -676,7 +675,7 @@ def confirmed_html(s, data):
     badge = (' <a class="pv-badge" href="#visitor-photos">📸 Photo-verified</a>' if statue_photos(s, data) else '')
     lc = last_confirmed(s, data)
     if not lc:
-        return (f'<p class="confirmed">Not yet confirmed by a visitor · <a href="#visitor-photos" data-photo-subject="{e(photo_subject(s))}" '
+        return (f'<p class="confirmed">Not yet confirmed by a visitor · <a href="#photo" data-photo-subject="{e(photo_subject(s))}" '
                 f'data-photo-label="{e(s["label"])}">Send a photo</a>{badge}</p>')
     month, src, url, kind = lc
     lead = 'Last reported' if kind == 'reported' else 'Last confirmed standing'
@@ -711,15 +710,10 @@ GALLERY_JS = ('<script>(function(){var d=document.getElementById("pv-dialog");if
 
 
 def gallery_html(s, data):
+    # Rendered only when the statue has approved photos; otherwise nothing at all (the photo CTA box below asks for photos).
     phs = statue_photos(s, data)
-    subj = f'data-photo-subject="{e(photo_subject(s))}" data-photo-label="{e(s["label"])}"'
-    c = data.get('config', {})
-    addr_fallback = f'{e(c.get("photo_email_user", "photos"))} [at] {e(c.get("photo_email_domain", "satoshistatues.com").replace(".", " [dot] "))}'
-    ask = (f'Been here? Send your photo to <a href="#visitor-photos" {subj} data-photo-addr>{addr_fallback}</a> '
-           f'and it may appear here and earn a photo-verified badge.')
     if not phs:
-        return (f'<section class="gallery" id="visitor-photos" aria-labelledby="vp-title"><h2 id="vp-title">📸 Visitor photos</h2>'
-                f'<p class="vp-empty">{ask}</p></section>')
+        return ''
     items = []
     for ph in phs:
         cr = (ph.get('credit') or '').strip() or 'Anonymous'
@@ -730,7 +724,7 @@ def gallery_html(s, data):
                      f'<img src="{photo_url(ph, True)}" alt="{e(alt)}"{wh} loading="lazy" decoding="async"></a>'
                      f'<span class="vp-cap">{e(cap)}</span></li>')
     return (f'<section class="gallery" id="visitor-photos" aria-labelledby="vp-title"><h2 id="vp-title">📸 Visitor photos</h2>'
-            f'<ul class="vp-grid">{"".join(items)}</ul><p class="vp-more">{ask}</p>'
+            f'<ul class="vp-grid">{"".join(items)}</ul>'
             f'<dialog id="pv-dialog" aria-label="Photo"><button type="button" class="pv-close" data-pv-close aria-label="Close">✕</button>'
             f'<img alt=""><p></p></dialog></section>' + GALLERY_JS)
 
@@ -743,8 +737,7 @@ GALLERY_CSS = ('.confirmed{font-size:.88rem;color:#8b949e;margin:-8px 0 14px;lin
                '.status-alert.sa-donated{border-left-color:#bc8cff;background:#1f1830}.status-alert.sa-not_installed{border-left-color:#58a6ff;background:#121f30}'
                '.sa-title{font-weight:700;font-size:.95rem;margin:0 0 4px;color:#e6edf3}.sa-text{font-size:.88rem;line-height:1.5;margin:0}'
                '.sa-date{font-weight:700}.sa-text a{display:inline-block;padding:4px 0;color:#f7931a}'
-               '.gallery{margin:22px 0;scroll-margin-top:12px}.vp-empty,.vp-more{font-size:.9rem;color:#8b949e;background:#161b22;border:1px dashed #30363d;border-radius:10px;padding:12px 14px}'
-               '.vp-more{margin-top:10px;border-style:solid}.gallery a[data-photo-addr]{color:#f7931a;word-break:break-word}'
+               '.gallery{margin:22px 0;scroll-margin-top:12px}'
                '.vp-grid{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}'
                '.vp-grid a{display:block;border-radius:8px;overflow:hidden;border:1px solid #30363d;background:#161b22}'
                '.vp-grid img{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:cover}'
@@ -853,8 +846,7 @@ def statue_page(s, data):
     {story_html(s)}
     {visit_html(s, data)}
     {events_html(s, data)}
-    {gallery_html(s, data)}
-    {checkin_count_html(s)}
+    {gallery_html(s, data)}{checkin_count_html(s)}
     {photo_cta(s, data)}
     <h2>Sources</h2>
     {src_list(s.get('sources', []))}
