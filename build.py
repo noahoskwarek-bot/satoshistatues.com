@@ -6,6 +6,7 @@ statues.json is the single source of truth. This script:
   * generates one static page per statue (/<page>/index.html)
   * generates /21-nodes/index.html, sitemap.xml, robots.txt and feed.xml (Atom)
   * generates /embed/ (map-only iframe page, noindex) and the 'Embed this map' snippet box on the home page
+  * renders 'Upcoming Bitcoin events nearby' on statue pages from events.json (see EVENTS.md)
   * renders the 'next statue' alert box from config.newsletter_action_url (Buttondown embed URL)
 
 Run `python3 build.py` after editing statues.json and commit the output.
@@ -382,7 +383,7 @@ def head(title, desc, canonical, image, iw, ih, img_alt, extra_ld):
   {ICON_LINKS}
   {FEED_LINK}
   {extra_ld}
-  <style>{CSS}{ALERT_CSS}{VISIT_CSS}</style>
+  <style>{CSS}{ALERT_CSS}{VISIT_CSS}{EVENTS_CSS}</style>
   {api_script()}
 </head>
 <body>
@@ -651,6 +652,7 @@ def statue_page(s, data):
     <p class="note">{e(s['note'])}</p>
     {stamp}
     {visit_html(s)}
+    {events_html(s, data)}
     {checkin_count_html(s)}
     {photo_cta(s, data)}
     <h2>Sources</h2>
@@ -1036,6 +1038,102 @@ VISIT_CSS = ('.visit{background:#161b22;border:1px solid #30363d;border-radius:1
              '.visit a{display:inline-block;padding:13px 0;margin:-13px 0}.visit li{margin:8px 0}')
 
 
+# ---------- Upcoming Bitcoin events nearby (events.json → statue pages) ----------
+# events.json: {"events": [{name, start_date, end_date?, city, country, lat?, lng?, url, statue, source_url, verified}]}
+# Only events confirmed on their official site. Past events are dropped at build time (end date < BUILD_DATE) and
+# hidden again client-side (EVENTS_JS) so a page built earlier never shows a finished event between rebuilds.
+# No upcoming events for a statue → no section at all. Format documented in EVENTS.md.
+EVENT_RADIUS_KM = 300
+_MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+
+def km_between(a_lat, a_lng, b_lat, b_lng):
+    import math
+    p = math.radians
+    h = (math.sin(p(b_lat - a_lat) / 2) ** 2
+         + math.cos(p(a_lat)) * math.cos(p(b_lat)) * math.sin(p(b_lng - a_lng) / 2) ** 2)
+    return 2 * 6371 * math.asin(math.sqrt(h))
+
+
+def load_events(data):
+    path = os.path.join(ROOT, 'events.json')
+    if not os.path.exists(path):
+        return []
+    with open(path, encoding='utf-8') as f:
+        evs = json.load(f).get('events', [])
+    by_page = {s['page']: s for s in data['statues']}
+    out = []
+    for ev in evs:
+        for k in ('name', 'start_date', 'city', 'country', 'url', 'statue', 'source_url', 'verified'):
+            assert ev.get(k), f"events.json: {ev.get('name', '?')} missing {k}"
+        for k in ('start_date', 'end_date', 'verified'):
+            if ev.get(k):
+                datetime.date.fromisoformat(ev[k])  # raises on a bad date
+        ev = dict(ev, end_date=ev.get('end_date') or ev['start_date'])
+        assert ev['end_date'] >= ev['start_date'], f"events.json: {ev['name']} ends before it starts"
+        s = by_page.get(ev['statue'])
+        assert s, f"events.json: {ev['name']} → unknown statue {ev['statue']}"
+        ev['km'] = None
+        if ev.get('lat') is not None and ev.get('lng') is not None:
+            ev['km'] = km_between(ev['lat'], ev['lng'], s['lat'], s['lng'])
+            assert ev['km'] <= EVENT_RADIUS_KM, f"events.json: {ev['name']} is {ev['km']:.0f} km from {s['page']} (> {EVENT_RADIUS_KM})"
+        out.append(ev)
+    return out
+
+
+def fmt_range(a, b):
+    a, b = datetime.date.fromisoformat(a), datetime.date.fromisoformat(b)
+    if a == b:
+        return f'{_MON[a.month - 1]} {a.day}, {a.year}'
+    if (a.year, a.month) == (b.year, b.month):
+        return f'{_MON[a.month - 1]} {a.day}–{b.day}, {a.year}'
+    if a.year == b.year:
+        return f'{_MON[a.month - 1]} {a.day} – {_MON[b.month - 1]} {b.day}, {a.year}'
+    return f'{_MON[a.month - 1]} {a.day}, {a.year} – {_MON[b.month - 1]} {b.day}, {b.year}'
+
+
+def statue_events(s, data):
+    return sorted((ev for ev in data.get('events', []) if ev['statue'] == s['page'] and ev['end_date'] >= BUILD_DATE),
+                  key=lambda ev: (ev['start_date'], ev['name']))
+
+
+def event_ld(ev):
+    obj = {'@context': 'https://schema.org', '@type': 'Event', 'name': ev['name'],
+           'startDate': ev['start_date'], 'endDate': ev['end_date'], 'url': ev['url'],
+           'eventAttendanceMode': 'https://schema.org/OfflineEventAttendanceMode',
+           'location': {'@type': 'Place', 'name': ev['city'],
+                        'address': {'@type': 'PostalAddress', 'addressLocality': ev['city'], 'addressCountry': ev['country']}}}
+    return ld(obj)
+
+
+def events_html(s, data):
+    evs = statue_events(s, data)
+    if not evs:
+        return ''
+    items = []
+    for ev in evs:
+        far = f' · about {round(ev["km"] / 10) * 10:.0f} km away' if ev.get('km') and ev['km'] >= 25 else ''
+        items.append(f'<li data-end="{e(ev["end_date"])}"><a href="{e(ev["url"])}" target="_blank" rel="noopener noreferrer">{e(ev["name"])}</a>'
+                     f'<span class="ev-meta">{e(fmt_range(ev["start_date"], ev["end_date"]))} · {e(ev["city"])}, {e(ev["country"])}{far}</span></li>')
+    lds = ''.join(event_ld(ev) for ev in evs)
+    return (f'<section class="events" id="events" aria-labelledby="events-title"><h2 id="events-title">📅 Upcoming Bitcoin events nearby</h2>'
+            f'<ul class="ev-list">{"".join(items)}</ul>'
+            f'<p class="note ev-fine">Dates are from each event’s official website. Check there for the latest details before you travel.</p></section>'
+            f'{lds}{EVENTS_JS}')
+
+
+# hide events whose end date has passed (visitor's local date), and the whole section if none are left
+EVENTS_JS = ('<script>(function(){var d=new Date(),t=d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2),'
+             'x=document.getElementById("events");if(!x)return;x.querySelectorAll("li[data-end]").forEach(function(l){if(l.getAttribute("data-end")<t)l.remove()});'
+             'if(!x.querySelector("li[data-end]"))x.remove()})();</script>')
+
+EVENTS_CSS = ('.events{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:4px 16px 12px;margin:22px 0;scroll-margin-top:12px}'
+              '.events h2{margin:14px 0 6px}.ev-list{list-style:none;padding:0;margin:0}'
+              '.ev-list li{padding:10px 0;border-top:1px solid #21262d}.ev-list li:first-child{border-top:0}'
+              '.ev-list a{font-weight:600;display:inline-block;padding:4px 0}.ev-meta{display:block;color:#8b949e;font-size:.9rem}'
+              '.ev-fine{font-size:.82rem;color:#8b949e;margin-top:6px}')
+
+
 # ---------- Embeddable map (/embed/) ----------
 # Map-only page for iframes on blogs and meetup sites. Kept deliberately light: Leaflet + markercluster,
 # no passport/check-in/giscus/Buttondown/share-card/font code. noindex, canonical → home, not in the sitemap.
@@ -1402,6 +1500,7 @@ def main():
     if '--refresh-checkins' in sys.argv:
         refresh_checkins()
     data = load()
+    data['events'] = load_events(data)
     if '--worker' in sys.argv:
         write_worker_statues(data)
         return

@@ -1,0 +1,108 @@
+{
+  "_comment": "Upcoming Bitcoin events shown on statue pages ('Upcoming Bitcoin events nearby'). Format: see EVENTS.md. Only add an event after confirming its dates on the event's own official site; never infer dates from past editions or third-party listings. Past events drop off automatically (build time + client-side check).",
+  "events": [
+    {
+      "name": "Plan ₿ Forum 2026",
+      "start_date": "2026-10-23",
+      "end_date": "2026-10-24",
+      "city": "Lugano",
+      "country": "Switzerland",
+      "lat": 46.0037,
+      "lng": 8.9590,
+      "url": "https://planb.lugano.ch/planb-forum/",
+      "statue": "lugano",
+      "source_url": "https://planb.lugano.ch/planb-forum/",
+      "verified": "2026-10-21"
+    },
+    {
+      "name": "B-Only 2026",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-09",
+      "city": "Annecy",
+      "country": "France",
+      "lat": 45.8992,
+      "lng": 6.1294,
+      "url": "https://b-only.org/",
+      "statue": "lugano",
+      "source_url": "https://b-only.org/",
+      "verified": "2026-10-21"
+    },
+    {
+      "name": "Bitcoin Japan 2026",
+      "start_date": "2026-11-27",
+      "end_date": "2026-11-28",
+      "city": "Tokyo",
+      "country": "Japan",
+      "lat": 35.6984,
+      "lng": 139.7731,
+      "url": "https://btc-jpn.com/",
+      "statue": "tokyo",
+      "source_url": "https://btc-jpn.com/",
+      "verified": "2026-10-21"
+    },
+    {
+      "name": "BitcoinDay Naples 2027",
+      "start_date": "2027-01-16",
+      "city": "Naples, Florida",
+      "country": "USA",
+      "lat": 26.1420,
+      "lng": -81.7948,
+      "url": "https://bitcoinday.io/",
+      "statue": "miami-bull",
+      "source_url": "https://bitcoinday.io/",
+      "verified": "2026-10-21"
+    },
+    {
+      "name": "Plan ₿ Forum El Salvador 2027",
+      "start_date": "2027-01-29",
+      "end_date": "2027-01-30",
+      "city": "San Salvador",
+      "country": "El Salvador",
+      "lat": 13.6929,
+      "lng": -89.2182,
+      "url": "https://planb.sv/",
+      "statue": "el-zonte",
+      "source_url": "https://planb.sv/",
+      "verified": "2026-10-21"
+    },
+    {
+      "name": "Swiss Bitcoin Conference 2027",
+      "start_date": "2027-04-23",
+      "end_date": "2027-04-25",
+      "city": "Kreuzlingen",
+      "country": "Switzerland",
+      "lat": 47.6505,
+      "lng": 9.1750,
+      "url": "https://swiss-bitcoin-conference.com/",
+      "statue": "lugano",
+      "source_url": "https://swiss-bitcoin-conference.com/",
+      "verified": "2026-10-21"
+    },
+    {
+      "name": "BTC Prague 2027",
+      "start_date": "2027-05-06",
+      "end_date": "2027-05-08",
+      "city": "Prague",
+      "country": "Czech Republic",
+      "lat": 50.0755,
+      "lng": 14.4378,
+      "url": "https://btcprague.com/",
+      "statue": "vienna",
+      "source_url": "https://btcprague.com/",
+      "verified": "2026-10-21"
+    },
+    {
+      "name": "Bitcoin Asia 2027",
+      "start_date": "2027-08-26",
+      "end_date": "2027-08-27",
+      "city": "Hong Kong",
+      "country": "Hong Kong",
+      "lat": 22.2830,
+      "lng": 114.1739,
+      "url": "https://asia.b.tc/",
+      "statue": "hong-kong",
+      "source_url": "https://asia.b.tc/",
+      "verified": "2026-10-21"
+    }
+  ]
+}
