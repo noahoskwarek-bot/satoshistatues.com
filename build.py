@@ -409,6 +409,9 @@ def site_ld(data):
     npub = (data.get('config') or {}).get('nostr_npub', '').strip()
     if npub:
         same.append(f'nostr:{npub}')
+    xh = (data.get('config') or {}).get('photo_x_handle', '').strip().lstrip('@')
+    if xh:
+        same.append(f'https://x.com/{xh}')
     org = {'@context': 'https://schema.org', '@type': 'Organization', '@id': SITE + '/#org',
            'name': 'Satoshi Statues', 'url': SITE + '/', 'logo': SITE + '/og-image.jpg'}
     if same:
