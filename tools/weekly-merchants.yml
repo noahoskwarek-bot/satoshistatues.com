@@ -1,0 +1,70 @@
+# TEMPLATE: move to .github/workflows/weekly-merchants.yml to enable. The bot token cannot push workflow files
+# (it lacks the GitHub `workflow` scope), so this must be added by someone with that scope, e.g. via the GitHub web UI.
+# Weekly refresh of the "Nearby places that accept bitcoin" lists (BTC Map → merchants.json → statue pages).
+# Commits only when a list changed. Uses only the built-in GITHUB_TOKEN; no other secrets.
+# Runs Sundays 14:17 UTC (10:17 ET in summer, 9:17 ET in winter), well away from the daily ~6 AM ET
+# check-in refresh, and rebases on main right before pushing so the two never conflict.
+name: Weekly BTC Map refresh
+
+on:
+  schedule:
+    - cron: '17 14 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: site-main-writes
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch BTC Map places
+        run: python3 tools/fetch_merchants.py
+
+      - name: Stop if nothing changed
+        id: diff
+        run: |
+          if git diff --quiet -- merchants.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"; echo "No merchant changes."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Rebuild text pages (OG images untouched)
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          export BUILD_DATE=$(date -u +%F)
+          python3 build.py --no-bin
+          python3 build.py --no-bin --check
+
+      - name: Commit and push
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A merchants.json index.html sitemap.xml feed.xml */index.html */*/index.html
+          git commit -m "Weekly BTC Map refresh: nearby places ($(date -u +%F))"
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin HEAD:main && break
+            sleep 10
+          done
+
+      - name: Request a Pages build
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "Pages build request skipped"

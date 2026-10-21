@@ -97,7 +97,7 @@ reads the cache (builds stay offline) and renders, inside Visiting:
 - if none within 5 km: "None listed within 5 km on BTC Map yet" with links to the BTC Map map at the pin and to
   https://btcmap.org/add-location.
 
-A weekly GitHub Actions workflow (`.github/workflows/weekly-merchants.yml`) refreshes the cache, rebuilds text pages
+A weekly GitHub Actions workflow (template in `tools/weekly-merchants.yml`; enable it by moving it to `.github/workflows/`) refreshes the cache, rebuilds text pages
 with `python3 build.py --no-bin` and commits only when something changed. After moving a pin, re-run the fetch.
 
 ## The story (`story`)
