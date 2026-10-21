@@ -305,7 +305,10 @@ CSS = '''
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#0d1117;color:#e6edf3;line-height:1.5}
 a{color:#f7931a}
 .top{background:#161b22;border-bottom:1px solid #30363d;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.top .brand{color:#f7931a;font-weight:700;font-size:1.1rem;text-decoration:none}
+.top .brand{display:inline-flex;align-items:center;gap:12px;text-decoration:none;border-radius:6px;min-width:0}
+.top .brand:focus-visible{outline:2px solid #f7931a;outline-offset:3px}
+.brand-logo{display:block;height:44px;width:auto}
+.top .tagline{color:#8b949e;font-size:.85rem;padding-left:12px;border-left:1px solid #30363d;line-height:1.3}
 .top nav{display:flex;gap:8px;flex-wrap:wrap}
 .top nav a{color:#e6edf3;text-decoration:none;border:1px solid #30363d;border-radius:6px;padding:8px 12px;font-size:.88rem;min-height:44px;display:inline-flex;align-items:center}
 .top nav a:hover{border-color:#f7931a;color:#f7931a}
@@ -341,10 +344,13 @@ th{color:#8b949e;font-weight:600;font-size:.8rem}
 .bar{height:10px;background:#21262d;border-radius:5px;overflow:hidden;margin:10px 0 4px;max-width:420px}.bar span{display:block;height:100%;background:linear-gradient(90deg,#f7931a,#ffb347)}
 footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-size:.8rem;color:#8b949e}
 #comments{min-height:120px}
-@media (max-width:600px){h1{font-size:1.4rem}.facts{grid-template-columns:1fr;gap:0}.facts dt{margin-top:8px}.facts dt:first-child{margin-top:0}td,th{padding:8px 6px}}
+@media (max-width:600px){.brand-logo{height:36px}.top .tagline{font-size:.72rem;padding-left:10px}.top nav{width:100%}h1{font-size:1.4rem}.facts{grid-template-columns:1fr;gap:0}.facts dt{margin-top:8px}.facts dt:first-child{margin-top:0}td,th{padding:8px 6px}}
 '''.strip()
 
-FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23f7931a'/%3E%3Ctext x='32' y='45' font-size='38' font-weight='700' text-anchor='middle' fill='%230d1117' font-family='Arial'%3E%E2%82%BF%3C/text%3E%3C/svg%3E"
+ICON_LINKS = ('<link rel="icon" href="/favicon.ico" sizes="32x32" />\n'
+              '  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />\n'
+              '  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />')
+LOGO_IMG = '<img class="brand-logo" src="/brand/logo-lockup.svg" width="310" height="88" alt="Satoshi Nakamoto Statues" />'
 
 
 def head(title, desc, canonical, image, iw, ih, img_alt, extra_ld):
@@ -372,7 +378,7 @@ def head(title, desc, canonical, image, iw, ih, img_alt, extra_ld):
   <meta name="twitter:image" content="{image}" />
   <meta name="twitter:image:alt" content="{e(img_alt)}" />
   <meta name="theme-color" content="#0d1117" />
-  <link rel="icon" href="{FAVICON}" />
+  {ICON_LINKS}
   {FEED_LINK}
   {extra_ld}
   <style>{CSS}{ALERT_CSS}{VISIT_CSS}</style>
@@ -380,7 +386,7 @@ def head(title, desc, canonical, image, iw, ih, img_alt, extra_ld):
 </head>
 <body>
   <header class="top">
-    <a class="brand" href="/">🟠 Satoshi Nakamoto Statues</a>
+    <a class="brand" href="/" title="Satoshi Nakamoto Statues: map home">{LOGO_IMG}<span class="tagline">Every Satoshi statue on Earth</span></a>
     <nav><a href="/">🗺️ Map</a><a href="/21-nodes/">21 Nodes</a><a href="/leaderboard/">🏆 Leaderboard</a></nav>
   </header>
 '''
@@ -419,7 +425,7 @@ def site_ld(data):
     if xh:
         same.append(f'https://x.com/{xh}')
     org = {'@context': 'https://schema.org', '@type': 'Organization', '@id': SITE + '/#org',
-           'name': 'Satoshi Statues', 'url': SITE + '/', 'logo': SITE + '/og-image.jpg'}
+           'name': 'Satoshi Statues', 'url': SITE + '/', 'logo': SITE + '/brand/icon-512.png'}
     if same:
         org['sameAs'] = same
     web = {'@context': 'https://schema.org', '@type': 'WebSite', '@id': SITE + '/#website',
@@ -566,7 +572,7 @@ def feed_xml(data):
         f'  <id>{SITE}/</id>\n'
         f'  <updated>{updated}</updated>\n'
         f'  <author><name>satoshistatues.com</name><uri>{SITE}/</uri></author>\n'
-        f'  <icon>{SITE}/og-image.jpg</icon>\n'
+        f'  <icon>{SITE}/brand/icon-512.png</icon>\n'
         f'{entries}</feed>\n')
 
 
@@ -905,14 +911,17 @@ def og_image(s):
         has_photo = True
     d = ImageDraw.Draw(im)
     fb = lambda n: ImageFont.truetype(FONT_BOLD, n)
+    pin = Image.open(os.path.join(ROOT, 'brand', 'pin-512.png')).convert('RGBA')  # from tools/make_brand.py
     if not has_photo:
-        d.ellipse((860, 165, 1140, 445), fill=(58, 42, 20))
-        d.text((1000, 305), '₿', font=fb(200), fill=(13, 17, 23), anchor='mm')
+        big = pin.resize((round(pin.width * 300 / pin.height), 300), Image.LANCZOS)
+        big.putalpha(big.getchannel('A').point(lambda a: a * 0.35))
+        im.paste(big, (1000 - big.width // 2, 158), big)
     fr = lambda n: ImageFont.truetype(FONT_REG, n)
     d.rectangle((0, 0, OG_W, 8), fill=(247, 147, 26))
-    d.ellipse((70, 64, 142, 136), fill=(247, 147, 26))
-    d.text((106, 100), '₿', font=fb(48), fill=bg, anchor='mm')
-    d.text((162, 100), 'SATOSHI STATUES', font=fb(30), fill=(247, 147, 26), anchor='lm')
+    mark = pin.resize((round(pin.width * 80 / pin.height), 80), Image.LANCZOS)
+    im.paste(mark, (70, 60), mark)
+    d.text((70 + mark.width + 16, 100), 'SATOSHI', font=fb(32), fill=(255, 255, 255), anchor='lm')
+    d.text((70 + mark.width + 16 + d.textlength('SATOSHI ', font=fb(32)), 100), 'STATUES', font=fb(32), fill=(247, 147, 26), anchor='lm')
 
     def wrap(text, font, width, max_lines):
         words, lines, cur = text.split(), [], ''

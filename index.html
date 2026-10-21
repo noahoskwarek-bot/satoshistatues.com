@@ -42,7 +42,7 @@
  "@id": "https://www.satoshistatues.com/#org",
  "name": "Satoshi Statues",
  "url": "https://www.satoshistatues.com/",
- "logo": "https://www.satoshistatues.com/og-image.jpg",
+ "logo": "https://www.satoshistatues.com/brand/icon-512.png",
  "sameAs": [
   "https://njump.me/npub1dx7qh8fpp9l45lzrv9ff95f0f3gkrlvjhhptqjrxyhemze68kuhs72vv8h",
   "nostr:npub1dx7qh8fpp9l45lzrv9ff95f0f3gkrlvjhhptqjrxyhemze68kuhs72vv8h",
@@ -184,7 +184,9 @@
   <!-- BUILD:JSONLD:END -->
   <meta name="theme-color" content="#0d1117" />
   <meta name="msapplication-TileColor" content="#0d1117" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23f7931a'/%3E%3Ctext x='32' y='45' font-size='38' font-weight='700' text-anchor='middle' fill='%230d1117' font-family='Arial'%3E%E2%82%BF%3C/text%3E%3C/svg%3E" />
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="preconnect" href="https://server.arcgisonline.com" crossorigin>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
@@ -201,30 +203,41 @@
     header {
       background: #161b22;
       border-bottom: 1px solid #30363d;
-      padding: 14px 20px;
+      padding: 12px 20px;
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
       gap: 16px;
     }
-    .header-left { flex: 1; }
-    header h1 {
-      font-size: 1.35rem;
-      font-weight: 600;
-      color: #f7931a;
-    }
-    header p {
+    .header-left { flex: 1; min-width: 0; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    header h1 { margin: 0; line-height: 0; }
+    .brand-link { display: inline-block; border-radius: 6px; }
+    .brand-link:focus-visible { outline: 2px solid #f7931a; outline-offset: 3px; }
+    .brand-logo { display: block; height: 48px; width: auto; }
+    header .tagline {
       font-size: 0.9rem;
       color: #8b949e;
-      margin-top: 4px;
+      margin: 0;
+      padding-left: 14px;
+      border-left: 1px solid #30363d;
     }
+    .header-right .tip-toggle { padding: 8px 14px; font-size: 0.85rem; }
+    .map-hint { font-size: 0.78rem; color: #8b949e; margin: -8px 0 12px; }
     .tip-box {
-      margin-top: 10px;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-left: 3px solid #f7931a;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin: 16px 0;
       font-size: 0.82rem;
       color: #8b949e;
       line-height: 1.45;
-      max-width: 520px;
+      scroll-margin-top: 12px;
+      transition: box-shadow 0.3s;
     }
+    .tip-box .tip-title { font-weight: 700; color: #e6edf3; font-size: 0.95rem; margin: 0 0 6px; }
+    .tip-box.flash { box-shadow: 0 0 0 2px #f7931a; }
     .tip-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
     .tip-btn { background: #21262d; border: 1px solid #30363d; color: #e6edf3; padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; cursor: pointer; text-decoration: none; font-family: inherit; }
     .tip-btn:hover { border-color: #f7931a; }
@@ -418,7 +431,6 @@
       font-weight: 800;
       font-size: 14px;
     }
-    .tip-toggle { display: none; }
     .pp-short { display: none; }
     .detail-body .popup-img { max-height: 38vh; }
     .detail-body .popup-meta { font-size: 0.9rem; }
@@ -704,14 +716,12 @@
         border-top: 1px solid #30363d;
       }
       header { flex-wrap: wrap; padding: 10px 12px; gap: 8px; }
-      header h1 { font-size: 1.12rem; }
-      header p { font-size: 0.78rem; margin-top: 2px; }
+      .header-left { gap: 10px; flex-wrap: nowrap; }
+      .brand-logo { height: 38px; }
+      header .tagline { font-size: 0.74rem; line-height: 1.3; padding-left: 10px; }
       .header-right { width: 100%; justify-content: flex-start; gap: 8px; }
       .header-right button { min-height: 44px; padding: 8px 12px; }
       .header-right .lb-head-btn { min-height: 44px; padding: 8px 12px; }
-      .tip-toggle { display: inline-block; }
-      .tip-box { display: none; font-size: 0.78rem; margin-top: 6px; }
-      header.tip-open .tip-box { display: block; }
       .pp-full { display: none; }
       .pp-short { display: inline; }
       .tip-btn, .reset-btn, .passport-btn, .ghost-btn, .directions-btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
@@ -736,30 +746,21 @@
 <body>
   <header>
     <div class="header-left">
-      <h1>🟠 Satoshi Nakamoto Statues</h1>
-      <p>Global interactive map • Tap any marker or card to see photo + details</p>
-      <div class="tip-box" id="tip-box">
-        If this site helped you, consider dropping a sat as a thank you. Every bit helps keep the map alive and growing toward 21.
-        <div class="btc-address" title="Bitcoin address">bc1qy5u3uarfgqspuxj807qj8egq0w5ncdft7wem8v</div>
-        <div class="tip-actions">
-          <a class="tip-btn tip-primary" href="bitcoin:bc1qy5u3uarfgqspuxj807qj8egq0w5ncdft7wem8v?label=SatoshiStatues.com">₿ Tip in wallet</a>
-          <button class="tip-btn" type="button" id="tip-copy" onclick="copyTipAddress()">Copy</button>
-          <button class="tip-btn" type="button" onclick="document.getElementById('tip-qr').classList.toggle('show')">QR</button>
-        </div>
-        <img id="tip-qr" class="tip-qr" src="btc-tip-qr.png" alt="QR code for Bitcoin tip address" width="140" height="140" loading="lazy">
-      </div>
+      <h1><a class="brand-link" href="/"><img class="brand-logo" src="/brand/logo-lockup.svg" width="310" height="88" alt="Satoshi Nakamoto Statues" /></a></h1>
+      <p class="tagline">Every Satoshi statue on Earth</p>
     </div>
     <div class="header-right">
       <button class="passport-btn" id="passport-btn" type="button" onclick="openPassport()">🛂 Passport</button>
       <a class="passport-btn lb-head-btn" href="/leaderboard/" aria-label="Leaderboard" title="Leaderboard">🏆</a>
       <button class="reset-btn" type="button" onclick="resetMap()">Reset Map</button>
-      <button class="tip-btn tip-primary tip-toggle" id="tip-toggle" type="button" aria-expanded="false" aria-controls="tip-box" onclick="toggleTip()">₿ Tip</button>
+      <button class="tip-btn tip-primary tip-toggle" id="tip-toggle" type="button" aria-controls="tip-box" onclick="showTip()">₿ Tip</button>
     </div>
   </header>
   <div class="container">
     <div id="map"></div>
     <div class="sidebar">
       <h2 id="locations-title">Locations</h2>
+      <p class="map-hint">Tap a marker or card for the photo and details.</p>
       <div id="list"></div>
       <div class="note">
         <strong>Note:</strong> The main “disappearing” series by Valentina Picozzi (Satoshigallery) aims for 21 statues worldwide. Budapest and Fornelli are separate designs. Also includes other notable Bitcoin monuments.
@@ -768,6 +769,17 @@
         <!-- BUILD:SIGNUP:BEGIN -->
         <section class="alert-box" aria-label="New statue alerts"><p class="alert-title">🔔 Get an alert when the next statue is unveiled</p><form class="alert-form" action="https://buttondown.com/api/emails/embed-subscribe/satoshistatues" method="post" target="popupwindow" onsubmit="window.open('https://buttondown.com/satoshistatues', 'popupwindow')"><input type="hidden" name="embed" value="1" /><label class="sr-only" for="alert-email-home">Email address</label><input id="alert-email-home" type="email" name="email" required autocomplete="email" inputmode="email" placeholder="you@example.com" /><button type="submit">Notify me</button></form><p class="alert-fine">One email per new statue. Unsubscribe anytime.</p><span class="alert-follow"><a class="feed-link" href="/feed.xml" type="application/atom+xml">📡 RSS/Atom feed</a><a class="feed-link" href="https://njump.me/npub1dx7qh8fpp9l45lzrv9ff95f0f3gkrlvjhhptqjrxyhemze68kuhs72vv8h" target="_blank" rel="noopener noreferrer me">🟣 Follow on Nostr</a></span></section>
         <!-- BUILD:SIGNUP:END -->
+        <section class="tip-box" id="tip-box" aria-labelledby="tip-title">
+          <p class="tip-title" id="tip-title">₿ Tip the map</p>
+          If this site helped you, consider dropping a sat as a thank you. Every bit helps keep the map alive and growing toward 21.
+          <div class="btc-address" title="Bitcoin address">bc1qy5u3uarfgqspuxj807qj8egq0w5ncdft7wem8v</div>
+          <div class="tip-actions">
+            <a class="tip-btn tip-primary" href="bitcoin:bc1qy5u3uarfgqspuxj807qj8egq0w5ncdft7wem8v?label=SatoshiStatues.com">₿ Tip in wallet</a>
+            <button class="tip-btn" type="button" id="tip-copy" onclick="copyTipAddress()">Copy</button>
+            <button class="tip-btn" type="button" onclick="document.getElementById('tip-qr').classList.toggle('show')">QR</button>
+          </div>
+          <img id="tip-qr" class="tip-qr" src="btc-tip-qr.png" alt="QR code for Bitcoin tip address" width="140" height="140" loading="lazy">
+        </section>
         <a class="nodes-link" href="/21-nodes/">🟠 21 Nodes tracker: Valentina Picozzi’s series</a>
         <h2>Statue pages</h2>
         <!-- BUILD:LINKS:BEGIN -->
@@ -1333,10 +1345,12 @@
     function zoomOut() {
       fitAll(true);
     }
-    function toggleTip() {
-      const h = document.querySelector('header');
-      const open = h.classList.toggle('tip-open');
-      document.getElementById('tip-toggle').setAttribute('aria-expanded', open ? 'true' : 'false');
+    function showTip() {
+      const b = document.getElementById('tip-box');
+      const sb = b.closest('.sidebar');  // scroll only the sidebar, not the page (keeps the header in view)
+      if (sb) sb.scrollBy({ top: b.getBoundingClientRect().top - sb.getBoundingClientRect().top - 12, behavior: 'smooth' });
+      else b.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      b.classList.add('flash'); setTimeout(() => b.classList.remove('flash'), 1600);
     }
     function copyTipAddress() {
       const a = "bc1qy5u3uarfgqspuxj807qj8egq0w5ncdft7wem8v", b = document.getElementById("tip-copy");
@@ -1703,6 +1717,7 @@
     const FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
     // Share cards: 1200x630 (wide) or 1080x1350 (story). Drawn only when the user taps a share/save button.
     const CARD_FONT = '"InterCard", ' + FONT;
+    const LOGO_PIN = 'M50 138C45 126 6 84 6 50a44 44 0 0 1 88 0c0 34-39 76-44 88ZM31 44Q50 32 69 44Q74 48 72 55Q64 76 50 94Q36 76 28 55Q26 48 31 44ZM11.12 73.8Q19.69 62.59 29.5 62L29.5 66.5Q21.89 66.8 13.36 79.14ZM88.88 73.8Q80.31 62.59 70.5 62L70.5 66.5Q78.11 66.8 86.64 79.14Z'; // map-pin logo (100x140 grid), same path as /brand/pin.svg
     let cardFontsReady = false;
     function loadCardFonts() {
       if (cardFontsReady || !document.fonts || !document.fonts.load) return;
@@ -1766,9 +1781,9 @@
       // brand row
       const by = photo && story ? 70 : top + 34;
       if (photo && story) { roundRect(ctx, P - 14, by - 44, 470, 88, 44); ctx.fillStyle = 'rgba(13,17,23,0.78)'; ctx.fill(); }
-      ctx.beginPath(); ctx.arc(P + 30, by, 30, 0, Math.PI * 2); ctx.fillStyle = '#f7931a'; ctx.fill();
-      ctx.fillStyle = '#0d1117'; ctx.font = `800 36px ${CARD_FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('₿', P + 30, by + 2); ctx.textAlign = 'left';
+      ctx.save(); ctx.translate(P + 9, by - 32); ctx.scale(64 / 140, 64 / 140); ctx.fillStyle = '#f7931a';
+      if (window.Path2D) ctx.fill(new Path2D(LOGO_PIN), 'evenodd'); else { ctx.beginPath(); ctx.arc(50, 50, 44, 0, Math.PI * 2); ctx.fill(); }
+      ctx.restore(); ctx.textBaseline = 'middle';
       ctx.fillStyle = '#f7931a'; ctx.font = `800 28px ${CARD_FONT}`; ctx.fillText('SATOSHI PASSPORT', P + 76, by + 1);
       ctx.textBaseline = 'alphabetic';
       let y = (photo && story) ? top + 40 : top + 130;
