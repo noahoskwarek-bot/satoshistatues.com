@@ -48,28 +48,61 @@
           "url": "https://www.statueofsatoshi.com/"
         }
       ],
-      "label": "Satoshi Statue Budapest"
+      "label": "Satoshi Statue Budapest",
+      "visit": {
+        "updated": "2026-10-21",
+        "getting_there": "From OpenStreetMap (straight-line distances; lines and timetables unverified): the nearest bus stops are Sujtás utca (about 400 m) and Záhony utca (about 470 m). The nearest rail stops are the Aquincum railway halt (about 780 m) and the Kaszásdűlő HÉV suburban-rail stop (about 800 m).\n\nParking: OpenStreetMap shows a 120-space surface lot about 180 m away. Whether it's public or for park tenants only is unverified.",
+        "exact_spot": "In Graphisoft Park, Záhony u. 7, 1031 Budapest (District III), per the official site. Köztérkép, the Hungarian public-art register, places it on the green area in front of the Microsoft building, facing the Heracles (Herkules) statue. In OpenStreetMap, the Herkules statue is about 15 m away and the Microsoft office about 40 m. Pin: 47.56072, 19.05438 (OpenStreetMap node 9843217531).\n\nIt is not in City Park (Városliget), despite what some listings say.",
+        "photo_tip": "This isn't a see-through design. The face is a polished bronze-aluminium composite, so every visitor can see their own face in it (official site).\n\nGeneric tip (not from a source): shoot close so your reflection sits inside the hood, and keep the sun behind you to avoid flare.",
+        "hours_access": "Outdoors. The official site says it can be visited 24/7, free of charge.",
+        "nearby_note": "None within 1 km on BTC Map (checked 2026-10-21).",
+        "sources": [
+          {
+            "label": "Statue of Satoshi (official site)",
+            "url": "https://www.statueofsatoshi.com/"
+          },
+          {
+            "label": "Köztérkép entry 43898",
+            "url": "https://www.kozterkep.hu/43898"
+          },
+          {
+            "label": "AP News",
+            "url": "https://apnews.com/article/technology-business-arts-and-entertainment-hungary-blockchain-96a6b57589b73fd4e376fe5f91b022e3"
+          },
+          {
+            "label": "OpenStreetMap node 9843217531",
+            "url": "https://www.openstreetmap.org/node/9843217531"
+          },
+          {
+            "label": "BTC Map API (fetched 2026-10-21)",
+            "url": "https://api.btcmap.org/v4/places/search/"
+          }
+        ],
+        "public_access": true,
+        "free": true
+      }
     },
     {
       "name": "Lugano",
       "country": "Switzerland",
       "city": "Lugano",
       "place": "Parco Ciani",
-      "lat": 46.0044,
-      "lng": 8.9566,
+      "lat": 46.0042,
+      "lng": 8.9585,
+      "pin_approx": true,
       "year": "2024 (restored 2025)",
       "artist": "Valentina Picozzi (Satoshigallery)",
       "artistUrl": "https://satoshigallery.com",
       "type": "Disappearing metal (1st of series)",
       "status": "Damaged",
-      "note": "First of the optical-illusion series. On the night of 1–2 Aug 2025 vandals threw it into Lake Lugano; divers recovered it in pieces. The artist repaired it with the kintsugi technique and it was re-inaugurated in Parco Ciani on 24 Oct 2025. On 19 Apr 2026 it was vandalized again and found seriously damaged in its central body. An OpenStreetMap mapper noted it was no longer at the site as of 28 Jul 2026; current status unconfirmed.",
+      "note": "First of the optical-illusion series. Unveiled in Parco Ciani in Oct 2024, it was later moved to the Foce, the mouth of the Cassarate river, where vandals threw it into Lake Lugano on the night of 1–2 Aug 2025; divers recovered it in pieces. The artist repaired it with the kintsugi technique and it was re-inaugurated on 24 Oct 2025 in the central area of Parco Ciani, near the Dying Socrates sculpture. On 19 Apr 2026 it was vandalized again and found seriously damaged in its central body. An OpenStreetMap mapper noted it was no longer at its originally mapped spot as of 28 Jul 2026; current status unconfirmed.",
       "img": "464209387_18424822771076669_4342153522642907768_n.jpg",
       "imgW": 512,
       "imgH": 640,
       "page": "lugano",
       "unveiled": "25 Oct 2024",
       "series21": true,
-      "access": "In Parco Ciani, a public park open every day: 6:30–23:30 (March–October) and 6:30–21:00 (November–February). Free entry.",
+      "access": "In Parco Ciani, a public park open every day: 6:30–23:30 (March–October) and 6:30–21:00 (November–February).",
       "accessSource": {
         "label": "City of Lugano – Parco Ciani",
         "url": "https://www.lugano.ch/en/vivere-lugano/cultura-e-tempo-libero/parchi-aree-gioco/parco-ciani/"
@@ -106,18 +139,90 @@
         {
           "label": "OpenStreetMap node 12288711744 (note, 5 Aug 2026)",
           "url": "https://www.openstreetmap.org/node/12288711744/history"
+        },
+        {
+          "label": "Corriere del Ticino (24 Oct 2025)",
+          "url": "https://www.cdt.ch/news/lugano-ha-di-nuovo-la-sua-statua-di-satoshi-nakamoto-409350"
+        },
+        {
+          "label": "Il Giornale del Ticino (Apr 2026)",
+          "url": "https://ilgiornaledelticino.ch/lugano-area-parco-ciani-ci-risiamo-vandali-sullicona-di-satoshi-nakamoto/"
         }
       ],
       "label": "Satoshi Statue Lugano",
-      "statusLabel": "Damaged (Apr 2026), current status unconfirmed"
+      "statusLabel": "Damaged (Apr 2026), current status unconfirmed",
+      "visit": {
+        "updated": "2026-10-21",
+        "getting_there": "Check that the statue is actually on display before you go (see Hours & access).\n\nFrom OpenStreetMap (straight-line distances from the 2024 statue position; routes unverified): the Palazzo Congressi bus stop is about 130 m away, and the Lugano Centro bus hub (TPL) about 360 m.\n\nParking: the paid underground Autosilo Piazza Castello is about 135 m away (OpenStreetMap).",
+        "exact_spot": "In Parco Ciani, Lugano's lakefront park. The statue was first installed there in Oct 2024 (pin 46.00441, 8.95659, OpenStreetMap node 12288711744), then moved to the Foce (Cassarate river mouth), where it was thrown into the lake on 1–2 Aug 2025. On 24 Oct 2025 it was re-inaugurated in the central area of Parco Ciani, near the \"Dying Socrates\" sculpture (Corriere del Ticino; Il Giornale del Ticino). That exact spot may differ from the 2024 pin and is unverified.",
+        "photo_tip": "It's a Satoshigallery design, so the figure reads from the side and nearly vanishes from the front. After the April 2026 damage, its current look is unknown.\n\nGeneric tip (not from a source): if it's on display, the lake makes a clean background for a head-on shot.",
+        "hours_access": "Current status unconfirmed. It was found seriously damaged on 19 Apr 2026 (RSI; Ticinonline), and an OpenStreetMap mapper noted it was no longer there as of 28 Jul 2026. Parco Ciani itself is open daily from 6:30 to 23:30 (March–October) and 6:30 to 21:00 (November–February), per the City of Lugano.",
+        "nearby": [
+          {
+            "name": "Caffè Pascucci",
+            "url": "https://btcmap.org/merchant/3635",
+            "note": "Café at Riva Albertolli 5, about 160 m."
+          },
+          {
+            "name": "Il Cannolo Sua Eccellenza",
+            "url": "https://btcmap.org/merchant/2036",
+            "note": "Café/pastry at Via Pasquale Lucchini 1, about 160 m."
+          },
+          {
+            "name": "Ristorante Vistalago",
+            "url": "https://btcmap.org/merchant/3633",
+            "note": "Restaurant at Riva Albertolli 5, about 170 m."
+          },
+          {
+            "name": "Pestalozzi",
+            "url": "https://btcmap.org/merchant/11270",
+            "note": "Hotel at Piazza Indipendenza 9, about 190 m."
+          },
+          {
+            "name": "Casino Lugano",
+            "url": "https://btcmap.org/merchant/1033",
+            "note": "Casino, about 120 m."
+          }
+        ],
+        "sources": [
+          {
+            "label": "City of Lugano: Parco Ciani",
+            "url": "https://www.lugano.ch/en/vivere-lugano/cultura-e-tempo-libero/parchi-aree-gioco/parco-ciani/"
+          },
+          {
+            "label": "RSI (19 Apr 2026)",
+            "url": "https://www.rsi.ch/info/ticino-grigioni-e-insubria/Vandalizzata-ancora-la-statua-di-Nakamoto--3678644.html"
+          },
+          {
+            "label": "Ticinonline (19 Apr 2026)",
+            "url": "https://www.tio.ch/ticino/cronaca/1919347/vandalizzata-per-la-seconda-volta-la-statua-del-creatore-di-bitcoin"
+          },
+          {
+            "label": "Il Giornale del Ticino (Apr 2026)",
+            "url": "https://ilgiornaledelticino.ch/lugano-area-parco-ciani-ci-risiamo-vandali-sullicona-di-satoshi-nakamoto/"
+          },
+          {
+            "label": "Corriere del Ticino (24 Oct 2025)",
+            "url": "https://www.cdt.ch/news/lugano-ha-di-nuovo-la-sua-statua-di-satoshi-nakamoto-409350"
+          },
+          {
+            "label": "OpenStreetMap node 12288711744 history",
+            "url": "https://www.openstreetmap.org/node/12288711744/history"
+          },
+          {
+            "label": "BTC Map API (fetched 2026-10-21)",
+            "url": "https://api.btcmap.org/v4/places/search/"
+          }
+        ]
+      }
     },
     {
       "name": "El Zonte",
       "country": "El Salvador",
       "city": "El Zonte",
       "place": "Bitcoin Beach",
-      "lat": 13.495,
-      "lng": -89.44,
+      "lat": 13.4954011,
+      "lng": -89.4424197,
       "year": 2025,
       "artist": "Valentina Picozzi (Satoshigallery)",
       "artistUrl": "https://satoshigallery.com",
@@ -146,9 +251,70 @@
         {
           "label": "Journal du Coin (Museo Marte, Feb 2025)",
           "url": "https://journalducoin.com/bitcoin/satoshi-nakamoto-statue-bitcoin-salvador/"
+        },
+        {
+          "label": "Satoshigallery map pin (13 Apr 2025 post)",
+          "url": "https://maps.google.com/?q=13.4954011,-89.4424197"
         }
       ],
-      "label": "Satoshi Statue El Zonte"
+      "label": "Satoshi Statue El Zonte",
+      "visit": {
+        "updated": "2026-10-21",
+        "getting_there": "We couldn't verify bus routes to El Zonte. OpenStreetMap shows an unnamed bus stop about 180 m from the statue, on the coastal road (Carretera del Litoral).\n\nParking: OpenStreetMap marks a surface parking area about 330 m away. Fees are unverified.",
+        "exact_spot": "In the public beachfront space at Playa El Zonte (Bitcoin Beach), La Libertad, which El Salvador's Ministry of Public Works opened in April 2025. Satoshigallery's own map pin is 13.4954011, -89.4424197. The Bitcoin Beach Office is about 85 m away (BTC Map/OpenStreetMap).",
+        "photo_tip": "It's a Satoshigallery design, so the figure is visible from the side and nearly disappears from the front. The best angle at this site is unverified.\n\nGeneric tip (not from a source): with the sea behind it, shooting head-on makes the see-through effect obvious, and late-afternoon light is softer.",
+        "hours_access": "Outdoors in a public space with beach showers, water stations and a calisthenics area (El Salvador in English, citing the Ministry of Public Works). No hours or fees are published, so treat both as unverified.",
+        "nearby": [
+          {
+            "name": "Point Break Café - El Zonte",
+            "url": "https://btcmap.org/merchant/368",
+            "note": "Café, about 75 m."
+          },
+          {
+            "name": "Vista Mar Zonte",
+            "url": "https://btcmap.org/merchant/5094",
+            "note": "Restaurant, about 70 m."
+          },
+          {
+            "name": "Bitcoin Beach Office",
+            "url": "https://btcmap.org/merchant/28739",
+            "note": "The Bitcoin Beach community office, about 85 m."
+          },
+          {
+            "name": "Olas Permanentes",
+            "url": "https://btcmap.org/merchant/5777",
+            "note": "Restaurant, about 110 m."
+          },
+          {
+            "name": "Pupuseria Mama Blanca",
+            "url": "https://btcmap.org/merchant/579",
+            "note": "Pupusas, about 125 m."
+          }
+        ],
+        "sources": [
+          {
+            "label": "El Salvador in English (13 Apr 2025)",
+            "url": "https://elsalvadorinenglish.com/2025/04/13/satoshi-rises-in-el-zonte-new-public-space-in-el-salvador-celebrating-sound-money-and-freedom/"
+          },
+          {
+            "label": "Satoshigallery map pin (via its 13 Apr 2025 post)",
+            "url": "https://maps.google.com/?q=13.4954011,-89.4424197"
+          },
+          {
+            "label": "Journal du Coin (Museo Marte)",
+            "url": "https://journalducoin.com/bitcoin/satoshi-nakamoto-statue-bitcoin-salvador/"
+          },
+          {
+            "label": "Bitcoin Austria: Satoshi statue page",
+            "url": "https://bitcoin-austria.at/satoshi-statue/"
+          },
+          {
+            "label": "BTC Map API (fetched 2026-10-21)",
+            "url": "https://api.btcmap.org/v4/places/search/"
+          }
+        ],
+        "public_access": true
+      }
     },
     {
       "name": "Tokyo",
@@ -179,28 +345,75 @@
           "url": "https://bitcoin-austria.at/satoshi-statue/"
         }
       ],
-      "label": "Satoshi Statue Tokyo"
+      "label": "Satoshi Statue Tokyo",
+      "visit": {
+        "updated": "2026-10-21",
+        "getting_there": "Tokyo Bitcoin Base lists its access as a 6-minute walk from Yotsuya Station, and a 9-minute walk from both Ichigaya Station and Akebonobashi Station. That's from the venue's website as archived in Nov 2025. The live site showed a maintenance notice on 2026-10-21.\n\nPer OpenStreetMap, the nearest Yotsuya Station entrance is about 320 m away, and Akebonobashi (Toei Subway, S03) about 640 m. Parking is unverified.",
+        "exact_spot": "Outside Tokyo Bitcoin Base, 2-8 Yotsuya-Honshiocho, Shinjuku-ku, Tokyo 160-0003 (Forbes: the statue \"sits outside of Tokyo Bitcoin Base\"). Forbes describes the building as four stories on a relatively quiet block. Pin: 35.68897, 139.72854 (OpenStreetMap node for Tokyo Bitcoin Base).",
+        "photo_tip": "It's a Satoshigallery design, so the figure is visible from the side and nearly disappears from the front. Take both angles. The exact best viewpoint at this site is unverified.\n\nGeneric tip (not from a source): it's a street-side spot, so go early or late to avoid passers-by in the frame.",
+        "hours_access": "The statue is outdoors outside the building. Opening hours for viewing it are unverified. Inside, the co-working space offers drop-ins on weekdays from 10:00 to 18:00 for ¥5,500 per day, with Lightning accepted, per the archived Nov 2025 site.",
+        "nearby": [
+          {
+            "name": "Tokyo Bitcoin Base",
+            "url": "https://btcmap.org/merchant/23973",
+            "note": "The statue's host venue, with paid drop-in co-working."
+          },
+          {
+            "name": "Cocorotus Foodtruck",
+            "url": "https://btcmap.org/merchant/35733",
+            "note": "Listed at the Base. Its archived site says the food truck runs Tue, Wed and Fri from 11:00 to 14:00."
+          },
+          {
+            "name": "Around Foodtruck",
+            "url": "https://btcmap.org/merchant/35732",
+            "note": "Food truck listed at the Base. It also appears at other spots nearby, so its location varies."
+          }
+        ],
+        "sources": [
+          {
+            "label": "Forbes (8 Sep 2025)",
+            "url": "https://www.forbes.com/sites/frankcorva/2025/09/08/bitcoin-finds-a-home-in-the-heart-of-tokyo/"
+          },
+          {
+            "label": "Tokyo Bitcoin Base (archived Nov 2025)",
+            "url": "https://web.archive.org/web/2025/https://tokyobitcoin.space/en/"
+          },
+          {
+            "label": "Bitcoin Austria: Satoshi statue page",
+            "url": "https://bitcoin-austria.at/satoshi-statue/"
+          },
+          {
+            "label": "OpenStreetMap node 12599810937",
+            "url": "https://www.openstreetmap.org/node/12599810937"
+          },
+          {
+            "label": "BTC Map API (fetched 2026-10-21)",
+            "url": "https://api.btcmap.org/v4/places/search/"
+          }
+        ]
+      }
     },
     {
       "name": "Hanoi",
       "country": "Vietnam",
       "city": "Hanoi",
-      "place": "Times City – 1Matrix HQ",
-      "lat": 20.9955,
-      "lng": 105.8685,
+      "place": "1Matrix HQ, Century Tower (16th floor), Times City",
+      "lat": 20.997316,
+      "lng": 105.86837,
+      "pin_approx": true,
       "year": 2025,
       "artist": "Valentina Picozzi (Satoshigallery)",
       "artistUrl": "https://satoshigallery.com",
       "type": "Disappearing metal",
       "status": "Installed",
-      "note": "Inside the Blockchain Gallery at 1Matrix headquarters. Open to the public on Saturdays.",
+      "note": "Inside the Blockchain Gallery at 1Matrix headquarters, which 1Matrix lists on the 16th floor of the Century building, Times City, 458 Minh Khai (whether the gallery itself is on that floor is unverified). Reported open to the public on Saturdays in Sep 2025; hours unverified. The map pin is a third-party location for the building, so it is approximate.",
       "img": "satoshi-5.jpg",
       "imgW": 660,
       "imgH": 990,
       "page": "hanoi",
       "unveiled": "9 Sep 2025",
       "series21": true,
-      "access": "Indoors in the Blockchain Gallery at 1Matrix headquarters (Times City). Reported open to the public every Saturday.",
+      "access": "Indoors in the Blockchain Gallery at 1Matrix headquarters (Century building, Times City). Reported open to the public every Saturday (Sep 2025); hours unverified.",
       "accessSource": {
         "label": "Viet Nam News",
         "url": "https://vietnamnews.vn/economy/1724928/statue-of-bitcoin-creator-satoshi-unveiled-in-ha-noi.html"
@@ -213,9 +426,40 @@
         {
           "label": "Bitcoin Austria – 21 Nodes",
           "url": "https://bitcoin-austria.at/satoshi-statue/"
+        },
+        {
+          "label": "1Matrix contact page (address)",
+          "url": "https://erp.1matrix.com/contactus"
         }
       ],
-      "label": "Satoshi Statue Hanoi"
+      "label": "Satoshi Statue Hanoi",
+      "visit": {
+        "updated": "2026-10-21",
+        "getting_there": "Buses only, as far as we could verify. OpenStreetMap shows the \"T1 Vinhomes Times City\" (about 130 m) and \"Khu đô thị Times City\" (about 240 m) stops near the complex's centre. Routes and the walk to the Century building are unverified.\n\nParking: unverified.",
+        "exact_spot": "Indoors in the Blockchain Gallery at 1Matrix headquarters in Times City (Viet Nam News). 1Matrix gives its address as 16th floor, Century building, Times City, 458 Minh Khai, Hanoi. Whether the gallery is on that same floor is unverified. A third-party listing pins the Century building at about 20.99732, 105.86837 (unverified).",
+        "photo_tip": "It's a Satoshigallery design: seen from an angle, Satoshi's profile is visible, and from the front it fades to near transparency (Viet Nam News). Take both angles.\n\nGeneric tip (not from a source): it's indoors, so turn off your flash to avoid glare on the metal slats.",
+        "hours_access": "Indoors. In Sep 2025 it was reported open to the public every Saturday (Viet Nam News; VNA), with no hours given. Confirm with 1Matrix before you go, because this hasn't been re-verified since.",
+        "nearby_note": "None within 1 km on BTC Map (checked 2026-10-21).",
+        "sources": [
+          {
+            "label": "Viet Nam News (10 Sep 2025)",
+            "url": "https://vietnamnews.vn/economy/1724928/statue-of-bitcoin-creator-satoshi-unveiled-in-ha-noi.html"
+          },
+          {
+            "label": "VNA: Hanoi's blockchain gallery",
+            "url": "https://vietnam.vnanet.vn/english/tin-van/hanois-blockchain-gallery-melds-art-technology-enigma-of-satoshi-408493.html"
+          },
+          {
+            "label": "1Matrix contact page (address)",
+            "url": "https://erp.1matrix.com/contactus"
+          },
+          {
+            "label": "BTC Map API (fetched 2026-10-21)",
+            "url": "https://api.btcmap.org/v4/places/search/"
+          }
+        ],
+        "public_access": true
+      }
     },
     {
       "name": "Miami",
@@ -318,7 +562,59 @@
           "url": "https://www.ansa.it/molise/notizie/2025/05/09/nel-cuore-del-molise-fornelli-diventa-il-paese-dei-bitcoin_86b9bc75-2554-4121-b171-11b2a2ac9e24.html"
         }
       ],
-      "label": "Satoshi Statue Fornelli"
+      "label": "Satoshi Statue Fornelli",
+      "visit": {
+        "updated": "2026-10-21",
+        "getting_there": "We couldn't verify any bus or rail service to Fornelli, and OpenStreetMap shows no public transport stops within about 1 km. Plan on arriving by car (local bus options are unverified).\n\nParking: OpenStreetMap marks a small car park right beside the piazza, about 15 m away. Fees and capacity are unverified.",
+        "exact_spot": "In Piazza Umberto I, Fornelli (province of Isernia, Molise), installed at the belvedere (Comune di Fornelli; ANSA). Pin: 41.60700, 14.14047 (OpenStreetMap node 12804537475).",
+        "photo_tip": "This is not a Satoshigallery piece. It's by local crypto-artist Mattia Pannoni, but it has a similar effect: seen from the front, it seems to disappear (ANSA, quoting the artist). Take one frontal shot and one side shot to show it.\n\nGeneric tip (not from a source): the belvedere puts open sky behind the statue, which makes the see-through effect easier to read.",
+        "hours_access": "Outdoors in a public square. No hours are published. It should be viewable at any time, but that is our assumption and is unverified.",
+        "nearby": [
+          {
+            "name": "Bar Sette Torri",
+            "url": "https://btcmap.org/merchant/24890",
+            "note": "Bar, about 25 m."
+          },
+          {
+            "name": "Biertempel Pub",
+            "url": "https://btcmap.org/merchant/24881",
+            "note": "Pub, about 40 m."
+          },
+          {
+            "name": "Domus Vela",
+            "url": "https://btcmap.org/merchant/24985",
+            "note": "Accommodation, about 40 m."
+          },
+          {
+            "name": "Bar In Piazza",
+            "url": "https://btcmap.org/merchant/24893",
+            "note": "Bar, about 70 m."
+          },
+          {
+            "name": "Moustache",
+            "url": "https://btcmap.org/merchant/24885",
+            "note": "Pizzeria, about 70 m."
+          }
+        ],
+        "sources": [
+          {
+            "label": "Comune di Fornelli: inauguration",
+            "url": "https://comune.fornelli.is.it/vivere-il-comune/eventi/inaugurazione-ufficiale-del-monumento-dedicato-a-bitcoin-e-a-satoshi-nakamoto-ideato-da-mattia-pannoni/"
+          },
+          {
+            "label": "ANSA (9 May 2025)",
+            "url": "https://www.ansa.it/molise/notizie/2025/05/09/nel-cuore-del-molise-fornelli-diventa-il-paese-dei-bitcoin_86b9bc75-2554-4121-b171-11b2a2ac9e24.html"
+          },
+          {
+            "label": "OpenStreetMap node 12804537475",
+            "url": "https://www.openstreetmap.org/node/12804537475"
+          },
+          {
+            "label": "BTC Map API (fetched 2026-10-21)",
+            "url": "https://api.btcmap.org/v4/places/search/"
+          }
+        ]
+      }
     },
     {
       "name": "Hong Kong",
@@ -361,9 +657,9 @@
       "year": 2018,
       "artist": "Selman Čorović & Aleksander Frančeškin",
       "artistUrl": null,
-      "type": "Metal Bitcoin “B” monument",
+      "type": "Corten steel (about 3 tonnes) Bitcoin “B” monument",
       "status": "Installed",
-      "note": "Often called the world’s first public Bitcoin monument. Large metal structure featuring the Bitcoin “B” symbol (about 3 tonnes, ~7 meters across). Located on a roundabout near the city center. Linked to Slovenia’s early crypto scene (Bitstamp was founded there).",
+      "note": "Often called the world’s first public Bitcoin monument. Large Corten steel structure featuring the Bitcoin “B” symbol (about 3 tonnes). Located on a roundabout near the city center. Linked to Slovenia’s early crypto scene (supported by Bitstamp).",
       "img": "fhtd3yfouxe61.jpg",
       "imgW": 680,
       "imgH": 453,
@@ -385,7 +681,29 @@
           "url": "https://www.openstreetmap.org/node/5903169142"
         }
       ],
-      "label": "Kranj Bitcoin Monument"
+      "label": "Kranj Bitcoin Monument",
+      "visit": {
+        "updated": "2026-10-21",
+        "getting_there": "From OpenStreetMap (straight-line distances; routes and timetables unverified): Kranj bus station (Avtobusna postaja Kranj) is about 260 m away, and Kranj railway station (Železniška postaja Kranj) about 1.1 km.\n\nParking: OpenStreetMap shows a paid surface car park about 30 m from the roundabout.",
+        "exact_spot": "In the roundabout in front of the Kranj courthouse (RTV Slovenija). OpenStreetMap names it \"Bitcoin krožišče\" (Bitcoin roundabout), and the District Court (Okrožno sodišče v Kranju) is about 40 m away. Pin: 46.24636, 14.35781 (OpenStreetMap node 5903169142).",
+        "photo_tip": "This isn't a see-through design. RTV Slovenija notes that the monument can best be seen from the air.\n\nGeneric tip (not from a source): shoot diagonally from a sidewalk corner so the tilted ring and the B symbol both read, and wait for a gap in traffic.",
+        "hours_access": "It sits in an active traffic circle, so view it from the surrounding sidewalks and don't walk into the roundabout. As a street monument it has no opening hours.",
+        "nearby_note": "None within 1 km on BTC Map (checked 2026-10-21).",
+        "sources": [
+          {
+            "label": "RTV Slovenija (12 Mar 2018)",
+            "url": "https://www.rtvslo.si/news-in-english/a-world-first-in-kranj-a-monument-devoted-to-blockchain-technology/448636"
+          },
+          {
+            "label": "OpenStreetMap node 5903169142",
+            "url": "https://www.openstreetmap.org/node/5903169142"
+          },
+          {
+            "label": "BTC Map API (fetched 2026-10-21)",
+            "url": "https://api.btcmap.org/v4/places/search/"
+          }
+        ]
+      }
     },
     {
       "name": "Miami Bitcoin Bull",
@@ -416,7 +734,55 @@
           "url": "https://www.miamibull.com/location/"
         }
       ],
-      "label": "Miami Bitcoin Bull"
+      "label": "Miami Bitcoin Bull",
+      "visit": {
+        "updated": "2026-10-21",
+        "getting_there": "Per OpenStreetMap, the Metromover's College North station is about 90 m away, and College Bayside about 200 m. A Miami-Dade Transit bus stop at NE 1st Avenue and NE 4th Street is about 55 m away. Metrorail Government Center (about 490 m) and Brightline MiamiCentral (about 400 m) are also close. Routes and schedules are unverified.\n\nParking: OpenStreetMap shows Miami Parking Authority Garage 3, paid, about 200 m away, plus Miami Dade College garages nearby whose public access is unverified.",
+        "exact_spot": "At the edge of Miami Dade College's Wolfson Campus in front of Building 1000, with its eyes facing NE 1st Avenue (MDC The Reporter). The site data puts it at NE 1st Ave and NE 4th St. Pin: 25.77820, -80.19186 (OpenStreetMap node 10677295005).",
+        "photo_tip": "This isn't a see-through design. It's an 11-foot chrome-and-fiberglass bull with blue \"laser\" eyes.\n\nGeneric tips (not from a source): shoot low and slightly to one side so the horns and eyes stand out against the sky, and try dusk if the eyes are lit (unverified).",
+        "hours_access": "Outdoors on an open campus. MDC The Reporter described visitors walking up for selfies, and TradeStation calls MDC the bull's permanent home. We found no posted hours, so viewing hours are unverified.",
+        "nearby": [
+          {
+            "name": "CRM Jewelers",
+            "url": "https://btcmap.org/merchant/33595",
+            "note": "Jeweler, about 360 m. Never verified on BTC Map."
+          },
+          {
+            "name": "Diamond dreams by Alex",
+            "url": "https://btcmap.org/merchant/36653",
+            "note": "Jeweler, about 380 m."
+          },
+          {
+            "name": "Proof of Work Fitness",
+            "url": "https://btcmap.org/merchant/19953",
+            "note": "Gym, about 760 m."
+          },
+          {
+            "name": "Juice Fountain 305",
+            "url": "https://btcmap.org/merchant/40791",
+            "note": "Café at 1310 NE 1st Avenue, about 1.0 km."
+          }
+        ],
+        "sources": [
+          {
+            "label": "MDC The Reporter (22 Apr 2022)",
+            "url": "https://mdcthereporter.com/miami-dade-college-hits-the-bull-s-eye-with-futuristic-robotic-statue/"
+          },
+          {
+            "label": "TradeStation: Miami Bull",
+            "url": "https://www.miamibull.com/location/"
+          },
+          {
+            "label": "OpenStreetMap node 10677295005",
+            "url": "https://www.openstreetmap.org/node/10677295005"
+          },
+          {
+            "label": "BTC Map API (fetched 2026-10-21)",
+            "url": "https://api.btcmap.org/v4/places/search/"
+          }
+        ],
+        "public_access": true
+      }
     },
     {
       "name": "Vienna",
@@ -456,7 +822,49 @@
           "url": "https://www.tokenpost.com/news/technology/32422"
         }
       ],
-      "label": "Satoshi Statue Vienna"
+      "label": "Satoshi Statue Vienna",
+      "visit": {
+        "updated": "2026-10-21",
+        "getting_there": "Take the U-Bahn U2 to Krieau, then walk toward the OMV Hoch Zwei building until you reach the start of the lake. Those are Bitcoin Austria's own directions.\n\nPer OpenStreetMap, Krieau (U2) station is about 130 m from the statue in a straight line, and a Krieau bus stop is about 170 m away. Bus route numbers are unverified.\n\nParking: the paid multi-storey Messe Parkhaus D is about 180 m away (OpenStreetMap). Rates and opening hours are unverified.",
+        "exact_spot": "At the head of the lake (Seeanfang) in Viertel Zwei, right next to the OMV Hoch Zwei building, 1020 Vienna (Leopoldstadt). Pin: 48.21351, 16.41363 (OpenStreetMap node 14287266624).",
+        "photo_tip": "Bitcoin Austria says the figure is clearly visible from the side and almost invisible from the front, so take one shot from each angle to show the disappearing effect. Their party trick is to have a friend stand behind the statue. Everyone in front then sees that person's reflection in Satoshi's face, as in \"We are all Satoshi\".\n\nGeneric tip (not from a source): the 61 steel profiles are mirror-polished, so watch for glare and your own reflection in direct sun.",
+        "hours_access": "Outdoors and publicly accessible at any time (Bitcoin Austria: \"jederzeit öffentlich zugänglich\", \"Öffentlich, im Freien\"). No admission fee is mentioned. Bitcoin Austria's \"free entry\" note was for the unveiling event.",
+        "nearby": [
+          {
+            "name": "Urban Lodge - Apartments Vienna",
+            "url": "https://btcmap.org/merchant/12936",
+            "note": "Accommodation, about 670 m. The only BTC Map listing within 1 km."
+          },
+          {
+            "name": "Heines",
+            "url": "https://btcmap.org/merchant/20862",
+            "note": "Café at Heinestraße 42, about 1.8 km, so outside the 1 km radius."
+          }
+        ],
+        "sources": [
+          {
+            "label": "Bitcoin Austria: unveiling article",
+            "url": "https://bitcoin-austria.at/beitraege/satoshi-statue-enthuellung-wien/"
+          },
+          {
+            "label": "Bitcoin Austria: Satoshi statue page",
+            "url": "https://bitcoin-austria.at/satoshi-statue/"
+          },
+          {
+            "label": "Bitcoin Austria: unveiling event",
+            "url": "https://bitcoin-austria.at/veranstaltungen/2026-enthuellung-satoshi-statue-wien"
+          },
+          {
+            "label": "OpenStreetMap node 14287266624",
+            "url": "https://www.openstreetmap.org/node/14287266624"
+          },
+          {
+            "label": "BTC Map API (fetched 2026-10-21)",
+            "url": "https://api.btcmap.org/v4/places/search/"
+          }
+        ],
+        "public_access": true
+      }
     }
   ],
   "upcoming21": [

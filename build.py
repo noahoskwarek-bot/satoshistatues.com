@@ -234,7 +234,7 @@ def statue_ld(s):
     c = creators(s)
     if c:
         o['creator'] = c if len(c) > 1 else c[0]
-    if s['slug'] in ('budapest', 'lugano'):
+    if s['slug'] == 'budapest':  # official site: free, 24/7
         o['isAccessibleForFree'] = True
     v = s.get('visit') or {}
     if v.get('sources'):  # only claim access facts that the guide cites
@@ -579,6 +579,9 @@ def src_list(sources):
         f'<li><a href="{e(x["url"])}" target="_blank" rel="noopener noreferrer">{e(x["label"])}</a></li>' for x in sources) + '</ol>'
 
 
+APPROX_HTML = ' <span class="approx" style="color:#d29922">(📍 Approximate location)</span>'
+
+
 def statue_page(s, data):
     title = f"{s['label']} – Location, Directions & Photos"
     desc = describe(s)
@@ -619,7 +622,7 @@ def statue_page(s, data):
     out += f'''  <main>
     <div class="crumbs"><a href="/">Map</a> › {e(s['label'])}</div>
     <h1>{e(s['label'])}</h1>
-    <p class="sub">{e(s['place'])} · {e(s['city'])}, {e(s['country'])}</p>
+    <p class="sub">{e(s['place'])} · {e(s['city'])}, {e(s['country'])}{' · 📍 Approximate location' if s.get('pin_approx') else ''}</p>
     {img_html}
     <dl class="facts">
       <dt>Location</dt><dd>{e(s['place'])}, {e(s['city'])}, {e(s['country'])}</dd>
@@ -629,7 +632,7 @@ def statue_page(s, data):
       <dt>Type</dt><dd>{e(s['type'])}</dd>
       <dt>Status</dt><dd>{status_badge(s['status'], s.get('statusLabel'))}</dd>
       <dt>Access</dt><dd>{acc}</dd>
-      <dt>Coordinates</dt><dd>{s['lat']}, {s['lng']}</dd>
+      <dt>Coordinates</dt><dd>{s['lat']}, {s['lng']}{APPROX_HTML if s.get('pin_approx') else ''}</dd>
     </dl>
     <div class="actions">
       <a class="btn primary" href="{directions}" target="_blank" rel="noopener noreferrer">🧭 Get Directions</a>
@@ -971,8 +974,11 @@ def bin_outputs(data):
 #   exact_spot     str   "## Exact spot"
 #   photo_tip      str   "## Photo tip"
 #   hours_access   str   "## Hours & access" (omit to reuse the statue's `access` + `accessSource`)
-#   nearby         list  "## Nearby (BTC Map)" bullets → [{"name", "url", "note"}]
-#   sources        list  "## Sources" bullets → [{"label", "url"}]
+#   nearby         list  "## Nearby Bitcoin places" lines "Name | URL | note" → [{"name", "url", "note"}]
+#   nearby_note    str   non-pipe text in that section, e.g. "None within 1 km on BTC Map (checked …)"
+#   sources        list  "## Sources" lines "Label | URL" → [{"label", "url"}]
+# Import with: python3 tools/import_guide.py <page>.md
+# statue.pin_approx (bool, optional): coordinates are approximate → "Approximate location" on card + page
 #   public_access / free  bool, optional; only emitted in JSON-LD when `sources` is set
 #   updated        "YYYY-MM-DD" date the guide was written/updated (drives the sitemap lastmod)
 GUIDE_TEXT_FIELDS = ('getting_there', 'exact_spot', 'photo_tip', 'hours_access')
@@ -1001,11 +1007,13 @@ def visit_html(s):
         src = (f' <a href="{e(s["accessSource"]["url"])}" target="_blank" rel="noopener noreferrer">Source: {e(s["accessSource"]["label"])}</a>'
                if s.get('accessSource') else '')
         rows.append(f'<h3>Hours &amp; access</h3><p class="note">{e(s["access"])}{src}</p>')
-    if v.get('nearby'):
+    if v.get('nearby') or (v.get('nearby_note') or '').strip():
         items = ''.join(
             f'<li><a href="{e(n["url"])}" target="_blank" rel="noopener noreferrer">{e(n["name"])}</a>'
-            f'{" – " + e(n["note"]) if n.get("note") else ""}</li>' for n in v['nearby'] if n.get('name') and n.get('url'))
-        rows.append(f'<h3>Nearby places that accept bitcoin</h3><ul class="visit-nearby">{items}</ul>'
+            f'{" – " + e(n["note"]) if n.get("note") else ""}</li>' for n in v.get('nearby', []) if n.get('name') and n.get('url'))
+        lst = f'<ul class="visit-nearby">{items}</ul>' if items else ''
+        nn = f'<p class="note">{e(v["nearby_note"].strip())}</p>' if (v.get('nearby_note') or '').strip() else ''
+        rows.append(f'<h3>Nearby places that accept bitcoin</h3>{lst}{nn}'
                     f'<p class="note" style="font-size:.8rem;color:#8b949e">From <a href="https://btcmap.org/" target="_blank" rel="noopener noreferrer">BTC Map</a>. Check before you go.</p>')
     srcs = (f'<h3>Guide sources</h3>{src_list(v["sources"])}' if v.get('sources') else '')
     upd = f'<p class="note" style="font-size:.8rem;color:#8b949e;margin-top:8px">Guide updated {e(v["updated"])}.</p>' if v.get('updated') else ''
@@ -1085,10 +1093,10 @@ def main():
     check = '--check' in sys.argv
     if '--refresh-checkins' in sys.argv:
         refresh_checkins()
+    data = load()
     if '--worker' in sys.argv:
         write_worker_statues(data)
         return
-    data = load()
     stale = []
     for rel, content in bin_outputs(data).items():
         path = os.path.join(ROOT, rel)
