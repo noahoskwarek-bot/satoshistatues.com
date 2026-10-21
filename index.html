@@ -315,6 +315,20 @@
       margin-bottom: 14px;
       color: #f7931a;
     }
+    .loc-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; }
+    .loc-head h2 { margin-bottom: 0; white-space: nowrap; }
+    .nearby-btn { flex: none; white-space: nowrap; min-height: 40px; padding: 8px 12px; border-radius: 8px; border: 1px solid #30363d; background: #21262d; color: #e6edf3; font-weight: 700; font-size: .82rem; font-family: inherit; cursor: pointer; }
+    .nearby-btn:hover, .nearby-btn:focus-visible { border-color: #f7931a; color: #f7931a; }
+    .nearby-btn[disabled] { opacity: .7; cursor: wait; }
+    .nearby-out { background: #0d1117; border: 1px solid #30363d; border-radius: 10px; padding: 8px 12px; margin: -4px 0 14px; font-size: .85rem; }
+    .nearby-out ol { list-style: none; margin: 0; padding: 0; }
+    .nearby-out li { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 0 10px; padding: 6px 0; border-top: 1px solid #21262d; }
+    .nearby-out li:first-child { border-top: 0; }
+    .nearby-out .nb-name { grid-column: 1; color: #e6edf3; font-weight: 700; text-decoration: none; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .nearby-out .nb-name:hover { color: #f7931a; }
+    .nearby-out .nb-dist { grid-column: 1; color: #8b949e; white-space: nowrap; font-size: .8rem; }
+    .nearby-out .nb-dir { grid-column: 2; grid-row: 1 / span 2; color: #f7931a; white-space: nowrap; font-weight: 600; font-size: .82rem; padding: 10px 0; }
+    .nearby-out .nb-msg { color: #8b949e; margin: 2px 0; }
     .statue-card {
       background: #0d1117;
       border: 1px solid #30363d;
@@ -381,6 +395,11 @@
       max-width: 330px;
     }
     .leaflet-popup-tip { background: #161b22; }
+    .deep-pop { display: flex; align-items: center; gap: 10px; }
+    .deep-pop h3 { font-size: .92rem; margin: 0; color: #f7931a; line-height: 1.2; }
+    .deep-pop .location { font-size: .75rem; color: #8b949e; line-height: 1.2; }
+    .deep-pop-btn { flex: none; min-height: 36px; padding: 6px 12px; border-radius: 8px; border: 1px solid #f7931a; background: #f7931a; color: #0d1117; font-weight: 700; font-size: .85rem; cursor: pointer; font-family: inherit; }
+    .deep-popup .leaflet-popup-content { margin: 8px 10px; }
     .leaflet-popup-content { margin: 13px; }
     .leaflet-popup-content h3, .detail-body h3 {
       margin: 0 0 4px 0;
@@ -781,7 +800,11 @@
   <div class="container">
     <div id="map"></div>
     <div class="sidebar">
-      <h2 id="locations-title">Locations</h2>
+      <div class="loc-head">
+        <h2 id="locations-title">Locations</h2>
+        <button class="nearby-btn" id="nearby-btn" type="button" onclick="findNearby()">📍 Nearby Statues</button>
+      </div>
+      <div class="nearby-out" id="nearby-out" aria-live="polite" hidden></div>
       <p class="map-hint">Tap a marker or card for the photo and details.</p>
       <div id="list"></div>
       <div class="note">
@@ -2399,27 +2422,121 @@
     }
     lbClaim();
     lbCounts();
-    // Deep links: /?s=vienna or /#vienna open that statue (bottom sheet on mobile, popup on desktop)
+    // Deep links: /?s=vienna or /#vienna (the statue pages' "Open on the map") zoom to street level and open the pin's popup.
+    // Other query params (?preview=complete, …) and #passport are left alone.
+    const DEEP_ZOOM = 15;
+    function deepKey() {
+      const q = new URLSearchParams(location.search).get('s');
+      if (q) return { key: q.toLowerCase().trim(), fromQuery: true };
+      if (location.hash.length > 1) { try { return { key: decodeURIComponent(location.hash.slice(1)).toLowerCase().trim(), fromQuery: false }; } catch (e) {} }
+      return { key: '', fromQuery: false };
+    }
     function statueFromLocation() {
-      let key = new URLSearchParams(location.search).get('s') || '';
-      if (!key && location.hash.length > 1) { try { key = decodeURIComponent(location.hash.slice(1)); } catch (e) { key = ''; } }
-      key = key.toLowerCase().trim();
-      if (!key) return null;
-      return statues.find(s => s.page === key || s.slug === key) || null;
+      const k = deepKey().key;
+      if (!k) return null;
+      return statues.find(s => s.page === k || s.slug === k) || null;
+    }
+    function compactPopup(s, i) {
+      const el = document.createElement('div');
+      el.className = 'deep-pop';
+      el.innerHTML = `<div><h3>${escHtml(s.name)}</h3><div class="location">${escHtml(s.city)}, ${escHtml(s.country)}</div></div>`;
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'deep-pop-btn'; b.textContent = 'Details ›';
+      b.onclick = () => openDetail(s, i);
+      el.appendChild(b);
+      return el;
+    }
+    let deepPopup = null;
+    function focusStatue(s) {
+      const i = statues.indexOf(s), marker = s.marker;
+      if (!marker) return;
+      suppressZoomOut = true;
+      map.closePopup();
+      if (isDetailOpen()) closeModals();
+      map.invalidateSize({ pan: false });  // the map may have been sized before layout settled (iOS toolbars)
+      map.setView([s.lat, s.lng], DEEP_ZOOM, { animate: false });
+      // Pins inside a cluster: zoomToShowLayer spiderfies/zooms until the marker itself is on the map.
+      cluster.zoomToShowLayer(marker, () => {
+        if (Math.abs(map.getZoom() - DEEP_ZOOM) > 0.5 || map.getCenter().distanceTo([s.lat, s.lng]) > 50) map.setView([s.lat, s.lng], DEEP_ZOOM, { animate: false });
+        cards.forEach(c => c.classList.remove('active'));
+        if (cards[i]) cards[i].classList.add('active');
+        if (isMobile) {
+          // Short map: small popup anchored on the pin (no auto-pan, so the statue stays centred); full details in the sheet.
+          deepPopup = L.popup({ offset: [0, -16], autoPan: false, closeButton: true, className: 'deep-popup', maxWidth: 240 })
+            .setLatLng(marker.getLatLng()).setContent(compactPopup(s, i));
+          // keep the whole popup inside the short map: if it would be clipped, nudge the view just enough (statue stays near centre)
+          setTimeout(() => { const pe = deepPopup.getElement(); if (!pe) return; const mt = document.getElementById('map').getBoundingClientRect().top;
+            const over = mt + 6 - pe.getBoundingClientRect().top; if (over > 0) map.panBy([0, -over], { animate: false }); }, 0);
+          map.openPopup(deepPopup);
+          const r = document.getElementById('map').getBoundingClientRect();
+          if (r.top < 0 || r.bottom > window.innerHeight) window.scrollTo({ top: Math.max(0, window.scrollY + r.top - 8), behavior: 'auto' });
+          if (cards[i]) { const sb = cards[i].closest('.sidebar'); if (sb && sb.scrollHeight > sb.clientHeight) sb.scrollTop = cards[i].offsetTop - sb.offsetTop - 8; }
+        } else {
+          // Statue stays centred: the popup gets a max height that fits above the pin (it scrolls inside if longer).
+          const pp = marker.getPopup();
+          pp.options.maxHeight = Math.max(160, Math.min(popupMaxHeight(), Math.round(map.getSize().y / 2) - 50));
+          pp.options.autoPan = false;
+          marker.openPopup();
+          pp.options.autoPan = true;
+          setActiveCard(i);
+        }
+        setTimeout(() => { suppressZoomOut = false; }, 0);
+      });
     }
     function openFromLocation() {
       if (location.hash === '#passport') { openPassport(); return; }  // /passport/ redirects here
+      const dk = deepKey();
+      if (!dk.key) return;
       const s = statueFromLocation();
-      if (!s) return;
-      const i = statues.indexOf(s);
-      if (isMobile) {
-        map.setView([s.lat, s.lng], 6, { animate: false });
-        openDetail(s, i);
-      } else {
-        goToStatue(s, s.marker, i);
+      if (!s) {
+        if (dk.fromQuery) toast('We couldn’t find that statue, so here’s the full map.');
+        return;
+      }
+      focusStatue(s);
+    }
+    // ---------- 📍 Nearby Statues: on tap only. The position stays on the device (never stored or sent; GoatCounter gets only the event name). ----------
+    const MI_FIRST = /^en-US$/i.test(navigator.language || '');
+    function fmtKmMi(m) {
+      const km = m / 1000, mi = m / 1609.344;
+      const n = (x, unit) => x < 1 ? (unit === 'km' ? `${Math.round(m)} m` : `${x.toFixed(1)} mi`) : `${x < 10 ? x.toFixed(1) : Math.round(x).toLocaleString('en-US')} ${unit}`;
+      const k = n(km, 'km'), i = n(mi, 'mi');
+      return MI_FIRST ? `${i} (${k})` : `${k} (${i})`;
+    }
+    function trackNearby(tries) {
+      const gc = window.goatcounter;
+      if (gc && typeof gc.count === 'function') {
+        try { gc.count({ path: 'nearby-statues', title: 'Nearby Statues tap', event: true }); } catch (_) {}
+      } else if ((tries || 0) < 20) {
+        setTimeout(() => trackNearby((tries || 0) + 1), 500);
       }
     }
-    openFromLocation();
+    function nearbyMsg(t) {
+      const out = document.getElementById('nearby-out');
+      out.innerHTML = `<p class="nb-msg">${t}</p>`;
+      out.hidden = false;
+    }
+    function findNearby() {
+      trackNearby();
+      const btn = document.getElementById('nearby-btn'), out = document.getElementById('nearby-out');
+      const off = () => { btn.disabled = false; btn.textContent = '📍 Nearby Statues'; nearbyMsg('Location is off. Pick a statue from the map or list.'); };
+      if (!navigator.geolocation) { off(); return; }
+      btn.disabled = true; btn.textContent = '📍 Locating…';
+      navigator.geolocation.getCurrentPosition(pos => {
+        btn.disabled = false; btn.textContent = '📍 Nearby Statues';
+        const { latitude, longitude } = pos.coords;
+        const near = statues.map(st => ({ st, d: haversineM(latitude, longitude, st.lat, st.lng) }))
+          .sort((a, b) => a.d - b.d).slice(0, 3);
+        if (!near.length) { off(); return; }
+        out.innerHTML = '<ol>' + near.map(({ st, d }, k) =>
+          `<li><a class="nb-name" href="/${st.page}/">${k === 0 ? 'Nearest: ' : ''}${escHtml(st.name)}</a>`
+          + `<span class="nb-dist">${fmtKmMi(d)} away</span>`
+          + `<a class="nb-dir" href="https://www.google.com/maps/dir/?api=1&destination=${st.lat},${st.lng}" target="_blank" rel="noopener noreferrer">Get Directions</a></li>`).join('') + '</ol>';
+        out.hidden = false;
+        focusStatue(near[0].st);
+      }, off, { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 });
+    }
+    // Run once the map and the (inline) statue markers are ready and layout has settled.
+    map.whenReady(() => requestAnimationFrame(() => requestAnimationFrame(openFromLocation)));
     window.addEventListener('hashchange', openFromLocation);
   </script>
   <script data-goatcounter="https://satoshistatues.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
