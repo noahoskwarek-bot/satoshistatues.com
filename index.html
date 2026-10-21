@@ -668,6 +668,16 @@
     .pp-more .share-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .pp-more .share-grid .ghost-btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
     .pp-foot { margin-top: 14px; }
+    .pp-print { display: flex; align-items: center; gap: 10px; min-height: 46px; margin: 10px 0 0; padding: 8px 12px; border: 1px solid #30363d; border-radius: 10px; color: #e6edf3; text-decoration: none; font-weight: 700; font-size: 0.9rem; background: #0d1117; }
+    .pp-print .pp-print-sub { color: #8b949e; font-weight: 400; font-size: 0.75rem; margin-left: auto; text-align: right; }
+    .pp-print:hover { border-color: #f7931a; color: #f7931a; }
+    .pp-complete { margin: 12px 0 4px; padding: 14px; border: 1px solid #f7931a; border-radius: 12px; background: linear-gradient(135deg, rgba(247,147,26,0.20), rgba(247,147,26,0.04)); }
+    .pp-complete-badge { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+    .pp-trophy { font-size: 2.3rem; line-height: 1; }
+    .pp-complete-badge strong { display: block; color: #f7931a; font-size: 1.15rem; }
+    .pp-complete-badge span { color: #c9d1d9; font-size: 0.85rem; }
+    .pp-complete .badge-preview { max-width: 440px; margin: 0 auto; }
+    .pp-complete .card-share { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .pp-foot .modal-note { margin: 0 0 6px; }
     .pp-link { background: none; border: none; color: #8b949e; font-family: inherit; font-size: 0.8rem; text-decoration: underline; cursor: pointer; min-height: 44px; padding: 0; }
     .pp-link:hover { color: #f7931a; }
@@ -841,11 +851,17 @@
         <div class="pp-label" id="passport-sub">statues visited</div>
         <div class="passport-progress"><span id="passport-bar"></span></div>
       </div>
+      <div class="pp-complete" id="pp-complete" hidden>
+        <div class="pp-complete-badge"><span class="pp-trophy" aria-hidden="true">🏆</span><div><strong>Passport complete!</strong><span id="pp-complete-sub">You visited every Satoshi statue on Earth.</span></div></div>
+        <img class="badge-preview" id="complete-preview" alt="Passport complete share card: I visited every Satoshi statue on Earth" />
+        <div class="card-share" data-card-complete><button class="ghost-btn" type="button" data-card="share">📤 Share card</button><a class="ghost-btn" id="complete-x" href="#" target="_blank" rel="noopener noreferrer">𝕏 Share on X</a><button class="ghost-btn" type="button" data-card="save">⬇️ Save image</button><button class="ghost-btn" type="button" data-card="story">📱 Story size</button></div>
+      </div>
       <div class="pp-actions">
         <button class="pp-primary pp-checkin" type="button" id="checkin-here-btn" onclick="checkInHere()">📍 Check in here</button>
         <button class="pp-primary" type="button" id="share-main" onclick="sharePassport()">📤 Share my passport</button>
       </div>
       <div class="checkin-msg" id="geo-test-result" aria-live="polite"></div>
+      <a class="pp-print" href="/passport/print/">🖨️ Printable passport<span class="pp-print-sub">Print it, then add dates and signatures</span></a>
       <h3 class="pp-section">Stamps <span class="pp-section-sub">Tap a city to see it on the map</span></h3>
       <ul class="stamp-grid" id="passport-list"></ul>
       <h3 class="pp-section" id="pp-soon-title">Coming soon <span class="pp-section-sub">Not counted until installed</span></h3>
@@ -1638,6 +1654,26 @@
       document.getElementById('passport-sub').textContent = n === total && total ? '🏆 Full set! Every statue stamped.'
         : n === 0 ? `statues visited · ${total} to collect` : `statues visited · ${total - n} to go`;
       document.getElementById('passport-bar').style.width = `${total ? (100 * n / total) : 0}%`;
+      renderComplete(document.getElementById('passport-modal').classList.contains('open'));
+    }
+    // ----- Passport complete (every counted statue stamped). ?preview=complete shows it without real stamps. -----
+    const PREVIEW_COMPLETE = new URLSearchParams(location.search).get('preview') === 'complete';
+    function isComplete() { return checkable.length > 0 && (PREVIEW_COMPLETE || visitedCount() === checkable.length); }
+    function completeShareText() {
+      const t = checkable.length;
+      return `I visited every Satoshi statue on Earth 🟠 ${t}/${t} stamps on the Satoshi Statues passport @satoshistatue21`;
+    }
+    function renderComplete(draw) {
+      const box = document.getElementById('pp-complete');
+      if (!box) return;
+      const on = isComplete(), t = checkable.length;
+      box.hidden = !on;
+      if (!on) return;
+      document.getElementById('pp-complete-sub').textContent = visitedCount() < t
+        ? `Preview: this is what you'll see with all ${t} stamps.`
+        : `You visited every Satoshi statue on Earth: all ${t} stamps.`;
+      document.getElementById('complete-x').href = xIntent(completeShareText(), SITE_URL + '/');
+      if (draw) { try { document.getElementById('complete-preview').src = drawCard({ complete: true }).toDataURL('image/jpeg', 0.85); } catch (e) {} }
     }
     const FLAGS = { Hungary: '🇭🇺', Switzerland: '🇨🇭', 'El Salvador': '🇸🇻', Japan: '🇯🇵', Vietnam: '🇻🇳', USA: '🇺🇸', Italy: '🇮🇹', China: '🇨🇳', Slovenia: '🇸🇮', Austria: '🇦🇹' };
     function flagOf(s) { return s.city === 'Hong Kong' ? '🇭🇰' : (FLAGS[s.country] || '🗿'); }
@@ -1726,6 +1762,7 @@
       if (!isMobile) document.getElementById('pp-more').open = true;
       refreshBadge();
       openModal('passport-modal');
+      renderComplete(true);
       document.querySelector('#passport-modal .modal').scrollTop = 0;
     }
     const SITE_URL = 'https://www.satoshistatues.com';
@@ -1762,7 +1799,7 @@
     function loadCardFonts() {
       if (cardFontsReady || !document.fonts || !document.fonts.load) return;
       Promise.all([document.fonts.load('800 40px "InterCard"'), document.fonts.load('500 40px "InterCard"')])
-        .then(() => { cardFontsReady = true; badge = null; }).catch(() => {});
+        .then(() => { cardFontsReady = true; badge = null; if (isComplete() && document.getElementById('passport-modal').classList.contains('open')) renderComplete(true); }).catch(() => {});
     }
     const cardPhotos = {};
     // Only same-origin photos: hot-linked images (pbs.twimg.com) would taint the canvas.
@@ -1791,7 +1828,74 @@
     }
     function cardTitle(s) { return /^Satoshi Statue /.test(s.label || '') ? 'I found Satoshi in' : 'I found'; }
     function cardName(s) { return /^Satoshi Statue /.test(s.label || '') ? s.city : s.name; }
+    function drawBrandRow(ctx, x, y) {
+      ctx.save(); ctx.translate(x + 9, y - 32); ctx.scale(64 / 140, 64 / 140); ctx.fillStyle = '#f7931a';
+      if (window.Path2D) ctx.fill(new Path2D(LOGO_PIN), 'evenodd'); else { ctx.beginPath(); ctx.arc(50, 50, 44, 0, Math.PI * 2); ctx.fill(); }
+      ctx.restore(); ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#f7931a'; ctx.font = `800 28px ${CARD_FONT}`; ctx.fillText('SATOSHI PASSPORT', x + 76, y + 1);
+      ctx.textBaseline = 'alphabetic';
+    }
+    // "Passport complete" card: seal with the pin, headline, total/total and a full progress bar.
+    function drawComplete(story) {
+      const W = story ? 1080 : 1200, H = story ? 1350 : 630;
+      const c = document.createElement('canvas'); c.width = W; c.height = H;
+      const ctx = c.getContext('2d');
+      const t = checkable.length, nick = (typeof lsGet === 'function' && lsGet(LB_NICK)) || '';
+      const P = story ? 72 : 64;
+      ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, W, H);
+      const R = story ? 250 : 200, cx = story ? W / 2 : W - P - R + 20, cy = story ? 440 : H / 2 + 10;
+      let g = ctx.createRadialGradient(0, 0, 40, 0, 0, story ? 900 : 700);
+      g.addColorStop(0, 'rgba(247,147,26,0.28)'); g.addColorStop(1, 'rgba(247,147,26,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      g = ctx.createRadialGradient(cx, cy, R * 0.3, cx, cy, R * 1.9);
+      g.addColorStop(0, 'rgba(247,147,26,0.22)'); g.addColorStop(1, 'rgba(247,147,26,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#f7931a'; ctx.fillRect(0, 0, W, 8);
+      drawBrandRow(ctx, P, P + 34);
+      // seal
+      ctx.save(); ctx.translate(cx, cy); ctx.rotate(-0.12);
+      ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI * 2); ctx.fillStyle = 'rgba(13,17,23,0.85)'; ctx.fill();
+      ctx.setLineDash([R / 6, R / 11]); ctx.lineWidth = R / 16; ctx.strokeStyle = '#f7931a'; ctx.stroke(); ctx.setLineDash([]);
+      ctx.beginPath(); ctx.arc(0, 0, R * 0.84, 0, Math.PI * 2); ctx.lineWidth = R / 50; ctx.stroke();
+      const k = (R * 0.72) / 140;
+      ctx.save(); ctx.translate(-50 * k, -R * 0.64); ctx.scale(k, k); ctx.fillStyle = '#f7931a';
+      if (window.Path2D) ctx.fill(new Path2D(LOGO_PIN), 'evenodd'); else { ctx.beginPath(); ctx.arc(50, 50, 44, 0, Math.PI * 2); ctx.fill(); }
+      ctx.restore();
+      ctx.textAlign = 'center'; ctx.fillStyle = '#e6edf3';
+      ctx.font = `800 ${Math.round(R * 0.17)}px ${CARD_FONT}`; ctx.fillText('COMPLETE', 0, R * 0.34);
+      ctx.fillStyle = '#f7931a'; ctx.font = `800 ${Math.round(R * 0.15)}px ${CARD_FONT}`; ctx.fillText(`${t}/${t}`, 0, R * 0.58);
+      ctx.restore();
+      // text
+      const center = story, x = center ? W / 2 : P, textW = center ? W - 2 * P : cx - R - P - 20;
+      ctx.textAlign = center ? 'center' : 'left';
+      let y = story ? cy + R + 120 : 210;
+      ctx.fillStyle = '#c9d1d9'; ctx.font = `500 ${story ? 50 : 42}px ${CARD_FONT}`;
+      ctx.fillText('I visited every', x, y);
+      let fs = story ? 104 : 80; ctx.font = `800 ${fs}px ${CARD_FONT}`;
+      while (fs > 40 && ctx.measureText('Satoshi statue').width > textW) { fs -= 4; ctx.font = `800 ${fs}px ${CARD_FONT}`; }
+      ctx.fillStyle = '#f7931a';
+      y += fs * 1.12; ctx.fillText('Satoshi statue', x, y);
+      y += fs * 1.02; ctx.fillText('on Earth', x, y);
+      y += story ? 96 : 76;
+      ctx.fillStyle = '#e6edf3'; ctx.font = `800 ${story ? 46 : 36}px ${CARD_FONT}`;
+      ctx.fillText(`${t}/${t} statues stamped`, x, y);
+      const bw = center ? W - 2 * P : Math.min(textW, 520), bx = center ? P : P;
+      roundRect(ctx, bx, y + 22, bw, 16, 8); ctx.fillStyle = '#f7931a'; ctx.fill();
+      // footer
+      const fy = H - (story ? 96 : 56);
+      ctx.textAlign = center ? 'center' : 'left';
+      ctx.fillStyle = '#f7931a'; ctx.font = `800 ${story ? 44 : 32}px ${CARD_FONT}`;
+      ctx.fillText('satoshistatues.com', x, fy);
+      if (nick) {
+        ctx.fillStyle = '#c9d1d9'; ctx.font = `500 ${story ? 36 : 26}px ${CARD_FONT}`;
+        if (story) ctx.fillText(fitText(ctx, nick, 600), x, fy - 62);
+        else { ctx.textAlign = 'right'; ctx.fillText(fitText(ctx, nick, 360), W - P, fy); }
+      }
+      ctx.textAlign = 'left';
+      return c;
+    }
     function drawCard(opts) {
+      if (opts && opts.complete) return drawComplete(opts.size === 'story');
       const s = opts && opts.statue, story = opts && opts.size === 'story';
       const W = story ? 1080 : 1200, H = story ? 1350 : 630;
       const c = document.createElement('canvas'); c.width = W; c.height = H;
@@ -1888,7 +1992,7 @@
       // JPEG keeps photo cards small (~150-300 KB instead of 1-2 MB PNG) for mobile sharing.
       const url = drawCard(opts).toDataURL('image/jpeg', 0.9);
       const blob = dataUrlToBlob(url);
-      const name = `satoshi-${opts.statue ? opts.statue.page : 'passport'}${opts.size === 'story' ? '-story' : ''}.jpg`;
+      const name = `satoshi-${opts.complete ? 'passport-complete' : opts.statue ? opts.statue.page : 'passport'}${opts.size === 'story' ? '-story' : ''}.jpg`;
       let file = null;
       try { file = new File([blob], name, { type: 'image/jpeg' }); } catch (e) {}
       return { url, blob, file, name };
@@ -1909,10 +2013,10 @@
       return `<div class="card-share" data-card-slug="${s.slug}"><button class="ghost-btn" type="button" data-card="share">📤 Share card</button><a class="ghost-btn" href="${xIntent(statueShareText(s), statueUrl(s))}" target="_blank" rel="noopener noreferrer">𝕏 Share on X</a><button class="ghost-btn" type="button" data-card="save">⬇️ Save image</button><button class="ghost-btn" type="button" data-card="story">📱 Story size</button></div>`;
     }
     // Synchronous up to navigator.share() so iOS keeps the tap's user activation.
-    function shareCard(s, size) {
+    function shareCard(s, size, complete) {
       let f;
-      try { f = cardFile({ statue: s, size }); } catch (e) { toast("Couldn't create the image in this browser."); return; }
-      const text = s ? `${statueShareText(s)} ${statueUrl(s)}` : shareText();
+      try { f = cardFile({ statue: s, size, complete }); } catch (e) { toast("Couldn't create the image in this browser."); return; }
+      const text = complete ? `${completeShareText()} ${SITE_URL}/` : s ? `${statueShareText(s)} ${statueUrl(s)}` : shareText();
       if (f.file && navigator.canShare && navigator.share && navigator.canShare({ files: [f.file] })) {
         navigator.share({ files: [f.file], text, title: 'Satoshi Passport' })
           .catch(e => { if (!e || e.name !== 'AbortError') downloadBlob(f.blob, f.name); });
@@ -1926,6 +2030,11 @@
       const row = b.closest('[data-card-slug]');
       const s = row && row.getAttribute('data-card-slug') ? bySlug(row.getAttribute('data-card-slug')) : null;
       const act = b.getAttribute('data-card');
+      if (b.closest('[data-card-complete]')) {
+        if (act === 'save') { try { const f = cardFile({ complete: true }); downloadBlob(f.blob, f.name); } catch (e) { toast("Couldn't create the image in this browser."); } }
+        else shareCard(null, act === 'story' ? 'story' : undefined, true);
+        return;
+      }
       if (act === 'save') { try { const f = cardFile({ statue: s }); downloadBlob(f.blob, f.name); } catch (e) { toast("Couldn't create the image in this browser."); } }
       else if (act === 'story') shareCard(s, 'story');
       else shareCard(s);
@@ -2085,6 +2194,7 @@
     });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModals(); });
     updatePassportCounter();
+    if (PREVIEW_COMPLETE) setTimeout(openPassport, 300);
 
     statues.forEach((s, index) => {
       const fullLocation = `${s.city}, ${s.country}`;

@@ -51,7 +51,7 @@ def word_path(font, text, x, baseline, cap, tracking):
     return pen.getCommands(), cx - x
 
 
-def lockup_svg(font, title='Satoshi Nakamoto Statues'):
+def lockup_svg(font, title='Satoshi Nakamoto Statues', ink=None):
     # Pin 88 px tall at the left; SATOSHI (white) over STATUES (orange, tracked out), like the concept.
     ph = 88.0
     s = ph / PIN_H
@@ -68,7 +68,7 @@ def lockup_svg(font, title='Satoshi Nakamoto Statues'):
     return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {round(ph)}" width="{W}" height="{round(ph)}" role="img" aria-labelledby="t">
   <title id="t">{title}</title>
   <path fill="{ORANGE}" fill-rule="evenodd" transform="scale({f(s)})" d="{PIN_D}"/>
-  <path fill="{WHITE}" d="{d1}"/>
+  <path fill="{ink or WHITE}" d="{d1}"/>
   <path fill="{ORANGE}" d="{d2}"/>
 </svg>
 ''', W, round(ph)
@@ -158,6 +158,8 @@ def main():
     font = TTFont(os.path.join(ROOT, 'fonts', 'inter-800.woff'))
     lock, lw, lh = lockup_svg(font)
     write('brand/logo-lockup.svg', lock)
+    # dark-ink variant for light backgrounds (printable passport)
+    write('brand/logo-lockup-light.svg', lockup_svg(font, ink='#0D1117')[0])
     write('brand/pin.svg', pin_svg())
     fav = icon_svg(64)
     write('favicon.svg', fav)

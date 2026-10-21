@@ -1151,6 +1151,186 @@ def embed_box_html():
         </details>'''
 
 
+# ---------- Printable passport (/passport/print/) ----------
+# Light, paper-style page generated from statues.json: one stamp box per counted statue (same CHECKABLE set as the
+# on-site passport), holder name line, Print / Save as PDF button. noindex, not in the sitemap, no separate PDF file.
+PRINT_CSS = '''
+@font-face{font-family:"Inter";src:url(/fonts/inter-800.woff) format("woff");font-weight:800;font-display:swap}
+@font-face{font-family:"Inter";src:url(/fonts/inter-500.woff) format("woff");font-weight:500;font-display:swap}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-weight:500;background:#e9e6df;color:#111;line-height:1.35}
+.bar{position:sticky;top:0;z-index:5;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 16px calc(10px);background:#0d1117;color:#e6edf3;border-bottom:1px solid #30363d}
+.bar a{color:#f7931a;text-decoration:none;font-size:.9rem;min-height:44px;display:inline-flex;align-items:center}
+.bar .opts{display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:.85rem;color:#c9d1d9}
+.bar label{display:inline-flex;align-items:center;gap:6px;min-height:44px;cursor:pointer}
+.bar input{width:18px;height:18px;accent-color:#f7931a}
+.print-btn{font:inherit;font-weight:800;font-size:.95rem;min-height:44px;padding:10px 18px;border-radius:10px;border:none;background:#f7931a;color:#0d1117;cursor:pointer}
+.print-btn:hover{background:#ffb347}
+.help{max-width:820px;margin:14px auto 0;padding:0 16px;font-size:.85rem;color:#444}
+.sheet{max-width:820px;margin:14px auto 40px;background:#fff;padding:28px 30px;box-shadow:0 2px 14px rgba(0,0,0,.15);border-radius:4px}
+.cover{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;border-bottom:3px solid #f7931a;padding-bottom:14px;margin-bottom:16px;flex-wrap:wrap}
+.cover img{height:66px;width:auto;display:block}
+.cover .ttl{text-align:right}
+.cover h1{font-size:1.9rem;font-weight:800;letter-spacing:.06em;line-height:1.05;text-transform:uppercase}
+.cover h1 span{color:#f7931a}
+.cover .sub{font-size:.85rem;color:#555;margin-top:4px}
+.holder{display:grid;grid-template-columns:1fr 1fr;gap:10px 22px;margin:0 0 6px}
+.field{display:flex;align-items:flex-end;gap:8px;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:#555;min-height:34px}
+.field .line,.field input{flex:1;border:none;border-bottom:1.5px solid #111;min-height:26px;font:inherit;font-size:1rem;text-transform:none;letter-spacing:0;color:#111;background:transparent;padding:0 2px 2px;border-radius:0}
+.field input:focus{outline:none;border-bottom-color:#f7931a}
+.how{font-size:.8rem;color:#444;margin:8px 0 14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:4mm}
+.box{position:relative;border:1.5px solid #111;border-radius:3mm;padding:3mm 3.5mm;height:62mm;display:flex;flex-direction:column;break-inside:avoid;page-break-inside:avoid;overflow:hidden}
+.box .hd{display:flex;gap:2.5mm;align-items:flex-start;padding-right:27mm;min-height:15mm}
+.num{flex:none;width:7mm;height:7mm;border-radius:50%;background:#f7931a;color:#fff;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;margin-top:.4mm}
+.box h2{font-size:.98rem;font-weight:800;line-height:1.15}
+.box .loc{font-size:.72rem;color:#444;margin-top:1mm}
+.ring{position:absolute;top:3mm;right:3.5mm;width:25mm;height:25mm;border:1.5px dashed #f7931a;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:.55rem;letter-spacing:.08em;text-transform:uppercase;color:#888;gap:1mm}
+.ring img{width:6mm;height:auto;opacity:.35}
+.box .lines{margin-top:auto;display:flex;flex-direction:column;gap:3.2mm}
+.box .lines .field{min-height:0;font-size:.62rem}
+.box .lines .field .line{min-height:6mm;font-size:.85rem}
+.box.got{border-color:#f7931a}
+.box.got .ring{border-style:solid;border-color:#1a7f37;color:#1a7f37;font-weight:800;font-size:.68rem;transform:rotate(-10deg)}
+.box.got .ring img{display:none}
+.got-mark{display:none}
+.box.got .got-mark{display:block;font-size:1.2rem;line-height:1}
+.box.got .empty-mark{display:none}
+.box.done{border-style:dashed;border-color:#f7931a;background:#fffaf3;align-items:center;justify-content:center;text-align:center;gap:2mm}
+.box.done img{height:16mm;width:auto}
+.box.done strong{font-size:1rem}
+.box.done span{font-size:.75rem;color:#444}
+.foot{margin-top:5mm;font-size:.7rem;color:#555;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+@media (max-width:560px){.sheet{padding:18px 14px;margin:10px 8px 30px}.cover img{height:50px}.cover .ttl{text-align:left}.cover h1{font-size:1.45rem}.holder{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.box{height:auto;min-height:46mm}.box .lines{margin-top:auto;padding-top:5mm}}
+@page{margin:11mm}
+@media print{
+  html,body{background:#fff}
+  body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .bar,.help,.no-print{display:none!important}
+  .sheet{max-width:none;margin:0;padding:0;box-shadow:none;border-radius:0}
+  .cover{margin-bottom:4mm;padding-bottom:3mm}
+  .cover img{height:17mm}
+  .holder{grid-template-columns:1fr 1fr}
+  .grid{grid-template-columns:1fr 1fr}
+  .box{height:62mm;min-height:0}
+  .box .lines{margin-top:auto}
+  .field input{border-bottom:1.5px solid #111}
+  .field input::placeholder{color:transparent}
+  a{color:#111;text-decoration:none}
+}
+'''.strip()
+
+PRINT_JS = r'''<script>
+(function () {
+  var stamps = {};
+  try { stamps = JSON.parse(localStorage.getItem('satoshiPassport.v1')) || {}; } catch (e) {}
+  var HOLDER = 'satoshiPassportHolder.v1';
+  var name = document.getElementById('holder-name');
+  try { name.value = localStorage.getItem(HOLDER) || ''; } catch (e) {}
+  name.addEventListener('input', function () { try { localStorage.setItem(HOLDER, name.value); } catch (e) {} });
+  var boxes = [].slice.call(document.querySelectorAll('.box[data-slug]'));
+  var got = boxes.filter(function (b) { var s = stamps[b.getAttribute('data-slug')]; return s && s.date; });
+  var opt = document.getElementById('fill-opt'), cb = document.getElementById('fill-stamps');
+  function fmt(iso) { try { return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); } catch (e) { return ''; } }
+  function apply() {
+    var on = cb.checked;
+    got.forEach(function (b) {
+      b.classList.toggle('got', on);
+      b.querySelector('[data-date]').textContent = on ? fmt(stamps[b.getAttribute('data-slug')].date) : '';
+    });
+  }
+  if (got.length) {
+    opt.hidden = false;
+    document.getElementById('fill-count').textContent = got.length + ' of ' + boxes.length;
+    cb.checked = true; cb.addEventListener('change', apply); apply();
+  }
+  document.getElementById('print-btn').addEventListener('click', function () {
+    if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: 'passport-print', title: 'Printed passport', event: true });
+    window.print();
+  });
+})();
+</script>'''
+
+
+def print_order(data):
+    """Counted statues (same set as the on-site passport), oldest unveiling first."""
+    return sorted([s for s in data['statues'] if s['status'] in CHECKABLE], key=unveil_key)
+
+
+def passport_print_page(data):
+    items = print_order(data)
+    total = len(items)
+    title = 'Printable Satoshi Passport – satoshistatues.com'
+    desc = f'Print your Satoshi Passport: {total} stamp boxes with lines for the date and a signature.'
+    boxes = []
+    for i, s in enumerate(items, 1):
+        generic = s['label'].startswith('Satoshi Statue ')
+        name = f'Satoshi Statue, {s["city"]}' if generic else s['name']
+        parts = []
+        for x in (s.get('place'), s['city'], s['country']):
+            if x and x not in parts:
+                parts.append(x)
+        loc = ', '.join(parts)
+        boxes.append(f'''      <div class="box" data-slug="{e(slug_of(s))}">
+        <div class="hd"><span class="num">{i}</span><div><h2>{e(name)}</h2><div class="loc">{e(loc)}</div></div></div>
+        <div class="ring"><span class="empty-mark"><img src="/brand/pin.svg" width="24" height="34" alt="" /><br>Stamp or<br>sticker</span><span class="got-mark">✓</span><span class="got-mark">Stamped</span></div>
+        <div class="lines">
+          <div class="field">Date <span class="line" data-date></span></div>
+          <div class="field">Signature / initials <span class="line"></span></div>
+        </div>
+      </div>''')
+    if total % 2:
+        boxes.append('''      <div class="box done">
+        <img src="/brand/pin.svg" width="46" height="64" alt="" />
+        <strong>Passport complete?</strong>
+        <span>Every box stamped. Share it with #SatoshiStatues and @satoshistatue21</span>
+      </div>''')
+    return f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>{e(title)}</title>
+  <meta name="description" content="{e(desc)}" />
+  <meta name="robots" content="noindex, follow" />
+  <link rel="canonical" href="{SITE}/passport/print/" />
+  <meta name="theme-color" content="#0d1117" />
+  {ICON_LINKS}
+  <style>{PRINT_CSS}</style>
+</head>
+<body>
+  <div class="bar">
+    <a href="/">← Back to the map</a>
+    <div class="opts">
+      <label id="fill-opt" hidden><input type="checkbox" id="fill-stamps" /> Fill in my stamps (<span id="fill-count"></span>)</label>
+      <button class="print-btn" type="button" id="print-btn">🖨️ Print / Save as PDF</button>
+    </div>
+  </div>
+  <p class="help">Print on US Letter or A4 (2 pages), or choose <strong>Save as PDF</strong>. Type your name below before printing, or write it in by hand. At each statue, add the date and a signature or initials.</p>
+  <main class="sheet">
+    <div class="cover">
+      <img src="/brand/logo-lockup-light.svg" width="310" height="88" alt="Satoshi Nakamoto Statues" />
+      <div class="ttl"><h1>Satoshi <span>Passport</span></h1><div class="sub">{total} Satoshi statues to collect · satoshistatues.com</div></div>
+    </div>
+    <div class="holder">
+      <label class="field">Holder <input id="holder-name" maxlength="40" autocomplete="name" placeholder="Type your name" /></label>
+      <div class="field">Started <span class="line"></span></div>
+    </div>
+    <p class="how">Visit each statue, then add the date and a signature or initials (or a stamp, sticker or ticket). Check in on satoshistatues.com too, to stamp your online passport and join the leaderboard.</p>
+    <div class="grid">
+{chr(10).join(boxes)}
+    </div>
+    <div class="foot"><span>satoshistatues.com · Every Satoshi statue on Earth</span><span>Printed passport · statue list as of {BUILD_DATE}</span></div>
+  </main>
+{PRINT_JS}
+  <script data-goatcounter="https://satoshistatues.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
+'''
+
+
 def page_lastmod(s):
     u = ((s.get('visit') or {}).get('updated') or '').strip()
     return max(BUILD_DATE, u) if re.fullmatch(r'\d{4}-\d{2}-\d{2}', u) else BUILD_DATE
@@ -1206,7 +1386,8 @@ def outputs(data):
              '21-nodes/index.html': nodes_page(data),
              'leaderboard/index.html': leaderboard_page(data),
              'privacy/index.html': privacy_page(data),
-             'embed/index.html': embed_page(data)}
+             'embed/index.html': embed_page(data),
+             'passport/print/index.html': passport_print_page(data)}
     pages = [s['page'] for s in data['statues']]
     assert len(set(pages)) == len(pages), 'duplicate page slugs'
     if nostr_json(data):
