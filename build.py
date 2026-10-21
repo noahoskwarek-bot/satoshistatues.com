@@ -1065,9 +1065,18 @@ def btcmap_map_url(s):
     return f"https://btcmap.org/map#16/{s['lat']}/{s['lng']}"
 
 
+PLACE_TYPES = {  # BTC Map icon → readable type; unknown or ambiguous icons (e.g. 'home', 'business') show no type
+    'restaurant': 'restaurant', 'lunch_dining': 'restaurant', 'local_pizza': 'pizzeria', 'local_cafe': 'café',
+    'bakery_dining': 'bakery', 'local_bar': 'bar', 'sports_bar': 'pub', 'nightlife': 'bar', 'liquor': 'drinks shop',
+    'hotel': 'hotel', 'bed': 'accommodation', 'storefront': 'shop', 'shopping_cart': 'shop', 'local_grocery_store': 'grocery',
+    'checkroom': 'clothing', 'diamond': 'jeweller', 'content_cut': 'hair & beauty', 'spa': 'spa', 'local_florist': 'florist',
+    'fitness_center': 'fitness', 'medical_services': 'health', 'local_pharmacy': 'pharmacy', 'school': 'school',
+    'directions_car': 'car services', 'currency_exchange': 'exchange', 'local_gas_station': 'fuel', 'computer': 'computers',
+    'phone_iphone': 'phones', 'sports_tennis': 'sports', 'pets': 'pets', 'museum': 'museum', 'beach_access': 'beach'}
+
+
 def place_type(icon):
-    icon = (icon or '').replace('local_', '').replace('_', ' ').strip()
-    return '' if icon in ('', 'question mark', 'currency bitcoin') else icon
+    return PLACE_TYPES.get(icon or '', '')
 
 
 def fmt_km(k):
