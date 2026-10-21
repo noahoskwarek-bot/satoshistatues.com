@@ -30,8 +30,8 @@
   <meta name="twitter:image:alt" content="Satoshi Nakamoto Statues: interactive world map of Satoshi statues and Bitcoin monuments" />
   <!-- BUILD:HEADLINKS:BEGIN -->
   <link rel="alternate" type="application/atom+xml" title="Satoshi Statues – new statues" href="https://www.satoshistatues.com/feed.xml" />
-  <style>.alert-box{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.alert-title{font-weight:700;color:#e6edf3;font-size:.95rem;margin:0 0 6px}.alert-form{display:flex;gap:8px;flex-wrap:wrap;max-width:520px}.alert-form input[type=email]{flex:1 1 180px;min-width:0;min-height:44px;padding:10px 12px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:16px;font-family:inherit}.alert-form input[type=email]:focus{outline:2px solid #f7931a;border-color:#f7931a}.alert-form button{min-height:44px;padding:10px 16px;border-radius:8px;border:none;background:#f7931a;color:#0d1117;font-weight:700;font-size:.92rem;cursor:pointer;font-family:inherit}.alert-fine{font-size:.8rem;color:#8b949e;margin:6px 0 0;line-height:1.45}.feed-link{color:#f7931a;font-weight:600;display:inline-block;padding:13px 0;margin:-13px 0;text-decoration:none}.feed-link:hover{text-decoration:underline}.photo-cta{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.photo-actions{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 4px}.photo-actions .btn{max-width:100%}.alert-follow{display:flex;flex-wrap:wrap;gap:0 18px;margin-top:2px}.alert-follow .feed-link{padding:0;margin:0;min-height:44px;display:inline-flex;align-items:center;font-size:.85rem}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}</style>
-  <script>(function(){var c=[109, 111, 99, 46, 115, 101, 117, 116, 97, 116, 115, 105, 104, 115, 111, 116, 97, 115, 64, 115, 111, 116, 111, 104, 112];function to(){return String.fromCharCode.apply(null,c.slice().reverse())}function body(l){return "Hi,\n\nHere is my photo of the "+l+" (attached).\n\nYour name (for credit): \nDate taken: \n\nBy sending, you let satoshistatues.com feature your photo with credit.\n"}document.addEventListener("click",function(ev){var a=ev.target.closest&&ev.target.closest("[data-photo-subject]");if(!a)return;ev.preventDefault();location.href="mailto:"+to()+"?subject="+encodeURIComponent(a.getAttribute("data-photo-subject"))+"&body="+encodeURIComponent(body(a.getAttribute("data-photo-label")||"statue"));},true);})();</script>
+  <style>.alert-box{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.alert-title{font-weight:700;color:#e6edf3;font-size:.95rem;margin:0 0 6px}.alert-form{display:flex;gap:8px;flex-wrap:wrap;max-width:520px}.alert-form input[type=email]{flex:1 1 180px;min-width:0;min-height:44px;padding:10px 12px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:16px;font-family:inherit}.alert-form input[type=email]:focus{outline:2px solid #f7931a;border-color:#f7931a}.alert-form button{min-height:44px;padding:10px 16px;border-radius:8px;border:none;background:#f7931a;color:#0d1117;font-weight:700;font-size:.92rem;cursor:pointer;font-family:inherit}.alert-fine{font-size:.8rem;color:#8b949e;margin:6px 0 0;line-height:1.45}.feed-link{color:#f7931a;font-weight:600;display:inline-block;padding:13px 0;margin:-13px 0;text-decoration:none}.feed-link:hover{text-decoration:underline}.photo-cta{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.photo-actions{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 4px}.photo-actions .btn{max-width:100%}.photo-cta .alert-fine a,.photo-credit a{padding:15px 0;margin:-15px 0}.photo-cta .alert-fine a{color:#f7931a}.photo-credit{display:block;margin-top:2px}.photo-credit a{color:#8b949e}.alert-follow{display:flex;flex-wrap:wrap;gap:0 18px;margin-top:2px}.alert-follow .feed-link{padding:0;margin:0;min-height:44px;display:inline-flex;align-items:center;font-size:.85rem}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}</style>
+  <script>(function(){var c=[109, 111, 99, 46, 115, 101, 117, 116, 97, 116, 115, 105, 104, 115, 111, 116, 97, 115, 64, 115, 111, 116, 111, 104, 112];function to(){return String.fromCharCode.apply(null,c.slice().reverse())}function body(l){return "Hi,\n\nHere is my photo of the "+l+" (attached).\n\nYour name or X handle (for credit): \nDate taken: \n\nBy sending, you let satoshistatues.com feature your photo with credit.\n"}document.addEventListener("click",function(ev){var a=ev.target.closest&&ev.target.closest("[data-photo-subject]");if(!a)return;ev.preventDefault();location.href="mailto:"+to()+"?subject="+encodeURIComponent(a.getAttribute("data-photo-subject"))+"&body="+encodeURIComponent(body(a.getAttribute("data-photo-label")||"statue"));},true);})();</script>
   <!-- BUILD:HEADLINKS:END -->
   <!-- BUILD:JSONLD:BEGIN -->
   <script type="application/ld+json">
@@ -538,6 +538,8 @@
     .popup-photo .photo-link { color: #f7931a; font-weight: 600; text-decoration: none; }
     .popup-photo a { color: #f7931a; }
     .popup-photo a:hover { text-decoration: underline; }
+    .popup-credit { font-size: 0.72rem; color: #8b949e; margin: -4px 0 6px; }
+    .popup-credit a { color: #8b949e; padding: 15px 0; margin: -15px 0; }
     .photo-consent { flex-basis: 100%; font-size: 0.72rem; margin-top: 2px; }
     .card-stamp {
       display: inline-block;
@@ -1332,6 +1334,14 @@
       sel.addRange(range);
     });
     const checkinMsgs = {};
+    function photoCreditHtml(s) {
+      const cr = String(s.photo_credit || '').trim();
+      if (!cr) return '';
+      const who = /^@[A-Za-z0-9_]{1,15}$/.test(cr)
+        ? `<a href="https://x.com/${cr.slice(1)}" target="_blank" rel="noopener noreferrer">${escHtml(cr)}</a>`
+        : escHtml(cr);
+      return `<div class="popup-credit">Photo: ${who}</div>`;
+    }
     function buildPopup(s) {
       const fullLocation = `${s.city}, ${s.country}`;
       const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`;
@@ -1359,7 +1369,7 @@
              alt="${s.name} statue"
              ${s.imgW ? `width="${s.imgW}" height="${s.imgH}"` : ''}
              loading="lazy" decoding="async"
-             onerror="this.onerror=null;this.style.display='none'">` : ''}
+             onerror="this.onerror=null;this.style.display='none'">${photoCreditHtml(s)}` : ''}
         <h3>${s.name}</h3>
         <div class="popup-location">${fullLocation} · ${s.place}</div>
         <div class="popup-meta">
@@ -1377,7 +1387,7 @@
         </div>
         ${msgHtml}
         <div class="popup-links"><a href="/${s.page}/">📄 Statue page</a> · <a href="${correctionUrl(s)}" target="_blank" rel="noopener noreferrer">✏️ Suggest a correction</a></div>
-        ${s.photoSubject ? `<div class="popup-photo"><a class="photo-link" href="/${s.page}/#photo" data-photo-subject="${s.photoSubject}" data-photo-label="${s.label}">📸 Send us your photo</a><span class="photo-or">or tag <a href="https://x.com/DOGE169420" target="_blank" rel="noopener noreferrer">@DOGE169420</a></span><div class="photo-consent">By sending, you let satoshistatues.com feature your photo with credit.</div></div>` : ''}
+        ${s.photoSubject ? `<div class="popup-photo"><a class="photo-link" href="/${s.page}/#photo" data-photo-subject="${s.photoSubject}" data-photo-label="${s.label}">📸 Been here? Share your photo</a><span class="photo-or">or tag <a href="https://x.com/DOGE169420" target="_blank" rel="noopener noreferrer">@DOGE169420</a></span><div class="photo-consent">Send it with your name or X handle for credit. By sending, you let satoshistatues.com feature your photo with credit.</div></div>` : ''}
       `;
     }
     function bySlug(slug) { return statues.find(s => s.slug === slug); }

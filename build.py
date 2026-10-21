@@ -100,7 +100,8 @@ def statue_ld(s):
         'name': s['label'],
         'description': s['note'],
         'url': page_url(s),
-        'image': image,
+        'image': ({'@type': 'ImageObject', 'url': image, 'creditText': s['photo_credit'].strip()}
+                  if (s.get('photo_credit') or '').strip() else image),
         'geo': {'@type': 'GeoCoordinates', 'latitude': s['lat'], 'longitude': s['lng']},
         'address': {'@type': 'PostalAddress', 'streetAddress': s['place'], 'addressLocality': s['city'],
                     'addressCountry': COUNTRY_ISO.get(s['country'], s['country'])},
@@ -337,7 +338,7 @@ def photo_js(data):
     codes = [ord(ch) for ch in (u + '@' + dom)][::-1]
     return ('<script>(function(){var c=' + json.dumps(codes) + ';'
             'function to(){return String.fromCharCode.apply(null,c.slice().reverse())}'
-            'function body(l){return "Hi,\\n\\nHere is my photo of the "+l+" (attached).\\n\\nYour name (for credit): \\nDate taken: \\n\\n'
+            'function body(l){return "Hi,\\n\\nHere is my photo of the "+l+" (attached).\\n\\nYour name or X handle (for credit): \\nDate taken: \\n\\n'
             'By sending, you let satoshistatues.com feature your photo with credit.\\n"}'
             'document.addEventListener("click",function(ev){var a=ev.target.closest&&ev.target.closest("[data-photo-subject]");if(!a)return;'
             'ev.preventDefault();location.href="mailto:"+to()+"?subject="+encodeURIComponent(a.getAttribute("data-photo-subject"))'
@@ -351,12 +352,26 @@ def photo_cta(s, data):
     xh = c.get('photo_x_handle')
     xbtn = (f'<a class="btn" href="https://x.com/{e(xh)}" target="_blank" rel="noopener noreferrer">Or tag @{e(xh)} on X</a>' if xh else '')
     fallback = f'{e(c["photo_email_user"])} [at] {e(c["photo_email_domain"].replace(".", " [dot] "))}'
-    return (f'<section class="photo-cta" id="photo" aria-label="Send us your photo">'
-            f'<p class="alert-title">📸 Got a photo of this statue?</p>'
-            f'<p class="alert-fine">Email it to us with your name (for credit) and the date you took it.</p>'
+    shout = (f'<a href="https://x.com/{e(xh)}" target="_blank" rel="noopener noreferrer">@{e(xh)}</a>' if xh else 'us')
+    return (f'<section class="photo-cta" id="photo" aria-label="Share your photo">'
+            f'<p class="alert-title">📸 Been here? Share your photo</p>'
+            f'<p class="alert-fine">Your shot could become this statue’s featured photo, help Bitcoiners plan their visit, and get a shoutout from {shout} on X.</p>'
+            f'<p class="alert-fine">Send it with your name or X handle for credit.</p>'
             f'<div class="photo-actions"><a class="btn primary" href="#photo" data-photo-subject="{e(photo_subject(s))}" data-photo-label="{e(s["label"])}">📸 Send us your photo</a>{xbtn}</div>'
             f'<noscript><p class="alert-fine">Email: {fallback} with the subject “{e(photo_subject(s))}”.</p></noscript>'
             f'<p class="alert-fine">By sending, you let satoshistatues.com feature your photo with credit.</p></section>' + photo_js(data))
+
+
+def credit_html(s):
+    # Optional per-statue "photo_credit": plain text, or an @handle that links to X.
+    cr = (s.get('photo_credit') or '').strip()
+    if not cr:
+        return ''
+    if re.fullmatch(r'@[A-Za-z0-9_]{1,15}', cr):
+        who = f'<a href="https://x.com/{cr[1:]}" target="_blank" rel="noopener noreferrer">{e(cr)}</a>'
+    else:
+        who = e(cr)
+    return f'<span class="photo-credit">Photo: {who}</span>'
 
 
 ALERT_CSS = (
@@ -372,6 +387,10 @@ ALERT_CSS = (
     '.photo-cta{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}'
     '.photo-actions{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 4px}'
     '.photo-actions .btn{max-width:100%}'
+    '.photo-cta .alert-fine a,.photo-credit a{padding:15px 0;margin:-15px 0}'
+    '.photo-cta .alert-fine a{color:#f7931a}'
+    '.photo-credit{display:block;margin-top:2px}'
+    '.photo-credit a{color:#8b949e}'
     '.alert-follow{display:flex;flex-wrap:wrap;gap:0 18px;margin-top:2px}'
     '.alert-follow .feed-link{padding:0;margin:0;min-height:44px;display:inline-flex;align-items:center;font-size:.85rem}'
     '.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}'
@@ -437,7 +456,7 @@ def statue_page(s, data):
         src = s['img'] if s['img'].startswith('http') else '/' + s['img']
         wh = f' width="{s["imgW"]}" height="{s["imgH"]}"' if s.get('imgW') else ''
         img_html = (f'<figure><img src="{e(src)}" alt="{e(alt)}"{wh} decoding="async" '
-                    f'onerror="this.closest(\'figure\').remove()"><figcaption>{e(s["name"])} · {e(s["place"])}</figcaption></figure>')
+                    f'onerror="this.closest(\'figure\').remove()"><figcaption>{e(s["name"])} · {e(s["place"])}{credit_html(s)}</figcaption></figure>')
     artist = f'<a href="{e(s["artistUrl"])}" target="_blank" rel="noopener noreferrer">{e(s["artist"])}</a>' if s.get('artistUrl') else e(s['artist'])
     if s.get('creatorVerified') is False:
         artist += ' <span style="color:#8b949e">(credit not independently verified)</span>'
