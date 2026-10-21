@@ -521,6 +521,10 @@
     .popup-photo .photo-link { color: #f7931a; font-weight: 600; text-decoration: none; }
     .popup-photo a { color: #f7931a; }
     .popup-photo a:hover { text-decoration: underline; }
+    @font-face { font-family: "InterCard"; src: url(/fonts/inter-800.woff) format("woff"); font-weight: 800; font-display: swap; }
+    @font-face { font-family: "InterCard"; src: url(/fonts/inter-500.woff) format("woff"); font-weight: 500; font-display: swap; }
+    .card-share { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .card-share .ghost-btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
     .checkin-count { font-size: 0.8rem; color: #3fb950; margin: 6px 0 2px; }
     .lb-note { margin-top: 6px; }
     .lb-note a, .pp-lb-link { color: #f7931a; }
@@ -647,7 +651,7 @@
     .pp-link:disabled { cursor: wait; }
     .share-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 6px; }
     .share-box { display: grid; grid-template-columns: minmax(0, 300px) 1fr; gap: 16px; align-items: start; margin: 14px 0 6px; }
-    .badge-preview { width: 100%; aspect-ratio: 1 / 1; border-radius: 10px; border: 1px solid #30363d; background: #0d1117; display: block; -webkit-touch-callout: default; }
+    .badge-preview { width: 100%; aspect-ratio: 1200 / 630; border-radius: 10px; border: 1px solid #30363d; background: #0d1117; display: block; -webkit-touch-callout: default; }
     .share-actions { display: flex; flex-direction: column; gap: 8px; }
     .share-actions .directions-btn { margin: 0; text-align: center; }
     .share-actions .ghost-btn { text-align: center; }
@@ -818,6 +822,7 @@
               <a class="ghost-btn" id="share-fb" href="#" target="_blank" rel="noopener noreferrer">Facebook</a>
               <button class="ghost-btn" type="button" onclick="shareNostr()">⚡ Nostr</button>
               <button class="ghost-btn" type="button" onclick="downloadBadge()">⬇️ Save image</button>
+              <button class="ghost-btn" type="button" onclick="shareCard(null, 'story')">📱 Story</button>
               <button class="ghost-btn" type="button" onclick="copyShareText()">📋 Copy text</button>
             </div>
             <div class="share-hint" id="share-hint"><strong>Share my passport</strong> sends the badge image straight to Instagram, X, WhatsApp, Signal and more. X and Facebook links share text only, so attach the saved image. On iPhone you can also long-press the badge to save it.</div>
@@ -1379,7 +1384,7 @@
       if (!isCheckable(s)) {
         checkinHtml = `<span class="ghost-btn" style="cursor:default;opacity:0.7" title="This statue isn't installed yet">No stamp yet (not installed)</span>`;
       } else if (isVisited(s)) {
-        checkinHtml = `<span class="stamp">✓ Stamped ${fmtDate(passport[s.slug].date)}</span>`;
+        checkinHtml = `<span class="stamp">✓ Stamped ${fmtDate(passport[s.slug].date)}</span><span class="card-share" data-card-slug="${s.slug}" style="display:contents"><button class="ghost-btn" type="button" data-card="share" onmouseenter="cardPhoto(bySlug('${s.slug}'));loadCardFonts()" ontouchstart="cardPhoto(bySlug('${s.slug}'));loadCardFonts()">📤 Share stamp</button></span>`;
       } else {
         checkinHtml = `<button class="ghost-btn checkin-btn" type="button" data-checkin="${s.slug}">📍 Check in</button>`;
       }
@@ -1408,7 +1413,7 @@
           <button class="ghost-btn" type="button" data-comments="${s.slug}">💬 Comments</button>
         </div>
         ${msgHtml}
-        <div class="popup-links"><a href="/${s.page}/">📄 Statue page</a> · <a href="${correctionUrl(s)}" target="_blank" rel="noopener noreferrer">✏️ Suggest a correction</a></div>
+        <div class="popup-links"><a href="/${s.page}/">📄 Statue page</a>${s.guide ? ` · <a href="/${s.page}/#visiting">🧭 Visiting guide</a>` : ''} · <a href="${correctionUrl(s)}" target="_blank" rel="noopener noreferrer">✏️ Suggest a correction</a></div>
         ${s.photoSubject ? `<div class="popup-photo"><a class="photo-link" href="/${s.page}/#photo" data-photo-subject="${s.photoSubject}" data-photo-label="${s.label}">📸 Been here? Share your photo</a><span class="photo-or">or tag <a href="https://x.com/satoshistatue21" target="_blank" rel="noopener noreferrer">@satoshistatue21</a></span><div class="photo-consent">Send it with your name or X handle for credit. By sending, you let satoshistatues.com feature your photo with credit.</div></div>` : ''}
       `;
     }
@@ -1447,7 +1452,7 @@
             refreshVisitedUI(s);
             setMsg(s, 'ok', (saved
               ? `🟠 Stamped! ${s.name} is in your passport. That's ${visitedCount()} of ${checkable.length}.`
-              : `🟠 You're here, but this browser won't let us save the stamp (private mode?).`) + r.html);
+              : `🟠 You're here, but this browser won't let us save the stamp (private mode?).`) + r.html + shareRowHtml(s));
           });
         } else {
           const acc = accuracy && accuracy > CHECKIN_RADIUS_M ? ` (your location fix is only accurate to about ${fmtDist(accuracy)})` : '';
@@ -1631,7 +1636,7 @@
             refreshBadge();
             show('ok', (saved
               ? `🟠 Stamped! <strong>${s.name}</strong> is in your passport. That's ${visitedCount()} of ${checkable.length}.`
-              : `🟠 You're at ${s.name}, but this browser won't let us save the stamp (private mode?).`) + r.html);
+              : `🟠 You're at ${s.name}, but this browser won't let us save the stamp (private mode?).`) + r.html + shareRowHtml(s));
           });
         } else {
           const acc = accuracy && accuracy > CHECKIN_RADIUS_M ? ` Your location is only accurate to about ${fmtDist(accuracy)}.` : '';
@@ -1651,8 +1656,9 @@
     function openPassport() {
       updatePassportCounter();
       renderPassportList();
-      refreshBadge();
+      loadCardFonts();
       if (!isMobile) document.getElementById('pp-more').open = true;
+      refreshBadge();
       openModal('passport-modal');
       document.querySelector('#passport-modal .modal').scrollTop = 0;
     }
@@ -1683,70 +1689,180 @@
       return t + '…';
     }
     const FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
-    function drawBadge() {
-      const W = 1080, H = 1080;
-      const c = document.createElement('canvas');
-      c.width = W; c.height = H;
+    // Share cards: 1200x630 (wide) or 1080x1350 (story). Drawn only when the user taps a share/save button.
+    const CARD_FONT = '"InterCard", ' + FONT;
+    let cardFontsReady = false;
+    function loadCardFonts() {
+      if (cardFontsReady || !document.fonts || !document.fonts.load) return;
+      Promise.all([document.fonts.load('800 40px "InterCard"'), document.fonts.load('500 40px "InterCard"')])
+        .then(() => { cardFontsReady = true; badge = null; }).catch(() => {});
+    }
+    const cardPhotos = {};
+    // Only same-origin photos: hot-linked images (pbs.twimg.com) would taint the canvas.
+    function cardPhoto(s) {
+      if (!s || !s.img || /^https?:/.test(s.img)) return null;
+      if (!cardPhotos[s.slug]) { const im = new Image(); im.decoding = 'async'; im.src = '/' + s.img; cardPhotos[s.slug] = im; }
+      const im = cardPhotos[s.slug];
+      return im.complete && im.naturalWidth ? im : null;
+    }
+    function drawCover(ctx, im, x, y, w, h) {
+      const sc = Math.max(w / im.naturalWidth, h / im.naturalHeight), sw = w / sc, sh = h / sc;
+      ctx.drawImage(im, (im.naturalWidth - sw) / 2, Math.max(0, (im.naturalHeight - sh) / 3), sw, sh, x, y, w, h);
+    }
+    function drawStamp(ctx, cx, cy, r, s) {
+      ctx.save();
+      ctx.translate(cx, cy); ctx.rotate(-0.16);
+      ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fillStyle = 'rgba(13,17,23,0.82)'; ctx.fill();
+      ctx.setLineDash([r / 5, r / 9]); ctx.lineWidth = r / 14; ctx.strokeStyle = '#3fb950'; ctx.stroke(); ctx.setLineDash([]);
+      ctx.beginPath(); ctx.arc(0, 0, r * 0.8, 0, Math.PI * 2); ctx.lineWidth = r / 40; ctx.stroke();
+      ctx.fillStyle = '#3fb950'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.font = `800 ${r * 0.62}px ${CARD_FONT}`; ctx.fillText('✓', 0, -r * 0.22);
+      ctx.font = `800 ${r * 0.2}px ${CARD_FONT}`; ctx.fillText('STAMPED', 0, r * 0.26);
+      const d = passport[s.slug] ? fmtDate(passport[s.slug].date) : '';
+      ctx.font = `500 ${r * 0.15}px ${CARD_FONT}`; ctx.fillText(d, 0, r * 0.5);
+      ctx.restore(); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    }
+    function cardTitle(s) { return /^Satoshi Statue /.test(s.label || '') ? 'I found Satoshi in' : 'I found'; }
+    function cardName(s) { return /^Satoshi Statue /.test(s.label || '') ? s.city : s.name; }
+    function drawCard(opts) {
+      const s = opts && opts.statue, story = opts && opts.size === 'story';
+      const W = story ? 1080 : 1200, H = story ? 1350 : 630;
+      const c = document.createElement('canvas'); c.width = W; c.height = H;
       const ctx = c.getContext('2d');
-      const n = visitedCount(), total = checkable.length;
-      // background
+      const n = visitedCount(), total = checkable.length, nick = (typeof lsGet === 'function' && lsGet(LB_NICK)) || '';
       ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, W, H);
-      const g = ctx.createRadialGradient(W * 0.85, 120, 40, W * 0.85, 120, 700);
-      g.addColorStop(0, 'rgba(247,147,26,0.28)'); g.addColorStop(1, 'rgba(247,147,26,0)');
+      const g = ctx.createRadialGradient(0, 0, 40, 0, 0, story ? 900 : 700);
+      g.addColorStop(0, 'rgba(247,147,26,0.30)'); g.addColorStop(1, 'rgba(247,147,26,0)');
       ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-      roundRect(ctx, 30, 30, W - 60, H - 60, 36);
-      ctx.lineWidth = 4; ctx.strokeStyle = '#30363d'; ctx.stroke();
-      ctx.fillStyle = '#f7931a'; ctx.fillRect(30 + 36, 30, W - 60 - 72, 8);
-      // bitcoin coin logo
-      ctx.beginPath(); ctx.arc(120, 140, 44, 0, Math.PI * 2); ctx.fillStyle = '#f7931a'; ctx.fill();
-      ctx.fillStyle = '#0d1117'; ctx.font = `800 54px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('₿', 121, 143);
-      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-      ctx.fillStyle = '#f7931a'; ctx.font = `800 64px ${FONT}`; ctx.fillText('Satoshi Passport', 190, 162);
-      ctx.fillStyle = '#8b949e'; ctx.font = `500 30px ${FONT}`;
-      ctx.fillText(n > 0 ? 'Satoshi Nakamoto statues around the world' : 'Starting my Satoshi Passport', 80, 250);
-      // count
-      ctx.fillStyle = '#e6edf3'; ctx.font = `800 120px ${FONT}`;
-      const big = `${n} of ${total}`;
-      ctx.fillText(big, 80, 380);
-      const bigW = ctx.measureText(big).width;
-      ctx.fillStyle = '#8b949e'; ctx.font = `600 40px ${FONT}`;
-      ctx.fillText('statues visited', 80 + bigW + 26, 378);
-      // progress
-      roundRect(ctx, 80, 420, W - 160, 26, 13); ctx.fillStyle = '#21262d'; ctx.fill();
-      if (n > 0) { roundRect(ctx, 80, 420, Math.max(26, (W - 160) * n / total), 26, 13); ctx.fillStyle = '#f7931a'; ctx.fill(); }
-      // grid of statues (stamped first)
-      const items = checkable.slice().sort((a, b) => (isVisited(b) - isVisited(a)) ||
-        (isVisited(a) ? passport[a.slug].date.localeCompare(passport[b.slug].date) : 0));
-      const cols = 2, gx = 80, gy = 490, gap = 18, cw = (W - 160 - gap) / cols, ch = 66;
-      items.forEach((s, i) => {
-        const x = gx + (i % cols) * (cw + gap), y = gy + Math.floor(i / cols) * (ch + 12);
-        const got = isVisited(s);
-        roundRect(ctx, x, y, cw, ch, 12);
-        ctx.fillStyle = got ? 'rgba(63,185,80,0.10)' : '#0d1117'; ctx.fill();
-        ctx.setLineDash(got ? [12, 8] : []);
-        ctx.lineWidth = got ? 3 : 2; ctx.strokeStyle = got ? '#3fb950' : '#30363d'; ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.fillStyle = got ? '#3fb950' : '#484f58'; ctx.font = `800 30px ${FONT}`;
-        ctx.fillText(got ? '✓' : '○', x + 18, y + 44);
-        ctx.fillStyle = got ? '#e6edf3' : '#6e7681'; ctx.font = `${got ? 700 : 500} 27px ${FONT}`;
-        const dateStr = got ? fmtDate(passport[s.slug].date) : '';
-        ctx.font = `600 21px ${FONT}`; const dw = got ? ctx.measureText(dateStr).width + 16 : 0;
-        ctx.font = `${got ? 700 : 500} 27px ${FONT}`;
-        ctx.fillText(fitText(ctx, s.name, cw - 66 - dw), x + 58, y + 43);
-        if (got) {
-          ctx.fillStyle = '#3fb950'; ctx.font = `600 21px ${FONT}`; ctx.textAlign = 'right';
-          ctx.fillText(dateStr, x + cw - 16, y + 42); ctx.textAlign = 'left';
-        }
-      });
-      // footer
-      ctx.fillStyle = '#f7931a'; ctx.font = `800 40px ${FONT}`;
-      ctx.fillText('satoshistatues.com', 80, H - 82);
-      ctx.fillStyle = '#8b949e'; ctx.font = `600 30px ${FONT}`; ctx.textAlign = 'right';
-      ctx.fillText(n > 0 ? 'Collect yours  #Bitcoin' : 'Join the hunt  #Bitcoin', W - 80, H - 84);
-      ctx.textAlign = 'left';
+      ctx.fillStyle = '#f7931a'; ctx.fillRect(0, 0, W, 8);
+      const P = story ? 72 : 64;
+      const photo = s ? cardPhoto(s) : null;
+      let textW = W - 2 * P, top = P;
+      if (photo && !story) {
+        const pw = 500; drawCover(ctx, photo, W - pw, 0, pw, H);
+        const fade = ctx.createLinearGradient(W - pw, 0, W - pw + 140, 0);
+        fade.addColorStop(0, '#0d1117'); fade.addColorStop(1, 'rgba(13,17,23,0)');
+        ctx.fillStyle = fade; ctx.fillRect(W - pw, 0, 140, H);
+        textW = W - pw - P - 30;
+      } else if (photo && story) {
+        const ph = 640; drawCover(ctx, photo, 0, 0, W, ph);
+        const fade = ctx.createLinearGradient(0, ph - 220, 0, ph);
+        fade.addColorStop(0, 'rgba(13,17,23,0)'); fade.addColorStop(1, '#0d1117');
+        ctx.fillStyle = fade; ctx.fillRect(0, ph - 220, W, 220);
+        top = ph - 40;
+      }
+      // brand row
+      const by = photo && story ? 70 : top + 34;
+      if (photo && story) { roundRect(ctx, P - 14, by - 44, 470, 88, 44); ctx.fillStyle = 'rgba(13,17,23,0.78)'; ctx.fill(); }
+      ctx.beginPath(); ctx.arc(P + 30, by, 30, 0, Math.PI * 2); ctx.fillStyle = '#f7931a'; ctx.fill();
+      ctx.fillStyle = '#0d1117'; ctx.font = `800 36px ${CARD_FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('₿', P + 30, by + 2); ctx.textAlign = 'left';
+      ctx.fillStyle = '#f7931a'; ctx.font = `800 28px ${CARD_FONT}`; ctx.fillText('SATOSHI PASSPORT', P + 76, by + 1);
+      ctx.textBaseline = 'alphabetic';
+      let y = (photo && story) ? top + 40 : top + 130;
+      if (s) {
+        ctx.fillStyle = '#c9d1d9'; ctx.font = `500 ${story ? 44 : 34}px ${CARD_FONT}`;
+        ctx.fillText(cardTitle(s), P, y); y += story ? 104 : 84;
+        let fs = story ? 104 : 80; const name = cardName(s);
+        ctx.font = `800 ${fs}px ${CARD_FONT}`;
+        while (fs > 44 && ctx.measureText(name).width > textW - (story ? 0 : 150)) { fs -= 4; ctx.font = `800 ${fs}px ${CARD_FONT}`; }
+        ctx.fillStyle = '#f7931a'; ctx.fillText(fitText(ctx, name, textW), P, y); y += story ? 66 : 54;
+        ctx.fillStyle = '#e6edf3'; ctx.font = `500 ${story ? 38 : 30}px ${CARD_FONT}`;
+        ctx.fillText(fitText(ctx, cardTitle(s) === 'I found' ? `${s.city}, ${s.country}` : `${s.country} · ${s.place}`, textW), P, y);
+        if (story) drawStamp(ctx, W - P - 120, photo ? top - 70 : y + 170, 120, s);
+        else drawStamp(ctx, photo ? W - 500 : W - P - 110, photo ? H - 170 : 250, photo ? 92 : 110, s);
+        y += story ? 90 : 70;
+      } else {
+        y += story ? 40 : 34;
+        ctx.fillStyle = '#e6edf3'; ctx.font = `800 ${story ? 150 : 112}px ${CARD_FONT}`;
+        const big = `${n}/${total}`; ctx.fillText(big, P, y + (story ? 60 : 30));
+        const bw = ctx.measureText(big).width;
+        ctx.fillStyle = '#8b949e'; ctx.font = `500 ${story ? 44 : 36}px ${CARD_FONT}`;
+        ctx.fillText('Satoshi statues stamped', P + bw + 24, y + (story ? 56 : 26));
+        y += story ? 120 : 66;
+        // stamps grid (stamped first)
+        const items = checkable.slice().sort((a, b) => (isVisited(b) - isVisited(a)) ||
+          (isVisited(a) ? passport[a.slug].date.localeCompare(passport[b.slug].date) : 0));
+        const cols = story ? 2 : 4, gap = 12, cw = (W - 2 * P - gap * (cols - 1)) / cols, ch = story ? 74 : 52;
+        items.forEach((st, k) => {
+          const x = P + (k % cols) * (cw + gap), yy = y + Math.floor(k / cols) * (ch + 10);
+          const got = isVisited(st);
+          roundRect(ctx, x, yy, cw, ch, 10);
+          ctx.fillStyle = got ? 'rgba(63,185,80,0.12)' : '#0d1117'; ctx.fill();
+          ctx.setLineDash(got ? [10, 7] : []); ctx.lineWidth = got ? 3 : 2; ctx.strokeStyle = got ? '#3fb950' : '#30363d'; ctx.stroke(); ctx.setLineDash([]);
+          ctx.fillStyle = got ? '#3fb950' : '#484f58'; ctx.font = `800 ${story ? 30 : 22}px ${CARD_FONT}`;
+          ctx.fillText(got ? '✓' : '·', x + 14, yy + ch / 2 + (story ? 11 : 8));
+          ctx.fillStyle = got ? '#e6edf3' : '#6e7681'; ctx.font = `${got ? 800 : 500} ${story ? 30 : 22}px ${CARD_FONT}`;
+          ctx.fillText(fitText(ctx, st.city === 'Miami' ? st.name : st.city, cw - 52), x + 44, yy + ch / 2 + (story ? 11 : 8));
+        });
+        y += Math.ceil(items.length / cols) * (ch + 10) + 10;
+      }
+      // progress + nickname + site
+      const fy = H - (story ? 96 : 56);
+      if (s) {
+        const py = story ? Math.min(y + 150, H - 300) : H - 128;
+        ctx.fillStyle = '#e6edf3'; ctx.font = `800 ${story ? 54 : 40}px ${CARD_FONT}`;
+        ctx.fillText(`${n}/${total} stamps`, P, py);
+        const bw = Math.min(textW, story ? W - 2 * P : 420);
+        roundRect(ctx, P, py + 20, bw, 16, 8); ctx.fillStyle = '#21262d'; ctx.fill();
+        roundRect(ctx, P, py + 20, Math.max(16, bw * n / total), 16, 8); ctx.fillStyle = '#f7931a'; ctx.fill();
+      }
+      ctx.fillStyle = '#f7931a'; ctx.font = `800 ${story ? 44 : 32}px ${CARD_FONT}`;
+      ctx.fillText('satoshistatues.com', P, fy);
+      if (nick) {
+        ctx.fillStyle = '#c9d1d9'; ctx.font = `500 ${story ? 36 : 26}px ${CARD_FONT}`; ctx.textAlign = 'right';
+        ctx.fillText(fitText(ctx, nick, 360), (photo && !story ? W - 520 : W - P), fy); ctx.textAlign = 'left';
+      }
       return c;
     }
+    function drawBadge() { return drawCard({}); }
+    document.addEventListener('toggle', ev => { if (ev.target && ev.target.id === 'pp-more' && ev.target.open && !badge) refreshBadge(); }, true);
+    function cardFile(opts) {
+      // JPEG keeps photo cards small (~150-300 KB instead of 1-2 MB PNG) for mobile sharing.
+      const url = drawCard(opts).toDataURL('image/jpeg', 0.9);
+      const blob = dataUrlToBlob(url);
+      const name = `satoshi-${opts.statue ? opts.statue.page : 'passport'}${opts.size === 'story' ? '-story' : ''}.jpg`;
+      let file = null;
+      try { file = new File([blob], name, { type: 'image/jpeg' }); } catch (e) {}
+      return { url, blob, file, name };
+    }
+    function downloadBlob(blob, name) {
+      const a = document.createElement('a'), u = URL.createObjectURL(blob);
+      a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(u), 4000);
+    }
+    function statueShareText(s) {
+      const what = /^Satoshi Statue /.test(s.label || '') ? `Satoshi in ${s.city}` : `the ${s.name} in ${s.city}`;
+      return `I found ${what} 🟠 ${visitedCount()}/${checkable.length} stamps on the Satoshi Statues passport @satoshistatue21`;
+    }
+    function statueUrl(s) { return `${SITE_URL}/${s.page}/`; }
+    function xIntent(text, url) { return `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`; }
+    function shareRowHtml(s) {
+      cardPhoto(s); loadCardFonts();
+      return `<div class="card-share" data-card-slug="${s.slug}"><button class="ghost-btn" type="button" data-card="share">📤 Share card</button><a class="ghost-btn" href="${xIntent(statueShareText(s), statueUrl(s))}" target="_blank" rel="noopener noreferrer">𝕏 Share on X</a><button class="ghost-btn" type="button" data-card="save">⬇️ Save image</button><button class="ghost-btn" type="button" data-card="story">📱 Story size</button></div>`;
+    }
+    // Synchronous up to navigator.share() so iOS keeps the tap's user activation.
+    function shareCard(s, size) {
+      let f;
+      try { f = cardFile({ statue: s, size }); } catch (e) { toast("Couldn't create the image in this browser."); return; }
+      const text = s ? `${statueShareText(s)} ${statueUrl(s)}` : shareText();
+      if (f.file && navigator.canShare && navigator.share && navigator.canShare({ files: [f.file] })) {
+        navigator.share({ files: [f.file], text, title: 'Satoshi Passport' })
+          .catch(e => { if (!e || e.name !== 'AbortError') downloadBlob(f.blob, f.name); });
+        return;
+      }
+      downloadBlob(f.blob, f.name);
+    }
+    document.addEventListener('click', ev => {
+      const b = ev.target.closest && ev.target.closest('[data-card]');
+      if (!b) return;
+      const row = b.closest('[data-card-slug]');
+      const s = row && row.getAttribute('data-card-slug') ? bySlug(row.getAttribute('data-card-slug')) : null;
+      const act = b.getAttribute('data-card');
+      if (act === 'save') { try { const f = cardFile({ statue: s }); downloadBlob(f.blob, f.name); } catch (e) { toast("Couldn't create the image in this browser."); } }
+      else if (act === 'story') shareCard(s, 'story');
+      else shareCard(s);
+    });
     function dataUrlToBlob(url) {
       const [head, b64] = url.split(',');
       const bin = atob(b64), arr = new Uint8Array(bin.length);
@@ -1754,7 +1870,11 @@
       return new Blob([arr], { type: head.match(/:(.*?);/)[1] });
     }
     let badge = null; // { url, blob, file }
-    function refreshBadge() {
+    function refreshBadge(force) {
+      badge = null;
+      const more = document.getElementById('pp-more');
+      // Lazy: only draw when the preview is visible or the user taps share/save.
+      if (force || (more && more.open)) {
       try {
         const url = drawBadge().toDataURL('image/png');
         const blob = dataUrlToBlob(url);
@@ -1763,8 +1883,9 @@
         badge = { url, blob, file };
         document.getElementById('badge-preview').src = url;
       } catch (e) { badge = null; }
+      }
       const n = visitedCount();
-      const xText = `${shareBase()} Collect yours at`;
+      const xText = `${shareBase()} on the Satoshi Statues passport @satoshistatue21`;
       document.getElementById('share-x').href =
         `https://twitter.com/intent/tweet?text=${encodeURIComponent(xText)}&url=${encodeURIComponent(SITE_URL)}&hashtags=Bitcoin`;
       document.getElementById('share-fb').href =
@@ -1776,7 +1897,7 @@
     }
     function sharePassport() {
       // Keep this synchronous up to navigator.share() so iOS keeps the tap's user-activation.
-      if (!badge) refreshBadge();
+      if (!badge) refreshBadge(true);
       const text = shareText();
       if (canShareFile()) {
         navigator.share({ files: [badge.file], text, title: 'Satoshi Passport' })
@@ -1792,7 +1913,7 @@
       copyShareText('Image downloaded and text copied. Paste it into your post!');
     }
     function downloadBadge() {
-      if (!badge) refreshBadge();
+      if (!badge) refreshBadge(true);
       if (!badge) { toast("Couldn't create the image in this browser."); return; }
       const a = document.createElement('a');
       const objUrl = URL.createObjectURL(badge.blob);

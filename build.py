@@ -236,6 +236,12 @@ def statue_ld(s):
         o['creator'] = c if len(c) > 1 else c[0]
     if s['slug'] in ('budapest', 'lugano'):
         o['isAccessibleForFree'] = True
+    v = s.get('visit') or {}
+    if v.get('sources'):  # only claim access facts that the guide cites
+        if isinstance(v.get('public_access'), bool):
+            o['publicAccess'] = v['public_access']
+        if isinstance(v.get('free'), bool):
+            o['isAccessibleForFree'] = v['free']
     return o
 
 
@@ -369,7 +375,7 @@ def head(title, desc, canonical, image, iw, ih, img_alt, extra_ld):
   <link rel="icon" href="{FAVICON}" />
   {FEED_LINK}
   {extra_ld}
-  <style>{CSS}{ALERT_CSS}</style>
+  <style>{CSS}{ALERT_CSS}{VISIT_CSS}</style>
   {api_script()}
 </head>
 <body>
@@ -576,10 +582,9 @@ def src_list(sources):
 def statue_page(s, data):
     title = f"{s['label']} – Location, Directions & Photos"
     desc = describe(s)
-    image, iw, ih, local = img_abs(s)
     alt = f"{s['label']}, {s['place']}, {s['city']}"
     lds = ld(statue_ld(s)) + '\n  ' + ld(breadcrumb_ld([('Map', SITE + '/'), (s['label'], page_url(s))]))
-    out = head(title, desc, page_url(s), image, iw, ih, alt, lds)
+    out = head(title, desc, page_url(s), f"{SITE}/{og_path(s)}", OG_W, OG_H, f"{s['label']}: {s['city']}, {s['country']} (satoshistatues.com card)", lds)
     img_html = ''
     if s.get('img'):
         src = s['img'] if s['img'].startswith('http') else '/' + s['img']
@@ -635,6 +640,7 @@ def statue_page(s, data):
     <h2>About</h2>
     <p class="note">{e(s['note'])}</p>
     {stamp}
+    {visit_html(s)}
     {checkin_count_html(s)}
     {photo_cta(s, data)}
     <h2>Sources</h2>
@@ -858,9 +864,168 @@ def privacy_page(data):
     return out + TAIL
 
 
+# ---------- Per-statue Open Graph images (1200x630, Pillow) ----------
+OG_W, OG_H = 1200, 630
+FONT_BOLD = os.path.join(ROOT, 'fonts', 'inter-800.woff')
+FONT_REG = os.path.join(ROOT, 'fonts', 'inter-500.woff')
+
+
+def og_path(s):
+    return f"og/{s['page']}.jpg"
+
+
+def og_image(s):
+    """Branded share card; uses the statue photo only when it is a local file (never hot-linked images)."""
+    from PIL import Image, ImageDraw, ImageFilter, ImageFont
+    import io
+    bg = (13, 17, 23)
+    im = Image.new('RGB', (OG_W, OG_H), bg)
+    glow = Image.new('L', (OG_W, OG_H), 0)
+    ImageDraw.Draw(glow).ellipse((-260, -300, 520, 380), fill=90)
+    glow = glow.filter(ImageFilter.GaussianBlur(120))
+    im = Image.composite(Image.new('RGB', (OG_W, OG_H), (247, 147, 26)), im, glow)
+    text_w = 760  # without a photo the right side holds a large coin
+    has_photo = False
+    if s.get('img') and not s['img'].startswith('http') and os.path.exists(os.path.join(ROOT, s['img'])):
+        pw = 520
+        ph = Image.open(os.path.join(ROOT, s['img'])).convert('RGB')
+        scale = max(pw / ph.width, OG_H / ph.height)
+        ph = ph.resize((round(ph.width * scale), round(ph.height * scale)), Image.LANCZOS)
+        left, top = (ph.width - pw) // 2, max(0, (ph.height - OG_H) // 3)
+        ph = ph.crop((left, top, left + pw, top + OG_H))
+        mask = Image.new('L', (pw, OG_H), 255)
+        md = ImageDraw.Draw(mask)
+        for x in range(120):
+            md.line([(x, 0), (x, OG_H)], fill=round(255 * x / 120))
+        im.paste(ph, (OG_W - pw, 0), mask)
+        text_w = OG_W - pw - 110
+        has_photo = True
+    d = ImageDraw.Draw(im)
+    fb = lambda n: ImageFont.truetype(FONT_BOLD, n)
+    if not has_photo:
+        d.ellipse((860, 165, 1140, 445), fill=(58, 42, 20))
+        d.text((1000, 305), '₿', font=fb(200), fill=(13, 17, 23), anchor='mm')
+    fr = lambda n: ImageFont.truetype(FONT_REG, n)
+    d.rectangle((0, 0, OG_W, 8), fill=(247, 147, 26))
+    d.ellipse((70, 64, 142, 136), fill=(247, 147, 26))
+    d.text((106, 100), '₿', font=fb(48), fill=bg, anchor='mm')
+    d.text((162, 100), 'SATOSHI STATUES', font=fb(30), fill=(247, 147, 26), anchor='lm')
+
+    def wrap(text, font, width, max_lines):
+        words, lines, cur = text.split(), [], ''
+        for w in words:
+            t = (cur + ' ' + w).strip()
+            if d.textlength(t, font=font) <= width or not cur:
+                cur = t
+            else:
+                lines.append(cur); cur = w
+        lines.append(cur)
+        if len(lines) > max_lines:
+            lines = lines[:max_lines]
+            while d.textlength(lines[-1] + '…', font=font) > width and ' ' in lines[-1]:
+                lines[-1] = lines[-1].rsplit(' ', 1)[0]
+            lines[-1] += '…'
+        return lines
+
+    limit = OG_H - 172
+    for size in range(72, 43, -4):
+        lines = wrap(s['label'], fb(size), text_w, 3)
+        for pl in (2, 1):
+            place = wrap(s['place'], fr(28), text_w, pl)
+            hgt = len(lines) * round(size * 1.15) + 14 + 46 + len(place) * 36
+            if 180 + hgt <= limit:
+                break
+        if 180 + hgt <= limit:
+            break
+    y = 180 + max(0, (limit - 180 - hgt) // 2)
+    for l in lines:
+        d.text((70, y), l, font=fb(size), fill=(230, 237, 243))
+        y += round(size * 1.15)
+    y += 14
+    for l in wrap(f"{s['city']}, {s['country']}", fr(36), text_w, 1):
+        d.text((70, y), l, font=fr(36), fill=(201, 209, 217)); y += 46
+    for l in place:
+        d.text((70, y), l, font=fr(28), fill=(139, 148, 158)); y += 36
+    st = s.get('statusLabel') or s['status']
+    col = {'Installed': (63, 185, 80), 'Restored': (247, 147, 26), 'Damaged': (240, 136, 62), 'Planned': (88, 166, 255)}.get(s['status'], (139, 148, 158))
+    st = st if d.textlength(st, font=fb(24)) <= text_w - 40 else s['status']
+    bw = d.textlength(st, font=fb(24)) + 32
+    d.rounded_rectangle((70, OG_H - 150, 70 + bw, OG_H - 108), radius=8, outline=col, width=3)
+    d.text((86, OG_H - 129), st, font=fb(24), fill=col, anchor='lm')
+    d.text((70, OG_H - 62), 'satoshistatues.com', font=fb(34), fill=(247, 147, 26), anchor='ls')
+    tag, tx = '· map, directions & Satoshi Passport', 70 + d.textlength('satoshistatues.com', font=fb(34)) + 18
+    if tx + d.textlength(tag, font=fr(24)) <= 70 + text_w + 40:
+        d.text((tx, OG_H - 64), tag, font=fr(24), fill=(139, 148, 158), anchor='ls')
+    buf = io.BytesIO()
+    im.save(buf, 'JPEG', quality=84, optimize=True, progressive=True)
+    return buf.getvalue()
+
+
+def bin_outputs(data):
+    return {og_path(s): og_image(s) for s in data['statues']}
+
+
+# ---------- "Visiting" trip guide (optional per statue; see GUIDES.md) ----------
+# statues.json → statue.visit:
+#   getting_there  str   "## Getting there" section of the guide markdown
+#   exact_spot     str   "## Exact spot"
+#   photo_tip      str   "## Photo tip"
+#   hours_access   str   "## Hours & access" (omit to reuse the statue's `access` + `accessSource`)
+#   nearby         list  "## Nearby (BTC Map)" bullets → [{"name", "url", "note"}]
+#   sources        list  "## Sources" bullets → [{"label", "url"}]
+#   public_access / free  bool, optional; only emitted in JSON-LD when `sources` is set
+#   updated        "YYYY-MM-DD" date the guide was written/updated (drives the sitemap lastmod)
+GUIDE_TEXT_FIELDS = ('getting_there', 'exact_spot', 'photo_tip', 'hours_access')
+
+
+def has_guide(s):
+    v = s.get('visit') or {}
+    return any((v.get(k) or '').strip() for k in GUIDE_TEXT_FIELDS) or bool(v.get('nearby'))
+
+
+def paras(t):
+    return ''.join(f'<p class="note">{e(p.strip())}</p>' for p in re.split(r'\n\s*\n', t.strip()) if p.strip())
+
+
+def visit_html(s):
+    if not has_guide(s):
+        return ''
+    v = s['visit']
+    rows = []
+    for key, label in (('getting_there', 'Getting there'), ('exact_spot', 'Exact spot'), ('photo_tip', 'Photo tip')):
+        if (v.get(key) or '').strip():
+            rows.append(f'<h3>{label}</h3>{paras(v[key])}')
+    if (v.get('hours_access') or '').strip():
+        rows.append(f'<h3>Hours &amp; access</h3>{paras(v["hours_access"])}')
+    elif s.get('access'):
+        src = (f' <a href="{e(s["accessSource"]["url"])}" target="_blank" rel="noopener noreferrer">Source: {e(s["accessSource"]["label"])}</a>'
+               if s.get('accessSource') else '')
+        rows.append(f'<h3>Hours &amp; access</h3><p class="note">{e(s["access"])}{src}</p>')
+    if v.get('nearby'):
+        items = ''.join(
+            f'<li><a href="{e(n["url"])}" target="_blank" rel="noopener noreferrer">{e(n["name"])}</a>'
+            f'{" – " + e(n["note"]) if n.get("note") else ""}</li>' for n in v['nearby'] if n.get('name') and n.get('url'))
+        rows.append(f'<h3>Nearby places that accept bitcoin</h3><ul class="visit-nearby">{items}</ul>'
+                    f'<p class="note" style="font-size:.8rem;color:#8b949e">From <a href="https://btcmap.org/" target="_blank" rel="noopener noreferrer">BTC Map</a>. Check before you go.</p>')
+    srcs = (f'<h3>Guide sources</h3>{src_list(v["sources"])}' if v.get('sources') else '')
+    upd = f'<p class="note" style="font-size:.8rem;color:#8b949e;margin-top:8px">Guide updated {e(v["updated"])}.</p>' if v.get('updated') else ''
+    return f'<section class="visit" id="visiting" aria-labelledby="visiting-title"><h2 id="visiting-title">🧭 Visiting</h2>{"".join(rows)}{srcs}{upd}</section>'
+
+
+VISIT_CSS = ('.visit{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:4px 16px 14px;margin:22px 0;scroll-margin-top:12px}'
+             '.visit h2{margin:14px 0 6px}.visit h3{font-size:.95rem;color:#f7931a;margin:14px 0 4px}'
+             '.visit .note+.note{margin-top:6px}.visit-nearby{padding-left:18px;font-size:.92rem}.visit-nearby li{margin:4px 0}'
+             '.visit a{display:inline-block;padding:13px 0;margin:-13px 0}.visit li{margin:8px 0}')
+
+
+def page_lastmod(s):
+    u = ((s.get('visit') or {}).get('updated') or '').strip()
+    return max(BUILD_DATE, u) if re.fullmatch(r'\d{4}-\d{2}-\d{2}', u) else BUILD_DATE
+
+
 def sitemap(data):
-    urls = [SITE + '/', SITE + '/21-nodes/', SITE + '/leaderboard/', SITE + '/privacy/'] + [page_url(s) for s in data['statues']]
-    body = ''.join(f'  <url><loc>{u}</loc><lastmod>{BUILD_DATE}</lastmod></url>\n' for u in urls)
+    urls = [(SITE + p, BUILD_DATE) for p in ('/', '/21-nodes/', '/leaderboard/', '/privacy/')] + [(page_url(s), page_lastmod(s)) for s in data['statues']]
+    body = ''.join(f'  <url><loc>{u}</loc><lastmod>{m}</lastmod></url>\n' for u, m in urls)
     return f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{body}</urlset>\n'
 
 
@@ -879,9 +1044,11 @@ def replace_block(text, name, content, comment=('<!-- ', ' -->')):
 
 
 def build_index(data, text):
-    statues_js = [{k: v for k, v in s.items() if k not in ('slug', 'sources', 'accessSource', 'label')} for s in data['statues']]
+    statues_js = [{k: v for k, v in s.items() if k not in ('slug', 'sources', 'accessSource', 'label', 'visit')} for s in data['statues']]
     for s, src in zip(statues_js, data['statues']):
         s['label'] = src['label']
+        if has_guide(src):
+            s['guide'] = True
         s['photoSubject'] = photo_subject(src)
     js = '    const statues = ' + json.dumps(statues_js, ensure_ascii=False, indent=2).replace('\n', '\n    ') + ';'
     text = replace_block(text, 'STATUES', js, comment=('// ', ''))
@@ -923,6 +1090,17 @@ def main():
         return
     data = load()
     stale = []
+    for rel, content in bin_outputs(data).items():
+        path = os.path.join(ROOT, rel)
+        old = open(path, 'rb').read() if os.path.exists(path) else None
+        if old != content:
+            if check:
+                stale.append(rel)
+                continue
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, 'wb') as f:
+                f.write(content)
+            print('wrote', rel)
     for rel, content in outputs(data).items():
         path = os.path.join(ROOT, rel)
         old = open(path, encoding='utf-8').read() if os.path.exists(path) else None
