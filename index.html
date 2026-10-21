@@ -403,25 +403,6 @@
       transition: background 0.2s;
     }
     .directions-btn:hover { background: #ffb347; }
-    .earth-btn {
-      display: inline-block;
-      margin-top: 12px;
-      background: #21262d;
-      color: #e6edf3;
-      border: 1px solid #30363d;
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-decoration: none;
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s;
-    }
-    .earth-btn:hover {
-      background: #30363d;
-      border-color: #58a6ff;
-      color: #58a6ff;
-    }
     .btc-pin { display: flex; align-items: center; justify-content: center; }
     .bitcoin-cluster {
       width: 36px;
@@ -475,8 +456,7 @@
     }
     .passport-btn:hover { background: #30363d; }
     .popup-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-    .popup-actions .directions-btn,
-    .popup-actions .earth-btn { margin: 0; }
+    .popup-actions .directions-btn { margin: 0; }
     .ghost-btn {
       display: inline-block;
       background: #21262d;
@@ -730,7 +710,7 @@
       header.tip-open .tip-box { display: block; }
       .pp-full { display: none; }
       .pp-short { display: inline; }
-      .tip-btn, .reset-btn, .passport-btn, .ghost-btn, .directions-btn, .earth-btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+      .tip-btn, .reset-btn, .passport-btn, .ghost-btn, .directions-btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
       .modal-close { width: 44px; height: 44px; }
       .popup-links a { display: inline-flex; align-items: center; min-height: 44px; }
       .popup-photo a { display: inline-flex; align-items: center; min-height: 44px; }
@@ -944,7 +924,6 @@
         "img": "https://pbs.twimg.com/media/GobpChUWAAEiJU7.jpg",
         "imgW": 1043,
         "imgH": 1200,
-        "earthUrl": "https://earth.google.com/web/search/Bitcoin+Beach+Office,+El+Zonte,+El+Salvador/@13.49544537,-89.44233576,13.06595228a,56.6161827d,35y,3.19353596h,0t,0r/data=CmUaNxIxCiUweDhmN2QyYjAwMjUzODhjZWQ6MHgxMjVjNjJjYjQyNmMyY2Q0KggiU2F0b3NoaRgCIAEiJgokCRrRnJ9Pw0RAEaLiqsKpwURAGRM6cLajR1LAIdyH2tIpSlLAQgIIAToDCgEwQgIIAEoNCP___________wEQAA?authuser=0",
         "page": "el-zonte",
         "unveiled": "Apr 2025",
         "series21": true,
@@ -1396,10 +1375,6 @@
       const artistHtml = s.artistUrl
         ? `<a href="${s.artistUrl}" target="_blank" rel="noopener noreferrer">${s.artist}</a>`
         : s.artist;
-      // Google Earth button only for El Zonte
-      const earthBtn = s.earthUrl
-        ? `<a class="earth-btn" href="${s.earthUrl}" target="_blank" rel="noopener noreferrer">Google Earth</a>`
-        : '';
       let checkinHtml;
       if (!isCheckable(s)) {
         checkinHtml = `<span class="ghost-btn" style="cursor:default;opacity:0.7" title="This statue isn't installed yet">No stamp yet (not installed)</span>`;
@@ -1429,7 +1404,6 @@
         ${checkinCountHtml(s)}
         <div class="popup-actions">
           <a class="directions-btn" href="${mapsUrl}" target="_blank" rel="noopener noreferrer">Get Directions</a>
-          ${earthBtn}
           ${checkinHtml}
           <button class="ghost-btn" type="button" data-comments="${s.slug}">💬 Comments</button>
         </div>
