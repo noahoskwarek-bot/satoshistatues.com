@@ -9,7 +9,7 @@
     "_photo_help": "Photo submissions: the CTA builds a mailto link in JS from photo_email_user + photo_email_domain (kept split so no plain address appears in the HTML). photo_x_handle is shown as the X alternative.",
     "photo_email_user": "photos",
     "photo_email_domain": "satoshistatues.com",
-    "photo_x_handle": "DOGE169420"
+    "photo_x_handle": "satoshistatue21"
   },
   "statues": [
     {
