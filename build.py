@@ -321,6 +321,44 @@ def signup_html(data, where):
     return f'<section class="alert-box" aria-label="New statue alerts">{title}{body}</section>'
 
 
+def photo_subject(s):
+    lab = s['label']
+    if lab.startswith('Satoshi Statue '):
+        return 'Photo: Satoshi statue – ' + lab[len('Satoshi Statue '):]
+    return 'Photo: ' + lab
+
+
+def photo_js(data):
+    # Assemble the photo-submission mailto at click time; the address is never a plain string in the HTML.
+    c = data.get('config', {})
+    u, dom = c.get('photo_email_user'), c.get('photo_email_domain')
+    if not (u and dom):
+        return ''
+    codes = [ord(ch) for ch in (u + '@' + dom)][::-1]
+    return ('<script>(function(){var c=' + json.dumps(codes) + ';'
+            'function to(){return String.fromCharCode.apply(null,c.slice().reverse())}'
+            'function body(l){return "Hi,\\n\\nHere is my photo of the "+l+" (attached).\\n\\nYour name (for credit): \\nDate taken: \\n\\n'
+            'By sending, you let satoshistatues.com feature your photo with credit.\\n"}'
+            'document.addEventListener("click",function(ev){var a=ev.target.closest&&ev.target.closest("[data-photo-subject]");if(!a)return;'
+            'ev.preventDefault();location.href="mailto:"+to()+"?subject="+encodeURIComponent(a.getAttribute("data-photo-subject"))'
+            '+"&body="+encodeURIComponent(body(a.getAttribute("data-photo-label")||"statue"));},true);})();</script>')
+
+
+def photo_cta(s, data):
+    c = data.get('config', {})
+    if not (c.get('photo_email_user') and c.get('photo_email_domain')):
+        return ''
+    xh = c.get('photo_x_handle')
+    xbtn = (f'<a class="btn" href="https://x.com/{e(xh)}" target="_blank" rel="noopener noreferrer">Or tag @{e(xh)} on X</a>' if xh else '')
+    fallback = f'{e(c["photo_email_user"])} [at] {e(c["photo_email_domain"].replace(".", " [dot] "))}'
+    return (f'<section class="photo-cta" id="photo" aria-label="Send us your photo">'
+            f'<p class="alert-title">📸 Got a photo of this statue?</p>'
+            f'<p class="alert-fine">Email it to us with your name (for credit) and the date you took it.</p>'
+            f'<div class="photo-actions"><a class="btn primary" href="#photo" data-photo-subject="{e(photo_subject(s))}" data-photo-label="{e(s["label"])}">📸 Send us your photo</a>{xbtn}</div>'
+            f'<noscript><p class="alert-fine">Email: {fallback} with the subject “{e(photo_subject(s))}”.</p></noscript>'
+            f'<p class="alert-fine">By sending, you let satoshistatues.com feature your photo with credit.</p></section>' + photo_js(data))
+
+
 ALERT_CSS = (
     '.alert-box{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}'
     '.alert-title{font-weight:700;color:#e6edf3;font-size:.95rem;margin:0 0 6px}'
@@ -331,6 +369,9 @@ ALERT_CSS = (
     '.alert-fine{font-size:.8rem;color:#8b949e;margin:6px 0 0;line-height:1.45}'
     '.feed-link{color:#f7931a;font-weight:600;display:inline-block;padding:13px 0;margin:-13px 0;text-decoration:none}'
     '.feed-link:hover{text-decoration:underline}'
+    '.photo-cta{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}'
+    '.photo-actions{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 4px}'
+    '.photo-actions .btn{max-width:100%}'
     '.alert-follow{display:flex;flex-wrap:wrap;gap:0 18px;margin-top:2px}'
     '.alert-follow .feed-link{padding:0;margin:0;min-height:44px;display:inline-flex;align-items:center;font-size:.85rem}'
     '.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}'
@@ -446,6 +487,7 @@ def statue_page(s, data):
     <h2>About</h2>
     <p class="note">{e(s['note'])}</p>
     {stamp}
+    {photo_cta(s, data)}
     <h2>Sources</h2>
     {src_list(s.get('sources', []))}
     <p class="note" style="font-size:.85rem;color:#8b949e;margin-top:8px">Spotted a mistake? <a href="https://github.com/{REPO}/issues/new?title={e('Correction: ' + s['name'])}" target="_blank" rel="noopener noreferrer">Suggest a correction</a>.</p>
@@ -538,6 +580,7 @@ def build_index(data, text):
     statues_js = [{k: v for k, v in s.items() if k not in ('slug', 'sources', 'accessSource', 'label')} for s in data['statues']]
     for s, src in zip(statues_js, data['statues']):
         s['label'] = src['label']
+        s['photoSubject'] = photo_subject(src)
     js = '    const statues = ' + json.dumps(statues_js, ensure_ascii=False, indent=2).replace('\n', '\n    ') + ';'
     text = replace_block(text, 'STATUES', js, comment=('// ', ''))
     ldhtml, _ = home_ld(data)
@@ -547,7 +590,7 @@ def build_index(data, text):
         for s in sorted(data['statues'], key=lambda s: -sort_year(s['year']))) + '          <li><a href="/21-nodes/">21 Nodes tracker</a></li>\n        </ul>'
     text = replace_block(text, 'LINKS', links)
     text = replace_block(text, 'SIGNUP', '        ' + signup_html(data, 'home'))
-    text = replace_block(text, 'HEADLINKS', '  ' + FEED_LINK + '\n  <style>' + ALERT_CSS + '</style>')
+    text = replace_block(text, 'HEADLINKS', '  ' + FEED_LINK + '\n  <style>' + ALERT_CSS + '</style>' + ('\n  ' + photo_js(data) if photo_js(data) else ''))
     return text
 
 

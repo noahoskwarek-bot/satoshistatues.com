@@ -69,6 +69,16 @@
     <summary>Fornelli, Italy · Piazza Umberto I. Artist: Mattia Pannoni. Status: Installed. Unveiled 1 May 2025.</summary>
   </entry>
   <entry>
+    <title>Satoshi Statue El Zonte (El Zonte, El Salvador)</title>
+    <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/el-zonte/" />
+    <id>https://www.satoshistatues.com/el-zonte/</id>
+    <published>2025-04-01T00:00:00Z</published>
+    <updated>2025-04-01T00:00:00Z</updated>
+    <author><name>Valentina Picozzi</name></author>
+    <category term="Installed" />
+    <summary>El Zonte, El Salvador · Bitcoin Beach. Artist: Valentina Picozzi. Status: Installed. Unveiled Apr 2025.</summary>
+  </entry>
+  <entry>
     <title>Satoshi Statue Tokyo (Tokyo, Japan)</title>
     <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/tokyo/" />
     <id>https://www.satoshistatues.com/tokyo/</id>
@@ -79,16 +89,6 @@
     <summary>Tokyo, Japan · Tokyo Bitcoin Base (Shinjuku). Artist: Valentina Picozzi. Status: Installed. Unveiled Apr 2025.</summary>
   </entry>
   <entry>
-    <title>Satoshi Statue El Zonte (El Zonte, El Salvador)</title>
-    <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/el-zonte/" />
-    <id>https://www.satoshistatues.com/el-zonte/</id>
-    <published>2025-01-01T00:00:00Z</published>
-    <updated>2025-01-01T00:00:00Z</updated>
-    <author><name>Valentina Picozzi</name></author>
-    <category term="Installed" />
-    <summary>El Zonte, El Salvador · Bitcoin Beach. Artist: Valentina Picozzi. Status: Installed. Unveiled Jan 2025.</summary>
-  </entry>
-  <entry>
     <title>Satoshi Statue Lugano (Lugano, Switzerland)</title>
     <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/lugano/" />
     <id>https://www.satoshistatues.com/lugano/</id>
@@ -96,7 +96,7 @@
     <updated>2024-10-25T00:00:00Z</updated>
     <author><name>Valentina Picozzi</name></author>
     <category term="Damaged" />
-    <summary>Lugano, Switzerland · Parco Ciani. Artist: Valentina Picozzi. Status: Damaged (Apr 2026), repair pending. Unveiled 25 Oct 2024.</summary>
+    <summary>Lugano, Switzerland · Parco Ciani. Artist: Valentina Picozzi. Status: Damaged (Apr 2026), current status unconfirmed. Unveiled 25 Oct 2024.</summary>
   </entry>
   <entry>
     <title>Miami Bitcoin Bull (Miami, USA)</title>

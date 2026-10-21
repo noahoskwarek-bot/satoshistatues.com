@@ -30,7 +30,8 @@
   <meta name="twitter:image:alt" content="Satoshi Nakamoto Statues: interactive world map of Satoshi statues and Bitcoin monuments" />
   <!-- BUILD:HEADLINKS:BEGIN -->
   <link rel="alternate" type="application/atom+xml" title="Satoshi Statues – new statues" href="https://www.satoshistatues.com/feed.xml" />
-  <style>.alert-box{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.alert-title{font-weight:700;color:#e6edf3;font-size:.95rem;margin:0 0 6px}.alert-form{display:flex;gap:8px;flex-wrap:wrap;max-width:520px}.alert-form input[type=email]{flex:1 1 180px;min-width:0;min-height:44px;padding:10px 12px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:16px;font-family:inherit}.alert-form input[type=email]:focus{outline:2px solid #f7931a;border-color:#f7931a}.alert-form button{min-height:44px;padding:10px 16px;border-radius:8px;border:none;background:#f7931a;color:#0d1117;font-weight:700;font-size:.92rem;cursor:pointer;font-family:inherit}.alert-fine{font-size:.8rem;color:#8b949e;margin:6px 0 0;line-height:1.45}.feed-link{color:#f7931a;font-weight:600;display:inline-block;padding:13px 0;margin:-13px 0;text-decoration:none}.feed-link:hover{text-decoration:underline}.alert-follow{display:flex;flex-wrap:wrap;gap:0 18px;margin-top:2px}.alert-follow .feed-link{padding:0;margin:0;min-height:44px;display:inline-flex;align-items:center;font-size:.85rem}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}</style>
+  <style>.alert-box{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.alert-title{font-weight:700;color:#e6edf3;font-size:.95rem;margin:0 0 6px}.alert-form{display:flex;gap:8px;flex-wrap:wrap;max-width:520px}.alert-form input[type=email]{flex:1 1 180px;min-width:0;min-height:44px;padding:10px 12px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:16px;font-family:inherit}.alert-form input[type=email]:focus{outline:2px solid #f7931a;border-color:#f7931a}.alert-form button{min-height:44px;padding:10px 16px;border-radius:8px;border:none;background:#f7931a;color:#0d1117;font-weight:700;font-size:.92rem;cursor:pointer;font-family:inherit}.alert-fine{font-size:.8rem;color:#8b949e;margin:6px 0 0;line-height:1.45}.feed-link{color:#f7931a;font-weight:600;display:inline-block;padding:13px 0;margin:-13px 0;text-decoration:none}.feed-link:hover{text-decoration:underline}.photo-cta{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.photo-actions{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 4px}.photo-actions .btn{max-width:100%}.alert-follow{display:flex;flex-wrap:wrap;gap:0 18px;margin-top:2px}.alert-follow .feed-link{padding:0;margin:0;min-height:44px;display:inline-flex;align-items:center;font-size:.85rem}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}</style>
+  <script>(function(){var c=[109, 111, 99, 46, 107, 101, 114, 97, 119, 107, 115, 111, 64, 104, 97, 111, 110];function to(){return String.fromCharCode.apply(null,c.slice().reverse())}function body(l){return "Hi,\n\nHere is my photo of the "+l+" (attached).\n\nYour name (for credit): \nDate taken: \n\nBy sending, you let satoshistatues.com feature your photo with credit.\n"}document.addEventListener("click",function(ev){var a=ev.target.closest&&ev.target.closest("[data-photo-subject]");if(!a)return;ev.preventDefault();location.href="mailto:"+to()+"?subject="+encodeURIComponent(a.getAttribute("data-photo-subject"))+"&body="+encodeURIComponent(body(a.getAttribute("data-photo-label")||"statue"));},true);})();</script>
   <!-- BUILD:HEADLINKS:END -->
   <!-- BUILD:JSONLD:BEGIN -->
   <script type="application/ld+json">
@@ -533,6 +534,11 @@
     .popup-links { margin-top: 10px; font-size: 0.78rem; }
     .popup-links a { color: #8b949e; text-decoration: none; }
     .popup-links a:hover { color: #f7931a; text-decoration: underline; }
+    .popup-photo { margin-top: 6px; font-size: 0.78rem; color: #8b949e; display: flex; flex-wrap: wrap; align-items: center; gap: 0 10px; }
+    .popup-photo .photo-link { color: #f7931a; font-weight: 600; text-decoration: none; }
+    .popup-photo a { color: #f7931a; }
+    .popup-photo a:hover { text-decoration: underline; }
+    .photo-consent { flex-basis: 100%; font-size: 0.72rem; margin-top: 2px; }
     .card-stamp {
       display: inline-block;
       font-size: 0.7rem;
@@ -707,6 +713,7 @@
       .tip-btn, .reset-btn, .passport-btn, .ghost-btn, .directions-btn, .earth-btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
       .modal-close { width: 44px; height: 44px; }
       .popup-links a { display: inline-flex; align-items: center; min-height: 44px; }
+      .popup-photo a { display: inline-flex; align-items: center; min-height: 44px; }
       .statue-card { padding: 10px 12px; }
       .modal-backdrop { padding: 0; align-items: flex-end; }
       .modal { max-height: 90vh; border-radius: 12px 12px 0 0; padding: 16px 14px 20px; }
@@ -868,7 +875,8 @@
         "unveiled": "16 Sep 2021",
         "series21": false,
         "access": "Outdoors in Graphisoft Park. Can be visited 24/7, free of charge (per the statue’s official site).",
-        "label": "Satoshi Statue Budapest"
+        "label": "Satoshi Statue Budapest",
+        "photoSubject": "Photo: Satoshi statue – Budapest"
       },
       {
         "name": "Lugano",
@@ -882,7 +890,7 @@
         "artistUrl": "https://satoshigallery.com",
         "type": "Disappearing metal (1st of series)",
         "status": "Damaged",
-        "note": "First of the optical-illusion series. On the night of 1–2 Aug 2025 vandals threw it into Lake Lugano; divers recovered it in pieces. The artist repaired it with the kintsugi technique and it was re-inaugurated in Parco Ciani on 24 Oct 2025. On 19 Apr 2026 it was vandalized again and found seriously damaged in its central body. No repair or removal had been reported as of Oct 2026.",
+        "note": "First of the optical-illusion series. On the night of 1–2 Aug 2025 vandals threw it into Lake Lugano; divers recovered it in pieces. The artist repaired it with the kintsugi technique and it was re-inaugurated in Parco Ciani on 24 Oct 2025. On 19 Apr 2026 it was vandalized again and found seriously damaged in its central body. An OpenStreetMap mapper noted it was no longer at the site as of 28 Jul 2026; current status unconfirmed.",
         "img": "464209387_18424822771076669_4342153522642907768_n.jpg",
         "imgW": 512,
         "imgH": 640,
@@ -890,8 +898,9 @@
         "unveiled": "25 Oct 2024",
         "series21": true,
         "access": "In Parco Ciani, a public park open every day: 6:30–23:30 (March–October) and 6:30–21:00 (November–February). Free entry.",
-        "statusLabel": "Damaged (Apr 2026), repair pending",
-        "label": "Satoshi Statue Lugano"
+        "statusLabel": "Damaged (Apr 2026), current status unconfirmed",
+        "label": "Satoshi Statue Lugano",
+        "photoSubject": "Photo: Satoshi statue – Lugano"
       },
       {
         "name": "El Zonte",
@@ -905,15 +914,16 @@
         "artistUrl": "https://satoshigallery.com",
         "type": "Disappearing metal",
         "status": "Installed",
-        "note": "Located in the famous Bitcoin Beach community that helped inspire El Salvador’s Bitcoin adoption.",
+        "note": "Located in the famous Bitcoin Beach community that helped inspire El Salvador’s Bitcoin adoption. It was first presented at Museo Marte in San Salvador in Feb 2025 and arrived at Bitcoin Beach in Apr 2025, as part of a new public space opened by the Ministry of Public Works.",
         "img": "https://pbs.twimg.com/media/GobpChUWAAEiJU7.jpg",
         "imgW": 1043,
         "imgH": 1200,
         "earthUrl": "https://earth.google.com/web/search/Bitcoin+Beach+Office,+El+Zonte,+El+Salvador/@13.49544537,-89.44233576,13.06595228a,56.6161827d,35y,3.19353596h,0t,0r/data=CmUaNxIxCiUweDhmN2QyYjAwMjUzODhjZWQ6MHgxMjVjNjJjYjQyNmMyY2Q0KggiU2F0b3NoaRgCIAEiJgokCRrRnJ9Pw0RAEaLiqsKpwURAGRM6cLajR1LAIdyH2tIpSlLAQgIIAToDCgEwQgIIAEoNCP___________wEQAA?authuser=0",
         "page": "el-zonte",
-        "unveiled": "Jan 2025",
+        "unveiled": "Apr 2025",
         "series21": true,
-        "label": "Satoshi Statue El Zonte"
+        "label": "Satoshi Statue El Zonte",
+        "photoSubject": "Photo: Satoshi statue – El Zonte"
       },
       {
         "name": "Tokyo",
@@ -934,7 +944,8 @@
         "page": "tokyo",
         "unveiled": "Apr 2025",
         "series21": true,
-        "label": "Satoshi Statue Tokyo"
+        "label": "Satoshi Statue Tokyo",
+        "photoSubject": "Photo: Satoshi statue – Tokyo"
       },
       {
         "name": "Hanoi",
@@ -956,7 +967,8 @@
         "unveiled": "9 Sep 2025",
         "series21": true,
         "access": "Indoors in the Blockchain Gallery at 1Matrix headquarters (Times City). Reported open to the public every Saturday.",
-        "label": "Satoshi Statue Hanoi"
+        "label": "Satoshi Statue Hanoi",
+        "photoSubject": "Photo: Satoshi statue – Hanoi"
       },
       {
         "name": "Miami",
@@ -978,7 +990,8 @@
         "unveiled": "12 Nov 2025",
         "series21": true,
         "access": "Not yet installed at a permanent public site. A waterfront park location was announced but has not been confirmed.",
-        "label": "Satoshi Statue Miami (Valentina Picozzi)"
+        "label": "Satoshi Statue Miami (Valentina Picozzi)",
+        "photoSubject": "Photo: Satoshi statue – Miami (Valentina Picozzi)"
       },
       {
         "name": "New York",
@@ -1000,7 +1013,8 @@
         "unveiled": "Dec 2025",
         "series21": true,
         "access": "Indoors at the New York Stock Exchange (NYSE museum). The NYSE building is not open to the general public, so the statue is not freely accessible.",
-        "label": "Satoshi Statue New York"
+        "label": "Satoshi Statue New York",
+        "photoSubject": "Photo: Satoshi statue – New York"
       },
       {
         "name": "Fornelli",
@@ -1021,7 +1035,8 @@
         "page": "fornelli",
         "unveiled": "1 May 2025",
         "series21": false,
-        "label": "Satoshi Statue Fornelli"
+        "label": "Satoshi Statue Fornelli",
+        "photoSubject": "Photo: Satoshi statue – Fornelli"
       },
       {
         "name": "Hong Kong",
@@ -1042,15 +1057,16 @@
         "page": "hong-kong",
         "unveiled": "20 Apr 2026",
         "series21": true,
-        "label": "Satoshi Statue Hong Kong"
+        "label": "Satoshi Statue Hong Kong",
+        "photoSubject": "Photo: Satoshi statue – Hong Kong"
       },
       {
         "name": "Kranj Bitcoin Monument",
         "country": "Slovenia",
         "city": "Kranj",
         "place": "City center roundabout",
-        "lat": 46.2389,
-        "lng": 14.3556,
+        "lat": 46.24636,
+        "lng": 14.35781,
         "year": 2018,
         "artist": "Selman Čorović & Aleksander Frančeškin",
         "artistUrl": null,
@@ -1064,7 +1080,8 @@
         "unveiled": "Mar 2018",
         "series21": false,
         "creatorVerified": false,
-        "label": "Kranj Bitcoin Monument"
+        "label": "Kranj Bitcoin Monument",
+        "photoSubject": "Photo: Kranj Bitcoin Monument"
       },
       {
         "name": "Miami Bitcoin Bull",
@@ -1085,7 +1102,8 @@
         "page": "miami-bull",
         "unveiled": "Apr 2022",
         "series21": false,
-        "label": "Miami Bitcoin Bull"
+        "label": "Miami Bitcoin Bull",
+        "photoSubject": "Photo: Miami Bitcoin Bull"
       },
       {
         "name": "Vienna",
@@ -1107,7 +1125,8 @@
         "unveiled": "14 Oct 2026",
         "series21": true,
         "access": "Outdoors at the head of the lake in Viertel Zwei, open to the public around the clock. Nearest U-Bahn: Krieau (U2).",
-        "label": "Satoshi Statue Vienna"
+        "label": "Satoshi Statue Vienna",
+        "photoSubject": "Photo: Satoshi statue – Vienna"
       }
     ];
     // BUILD:STATUES:END
@@ -1358,6 +1377,7 @@
         </div>
         ${msgHtml}
         <div class="popup-links"><a href="/${s.page}/">📄 Statue page</a> · <a href="${correctionUrl(s)}" target="_blank" rel="noopener noreferrer">✏️ Suggest a correction</a></div>
+        ${s.photoSubject ? `<div class="popup-photo"><a class="photo-link" href="/${s.page}/#photo" data-photo-subject="${s.photoSubject}" data-photo-label="${s.label}">📸 Send us your photo</a><span class="photo-or">or tag <a href="https://x.com/DOGE169420" target="_blank" rel="noopener noreferrer">@DOGE169420</a></span><div class="photo-consent">By sending, you let satoshistatues.com feature your photo with credit.</div></div>` : ''}
       `;
     }
     function bySlug(slug) { return statues.find(s => s.slug === slug); }

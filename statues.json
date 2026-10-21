@@ -5,7 +5,11 @@
     "newsletter_action_url": "https://buttondown.com/api/emails/embed-subscribe/satoshistatues",
     "_nostr_help": "Nostr profile for the site. nostr_hex is served as NIP-05 _@satoshistatues.com via /.well-known/nostr.json. Then run: python3 build.py",
     "nostr_npub": "npub1dx7qh8fpp9l45lzrv9ff95f0f3gkrlvjhhptqjrxyhemze68kuhs72vv8h",
-    "nostr_hex": "69bc0b9d21097f5a7c43615292d12f4c5161fd92bdc2b0486625f3b16747b72f"
+    "nostr_hex": "69bc0b9d21097f5a7c43615292d12f4c5161fd92bdc2b0486625f3b16747b72f",
+    "_photo_help": "Photo submissions: the CTA builds a mailto link in JS from photo_email_user + photo_email_domain (kept split so no plain address appears in the HTML). photo_x_handle is shown as the X alternative.",
+    "photo_email_user": "noah",
+    "photo_email_domain": "oskwarek.com",
+    "photo_x_handle": "DOGE169420"
   },
   "statues": [
     {
@@ -56,7 +60,7 @@
       "artistUrl": "https://satoshigallery.com",
       "type": "Disappearing metal (1st of series)",
       "status": "Damaged",
-      "note": "First of the optical-illusion series. On the night of 1–2 Aug 2025 vandals threw it into Lake Lugano; divers recovered it in pieces. The artist repaired it with the kintsugi technique and it was re-inaugurated in Parco Ciani on 24 Oct 2025. On 19 Apr 2026 it was vandalized again and found seriously damaged in its central body. No repair or removal had been reported as of Oct 2026.",
+      "note": "First of the optical-illusion series. On the night of 1–2 Aug 2025 vandals threw it into Lake Lugano; divers recovered it in pieces. The artist repaired it with the kintsugi technique and it was re-inaugurated in Parco Ciani on 24 Oct 2025. On 19 Apr 2026 it was vandalized again and found seriously damaged in its central body. An OpenStreetMap mapper noted it was no longer at the site as of 28 Jul 2026; current status unconfirmed.",
       "img": "464209387_18424822771076669_4342153522642907768_n.jpg",
       "imgW": 512,
       "imgH": 640,
@@ -96,10 +100,14 @@
         {
           "label": "Tether: Oct 2025 reinstallation",
           "url": "https://tether.io/news/fourth-annual-planb-forum-concludes-in-lugano-with-record-attendance-and-new-milestones-for-bitcoin-adoption/"
+        },
+        {
+          "label": "OpenStreetMap node 12288711744 (note, 5 Aug 2026)",
+          "url": "https://www.openstreetmap.org/node/12288711744/history"
         }
       ],
       "label": "Satoshi Statue Lugano",
-      "statusLabel": "Damaged (Apr 2026), repair pending"
+      "statusLabel": "Damaged (Apr 2026), current status unconfirmed"
     },
     {
       "name": "El Zonte",
@@ -113,13 +121,13 @@
       "artistUrl": "https://satoshigallery.com",
       "type": "Disappearing metal",
       "status": "Installed",
-      "note": "Located in the famous Bitcoin Beach community that helped inspire El Salvador’s Bitcoin adoption.",
+      "note": "Located in the famous Bitcoin Beach community that helped inspire El Salvador’s Bitcoin adoption. It was first presented at Museo Marte in San Salvador in Feb 2025 and arrived at Bitcoin Beach in Apr 2025, as part of a new public space opened by the Ministry of Public Works.",
       "img": "https://pbs.twimg.com/media/GobpChUWAAEiJU7.jpg",
       "imgW": 1043,
       "imgH": 1200,
       "earthUrl": "https://earth.google.com/web/search/Bitcoin+Beach+Office,+El+Zonte,+El+Salvador/@13.49544537,-89.44233576,13.06595228a,56.6161827d,35y,3.19353596h,0t,0r/data=CmUaNxIxCiUweDhmN2QyYjAwMjUzODhjZWQ6MHgxMjVjNjJjYjQyNmMyY2Q0KggiU2F0b3NoaRgCIAEiJgokCRrRnJ9Pw0RAEaLiqsKpwURAGRM6cLajR1LAIdyH2tIpSlLAQgIIAToDCgEwQgIIAEoNCP___________wEQAA?authuser=0",
       "page": "el-zonte",
-      "unveiled": "Jan 2025",
+      "unveiled": "Apr 2025",
       "series21": true,
       "sources": [
         {
@@ -129,6 +137,14 @@
         {
           "label": "Bitcoin Austria – 21 Nodes",
           "url": "https://bitcoin-austria.at/satoshi-statue/"
+        },
+        {
+          "label": "El Salvador in English (13 Apr 2025)",
+          "url": "https://elsalvadorinenglish.com/2025/04/13/satoshi-rises-in-el-zonte-new-public-space-in-el-salvador-celebrating-sound-money-and-freedom/"
+        },
+        {
+          "label": "Journal du Coin (Museo Marte, Feb 2025)",
+          "url": "https://journalducoin.com/bitcoin/satoshi-nakamoto-statue-bitcoin-salvador/"
         }
       ],
       "label": "Satoshi Statue El Zonte"
@@ -339,8 +355,8 @@
       "country": "Slovenia",
       "city": "Kranj",
       "place": "City center roundabout",
-      "lat": 46.2389,
-      "lng": 14.3556,
+      "lat": 46.24636,
+      "lng": 14.35781,
       "year": 2018,
       "artist": "Selman Čorović & Aleksander Frančeškin",
       "artistUrl": null,
@@ -362,6 +378,10 @@
         {
           "label": "Reuters",
           "url": "https://www.reuters.com/article/technology/slovenia-claims-worlds-first-blockchain-monument-idUSKCN1GP2NS/"
+        },
+        {
+          "label": "OpenStreetMap node 5903169142 (location)",
+          "url": "https://www.openstreetmap.org/node/5903169142"
         }
       ],
       "label": "Kranj Bitcoin Monument"
