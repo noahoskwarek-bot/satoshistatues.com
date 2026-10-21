@@ -1253,6 +1253,25 @@ EVENTS_CSS = ('.events{background:#161b22;border:1px solid #30363d;border-radius
               '.ev-fine{font-size:.82rem;color:#8b949e;margin-top:6px}')
 
 
+def social_meta(url, title, desc, alt='Satoshi statues world map'):
+    """Open Graph + Twitter tags for pages that don't use head() (embed, printable passport): site og-image.jpg."""
+    img = SITE + '/og-image.jpg'
+    return f'''<meta property="og:type" content="website" />
+  <meta property="og:url" content="{url}" />
+  <meta property="og:title" content="{e(title)}" />
+  <meta property="og:description" content="{e(desc)}" />
+  <meta property="og:image" content="{img}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="{e(alt)}" />
+  <meta property="og:site_name" content="Satoshi Statues" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{e(title)}" />
+  <meta name="twitter:description" content="{e(desc)}" />
+  <meta name="twitter:image" content="{img}" />
+  <meta name="twitter:image:alt" content="{e(alt)}" />'''
+
+
 # ---------- Embeddable map (/embed/) ----------
 # Map-only page for iframes on blogs and meetup sites. Kept deliberately light: Leaflet + markercluster,
 # no passport/check-in/giscus/Buttondown/share-card/font code. noindex, canonical → home, not in the sitemap.
@@ -1334,6 +1353,7 @@ def embed_page(data):
   <meta name="description" content="Interactive map of Satoshi Nakamoto statues around the world, for embedding on other websites." />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="{SITE}/" />
+  {social_meta(EMBED_URL, 'Satoshi Nakamoto Statues: embeddable map', 'Interactive map of Satoshi Nakamoto statues around the world, for embedding on other websites.')}
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://server.arcgisonline.com" crossorigin>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -1513,6 +1533,7 @@ def passport_print_page(data):
   <meta name="description" content="{e(desc)}" />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="{SITE}/passport/print/" />
+  {social_meta(SITE + '/passport/print/', title, desc)}
   <meta name="theme-color" content="#0d1117" />
   {ICON_LINKS}
   <style>{PRINT_CSS}</style>
@@ -1593,6 +1614,30 @@ def build_index(data, text):
     text = replace_block(text, 'HEADLINKS', '  ' + FEED_LINK + '\n  <style>' + ALERT_CSS + '</style>' + ('\n  ' + api_script() if api_script() else '') + ('\n  ' + photo_js(data) if photo_js(data) else ''))
     return text
 
+# ---------- /passport/ → home page passport (redirect page) ----------
+# Nothing links to /passport/; it used to 404. GitHub Pages has no server redirects, so this is a meta refresh +
+# location.replace page. /#passport opens the passport modal on the home page (see openFromLocation in index.html).
+PASSPORT_TARGET = SITE + '/#passport'
+
+
+def passport_redirect_page():
+    return f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Satoshi Passport · Satoshi Statues</title>
+  <meta name="robots" content="noindex, follow" />
+  <link rel="canonical" href="{SITE}/" />
+  <meta http-equiv="refresh" content="0; url={PASSPORT_TARGET}" />
+  <script>location.replace("{PASSPORT_TARGET}");</script>
+</head>
+<body>
+  <p>The Satoshi Passport is on the <a href="{PASSPORT_TARGET}">home page</a>.</p>
+</body>
+</html>
+'''
+
 
 def outputs(data):
     with open(os.path.join(ROOT, 'index.html'), encoding='utf-8') as f:
@@ -1604,7 +1649,8 @@ def outputs(data):
              'leaderboard/index.html': leaderboard_page(data),
              'privacy/index.html': privacy_page(data),
              'embed/index.html': embed_page(data),
-             'passport/print/index.html': passport_print_page(data)}
+             'passport/print/index.html': passport_print_page(data),
+             'passport/index.html': passport_redirect_page()}
     pages = [s['page'] for s in data['statues']]
     assert len(set(pages)) == len(pages), 'duplicate page slugs'
     if nostr_json(data):

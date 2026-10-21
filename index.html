@@ -2336,6 +2336,7 @@
       return statues.find(s => s.page === key || s.slug === key) || null;
     }
     function openFromLocation() {
+      if (location.hash === '#passport') { openPassport(); return; }  // /passport/ redirects here
       const s = statueFromLocation();
       if (!s) return;
       const i = statues.indexOf(s);
