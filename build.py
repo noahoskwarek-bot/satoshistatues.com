@@ -1732,6 +1732,16 @@ def replace_block(text, name, content, comment=('<!-- ', ' -->')):
     return pat.sub(lambda m: f'{m.group(1)}{m.group(2)}\n{content.rstrip()}\n{m.group(1)}{m.group(3)}', text, count=1)
 
 
+# "📍 Nearby Statues" only suggests statues standing at a known spot (see GUIDES.md). Derived, never hand-set:
+# not eligible when status is one of NOT_AT_SPOT_STATUSES or the alert type is one of NOT_AT_SPOT_ALERTS.
+NOT_AT_SPOT_STATUSES = ('Planned', 'Donated', 'Removed')
+NOT_AT_SPOT_ALERTS = ('not_installed', 'location_unknown', 'removed')
+
+
+def nearby_eligible(s):
+    return s['status'] not in NOT_AT_SPOT_STATUSES and ((s.get('alert') or {}).get('type') or '') not in NOT_AT_SPOT_ALERTS
+
+
 def build_index(data, text):
     statues_js = [{k: v for k, v in s.items() if k not in ('slug', 'sources', 'accessSource', 'label', 'visit', 'story')} for s in data['statues']]
     for s, src in zip(statues_js, data['statues']):
@@ -1739,6 +1749,7 @@ def build_index(data, text):
         if has_guide(src):
             s['guide'] = True
         s['photoSubject'] = photo_subject(src)
+        s['nearby_eligible'] = nearby_eligible(src)
     js = '    const statues = ' + json.dumps(statues_js, ensure_ascii=False, indent=2).replace('\n', '\n    ') + ';'
     text = replace_block(text, 'STATUES', js, comment=('// ', ''))
     ldhtml, _ = home_ld(data)

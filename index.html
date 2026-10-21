@@ -969,7 +969,8 @@
         "checkins": 0,
         "label": "Satoshi Statue Budapest",
         "guide": true,
-        "photoSubject": "Photo: Satoshi statue – Budapest"
+        "photoSubject": "Photo: Satoshi statue – Budapest",
+        "nearby_eligible": true
       },
       {
         "name": "Lugano",
@@ -1008,7 +1009,8 @@
         "checkins": 0,
         "label": "Satoshi Statue Lugano",
         "guide": true,
-        "photoSubject": "Photo: Satoshi statue – Lugano"
+        "photoSubject": "Photo: Satoshi statue – Lugano",
+        "nearby_eligible": true
       },
       {
         "name": "El Zonte",
@@ -1036,7 +1038,8 @@
         "checkins": 0,
         "label": "Satoshi Statue El Zonte",
         "guide": true,
-        "photoSubject": "Photo: Satoshi statue – El Zonte"
+        "photoSubject": "Photo: Satoshi statue – El Zonte",
+        "nearby_eligible": true
       },
       {
         "name": "Tokyo",
@@ -1064,7 +1067,8 @@
         "checkins": 0,
         "label": "Satoshi Statue Tokyo",
         "guide": true,
-        "photoSubject": "Photo: Satoshi statue – Tokyo"
+        "photoSubject": "Photo: Satoshi statue – Tokyo",
+        "nearby_eligible": true
       },
       {
         "name": "Hanoi",
@@ -1094,7 +1098,8 @@
         "checkins": 0,
         "label": "Satoshi Statue Hanoi",
         "guide": true,
-        "photoSubject": "Photo: Satoshi statue – Hanoi"
+        "photoSubject": "Photo: Satoshi statue – Hanoi",
+        "nearby_eligible": true
       },
       {
         "name": "Miami",
@@ -1132,7 +1137,8 @@
         "checkins": 0,
         "label": "Satoshi Statue Miami (Valentina Picozzi)",
         "guide": true,
-        "photoSubject": "Photo: Satoshi statue – Miami (Valentina Picozzi)"
+        "photoSubject": "Photo: Satoshi statue – Miami (Valentina Picozzi)",
+        "nearby_eligible": false
       },
       {
         "name": "New York",
@@ -1161,7 +1167,8 @@
         "checkins": 0,
         "label": "Satoshi Statue New York",
         "guide": true,
-        "photoSubject": "Photo: Satoshi statue – New York"
+        "photoSubject": "Photo: Satoshi statue – New York",
+        "nearby_eligible": true
       },
       {
         "name": "Fornelli",
@@ -1189,7 +1196,8 @@
         "checkins": 0,
         "label": "Satoshi Statue Fornelli",
         "guide": true,
-        "photoSubject": "Photo: Satoshi statue – Fornelli"
+        "photoSubject": "Photo: Satoshi statue – Fornelli",
+        "nearby_eligible": true
       },
       {
         "name": "Hong Kong",
@@ -1228,7 +1236,8 @@
         "checkins": 0,
         "label": "Satoshi Statue Hong Kong",
         "guide": true,
-        "photoSubject": "Photo: Satoshi statue – Hong Kong"
+        "photoSubject": "Photo: Satoshi statue – Hong Kong",
+        "nearby_eligible": false
       },
       {
         "name": "Kranj Bitcoin Monument",
@@ -1256,7 +1265,8 @@
         "checkins": 0,
         "label": "Kranj Bitcoin Monument",
         "guide": true,
-        "photoSubject": "Photo: Kranj Bitcoin Monument"
+        "photoSubject": "Photo: Kranj Bitcoin Monument",
+        "nearby_eligible": true
       },
       {
         "name": "Miami Bitcoin Bull",
@@ -1284,7 +1294,8 @@
         "checkins": 0,
         "label": "Miami Bitcoin Bull",
         "guide": true,
-        "photoSubject": "Photo: Miami Bitcoin Bull"
+        "photoSubject": "Photo: Miami Bitcoin Bull",
+        "nearby_eligible": true
       },
       {
         "name": "Vienna",
@@ -1313,7 +1324,8 @@
         "checkins": 0,
         "label": "Satoshi Statue Vienna",
         "guide": true,
-        "photoSubject": "Photo: Satoshi statue – Vienna"
+        "photoSubject": "Photo: Satoshi statue – Vienna",
+        "nearby_eligible": true
       }
     ];
     // BUILD:STATUES:END
@@ -2524,7 +2536,8 @@
       navigator.geolocation.getCurrentPosition(pos => {
         btn.disabled = false; btn.textContent = '📍 Nearby Statues';
         const { latitude, longitude } = pos.coords;
-        const near = statues.map(st => ({ st, d: haversineM(latitude, longitude, st.lat, st.lng) }))
+        // nearby_eligible (from build.py) leaves out statues not standing at a known spot, e.g. not installed or donated
+        const near = statues.filter(st => st.nearby_eligible !== false).map(st => ({ st, d: haversineM(latitude, longitude, st.lat, st.lng) }))
           .sort((a, b) => a.d - b.d).slice(0, 3);
         if (!near.length) { off(); return; }
         out.innerHTML = '<ol>' + near.map(({ st, d }, k) =>

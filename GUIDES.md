@@ -121,3 +121,13 @@ one source; sources are shown under the item.
 `"pin_note": "Pin: unveiling location (20 Apr 2026)"` replaces the "Approximate location" label when the pin marks
 something specific that is not the statue's confirmed current spot (Hong Kong). The header Access line falls back to
 the first paragraph of `visit.hours_access` (with a link to Visiting) when a statue has no short `access` field.
+
+## Nearby Statues eligibility (`nearby_eligible`)
+The home page's "📍 Nearby Statues" button only suggests statues standing at a known spot. build.py derives
+`nearby_eligible` for each statue in the generated statues block (never set it by hand):
+- **not eligible** if `status` is `Planned`, `Donated` or `Removed`, or `alert.type` is `not_installed`,
+  `location_unknown` or `removed` (lists: `NOT_AT_SPOT_STATUSES` / `NOT_AT_SPOT_ALERTS` in build.py);
+- otherwise eligible, including `Damaged` (e.g. Lugano) and approximate pins, since the spot is known.
+Ineligible statues still appear on the map and in the list with their warnings, and can be deep-linked. When a statue is
+installed or gets a permanent site, update its `status`/`alert` and rebuild; eligibility follows automatically.
+
