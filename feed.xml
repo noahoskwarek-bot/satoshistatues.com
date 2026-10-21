@@ -25,28 +25,28 @@
     <published>2026-04-20T00:00:00Z</published>
     <updated>2026-04-20T00:00:00Z</updated>
     <author><name>Valentina Picozzi</name></author>
-    <category term="Installed" />
-    <summary>Hong Kong, China · Web3 Festival (donated to government). Artist: Valentina Picozzi. Status: Installed. Unveiled 20 Apr 2026.</summary>
+    <category term="Donated" />
+    <summary>Hong Kong, China · Hong Kong Convention and Exhibition Centre, Wan Chai (unveiling venue). Artist: Valentina Picozzi. Status: Unveiled &amp; donated (Apr 2026), no permanent site reported. Unveiled 20 Apr 2026.</summary>
   </entry>
   <entry>
     <title>Satoshi Statue New York (New York, USA)</title>
     <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/new-york/" />
     <id>https://www.satoshistatues.com/new-york/</id>
-    <published>2025-12-01T00:00:00Z</published>
-    <updated>2025-12-01T00:00:00Z</updated>
+    <published>2025-12-10T00:00:00Z</published>
+    <updated>2025-12-10T00:00:00Z</updated>
     <author><name>Valentina Picozzi</name></author>
     <category term="Installed" />
-    <summary>New York, USA · New York Stock Exchange (NYSE). Artist: Valentina Picozzi. Status: Installed. Unveiled Dec 2025.</summary>
+    <summary>New York, USA · New York Stock Exchange (NYSE). Artist: Valentina Picozzi. Status: Installed. Unveiled 10 Dec 2025.</summary>
   </entry>
   <entry>
     <title>Satoshi Statue Miami (Valentina Picozzi) (Miami, USA)</title>
     <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/miami-picozzi/" />
     <id>https://www.satoshistatues.com/miami-picozzi/</id>
-    <published>2025-11-12T00:00:00Z</published>
-    <updated>2025-11-12T00:00:00Z</updated>
+    <published>2025-11-11T00:00:00Z</published>
+    <updated>2025-11-11T00:00:00Z</updated>
     <author><name>Valentina Picozzi</name></author>
     <category term="Planned" />
-    <summary>Miami, USA · Miami (waterfront park planned). Artist: Valentina Picozzi. Status: Planned. Unveiled 12 Nov 2025.</summary>
+    <summary>Miami, USA · Miami (waterfront park planned). Artist: Valentina Picozzi. Status: Planned. Unveiled 11 Nov 2025.</summary>
   </entry>
   <entry>
     <title>Satoshi Statue Hanoi (Hanoi, Vietnam)</title>
@@ -69,24 +69,24 @@
     <summary>Fornelli, Italy · Piazza Umberto I. Artist: Mattia Pannoni. Status: Installed. Unveiled 1 May 2025.</summary>
   </entry>
   <entry>
-    <title>Satoshi Statue El Zonte (El Zonte, El Salvador)</title>
-    <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/el-zonte/" />
-    <id>https://www.satoshistatues.com/el-zonte/</id>
-    <published>2025-04-01T00:00:00Z</published>
-    <updated>2025-04-01T00:00:00Z</updated>
-    <author><name>Valentina Picozzi</name></author>
-    <category term="Installed" />
-    <summary>El Zonte, El Salvador · Bitcoin Beach. Artist: Valentina Picozzi. Status: Installed. Unveiled Apr 2025.</summary>
-  </entry>
-  <entry>
     <title>Satoshi Statue Tokyo (Tokyo, Japan)</title>
     <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/tokyo/" />
     <id>https://www.satoshistatues.com/tokyo/</id>
-    <published>2025-04-01T00:00:00Z</published>
-    <updated>2025-04-01T00:00:00Z</updated>
+    <published>2025-04-25T00:00:00Z</published>
+    <updated>2025-04-25T00:00:00Z</updated>
     <author><name>Valentina Picozzi</name></author>
     <category term="Installed" />
-    <summary>Tokyo, Japan · Tokyo Bitcoin Base (Shinjuku). Artist: Valentina Picozzi. Status: Installed. Unveiled Apr 2025.</summary>
+    <summary>Tokyo, Japan · Tokyo Bitcoin Base (Shinjuku). Artist: Valentina Picozzi. Status: Installed. Unveiled 25 Apr 2025.</summary>
+  </entry>
+  <entry>
+    <title>Satoshi Statue El Zonte (El Zonte, El Salvador)</title>
+    <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/el-zonte/" />
+    <id>https://www.satoshistatues.com/el-zonte/</id>
+    <published>2025-02-01T00:00:00Z</published>
+    <updated>2025-02-01T00:00:00Z</updated>
+    <author><name>Valentina Picozzi</name></author>
+    <category term="Installed" />
+    <summary>El Zonte, El Salvador · Bitcoin Beach. Artist: Valentina Picozzi. Status: Installed. Unveiled ~1 Feb 2025 (San Salvador); Apr 2025 (El Zonte).</summary>
   </entry>
   <entry>
     <title>Satoshi Statue Lugano (Lugano, Switzerland)</title>
@@ -102,11 +102,11 @@
     <title>Miami Bitcoin Bull (Miami, USA)</title>
     <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/miami-bull/" />
     <id>https://www.satoshistatues.com/miami-bull/</id>
-    <published>2022-04-01T00:00:00Z</published>
-    <updated>2022-04-01T00:00:00Z</updated>
+    <published>2022-04-06T00:00:00Z</published>
+    <updated>2022-04-06T00:00:00Z</updated>
     <author><name>Furio Tedeschi</name></author>
     <category term="Installed" />
-    <summary>Miami, USA · Miami Dade College Wolfson Campus (NE 1st Ave &amp; NE 4th St). Artist: Furio Tedeschi. Status: Installed. Unveiled Apr 2022.</summary>
+    <summary>Miami, USA · Miami Dade College Wolfson Campus (NE 1st Ave &amp; NE 4th St). Artist: Furio Tedeschi. Status: Installed. Unveiled 6–9 Apr 2022.</summary>
   </entry>
   <entry>
     <title>Satoshi Statue Budapest (Budapest, Hungary)</title>
@@ -122,10 +122,10 @@
     <title>Kranj Bitcoin Monument (Kranj, Slovenia)</title>
     <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/kranj/" />
     <id>https://www.satoshistatues.com/kranj/</id>
-    <published>2018-03-01T00:00:00Z</published>
-    <updated>2018-03-01T00:00:00Z</updated>
-    <author><name>Selman Čorović &amp; Aleksander Frančeškin (credit unverified)</name></author>
+    <published>2018-03-13T00:00:00Z</published>
+    <updated>2018-03-13T00:00:00Z</updated>
+    <author><name>Selman Čorović &amp; Aleksander Frančeškin</name></author>
     <category term="Installed" />
-    <summary>Kranj, Slovenia · City center roundabout. Artist: Selman Čorović &amp; Aleksander Frančeškin (credit unverified). Status: Installed. Unveiled Mar 2018.</summary>
+    <summary>Kranj, Slovenia · City center roundabout. Artist: Selman Čorović &amp; Aleksander Frančeškin. Status: Installed. Unveiled 13 Mar 2018.</summary>
   </entry>
 </feed>

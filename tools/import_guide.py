@@ -69,8 +69,7 @@ def parse(md):
                 del it['note']
         if items:
             visit['nearby'] = items
-        if notes:
-            visit['nearby_note'] = ' '.join(notes)
+        # free-text notes in that section are ignored: the BTC Map list is automatic (merchants.json, see GUIDES.md)
     if 'sources' in out:
         srcs = []
         for p in out['sources'].splitlines():

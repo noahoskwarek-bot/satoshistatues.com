@@ -30,9 +30,7 @@ Plain text. Blank line = new paragraph.
 
 ## Nearby Bitcoin places
 Name | https://btcmap.org/merchant/123 | note
-
-Another place | https://btcmap.org/merchant/456 | note
-(a line without " | URL" is kept as a note, e.g. "None within 1 km on BTC Map (checked 2026-10-21).")
+(optional: only for a note worth adding to a BTC Map place, e.g. opening days. The list itself is automatic, see below.)
 
 ## Sources
 Label | https://example.com/article
@@ -47,8 +45,8 @@ Everything from this heading on is ignored.
 | `## Exact spot`         | `visit.exact_spot`           | plain text |
 | `## Photo tip`          | `visit.photo_tip`            | plain text. Unsourced advice starts with "Generic tip (not from a source):" |
 | `## Hours & access`     | `visit.hours_access`         | plain text. Omit to reuse the statue's existing `access` + `accessSource` |
-| `## Nearby Bitcoin places` lines `Name \| URL \| note` | `visit.nearby` | `[{"name": "Name", "url": "https://btcmap.org/merchant/…", "note": "note"}]` |
-| other text in that section | `visit.nearby_note` | plain text shown under the nearby heading |
+| `## Nearby Bitcoin places` lines `Name \| URL \| note` | `visit.nearby` | optional curated notes `[{"name", "url", "note"}]`. A note for a place in the automatic list is appended to it; other entries appear under "Also noted in our guide" |
+| (no markdown) | `visit.merchants` | `false` hides the automatic list (statue not installed yet) |
 | `## Sources` lines `Label \| URL` | `visit.sources` | `[{"label": "Label", "url": "url"}]` |
 | front matter `updated: YYYY-MM-DD` | `visit.updated` | date; sets the statue page's sitemap `<lastmod>` (max of this and BUILD_DATE) |
 | front matter `public_access: true/false` | `visit.public_access` | optional bool → JSON-LD `publicAccess`, only emitted when `visit.sources` is non-empty |
@@ -84,3 +82,42 @@ Set `"pin_approx": true` on a statue (next to `lat`/`lng`) when the coordinates 
 (third-party listing, or a spot described in words but not pinned). The map card and statue page then show
 "📍 Approximate location". The check-in geofence (150 m) still uses the same coordinates, so after changing
 any `lat`/`lng` run `python3 build.py --worker` and redeploy the leaderboard Worker.
+
+## Nearby places that accept bitcoin (automatic, BTC Map)
+
+The list is no longer hand-written. `python3 tools/fetch_merchants.py` queries the BTC Map API
+(`/v4/places/search/`, about 6 km) for every statue pin, re-checks each distance with haversine (the API radius is a
+loose box), drops ATMs and unnamed entries, and caches counts plus the nearest 5 places in `merchants.json`.
+It only rewrites the file when a list changed, and keeps a statue's cached entry if its fetch fails. `build.py`
+reads the cache (builds stay offline) and renders, inside Visiting:
+
+- up to 5 places within 1 km, with type, distance and BTC Map "last verified" month;
+- a count line ("183 places within 1 km on BTC Map") when more than 5 are within 1 km;
+- if none within 1 km: the nearest 3 within 5 km, with distances;
+- if none within 5 km: "None listed within 5 km on BTC Map yet" with links to the BTC Map map at the pin and to
+  https://btcmap.org/add-location.
+
+A weekly GitHub Actions workflow (`.github/workflows/weekly-merchants.yml`) refreshes the cache, rebuilds text pages
+with `python3 build.py --no-bin` and commits only when something changed. After moving a pin, re-run the fetch.
+
+## The story (`story`)
+
+Optional list on a statue, rendered as "📖 The story" between About and Visiting:
+
+```json
+"story": [
+  {"label": "Artist", "text": "Valentina Picozzi (Satoshigallery).", "sources": [{"label": "Forbes", "url": "https://…"}]},
+  {"label": "Commissioned by", "text": "… Who paid has not been stated.", "reported": true, "sources": [ … ]}
+]
+```
+
+Use the labels Artist(s), Unveiled, Commissioned by, What the design means, Materials, Series, History (or a short
+custom one such as "Where it is now"). Only sourced facts; leave unknowns out. Set `"reported": true` on items that are
+only partly confirmed (shown with a "Reported" tag) and say in the text what is unconfirmed. Every item needs at least
+one source; sources are shown under the item.
+
+## Pin notes (`pin_note`)
+
+`"pin_note": "Pin: unveiling location (20 Apr 2026)"` replaces the "Approximate location" label when the pin marks
+something specific that is not the statue's confirmed current spot (Hong Kong). The header Access line falls back to
+the first paragraph of `visit.hours_access` (with a link to Visiting) when a statue has no short `access` field.

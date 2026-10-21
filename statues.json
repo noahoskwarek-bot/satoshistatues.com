@@ -55,7 +55,6 @@
         "exact_spot": "In Graphisoft Park, Záhony u. 7, 1031 Budapest (District III), per the official site. Köztérkép, the Hungarian public-art register, places it on the green area in front of the Microsoft building, facing the Heracles (Herkules) statue. In OpenStreetMap, the Herkules statue is about 15 m away and the Microsoft office about 40 m. Pin: 47.56072, 19.05438 (OpenStreetMap node 9843217531).\n\nIt is not in City Park (Városliget), despite what some listings say.",
         "photo_tip": "This isn't a see-through design. The face is a polished bronze-aluminium composite, so every visitor can see their own face in it (official site).\n\nGeneric tip (not from a source): shoot close so your reflection sits inside the hood, and keep the sun behind you to avoid flare.",
         "hours_access": "Outdoors. The official site says it can be visited 24/7, free of charge.",
-        "nearby_note": "None within 1 km on BTC Map (checked 2026-10-21).",
         "sources": [
           {
             "label": "Statue of Satoshi (official site)",
@@ -74,13 +73,79 @@
             "url": "https://www.openstreetmap.org/node/9843217531"
           },
           {
-            "label": "BTC Map API (fetched 2026-10-21)",
+            "label": "BTC Map API",
             "url": "https://api.btcmap.org/v4/places/search/"
           }
         ],
         "public_access": true,
         "free": true
-      }
+      },
+      "story": [
+        {
+          "label": "Artists",
+          "text": "Réka Gergely and Tamás Gilly, Hungarian sculptors.",
+          "sources": [
+            {
+              "label": "Statue of Satoshi (official site)",
+              "url": "https://www.statueofsatoshi.com/"
+            }
+          ]
+        },
+        {
+          "label": "Unveiled",
+          "text": "16 Sep 2021, in Graphisoft Park, Budapest.",
+          "sources": [
+            {
+              "label": "Statue of Satoshi (official site)",
+              "url": "https://www.statueofsatoshi.com/"
+            }
+          ]
+        },
+        {
+          "label": "Commissioned by",
+          "text": "Founders from the Hungarian crypto community: András Györfi (Kripto Akadémia, who came up with the idea), Gabi Debreczeni-Raskó and Barnabás Debreczeni (MrCoin), Imre Szilágyi (Blockchain Budapest) and Kornél Kalocsai (Blockchain Hungary Association). It was community-funded.",
+          "sources": [
+            {
+              "label": "Statue of Satoshi (official site)",
+              "url": "https://www.statueofsatoshi.com/"
+            }
+          ]
+        },
+        {
+          "label": "What the design means",
+          "text": "A generic human figure in a hoodie with the Bitcoin logo on the chest, because Satoshi's gender, race, age and height are unknown. The face is reflective, so every visitor sees themselves in it: \"We are all Satoshi\".",
+          "sources": [
+            {
+              "label": "Statue of Satoshi (official site)",
+              "url": "https://www.statueofsatoshi.com/"
+            }
+          ]
+        },
+        {
+          "label": "Materials",
+          "text": "Bronze, with a face of bronze-aluminium composite.",
+          "sources": [
+            {
+              "label": "Statue of Satoshi (official site)",
+              "url": "https://www.statueofsatoshi.com/"
+            }
+          ]
+        },
+        {
+          "label": "Notable",
+          "text": "Widely described as the world's first statue of Satoshi Nakamoto.",
+          "sources": [
+            {
+              "label": "Statue of Satoshi (official site)",
+              "url": "https://www.statueofsatoshi.com/"
+            },
+            {
+              "label": "Trending Topics",
+              "url": "https://www.trendingtopics.eu/vienna-unveils-a-satoshi-statue-in-tribute-to-bitcoin/"
+            }
+          ]
+        }
+      ]
     },
     {
       "name": "Lugano",
@@ -157,33 +222,6 @@
         "exact_spot": "In Parco Ciani, Lugano's lakefront park. The statue was first installed there in Oct 2024 (pin 46.00441, 8.95659, OpenStreetMap node 12288711744), then moved to the Foce (Cassarate river mouth), where it was thrown into the lake on 1–2 Aug 2025. On 24 Oct 2025 it was re-inaugurated in the central area of Parco Ciani, near the \"Dying Socrates\" sculpture (Corriere del Ticino; Il Giornale del Ticino). That exact spot may differ from the 2024 pin and is unverified.",
         "photo_tip": "It's a Satoshigallery design, so the figure reads from the side and nearly vanishes from the front. After the April 2026 damage, its current look is unknown.\n\nGeneric tip (not from a source): if it's on display, the lake makes a clean background for a head-on shot.",
         "hours_access": "Current status unconfirmed. It was found seriously damaged on 19 Apr 2026 (RSI; Ticinonline), and an OpenStreetMap mapper noted it was no longer there as of 28 Jul 2026. Parco Ciani itself is open daily from 6:30 to 23:30 (March–October) and 6:30 to 21:00 (November–February), per the City of Lugano.",
-        "nearby": [
-          {
-            "name": "Caffè Pascucci",
-            "url": "https://btcmap.org/merchant/3635",
-            "note": "Café at Riva Albertolli 5, about 160 m."
-          },
-          {
-            "name": "Il Cannolo Sua Eccellenza",
-            "url": "https://btcmap.org/merchant/2036",
-            "note": "Café/pastry at Via Pasquale Lucchini 1, about 160 m."
-          },
-          {
-            "name": "Ristorante Vistalago",
-            "url": "https://btcmap.org/merchant/3633",
-            "note": "Restaurant at Riva Albertolli 5, about 170 m."
-          },
-          {
-            "name": "Pestalozzi",
-            "url": "https://btcmap.org/merchant/11270",
-            "note": "Hotel at Piazza Indipendenza 9, about 190 m."
-          },
-          {
-            "name": "Casino Lugano",
-            "url": "https://btcmap.org/merchant/1033",
-            "note": "Casino, about 120 m."
-          }
-        ],
         "sources": [
           {
             "label": "City of Lugano: Parco Ciani",
@@ -210,11 +248,80 @@
             "url": "https://www.openstreetmap.org/node/12288711744/history"
           },
           {
-            "label": "BTC Map API (fetched 2026-10-21)",
+            "label": "BTC Map API",
             "url": "https://api.btcmap.org/v4/places/search/"
           }
         ]
-      }
+      },
+      "story": [
+        {
+          "label": "Artist",
+          "text": "Valentina Picozzi (Satoshigallery).",
+          "sources": [
+            {
+              "label": "Tether / Plan ₿ (Oct 2024)",
+              "url": "https://tether.io/news/plan-b-initiative-unveils-satoshi-nakamoto-statue-at-3rd-annual-plan-forum-in-lugano/"
+            }
+          ]
+        },
+        {
+          "label": "Unveiled",
+          "text": "25 Oct 2024, in front of Villa Ciani at the 3rd Plan ₿ Forum. Re-inaugurated on 24 Oct 2025 after repair.",
+          "sources": [
+            {
+              "label": "Tether / Plan ₿ (Oct 2024)",
+              "url": "https://tether.io/news/plan-b-initiative-unveils-satoshi-nakamoto-statue-at-3rd-annual-plan-forum-in-lugano/"
+            },
+            {
+              "label": "Corriere del Ticino (24 Oct 2025)",
+              "url": "https://www.cdt.ch/news/lugano-ha-di-nuovo-la-sua-statua-di-satoshi-nakamoto-409350"
+            }
+          ]
+        },
+        {
+          "label": "Commissioned by",
+          "text": "Unveiled by Plan ₿, the joint initiative of Tether and the City of Lugano. Who paid for the piece has not been stated.",
+          "reported": true,
+          "sources": [
+            {
+              "label": "Tether / Plan ₿ (Oct 2024)",
+              "url": "https://tether.io/news/plan-b-initiative-unveils-satoshi-nakamoto-statue-at-3rd-annual-plan-forum-in-lugano/"
+            }
+          ]
+        },
+        {
+          "label": "What the design means",
+          "text": "It is designed to disappear as you change your viewpoint, \"symbolizing Satoshi's retreat from the public eye after laying the foundation of a revolutionary financial system\". It is the first statue of the 21 Nodes series.",
+          "sources": [
+            {
+              "label": "Tether / Plan ₿ (Oct 2024)",
+              "url": "https://tether.io/news/plan-b-initiative-unveils-satoshi-nakamoto-statue-at-3rd-annual-plan-forum-in-lugano/"
+            },
+            {
+              "label": "Bitcoin Austria: Satoshi statue page",
+              "url": "https://bitcoin-austria.at/satoshi-statue/"
+            }
+          ]
+        },
+        {
+          "label": "History",
+          "text": "After the unveiling it was moved to the Foce, at the mouth of the Cassarate river. Around 2 a.m. on Saturday 2 Aug 2025 a group of youths threw it into the lake; divers recovered it on 3 Aug. It was repaired and re-inaugurated on 24 Oct 2025 after a petition with about 1,300 signatures led by Luca Esposito (Satoshi Spritz). It was vandalized again on 19 Apr 2026.",
+          "sources": [
+            {
+              "label": "RSI (Aug 2025)",
+              "url": "https://www.rsi.ch/info/ticino-grigioni-e-insubria/La-statua-di-Satoshi-Nakamoto-ripescata-dal-lago--3016806.html"
+            },
+            {
+              "label": "Corriere del Ticino (24 Oct 2025)",
+              "url": "https://www.cdt.ch/news/lugano-ha-di-nuovo-la-sua-statua-di-satoshi-nakamoto-409350"
+            },
+            {
+              "label": "RSI (19 Apr 2026)",
+              "url": "https://www.rsi.ch/info/ticino-grigioni-e-insubria/Vandalizzata-ancora-la-statua-di-Nakamoto--3678644.html"
+            }
+          ]
+        }
+      ]
     },
     {
       "name": "El Zonte",
@@ -228,12 +335,12 @@
       "artistUrl": "https://satoshigallery.com",
       "type": "Disappearing metal",
       "status": "Installed",
-      "note": "Located in the famous Bitcoin Beach community that helped inspire El Salvador’s Bitcoin adoption. It was first presented at Museo Marte in San Salvador in Feb 2025 and arrived at Bitcoin Beach in Apr 2025, as part of a new public space opened by the Ministry of Public Works.",
+      "note": "Located in the famous Bitcoin Beach community that helped inspire El Salvador’s Bitcoin adoption. It was first shown at Museo MARTE in San Salvador around 1 Feb 2025, then moved to El Zonte in April 2025 as part of a new public space opened by the Ministry of Public Works.",
       "img": "https://pbs.twimg.com/media/GobpChUWAAEiJU7.jpg",
       "imgW": 1043,
       "imgH": 1200,
       "page": "el-zonte",
-      "unveiled": "Apr 2025",
+      "unveiled": "~1 Feb 2025 (San Salvador); Apr 2025 (El Zonte)",
       "series21": true,
       "sources": [
         {
@@ -264,33 +371,6 @@
         "exact_spot": "In the public beachfront space at Playa El Zonte (Bitcoin Beach), La Libertad, which El Salvador's Ministry of Public Works opened in April 2025. Satoshigallery's own map pin is 13.4954011, -89.4424197. The Bitcoin Beach Office is about 85 m away (BTC Map/OpenStreetMap).",
         "photo_tip": "It's a Satoshigallery design, so the figure is visible from the side and nearly disappears from the front. The best angle at this site is unverified.\n\nGeneric tip (not from a source): with the sea behind it, shooting head-on makes the see-through effect obvious, and late-afternoon light is softer.",
         "hours_access": "Outdoors in a public space with beach showers, water stations and a calisthenics area (El Salvador in English, citing the Ministry of Public Works). No hours or fees are published, so treat both as unverified.",
-        "nearby": [
-          {
-            "name": "Point Break Café - El Zonte",
-            "url": "https://btcmap.org/merchant/368",
-            "note": "Café, about 75 m."
-          },
-          {
-            "name": "Vista Mar Zonte",
-            "url": "https://btcmap.org/merchant/5094",
-            "note": "Restaurant, about 70 m."
-          },
-          {
-            "name": "Bitcoin Beach Office",
-            "url": "https://btcmap.org/merchant/28739",
-            "note": "The Bitcoin Beach community office, about 85 m."
-          },
-          {
-            "name": "Olas Permanentes",
-            "url": "https://btcmap.org/merchant/5777",
-            "note": "Restaurant, about 110 m."
-          },
-          {
-            "name": "Pupuseria Mama Blanca",
-            "url": "https://btcmap.org/merchant/579",
-            "note": "Pupusas, about 125 m."
-          }
-        ],
         "sources": [
           {
             "label": "El Salvador in English (13 Apr 2025)",
@@ -309,12 +389,81 @@
             "url": "https://bitcoin-austria.at/satoshi-statue/"
           },
           {
-            "label": "BTC Map API (fetched 2026-10-21)",
+            "label": "BTC Map API",
             "url": "https://api.btcmap.org/v4/places/search/"
           }
         ],
         "public_access": true
-      }
+      },
+      "story": [
+        {
+          "label": "Artist",
+          "text": "Valentina Picozzi (Satoshigallery).",
+          "sources": [
+            {
+              "label": "Journal du Coin (Feb 2025)",
+              "url": "https://journalducoin.com/bitcoin/satoshi-nakamoto-statue-bitcoin-salvador/"
+            }
+          ]
+        },
+        {
+          "label": "Unveiled",
+          "text": "First presented at Museo MARTE in San Salvador around 1 Feb 2025 (Satoshigallery post of 1 Feb, tied to the Plan ₿ Forum El Salvador on 30–31 Jan 2025). It then moved to Bitcoin Beach, opening with a new public space on 12–13 Apr 2025.",
+          "sources": [
+            {
+              "label": "Journal du Coin (Feb 2025)",
+              "url": "https://journalducoin.com/bitcoin/satoshi-nakamoto-statue-bitcoin-salvador/"
+            },
+            {
+              "label": "ChainCatcher",
+              "url": "https://www.chaincatcher.com/en/article/2165920"
+            },
+            {
+              "label": "El Salvador in English (13 Apr 2025)",
+              "url": "https://elsalvadorinenglish.com/2025/04/13/satoshi-rises-in-el-zonte-new-public-space-in-el-salvador-celebrating-sound-money-and-freedom/"
+            }
+          ]
+        },
+        {
+          "label": "Commissioned by",
+          "text": "ChainCatcher reports that Tether and Plan ₿ unveiled it as the series' second statue, and it was installed as part of a public space built by El Salvador's Ministry of Public Works. Who paid for it has not been confirmed.",
+          "reported": true,
+          "sources": [
+            {
+              "label": "ChainCatcher",
+              "url": "https://www.chaincatcher.com/en/article/2165920"
+            },
+            {
+              "label": "El Salvador in English (13 Apr 2025)",
+              "url": "https://elsalvadorinenglish.com/2025/04/13/satoshi-rises-in-el-zonte-new-public-space-in-el-salvador-celebrating-sound-money-and-freedom/"
+            }
+          ]
+        },
+        {
+          "label": "What the design means",
+          "text": "Satoshigallery says it gives the viewer \"this feeling of disappearance… the inventor is between the lines\". The seated figure with a computer on its knees honours all developers, and standing behind it, the viewer \"becomes Satoshi\". It is engraved \"We are all Satoshi\" and pays tribute to El Zonte's role as Bitcoin Beach.",
+          "sources": [
+            {
+              "label": "Journal du Coin (Feb 2025)",
+              "url": "https://journalducoin.com/bitcoin/satoshi-nakamoto-statue-bitcoin-salvador/"
+            },
+            {
+              "label": "El Salvador in English (13 Apr 2025)",
+              "url": "https://elsalvadorinenglish.com/2025/04/13/satoshi-rises-in-el-zonte-new-public-space-in-el-salvador-celebrating-sound-money-and-freedom/"
+            }
+          ]
+        },
+        {
+          "label": "Series",
+          "text": "2nd statue of the 21 Nodes series.",
+          "sources": [
+            {
+              "label": "ChainCatcher",
+              "url": "https://www.chaincatcher.com/en/article/2165920"
+            }
+          ]
+        }
+      ]
     },
     {
       "name": "Tokyo",
@@ -328,12 +477,12 @@
       "artistUrl": "https://satoshigallery.com",
       "type": "Disappearing metal",
       "status": "Installed",
-      "note": "At Tokyo Bitcoin Base near Yotsuya Station.",
+      "note": "Outside Tokyo Bitcoin Base near Yotsuya Station. Unveiled on 25 Apr 2025 at the Base’s grand opening.",
       "img": "https://pbs.twimg.com/media/GpYP-xyWUAAHV0D.jpg",
       "imgW": 1200,
       "imgH": 887,
       "page": "tokyo",
-      "unveiled": "Apr 2025",
+      "unveiled": "25 Apr 2025",
       "series21": true,
       "sources": [
         {
@@ -366,7 +515,7 @@
           {
             "name": "Around Foodtruck",
             "url": "https://btcmap.org/merchant/35732",
-            "note": "Food truck listed at the Base. It also appears at other spots nearby, so its location varies."
+            "note": "Also appears at other spots nearby, so its location varies."
           }
         ],
         "sources": [
@@ -387,11 +536,69 @@
             "url": "https://www.openstreetmap.org/node/12599810937"
           },
           {
-            "label": "BTC Map API (fetched 2026-10-21)",
+            "label": "BTC Map API",
             "url": "https://api.btcmap.org/v4/places/search/"
           }
         ]
-      }
+      },
+      "story": [
+        {
+          "label": "Artist",
+          "text": "Valentina Picozzi (Satoshigallery).",
+          "sources": [
+            {
+              "label": "Bitcoin Austria: Satoshi statue page",
+              "url": "https://bitcoin-austria.at/satoshi-statue/"
+            }
+          ]
+        },
+        {
+          "label": "Unveiled",
+          "text": "25 Apr 2025, at the grand opening of Tokyo Bitcoin Base (about 100 guests).",
+          "sources": [
+            {
+              "label": "Forbes (8 Sep 2025)",
+              "url": "https://www.forbes.com/sites/frankcorva/2025/09/08/bitcoin-finds-a-home-in-the-heart-of-tokyo/"
+            }
+          ]
+        },
+        {
+          "label": "Commissioned by",
+          "text": "Tokyo Bitcoin Base, which was opened by Fulgur Ventures. Who bought the statue has not been stated.",
+          "reported": true,
+          "sources": [
+            {
+              "label": "Forbes (8 Sep 2025)",
+              "url": "https://www.forbes.com/sites/frankcorva/2025/09/08/bitcoin-finds-a-home-in-the-heart-of-tokyo/"
+            }
+          ]
+        },
+        {
+          "label": "What the design means",
+          "text": "Seated hacker with a laptop on his lap, built from 61 thin mirror-polished stainless-steel profiles with gaps between them (a technique taken from sculptor Julian Voss-Andreae), on a Corten-steel base. It is clear from the side and almost invisible head-on, standing for Satoshi's anonymity and retreat from public life. Someone standing behind it is reflected in the face, so \"We are all Satoshi\". The \"cliché\" hacker deliberately honours all the developers who built Bitcoin. It was unveiled alongside the Base's mission to \"make Japan a great Bitcoin nation again\".",
+          "sources": [
+            {
+              "label": "Bitcoin Austria: Vienna unveiling",
+              "url": "https://bitcoin-austria.at/beitraege/satoshi-statue-enthuellung-wien/"
+            },
+            {
+              "label": "Forbes (8 Sep 2025)",
+              "url": "https://www.forbes.com/sites/frankcorva/2025/09/08/bitcoin-finds-a-home-in-the-heart-of-tokyo/"
+            }
+          ]
+        },
+        {
+          "label": "Series",
+          "text": "Reported as the 3rd of the series: Forbes called it \"currently just one of three in the world\" at the opening.",
+          "reported": true,
+          "sources": [
+            {
+              "label": "Forbes (8 Sep 2025)",
+              "url": "https://www.forbes.com/sites/frankcorva/2025/09/08/bitcoin-finds-a-home-in-the-heart-of-tokyo/"
+            }
+          ]
+        }
+      ]
     },
     {
       "name": "Hanoi",
@@ -439,7 +646,6 @@
         "exact_spot": "Indoors in the Blockchain Gallery at 1Matrix headquarters in Times City (Viet Nam News). 1Matrix gives its address as 16th floor, Century building, Times City, 458 Minh Khai, Hanoi. Whether the gallery is on that same floor is unverified. A third-party listing pins the Century building at about 20.99732, 105.86837 (unverified).",
         "photo_tip": "It's a Satoshigallery design: seen from an angle, Satoshi's profile is visible, and from the front it fades to near transparency (Viet Nam News). Take both angles.\n\nGeneric tip (not from a source): it's indoors, so turn off your flash to avoid glare on the metal slats.",
         "hours_access": "Indoors. In Sep 2025 it was reported open to the public every Saturday (Viet Nam News; VNA), with no hours given. Confirm with 1Matrix before you go, because this hasn't been re-verified since.",
-        "nearby_note": "None within 1 km on BTC Map (checked 2026-10-21).",
         "sources": [
           {
             "label": "Viet Nam News (10 Sep 2025)",
@@ -454,12 +660,65 @@
             "url": "https://erp.1matrix.com/contactus"
           },
           {
-            "label": "BTC Map API (fetched 2026-10-21)",
+            "label": "BTC Map API",
             "url": "https://api.btcmap.org/v4/places/search/"
           }
         ],
         "public_access": true
-      }
+      },
+      "story": [
+        {
+          "label": "Artist",
+          "text": "Valentina Picozzi (Satoshigallery). The Vietnam Blockchain and Digital Asset Association says she spent 21 months completing the piece.",
+          "sources": [
+            {
+              "label": "Viet Nam News (10 Sep 2025)",
+              "url": "https://vietnamnews.vn/economy/1724928/statue-of-bitcoin-creator-satoshi-unveiled-in-ha-noi.html"
+            }
+          ]
+        },
+        {
+          "label": "Unveiled",
+          "text": "9 Sep 2025.",
+          "sources": [
+            {
+              "label": "Viet Nam News (10 Sep 2025)",
+              "url": "https://vietnamnews.vn/economy/1724928/statue-of-bitcoin-creator-satoshi-unveiled-in-ha-noi.html"
+            }
+          ]
+        },
+        {
+          "label": "Commissioned by",
+          "text": "Brought to Vietnam by the Vietnam Blockchain and Digital Asset Association (VBA; chairman Phan Đức Trung) and displayed at 1Matrix headquarters.",
+          "sources": [
+            {
+              "label": "Viet Nam News (10 Sep 2025)",
+              "url": "https://vietnamnews.vn/economy/1724928/statue-of-bitcoin-creator-satoshi-unveiled-in-ha-noi.html"
+            }
+          ]
+        },
+        {
+          "label": "What the design means",
+          "text": "It fades from the front, \"symbolising Nakamoto's retreat after laying the foundation for a decentralised system\". The VBA says it \"represents the culture of decentralisation\".",
+          "sources": [
+            {
+              "label": "Viet Nam News (10 Sep 2025)",
+              "url": "https://vietnamnews.vn/economy/1724928/statue-of-bitcoin-creator-satoshi-unveiled-in-ha-noi.html"
+            }
+          ]
+        },
+        {
+          "label": "Series",
+          "text": "Reported as the 4th Picozzi statue. Viet Nam News calls it the \"fifth such artwork\" worldwide, counting Budapest.",
+          "reported": true,
+          "sources": [
+            {
+              "label": "Viet Nam News (10 Sep 2025)",
+              "url": "https://vietnamnews.vn/economy/1724928/statue-of-bitcoin-creator-satoshi-unveiled-in-ha-noi.html"
+            }
+          ]
+        }
+      ]
     },
     {
       "name": "Miami",
@@ -473,12 +732,12 @@
       "artistUrl": "https://satoshigallery.com",
       "type": "Disappearing metal",
       "status": "Planned",
-      "note": "Unveiled with support from Cantor Fitzgerald and Michael Saylor. Permanent waterfront park location planned.",
+      "note": "Unveiled on 11 Nov 2025 in Miami Beach, brought to Miami by Cantor Fitzgerald’s Brandon and Kyle Lutnick; Michael Saylor attended and helped unveil it. A permanent waterfront park location was announced but has not been named, so the map pin is approximate.",
       "img": "https://pbs.twimg.com/media/G5lYbhVWgAI3fLC.jpg",
       "imgW": 1200,
       "imgH": 900,
       "page": "miami-picozzi",
-      "unveiled": "12 Nov 2025",
+      "unveiled": "11 Nov 2025",
       "series21": true,
       "access": "Not yet installed at a permanent public site. A waterfront park location was announced but has not been confirmed.",
       "accessSource": {
@@ -491,11 +750,104 @@
           "url": "https://en.cryptonomist.ch/2025/11/12/satoshi-statue-miami/"
         },
         {
+          "label": "U.Today via TradingView",
+          "url": "https://www.tradingview.com/news/u_today:d0b8f470f094b:0-bitcoin-creator-satoshi-nakamoto-arrives-in-miami-new-statue-revealed/"
+        },
+        {
           "label": "Miami New Times",
           "url": "https://www.miaminewtimes.com/news/francis-suarez-announces-new-weird-crypto-statue-for-miami-park-40501787/"
         }
       ],
-      "label": "Satoshi Statue Miami (Valentina Picozzi)"
+      "label": "Satoshi Statue Miami (Valentina Picozzi)",
+      "story": [
+        {
+          "label": "Artist",
+          "text": "Valentina Picozzi (Satoshigallery).",
+          "sources": [
+            {
+              "label": "Miami New Times (12 Nov 2025)",
+              "url": "https://www.miaminewtimes.com/news/francis-suarez-announces-new-weird-crypto-statue-for-miami-park-40501787/"
+            }
+          ]
+        },
+        {
+          "label": "Unveiled",
+          "text": "Tuesday 11 Nov 2025, at Cantor Fitzgerald's Crypto, AI & Energy Infrastructure Conference in Miami Beach. Reported: Miami New Times, published on Wednesday 12 Nov, says it was unveiled \"on Tuesday\".",
+          "reported": true,
+          "sources": [
+            {
+              "label": "Miami New Times (12 Nov 2025)",
+              "url": "https://www.miaminewtimes.com/news/francis-suarez-announces-new-weird-crypto-statue-for-miami-park-40501787/"
+            }
+          ]
+        },
+        {
+          "label": "Commissioned by",
+          "text": "Brought to Miami by Cantor Fitzgerald's Brandon and Kyle Lutnick (\"So proud to bring this powerful sculpture to the city of Miami\"). Michael Saylor attended and helped unveil it, and Tether's Paolo Ardoino attended. Funding details have not been reported.",
+          "reported": true,
+          "sources": [
+            {
+              "label": "Miami New Times (12 Nov 2025)",
+              "url": "https://www.miaminewtimes.com/news/francis-suarez-announces-new-weird-crypto-statue-for-miami-park-40501787/"
+            },
+            {
+              "label": "U.Today via TradingView",
+              "url": "https://www.tradingview.com/news/u_today:d0b8f470f094b:0-bitcoin-creator-satoshi-nakamoto-arrives-in-miami-new-statue-revealed/"
+            },
+            {
+              "label": "The Cryptonomist (12 Nov 2025)",
+              "url": "https://en.cryptonomist.ch/2025/11/12/satoshi-statue-miami/"
+            }
+          ]
+        },
+        {
+          "label": "What the design means",
+          "text": "A metal hacker sitting cross-legged with a laptop that \"aims to give the viewer a sense of disappearance… when the observer places themselves behind the statue, they become Satoshi\".",
+          "sources": [
+            {
+              "label": "Miami New Times (12 Nov 2025)",
+              "url": "https://www.miaminewtimes.com/news/francis-suarez-announces-new-weird-crypto-statue-for-miami-park-40501787/"
+            }
+          ]
+        },
+        {
+          "label": "Series",
+          "text": "5th of the series (The Cryptonomist: \"fifth installation\").",
+          "sources": [
+            {
+              "label": "The Cryptonomist (12 Nov 2025)",
+              "url": "https://en.cryptonomist.ch/2025/11/12/satoshi-statue-miami/"
+            }
+          ]
+        },
+        {
+          "label": "Where it will go",
+          "text": "Mayor Francis Suarez said it will be permanently displayed in \"one of our greatest parks by the water\". No park has been named, and we found no report of its installation.",
+          "sources": [
+            {
+              "label": "Miami New Times (12 Nov 2025)",
+              "url": "https://www.miaminewtimes.com/news/francis-suarez-announces-new-weird-crypto-statue-for-miami-park-40501787/"
+            }
+          ]
+        }
+      ],
+      "pin_approx": true,
+      "visit": {
+        "updated": "2026-10-21",
+        "exact_spot": "Not installed yet. Miami Mayor Francis Suarez said it will be permanently displayed in \"one of our greatest parks by the water\", but no park has been named, and we found no report of its installation (searched Oct 2026). The map pin is a generic Miami city-centre point, not a statue site.",
+        "hours_access": "Not yet installed at a public site, so there is nothing to visit yet. Directions will be added once a permanent site is announced.",
+        "merchants": false,
+        "sources": [
+          {
+            "label": "Miami New Times (12 Nov 2025)",
+            "url": "https://www.miaminewtimes.com/news/francis-suarez-announces-new-weird-crypto-statue-for-miami-park-40501787/"
+          },
+          {
+            "label": "The Cryptonomist (12 Nov 2025)",
+            "url": "https://en.cryptonomist.ch/2025/11/12/satoshi-statue-miami/"
+          }
+        ]
+      }
     },
     {
       "name": "New York",
@@ -509,29 +861,139 @@
       "artistUrl": "https://satoshigallery.com",
       "type": "Disappearing metal (6th of series)",
       "status": "Installed",
-      "note": "Installed at the New York Stock Exchange by Twenty One Capital.",
+      "note": "Installed at the New York Stock Exchange by Twenty One Capital and announced by the NYSE on 10 Dec 2025. It is indoors and not open to the general public.",
       "img": "satoshi-nyse.webp",
       "imgW": 800,
       "imgH": 1199,
       "page": "new-york",
-      "unveiled": "Dec 2025",
+      "unveiled": "10 Dec 2025",
       "series21": true,
-      "access": "Indoors at the New York Stock Exchange (NYSE museum). The NYSE building is not open to the general public, so the statue is not freely accessible.",
+      "access": "Indoors at the New York Stock Exchange. NYSE tours are no longer offered to the general public, so the statue is not freely accessible.",
       "accessSource": {
-        "label": "Trending Topics",
-        "url": "https://www.trendingtopics.eu/vienna-unveils-a-satoshi-statue-in-tribute-to-bitcoin/"
+        "label": "NYC Tourism: NYSE",
+        "url": "https://www.nyctourism.com/attractions-tours/new-york-stock-exchange-financial-district/"
       },
       "sources": [
         {
-          "label": "Bitcoin Austria",
-          "url": "https://bitcoin-austria.at/beitraege/satoshi-statue-enthuellung-wien/"
+          "label": "Cointelegraph (Dec 2025)",
+          "url": "https://cointelegraph.com/news/satoshi-nakamoto-statue-nyse-bitcoin"
         },
         {
-          "label": "Trending Topics",
-          "url": "https://www.trendingtopics.eu/vienna-unveils-a-satoshi-statue-in-tribute-to-bitcoin/"
+          "label": "The Crypto Times (11 Dec 2025)",
+          "url": "https://www.cryptotimes.io/2025/12/11/twenty-one-capital-installs-satoshi-statue-at-nyse/"
         }
       ],
-      "label": "Satoshi Statue New York"
+      "label": "Satoshi Statue New York",
+      "story": [
+        {
+          "label": "Artist",
+          "text": "Valentina Picozzi (Satoshigallery).",
+          "sources": [
+            {
+              "label": "Cointelegraph (Dec 2025)",
+              "url": "https://cointelegraph.com/news/satoshi-nakamoto-statue-nyse-bitcoin"
+            }
+          ]
+        },
+        {
+          "label": "Unveiled",
+          "text": "10 Dec 2025, announced by the NYSE on X. The date matches the anniversary of Satoshi launching the Bitcoin mailing list on 10 Dec 2008.",
+          "sources": [
+            {
+              "label": "The Crypto Times (11 Dec 2025)",
+              "url": "https://www.cryptotimes.io/2025/12/11/twenty-one-capital-installs-satoshi-statue-at-nyse/"
+            },
+            {
+              "label": "Cointelegraph (Dec 2025)",
+              "url": "https://cointelegraph.com/news/satoshi-nakamoto-statue-nyse-bitcoin"
+            }
+          ]
+        },
+        {
+          "label": "Commissioned by",
+          "text": "Twenty One Capital (XXI, led by Jack Mallers), which had just listed on the NYSE.",
+          "sources": [
+            {
+              "label": "Cointelegraph (Dec 2025)",
+              "url": "https://cointelegraph.com/news/satoshi-nakamoto-statue-nyse-bitcoin"
+            },
+            {
+              "label": "The Crypto Times (11 Dec 2025)",
+              "url": "https://www.cryptotimes.io/2025/12/11/twenty-one-capital-installs-satoshi-statue-at-nyse/"
+            }
+          ]
+        },
+        {
+          "label": "What the design means",
+          "text": "The NYSE called it \"shared ground between emerging systems and established institutions… an artistic reflection on how new ideas become part of shared history\". It uses the same disappearing-hacker design as the rest of the series.",
+          "sources": [
+            {
+              "label": "The Crypto Times (11 Dec 2025)",
+              "url": "https://www.cryptotimes.io/2025/12/11/twenty-one-capital-installs-satoshi-statue-at-nyse/"
+            }
+          ]
+        },
+        {
+          "label": "Series",
+          "text": "6th of the series. Picozzi: \"The 6th/21 statues of Satoshi Nakamoto found its home in the NYSE\".",
+          "sources": [
+            {
+              "label": "Cointelegraph (Dec 2025)",
+              "url": "https://cointelegraph.com/news/satoshi-nakamoto-statue-nyse-bitcoin"
+            }
+          ]
+        }
+      ],
+      "visit": {
+        "updated": "2026-10-21",
+        "getting_there": "The New York Stock Exchange is at 11 Wall St; its columned front faces Broad St. By subway, Broad St (J/Z) is closest. From Wall St (4/5), exit at Wall St and Broadway and walk east; from Wall St (2/3), exit at Wall St and William St and walk west (National Park Service; NYC Tourism).\n\nParking: street parking is extremely limited, and vehicle traffic is restricted around the exchange.",
+        "exact_spot": "Inside the NYSE building. Bitcoin Austria and Trending Topics place it in the NYSE museum; the exact room is unconfirmed.",
+        "photo_tip": "You can't photograph the statue itself without an invitation. The public shot is the NYSE façade on Broad Street; a tour-guide site says weekends are the least crowded.",
+        "hours_access": "Not publicly accessible. NYSE tours are no longer offered to the general public (they ended after 9/11), and visitors are admitted to the floor only with the Exchange's permission (NYC Tourism; NYSE Rule 37 memo). You can photograph the façade from Broad Street at any time.",
+        "sources": [
+          {
+            "label": "National Park Service: Federal Hall transit",
+            "url": "https://nps.gov/feha/planyourvisit/publictransportation.htm"
+          },
+          {
+            "label": "NYC Tourism: NYSE",
+            "url": "https://www.nyctourism.com/attractions-tours/new-york-stock-exchange-financial-district/"
+          },
+          {
+            "label": "NYSE tours guide site (visiting)",
+            "url": "https://www.newyorkstockexchangetours.com/visiting/"
+          },
+          {
+            "label": "Markets Media",
+            "url": "https://www.marketsmedia.com/once-popular-nyse-plan-reopen-public/"
+          },
+          {
+            "label": "NYSE Rule 37 memo (2022)",
+            "url": "https://www.nyse.com/publicdocs/nyse/markets/nyse/rule-interpretations/2022/Rule%2037%20Reg%20Memo%20-%20Final%20-%20Final%20-%202-27-22.pdf"
+          },
+          {
+            "label": "Bitcoin Austria: Vienna unveiling",
+            "url": "https://bitcoin-austria.at/beitraege/satoshi-statue-enthuellung-wien/"
+          },
+          {
+            "label": "Trending Topics",
+            "url": "https://www.trendingtopics.eu/vienna-unveils-a-satoshi-statue-in-tribute-to-bitcoin/"
+          },
+          {
+            "label": "Cointelegraph (Dec 2025)",
+            "url": "https://cointelegraph.com/news/satoshi-nakamoto-statue-nyse-bitcoin"
+          },
+          {
+            "label": "The Crypto Times (11 Dec 2025)",
+            "url": "https://www.cryptotimes.io/2025/12/11/twenty-one-capital-installs-satoshi-statue-at-nyse/"
+          },
+          {
+            "label": "BTC Map API",
+            "url": "https://api.btcmap.org/v4/places/search/"
+          }
+        ],
+        "public_access": false
+      }
     },
     {
       "name": "Fornelli",
@@ -569,33 +1031,6 @@
         "exact_spot": "In Piazza Umberto I, Fornelli (province of Isernia, Molise), installed at the belvedere (Comune di Fornelli; ANSA). Pin: 41.60700, 14.14047 (OpenStreetMap node 12804537475).",
         "photo_tip": "This is not a Satoshigallery piece. It's by local crypto-artist Mattia Pannoni, but it has a similar effect: seen from the front, it seems to disappear (ANSA, quoting the artist). Take one frontal shot and one side shot to show it.\n\nGeneric tip (not from a source): the belvedere puts open sky behind the statue, which makes the see-through effect easier to read.",
         "hours_access": "Outdoors in a public square. No hours are published. It should be viewable at any time, but that is our assumption and is unverified.",
-        "nearby": [
-          {
-            "name": "Bar Sette Torri",
-            "url": "https://btcmap.org/merchant/24890",
-            "note": "Bar, about 25 m."
-          },
-          {
-            "name": "Biertempel Pub",
-            "url": "https://btcmap.org/merchant/24881",
-            "note": "Pub, about 40 m."
-          },
-          {
-            "name": "Domus Vela",
-            "url": "https://btcmap.org/merchant/24985",
-            "note": "Accommodation, about 40 m."
-          },
-          {
-            "name": "Bar In Piazza",
-            "url": "https://btcmap.org/merchant/24893",
-            "note": "Bar, about 70 m."
-          },
-          {
-            "name": "Moustache",
-            "url": "https://btcmap.org/merchant/24885",
-            "note": "Pizzeria, about 70 m."
-          }
-        ],
         "sources": [
           {
             "label": "Comune di Fornelli: inauguration",
@@ -610,25 +1045,81 @@
             "url": "https://www.openstreetmap.org/node/12804537475"
           },
           {
-            "label": "BTC Map API (fetched 2026-10-21)",
+            "label": "BTC Map API",
             "url": "https://api.btcmap.org/v4/places/search/"
           }
         ]
-      }
+      },
+      "story": [
+        {
+          "label": "Artist",
+          "text": "Mattia Pannoni, a local crypto-artist, who came up with the idea and made it.",
+          "sources": [
+            {
+              "label": "Comune di Fornelli",
+              "url": "https://comune.fornelli.is.it/vivere-il-comune/eventi/inaugurazione-ufficiale-del-monumento-dedicato-a-bitcoin-e-a-satoshi-nakamoto-ideato-da-mattia-pannoni/"
+            }
+          ]
+        },
+        {
+          "label": "Unveiled",
+          "text": "1 May 2025 at 10:30, in Piazza Umberto I.",
+          "sources": [
+            {
+              "label": "Comune di Fornelli",
+              "url": "https://comune.fornelli.is.it/vivere-il-comune/eventi/inaugurazione-ufficiale-del-monumento-dedicato-a-bitcoin-e-a-satoshi-nakamoto-ideato-da-mattia-pannoni/"
+            }
+          ]
+        },
+        {
+          "label": "Commissioned by",
+          "text": "Funded entirely by the Comune di Fornelli (mayor Giovanni Tedeschi), on Pannoni's proposal.",
+          "sources": [
+            {
+              "label": "Comune di Fornelli",
+              "url": "https://comune.fornelli.is.it/vivere-il-comune/eventi/inaugurazione-ufficiale-del-monumento-dedicato-a-bitcoin-e-a-satoshi-nakamoto-ideato-da-mattia-pannoni/"
+            }
+          ]
+        },
+        {
+          "label": "What the design means",
+          "text": "From the front the statue seems to vanish, \"because Satoshi disappeared into nothing many years ago, and nobody knows his identity\" (Pannoni). It was billed as Italy's first monument to Bitcoin and Satoshi, part of a plan to make Fornelli the \"first Bitcoin village\": 24 shops accepted bitcoin at the launch, in a village of about 1,800 residents.",
+          "sources": [
+            {
+              "label": "ANSA (9 May 2025)",
+              "url": "https://www.ansa.it/molise/notizie/2025/05/09/nel-cuore-del-molise-fornelli-diventa-il-paese-dei-bitcoin_86b9bc75-2554-4121-b171-11b2a2ac9e24.html"
+            },
+            {
+              "label": "Comune di Fornelli",
+              "url": "https://comune.fornelli.is.it/vivere-il-comune/eventi/inaugurazione-ufficiale-del-monumento-dedicato-a-bitcoin-e-a-satoshi-nakamoto-ideato-da-mattia-pannoni/"
+            }
+          ]
+        },
+        {
+          "label": "Materials",
+          "text": "Stainless steel (acciaio inox).",
+          "sources": [
+            {
+              "label": "ANSA (9 May 2025)",
+              "url": "https://www.ansa.it/molise/notizie/2025/05/09/nel-cuore-del-molise-fornelli-diventa-il-paese-dei-bitcoin_86b9bc75-2554-4121-b171-11b2a2ac9e24.html"
+            }
+          ]
+        }
+      ]
     },
     {
       "name": "Hong Kong",
       "country": "China",
       "city": "Hong Kong",
-      "place": "Web3 Festival (donated to government)",
-      "lat": 22.3193,
-      "lng": 114.1694,
+      "place": "Hong Kong Convention and Exhibition Centre, Wan Chai (unveiling venue)",
+      "lat": 22.28262,
+      "lng": 114.17307,
       "year": 2026,
       "artist": "Valentina Picozzi (Satoshigallery)",
       "artistUrl": "https://satoshigallery.com",
       "type": "Disappearing metal",
-      "status": "Installed",
-      "note": "Unveiled at the Web3 Festival and donated to the Hong Kong government.",
+      "status": "Donated",
+      "note": "Unveiled on 20 Apr 2026 at the Hong Kong Web3 Festival at the Hong Kong Convention and Exhibition Centre, Wan Chai, and donated to the Hong Kong SAR Government. No permanent display site has been reported, so its current location is unknown. The map pin marks the unveiling venue.",
       "img": "https://pbs.twimg.com/media/HGUq0rsbEAAEBzO.jpg",
       "imgW": 1200,
       "imgH": 800,
@@ -643,9 +1134,145 @@
         {
           "label": "PANews",
           "url": "https://www.panews.io/articles/019da97a-6832-702c-9a59-0fa8061b4b08"
+        },
+        {
+          "label": "Odaily",
+          "url": "https://www.odaily.news/en/post/5210171"
+        },
+        {
+          "label": "OpenStreetMap: HKCEC (way 754002052)",
+          "url": "https://nominatim.openstreetmap.org/ui/details.html?osmtype=W&osmid=754002052"
         }
       ],
-      "label": "Satoshi Statue Hong Kong"
+      "label": "Satoshi Statue Hong Kong",
+      "story": [
+        {
+          "label": "Artist",
+          "text": "Valentina Picozzi (Satoshigallery).",
+          "sources": [
+            {
+              "label": "MicroBit press release",
+              "url": "https://www.microbit.ai/en/news/press-releases/microbit-hashkey-group-hong-kong-unveils-its-first-satoshi-nakamoto-statue-at-web3-festival/"
+            }
+          ]
+        },
+        {
+          "label": "Unveiled",
+          "text": "20 Apr 2026, at the Hong Kong Web3 Festival at the Hong Kong Convention and Exhibition Centre, Wan Chai, in a donation ceremony.",
+          "sources": [
+            {
+              "label": "MicroBit press release",
+              "url": "https://www.microbit.ai/en/news/press-releases/microbit-hashkey-group-hong-kong-unveils-its-first-satoshi-nakamoto-statue-at-web3-festival/"
+            },
+            {
+              "label": "Odaily",
+              "url": "https://www.odaily.news/en/post/5210171"
+            }
+          ]
+        },
+        {
+          "label": "Commissioned by",
+          "text": "MicroBit Capital Management and HashKey Group, with several early industry figures. It was unveiled by Wilson Fung (MicroBit CEO) and Ryan Ru (HashKey Exchange CEO) and donated to the Hong Kong SAR Government to thank it for its regulatory environment.",
+          "sources": [
+            {
+              "label": "MicroBit press release",
+              "url": "https://www.microbit.ai/en/news/press-releases/microbit-hashkey-group-hong-kong-unveils-its-first-satoshi-nakamoto-statue-at-web3-festival/"
+            },
+            {
+              "label": "PANews",
+              "url": "https://www.panews.io/articles/019da97a-6832-702c-9a59-0fa8061b4b08"
+            }
+          ]
+        },
+        {
+          "label": "What the design means",
+          "text": "A contemplating figure with a notebook on its lap, nearly invisible from the front, \"symbolizing Satoshi Nakamoto's dedication to decentralization, allowing the community to continue his legacy after his retirement\". The base is engraved \"To Hong Kong — In Math We Trust\".",
+          "sources": [
+            {
+              "label": "PANews",
+              "url": "https://www.panews.io/articles/019da97a-6832-702c-9a59-0fa8061b4b08"
+            }
+          ]
+        },
+        {
+          "label": "Materials",
+          "text": "304 stainless steel and weathering steel, about 1 cubic metre.",
+          "sources": [
+            {
+              "label": "PANews",
+              "url": "https://www.panews.io/articles/019da97a-6832-702c-9a59-0fa8061b4b08"
+            }
+          ]
+        },
+        {
+          "label": "Series",
+          "text": "7th of the series (MicroBit: six had appeared before it).",
+          "sources": [
+            {
+              "label": "MicroBit press release",
+              "url": "https://www.microbit.ai/en/news/press-releases/microbit-hashkey-group-hong-kong-unveils-its-first-satoshi-nakamoto-statue-at-web3-festival/"
+            }
+          ]
+        },
+        {
+          "label": "Where it is now",
+          "text": "Unknown. No permanent display location has been reported since the donation.",
+          "sources": [
+            {
+              "label": "PANews",
+              "url": "https://www.panews.io/articles/019da97a-6832-702c-9a59-0fa8061b4b08"
+            },
+            {
+              "label": "Phemex News",
+              "url": "https://phemex.com/news/article/microbit-and-hashkey-donate-satoshi-nakamoto-statue-to-hong-kong-74495"
+            }
+          ]
+        }
+      ],
+      "pin_note": "Pin: unveiling location (20 Apr 2026)",
+      "statusLabel": "Unveiled & donated (Apr 2026), no permanent site reported",
+      "access": "Current location unknown. No permanent display site has been reported since the statue was unveiled and donated in Apr 2026.",
+      "accessSource": {
+        "label": "PANews",
+        "url": "https://www.panews.io/articles/019da97a-6832-702c-9a59-0fa8061b4b08"
+      },
+      "visit": {
+        "updated": "2026-10-21",
+        "getting_there": "Current location unknown, so check before you plan a trip. The statue was unveiled at the Hong Kong Web3 Festival in Hall 5BCDE of the Hong Kong Convention and Exhibition Centre (HKCEC), Wan Chai, and was then donated to the Hong Kong SAR Government.\n\nFor the HKCEC itself (only useful if the statue is shown there again): MTR Exhibition Centre station (East Rail line) Exit B3 or Wan Chai station (Island line) Exit A5, about a 10-minute walk, or the Star Ferry to Wan Chai pier (HKCEC).",
+        "exact_spot": "Unknown. Ownership passed to the Hong Kong SAR Government, and no permanent display location has been published (English and Chinese sources searched, Oct 2026). The map pin marks the unveiling venue, the HKCEC in Wan Chai (OpenStreetMap), not a confirmed current location.",
+        "photo_tip": "From the side it reads as a figure in deep contemplation with a notebook on its lap; head-on it is almost invisible. The base is engraved \"To Hong Kong — In Math We Trust\" (PANews).",
+        "hours_access": "Unknown. It was unveiled indoors in a convention hall during the festival; where and when it can be seen now has not been published.",
+        "sources": [
+          {
+            "label": "Odaily",
+            "url": "https://www.odaily.news/en/post/5210171"
+          },
+          {
+            "label": "HKCEC: location & transport",
+            "url": "https://www.hkcec.com/en/location-transportation"
+          },
+          {
+            "label": "PANews",
+            "url": "https://www.panews.io/articles/019da97a-6832-702c-9a59-0fa8061b4b08"
+          },
+          {
+            "label": "Phemex News",
+            "url": "https://phemex.com/news/article/microbit-and-hashkey-donate-satoshi-nakamoto-statue-to-hong-kong-74495"
+          },
+          {
+            "label": "MicroBit press release",
+            "url": "https://www.microbit.ai/en/news/press-releases/microbit-hashkey-group-hong-kong-unveils-its-first-satoshi-nakamoto-statue-at-web3-festival/"
+          },
+          {
+            "label": "OpenStreetMap: HKCEC (way 754002052)",
+            "url": "https://nominatim.openstreetmap.org/ui/details.html?osmtype=W&osmid=754002052"
+          },
+          {
+            "label": "BTC Map API",
+            "url": "https://api.btcmap.org/v4/places/search/"
+          }
+        ]
+      }
     },
     {
       "name": "Kranj Bitcoin Monument",
@@ -659,14 +1286,13 @@
       "artistUrl": null,
       "type": "Corten steel (about 3 tonnes) Bitcoin “B” monument",
       "status": "Installed",
-      "note": "Often called the world’s first public Bitcoin monument. Large Corten steel structure featuring the Bitcoin “B” symbol (about 3 tonnes). Located on a roundabout near the city center. Linked to Slovenia’s early crypto scene (supported by Bitstamp).",
+      "note": "Often called the world’s first public Bitcoin monument. Large Corten steel structure featuring the Bitcoin “B” symbol (about 3 tonnes). Located on a roundabout near the city center. Linked to Slovenia’s early crypto scene (built by the Municipality of Kranj with support from 3fs and Bitstamp).",
       "img": "fhtd3yfouxe61.jpg",
       "imgW": 680,
       "imgH": 453,
       "page": "kranj",
-      "unveiled": "Mar 2018",
+      "unveiled": "13 Mar 2018",
       "series21": false,
-      "creatorVerified": false,
       "sources": [
         {
           "label": "RTV Slovenija",
@@ -688,7 +1314,6 @@
         "exact_spot": "In the roundabout in front of the Kranj courthouse (RTV Slovenija). OpenStreetMap names it \"Bitcoin krožišče\" (Bitcoin roundabout), and the District Court (Okrožno sodišče v Kranju) is about 40 m away. Pin: 46.24636, 14.35781 (OpenStreetMap node 5903169142).",
         "photo_tip": "This isn't a see-through design. RTV Slovenija notes that the monument can best be seen from the air.\n\nGeneric tip (not from a source): shoot diagonally from a sidewalk corner so the tilted ring and the B symbol both read, and wait for a gap in traffic.",
         "hours_access": "It sits in an active traffic circle, so view it from the surrounding sidewalks and don't walk into the roundabout. As a street monument it has no opening hours.",
-        "nearby_note": "None within 1 km on BTC Map (checked 2026-10-21).",
         "sources": [
           {
             "label": "RTV Slovenija (12 Mar 2018)",
@@ -699,11 +1324,63 @@
             "url": "https://www.openstreetmap.org/node/5903169142"
           },
           {
-            "label": "BTC Map API (fetched 2026-10-21)",
+            "label": "BTC Map API",
             "url": "https://api.btcmap.org/v4/places/search/"
           }
         ]
-      }
+      },
+      "story": [
+        {
+          "label": "Artists",
+          "text": "Idea by Selman Čorović; built in the workshop of Aleksander Frančeškin.",
+          "sources": [
+            {
+              "label": "RTV Slovenija",
+              "url": "https://www.rtvslo.si/news-in-english/a-world-first-in-kranj-a-monument-devoted-to-blockchain-technology/448636"
+            }
+          ]
+        },
+        {
+          "label": "Unveiled",
+          "text": "Tuesday 13 Mar 2018 at 3 p.m., by Mayor Boštjan Trilar and Jure Pirc, head of Bitcoin Slovenia.",
+          "sources": [
+            {
+              "label": "RTV Slovenija",
+              "url": "https://www.rtvslo.si/news-in-english/a-world-first-in-kranj-a-monument-devoted-to-blockchain-technology/448636"
+            }
+          ]
+        },
+        {
+          "label": "Commissioned by",
+          "text": "Built by the Municipality of Kranj with support from 3fs and Bitstamp.",
+          "sources": [
+            {
+              "label": "RTV Slovenija",
+              "url": "https://www.rtvslo.si/news-in-english/a-world-first-in-kranj-a-monument-devoted-to-blockchain-technology/448636"
+            }
+          ]
+        },
+        {
+          "label": "What the design means",
+          "text": "A monument to blockchain technology: a circular rim around a B symbol, which the municipality says stands for blockchain technology rather than the cryptocurrency itself. Placing it in a roundabout symbolizes decentralized connections: \"a nexus\" with many paths, not a central point.",
+          "sources": [
+            {
+              "label": "RTV Slovenija",
+              "url": "https://www.rtvslo.si/news-in-english/a-world-first-in-kranj-a-monument-devoted-to-blockchain-technology/448636"
+            }
+          ]
+        },
+        {
+          "label": "Materials",
+          "text": "Corten steel, about 3 tonnes.",
+          "sources": [
+            {
+              "label": "RTV Slovenija",
+              "url": "https://www.rtvslo.si/news-in-english/a-world-first-in-kranj-a-monument-devoted-to-blockchain-technology/448636"
+            }
+          ]
+        }
+      ]
     },
     {
       "name": "Miami Bitcoin Bull",
@@ -722,7 +1399,7 @@
       "imgW": 707,
       "imgH": 557,
       "page": "miami-bull",
-      "unveiled": "Apr 2022",
+      "unveiled": "6–9 Apr 2022",
       "series21": false,
       "sources": [
         {
@@ -741,28 +1418,6 @@
         "exact_spot": "At the edge of Miami Dade College's Wolfson Campus in front of Building 1000, with its eyes facing NE 1st Avenue (MDC The Reporter). The site data puts it at NE 1st Ave and NE 4th St. Pin: 25.77820, -80.19186 (OpenStreetMap node 10677295005).",
         "photo_tip": "This isn't a see-through design. It's an 11-foot chrome-and-fiberglass bull with blue \"laser\" eyes.\n\nGeneric tips (not from a source): shoot low and slightly to one side so the horns and eyes stand out against the sky, and try dusk if the eyes are lit (unverified).",
         "hours_access": "Outdoors on an open campus. MDC The Reporter described visitors walking up for selfies, and TradeStation calls MDC the bull's permanent home. We found no posted hours, so viewing hours are unverified.",
-        "nearby": [
-          {
-            "name": "CRM Jewelers",
-            "url": "https://btcmap.org/merchant/33595",
-            "note": "Jeweler, about 360 m. Never verified on BTC Map."
-          },
-          {
-            "name": "Diamond dreams by Alex",
-            "url": "https://btcmap.org/merchant/36653",
-            "note": "Jeweler, about 380 m."
-          },
-          {
-            "name": "Proof of Work Fitness",
-            "url": "https://btcmap.org/merchant/19953",
-            "note": "Gym, about 760 m."
-          },
-          {
-            "name": "Juice Fountain 305",
-            "url": "https://btcmap.org/merchant/40791",
-            "note": "Café at 1310 NE 1st Avenue, about 1.0 km."
-          }
-        ],
         "sources": [
           {
             "label": "MDC The Reporter (22 Apr 2022)",
@@ -777,12 +1432,72 @@
             "url": "https://www.openstreetmap.org/node/10677295005"
           },
           {
-            "label": "BTC Map API (fetched 2026-10-21)",
+            "label": "BTC Map API",
             "url": "https://api.btcmap.org/v4/places/search/"
           }
         ],
         "public_access": true
-      }
+      },
+      "story": [
+        {
+          "label": "Artist",
+          "text": "Designed by Furio Tedeschi, a Paramount Pictures concept artist (Transformers 5, Bumblebee); fabricated by Onyx Forge.",
+          "sources": [
+            {
+              "label": "MDC The Reporter (22 Apr 2022)",
+              "url": "https://mdcthereporter.com/miami-dade-college-hits-the-bull-s-eye-with-futuristic-robotic-statue/"
+            }
+          ]
+        },
+        {
+          "label": "Unveiled",
+          "text": "Debuted at the Bitcoin 2022 conference in Miami Beach (6–9 Apr 2022). Miami Dade College held its ribbon-cutting on 14 Apr 2022.",
+          "sources": [
+            {
+              "label": "MDC The Reporter (22 Apr 2022)",
+              "url": "https://mdcthereporter.com/miami-dade-college-hits-the-bull-s-eye-with-futuristic-robotic-statue/"
+            }
+          ]
+        },
+        {
+          "label": "Commissioned by",
+          "text": "TradeStation. It was unveiled by Mayor Francis Suarez.",
+          "sources": [
+            {
+              "label": "MDC The Reporter (22 Apr 2022)",
+              "url": "https://mdcthereporter.com/miami-dade-college-hits-the-bull-s-eye-with-futuristic-robotic-statue/"
+            },
+            {
+              "label": "TradeStation: Miami Bull",
+              "url": "https://www.miamibull.com/location/"
+            }
+          ]
+        },
+        {
+          "label": "What the design means",
+          "text": "A futuristic take on Wall Street's Charging Bull, \"a prominent community symbol of modern finance\". It was placed at Miami Dade College to tie in with TradeStation's financial-literacy partnership. The college's president said: \"The bull represents the future and we represent the future.\"",
+          "sources": [
+            {
+              "label": "TradeStation: Miami Bull",
+              "url": "https://www.miamibull.com/location/"
+            },
+            {
+              "label": "MDC The Reporter (22 Apr 2022)",
+              "url": "https://mdcthereporter.com/miami-dade-college-hits-the-bull-s-eye-with-futuristic-robotic-statue/"
+            }
+          ]
+        },
+        {
+          "label": "Materials",
+          "text": "Chrome and fiberglass, about 3,000 lb and 11 ft tall. MDC The Reporter cites a Forbes estimate of more than $250,000 in cost.",
+          "sources": [
+            {
+              "label": "MDC The Reporter (22 Apr 2022)",
+              "url": "https://mdcthereporter.com/miami-dade-college-hits-the-bull-s-eye-with-futuristic-robotic-statue/"
+            }
+          ]
+        }
+      ]
     },
     {
       "name": "Vienna",
@@ -829,18 +1544,6 @@
         "exact_spot": "At the head of the lake (Seeanfang) in Viertel Zwei, right next to the OMV Hoch Zwei building, 1020 Vienna (Leopoldstadt). Pin: 48.21351, 16.41363 (OpenStreetMap node 14287266624).",
         "photo_tip": "Bitcoin Austria says the figure is clearly visible from the side and almost invisible from the front, so take one shot from each angle to show the disappearing effect. Their party trick is to have a friend stand behind the statue. Everyone in front then sees that person's reflection in Satoshi's face, as in \"We are all Satoshi\".\n\nGeneric tip (not from a source): the 61 steel profiles are mirror-polished, so watch for glare and your own reflection in direct sun.",
         "hours_access": "Outdoors and publicly accessible at any time (Bitcoin Austria: \"jederzeit öffentlich zugänglich\", \"Öffentlich, im Freien\"). No admission fee is mentioned. Bitcoin Austria's \"free entry\" note was for the unveiling event.",
-        "nearby": [
-          {
-            "name": "Urban Lodge - Apartments Vienna",
-            "url": "https://btcmap.org/merchant/12936",
-            "note": "Accommodation, about 670 m. The only BTC Map listing within 1 km."
-          },
-          {
-            "name": "Heines",
-            "url": "https://btcmap.org/merchant/20862",
-            "note": "Café at Heinestraße 42, about 1.8 km, so outside the 1 km radius."
-          }
-        ],
         "sources": [
           {
             "label": "Bitcoin Austria: unveiling article",
@@ -859,12 +1562,84 @@
             "url": "https://www.openstreetmap.org/node/14287266624"
           },
           {
-            "label": "BTC Map API (fetched 2026-10-21)",
+            "label": "BTC Map API",
             "url": "https://api.btcmap.org/v4/places/search/"
           }
         ],
         "public_access": true
-      }
+      },
+      "story": [
+        {
+          "label": "Artist",
+          "text": "Valentina Picozzi (Satoshigallery).",
+          "sources": [
+            {
+              "label": "Bitcoin Austria: Vienna unveiling",
+              "url": "https://bitcoin-austria.at/beitraege/satoshi-statue-enthuellung-wien/"
+            }
+          ]
+        },
+        {
+          "label": "Unveiled",
+          "text": "14 Oct 2026 at 17:00, hosted by Der Fil (Philipp Horwath), for Bitcoin Austria's 15th anniversary.",
+          "sources": [
+            {
+              "label": "Bitcoin Austria: Vienna unveiling",
+              "url": "https://bitcoin-austria.at/beitraege/satoshi-statue-enthuellung-wien/"
+            },
+            {
+              "label": "Trending Topics",
+              "url": "https://www.trendingtopics.eu/vienna-unveils-a-satoshi-statue-in-tribute-to-bitcoin/"
+            }
+          ]
+        },
+        {
+          "label": "Commissioned by",
+          "text": "Bitcoin Austria, crowdfunded from Dec 2025 to Aug 2026: more than 120 private donors plus companies gave over 1.3 BTC (about €97k). The Genesis sponsor was Bitpanda, with Incrementum, Enzinger Steuerberatung, Bitkern, Was Bitcoin bringt, Stadler Partner, Bitcredit, Validvent and Viertel Zwei. Extra donations fund maintenance and insurance.",
+          "sources": [
+            {
+              "label": "Bitcoin Austria: Vienna unveiling",
+              "url": "https://bitcoin-austria.at/beitraege/satoshi-statue-enthuellung-wien/"
+            },
+            {
+              "label": "Trending Topics",
+              "url": "https://www.trendingtopics.eu/vienna-unveils-a-satoshi-statue-in-tribute-to-bitcoin/"
+            },
+            {
+              "label": "Bitcoin Austria: Satoshi statue page",
+              "url": "https://bitcoin-austria.at/satoshi-statue/"
+            }
+          ]
+        },
+        {
+          "label": "What the design means",
+          "text": "Seated hacker with a laptop on his lap, built from 61 thin mirror-polished stainless-steel profiles with gaps between them (a technique taken from sculptor Julian Voss-Andreae), on a Corten-steel base. It is clear from the side and almost invisible head-on, standing for Satoshi's anonymity and retreat from public life. Someone standing behind it is reflected in the face, so \"We are all Satoshi\". The \"cliché\" hacker deliberately honours all the developers who built Bitcoin. It is deliberately not a portrait, so it stays valid even if Satoshi is ever identified (Tobias Girstmair). Vienna was chosen as the home of the Austrian School of economics (Menger, Mises, Hayek).",
+          "sources": [
+            {
+              "label": "Bitcoin Austria: Satoshi statue page",
+              "url": "https://bitcoin-austria.at/satoshi-statue/"
+            },
+            {
+              "label": "Bitcoin Austria: Vienna unveiling",
+              "url": "https://bitcoin-austria.at/beitraege/satoshi-statue-enthuellung-wien/"
+            },
+            {
+              "label": "Trending Topics",
+              "url": "https://www.trendingtopics.eu/vienna-unveils-a-satoshi-statue-in-tribute-to-bitcoin/"
+            }
+          ]
+        },
+        {
+          "label": "Materials",
+          "text": "61 mirror-polished stainless-steel profiles on a Corten-steel base; the figure is about 90 cm tall, about 1.5 m with the base.",
+          "sources": [
+            {
+              "label": "Trending Topics",
+              "url": "https://www.trendingtopics.eu/vienna-unveils-a-satoshi-statue-in-tribute-to-bitcoin/"
+            }
+          ]
+        }
+      ]
     }
   ],
   "upcoming21": [

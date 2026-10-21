@@ -159,7 +159,7 @@
    "name": "How many Satoshi statues are there?",
    "acceptedAnswer": {
     "@type": "Answer",
-    "text": "satoshistatues.com tracks 12 Satoshi Nakamoto statues and Bitcoin monuments: 11 installed and 1 planned: Valentina Picozzi’s Miami statue, unveiled 12 Nov 2025 and awaiting a permanent public site. 7 of the 21 statues in Valentina Picozzi’s “21 Nodes” series are installed so far."
+    "text": "satoshistatues.com tracks 12 Satoshi Nakamoto statues and Bitcoin monuments: 11 on the Satoshi Passport and 1 planned: Valentina Picozzi’s Miami statue, unveiled 11 Nov 2025 and awaiting a permanent public site. 7 of the 21 statues in Valentina Picozzi’s “21 Nodes” series are on the passport so far."
    }
   },
   {
@@ -175,7 +175,7 @@
    "name": "Who makes the Satoshi statues?",
    "acceptedAnswer": {
     "@type": "Answer",
-    "text": "Most are by Italian artist Valentina Picozzi (Satoshi Gallery): the “disappearing” stainless-steel Satoshi of her “21 Nodes” series, unveiled so far in Lugano, El Zonte, Tokyo, Hanoi, Miami, New York, Hong Kong and Vienna. The other monuments on the map are separate works: the Kranj Bitcoin Monument, Budapest (Réka Gergely & Tamás Gilly), the Miami Bitcoin Bull (Furio Tedeschi) and Fornelli (Mattia Pannoni)."
+    "text": "Most are by Italian artist Valentina Picozzi (Satoshi Gallery): the “disappearing” stainless-steel Satoshi of her “21 Nodes” series, unveiled so far in Lugano, El Zonte, Tokyo, Hanoi, Miami, New York, Hong Kong and Vienna. The other monuments on the map are separate works: the Kranj Bitcoin Monument (Selman Čorović & Aleksander Frančeškin), Budapest (Réka Gergely & Tamás Gilly), the Miami Bitcoin Bull (Furio Tedeschi) and Fornelli (Mattia Pannoni)."
    }
   }
  ]
@@ -367,6 +367,7 @@
     .status-planned { background: #1a2a3a; color: #58a6ff; }
     .status-removed { background: #3a1a1a; color: #f85149; }
     .status-damaged { background: #3a2a1a; color: #f0883e; }
+    .status-donated { background: #2a1f3a; color: #bc8cff; }
     .note {
       font-size: 0.8rem;
       color: #8b949e;
@@ -982,12 +983,12 @@
         "artistUrl": "https://satoshigallery.com",
         "type": "Disappearing metal",
         "status": "Installed",
-        "note": "Located in the famous Bitcoin Beach community that helped inspire El Salvador’s Bitcoin adoption. It was first presented at Museo Marte in San Salvador in Feb 2025 and arrived at Bitcoin Beach in Apr 2025, as part of a new public space opened by the Ministry of Public Works.",
+        "note": "Located in the famous Bitcoin Beach community that helped inspire El Salvador’s Bitcoin adoption. It was first shown at Museo MARTE in San Salvador around 1 Feb 2025, then moved to El Zonte in April 2025 as part of a new public space opened by the Ministry of Public Works.",
         "img": "https://pbs.twimg.com/media/GobpChUWAAEiJU7.jpg",
         "imgW": 1043,
         "imgH": 1200,
         "page": "el-zonte",
-        "unveiled": "Apr 2025",
+        "unveiled": "~1 Feb 2025 (San Salvador); Apr 2025 (El Zonte)",
         "series21": true,
         "checkins": 0,
         "label": "Satoshi Statue El Zonte",
@@ -1006,12 +1007,12 @@
         "artistUrl": "https://satoshigallery.com",
         "type": "Disappearing metal",
         "status": "Installed",
-        "note": "At Tokyo Bitcoin Base near Yotsuya Station.",
+        "note": "Outside Tokyo Bitcoin Base near Yotsuya Station. Unveiled on 25 Apr 2025 at the Base’s grand opening.",
         "img": "https://pbs.twimg.com/media/GpYP-xyWUAAHV0D.jpg",
         "imgW": 1200,
         "imgH": 887,
         "page": "tokyo",
-        "unveiled": "Apr 2025",
+        "unveiled": "25 Apr 2025",
         "series21": true,
         "checkins": 0,
         "label": "Satoshi Statue Tokyo",
@@ -1056,16 +1057,18 @@
         "artistUrl": "https://satoshigallery.com",
         "type": "Disappearing metal",
         "status": "Planned",
-        "note": "Unveiled with support from Cantor Fitzgerald and Michael Saylor. Permanent waterfront park location planned.",
+        "note": "Unveiled on 11 Nov 2025 in Miami Beach, brought to Miami by Cantor Fitzgerald’s Brandon and Kyle Lutnick; Michael Saylor attended and helped unveil it. A permanent waterfront park location was announced but has not been named, so the map pin is approximate.",
         "img": "https://pbs.twimg.com/media/G5lYbhVWgAI3fLC.jpg",
         "imgW": 1200,
         "imgH": 900,
         "page": "miami-picozzi",
-        "unveiled": "12 Nov 2025",
+        "unveiled": "11 Nov 2025",
         "series21": true,
         "access": "Not yet installed at a permanent public site. A waterfront park location was announced but has not been confirmed.",
+        "pin_approx": true,
         "checkins": 0,
         "label": "Satoshi Statue Miami (Valentina Picozzi)",
+        "guide": true,
         "photoSubject": "Photo: Satoshi statue – Miami (Valentina Picozzi)"
       },
       {
@@ -1080,16 +1083,17 @@
         "artistUrl": "https://satoshigallery.com",
         "type": "Disappearing metal (6th of series)",
         "status": "Installed",
-        "note": "Installed at the New York Stock Exchange by Twenty One Capital.",
+        "note": "Installed at the New York Stock Exchange by Twenty One Capital and announced by the NYSE on 10 Dec 2025. It is indoors and not open to the general public.",
         "img": "satoshi-nyse.webp",
         "imgW": 800,
         "imgH": 1199,
         "page": "new-york",
-        "unveiled": "Dec 2025",
+        "unveiled": "10 Dec 2025",
         "series21": true,
-        "access": "Indoors at the New York Stock Exchange (NYSE museum). The NYSE building is not open to the general public, so the statue is not freely accessible.",
+        "access": "Indoors at the New York Stock Exchange. NYSE tours are no longer offered to the general public, so the statue is not freely accessible.",
         "checkins": 0,
         "label": "Satoshi Statue New York",
+        "guide": true,
         "photoSubject": "Photo: Satoshi statue – New York"
       },
       {
@@ -1120,23 +1124,27 @@
         "name": "Hong Kong",
         "country": "China",
         "city": "Hong Kong",
-        "place": "Web3 Festival (donated to government)",
-        "lat": 22.3193,
-        "lng": 114.1694,
+        "place": "Hong Kong Convention and Exhibition Centre, Wan Chai (unveiling venue)",
+        "lat": 22.28262,
+        "lng": 114.17307,
         "year": 2026,
         "artist": "Valentina Picozzi (Satoshigallery)",
         "artistUrl": "https://satoshigallery.com",
         "type": "Disappearing metal",
-        "status": "Installed",
-        "note": "Unveiled at the Web3 Festival and donated to the Hong Kong government.",
+        "status": "Donated",
+        "note": "Unveiled on 20 Apr 2026 at the Hong Kong Web3 Festival at the Hong Kong Convention and Exhibition Centre, Wan Chai, and donated to the Hong Kong SAR Government. No permanent display site has been reported, so its current location is unknown. The map pin marks the unveiling venue.",
         "img": "https://pbs.twimg.com/media/HGUq0rsbEAAEBzO.jpg",
         "imgW": 1200,
         "imgH": 800,
         "page": "hong-kong",
         "unveiled": "20 Apr 2026",
         "series21": true,
+        "pin_note": "Pin: unveiling location (20 Apr 2026)",
+        "statusLabel": "Unveiled & donated (Apr 2026), no permanent site reported",
+        "access": "Current location unknown. No permanent display site has been reported since the statue was unveiled and donated in Apr 2026.",
         "checkins": 0,
         "label": "Satoshi Statue Hong Kong",
+        "guide": true,
         "photoSubject": "Photo: Satoshi statue – Hong Kong"
       },
       {
@@ -1151,14 +1159,13 @@
         "artistUrl": null,
         "type": "Corten steel (about 3 tonnes) Bitcoin “B” monument",
         "status": "Installed",
-        "note": "Often called the world’s first public Bitcoin monument. Large Corten steel structure featuring the Bitcoin “B” symbol (about 3 tonnes). Located on a roundabout near the city center. Linked to Slovenia’s early crypto scene (supported by Bitstamp).",
+        "note": "Often called the world’s first public Bitcoin monument. Large Corten steel structure featuring the Bitcoin “B” symbol (about 3 tonnes). Located on a roundabout near the city center. Linked to Slovenia’s early crypto scene (built by the Municipality of Kranj with support from 3fs and Bitstamp).",
         "img": "fhtd3yfouxe61.jpg",
         "imgW": 680,
         "imgH": 453,
         "page": "kranj",
-        "unveiled": "Mar 2018",
+        "unveiled": "13 Mar 2018",
         "series21": false,
-        "creatorVerified": false,
         "checkins": 0,
         "label": "Kranj Bitcoin Monument",
         "guide": true,
@@ -1181,7 +1188,7 @@
         "imgW": 707,
         "imgH": 557,
         "page": "miami-bull",
-        "unveiled": "Apr 2022",
+        "unveiled": "6–9 Apr 2022",
         "series21": false,
         "checkins": 0,
         "label": "Miami Bitcoin Bull",
@@ -1234,8 +1241,8 @@
       return s.id || s.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     }
     statues.forEach(s => { s.slug = slugOf(s); });
-    // Damaged statues are still in place, so they count and can be stamped.
-    function isCheckable(s) { return s.status === 'Installed' || s.status === 'Restored' || s.status === 'Damaged'; }
+    // Damaged statues are still in place, so they count and can be stamped. Donated (Hong Kong) counts too; its pin is the unveiling venue.
+    function isCheckable(s) { return s.status === 'Installed' || s.status === 'Restored' || s.status === 'Damaged' || s.status === 'Donated'; }
     const checkable = statues.filter(isCheckable);
     function loadPassport() {
       try { return JSON.parse(localStorage.getItem(PASSPORT_KEY)) || {}; } catch (e) { return {}; }
@@ -1341,6 +1348,7 @@
         case "Installed": return "status-installed";
         case "Restored": return "status-restored";
         case "Damaged": return "status-damaged";
+        case "Donated": return "status-donated";
         case "Planned": return "status-planned";
         case "Removed": return "status-removed";
         default: return "status-installed";
@@ -1480,7 +1488,7 @@
              onerror="this.onerror=null;this.style.display='none'">${photoCreditHtml(s)}` : ''}
         <h3>${s.name}</h3>
         <div class="popup-location">${fullLocation} · ${s.place}</div>
-        ${s.pin_approx ? `<div class="popup-approx" style="color:#d29922;font-size:.85rem;margin:2px 0 4px">📍 Approximate location</div>` : ''}
+        ${s.pin_note ? `<div class="popup-approx" style="color:#d29922;font-size:.85rem;margin:2px 0 4px">📍 ${s.pin_note}</div>` : s.pin_approx ? `<div class="popup-approx" style="color:#d29922;font-size:.85rem;margin:2px 0 4px">📍 Approximate location</div>` : ''}
         <div class="popup-meta">
           <strong>Year:</strong> ${s.year}<br>
           <strong>Artist:</strong> ${artistHtml}<br>

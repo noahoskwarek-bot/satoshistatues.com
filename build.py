@@ -7,10 +7,13 @@ statues.json is the single source of truth. This script:
   * generates /21-nodes/index.html, sitemap.xml, robots.txt and feed.xml (Atom)
   * generates /embed/ (map-only iframe page, noindex) and the 'Embed this map' snippet box on the home page
   * renders 'Upcoming Bitcoin events nearby' on statue pages from events.json (see EVENTS.md)
+  * renders 'The story' (statue.story) and the BTC Map 'Nearby places' list from merchants.json (see GUIDES.md)
   * renders the 'next statue' alert box from config.newsletter_action_url (Buttondown embed URL)
 
 Run `python3 build.py` after editing statues.json and commit the output.
 `python3 build.py --check` exits non-zero if the committed output is stale.
+`python3 build.py --no-bin` skips the binary OG images (used by the weekly merchants workflow).
+Refresh merchants.json with `python3 tools/fetch_merchants.py` (needs network; builds themselves stay offline).
 GitHub Pages serves the committed files as-is; there is no runtime build step.
 """
 import datetime
@@ -27,7 +30,8 @@ REPO = 'noahoskwarek-bot/satoshistatues.com'
 GISCUS = dict(repoId='R_kgDOT4kDjw', category='Announcements', categoryId='DIC_kwDOT4kDj84DJD3w')
 COUNTRY_ISO = {'Hungary': 'HU', 'Switzerland': 'CH', 'El Salvador': 'SV', 'Japan': 'JP', 'Vietnam': 'VN',
                'USA': 'US', 'Italy': 'IT', 'China': 'HK', 'Slovenia': 'SI', 'Austria': 'AT'}
-CHECKABLE = ('Installed', 'Restored', 'Damaged')  # Damaged = still in place (counts as installed and can be stamped)
+CHECKABLE = ('Installed', 'Restored', 'Damaged', 'Donated')  # Damaged = still in place; Donated = unveiled + donated, pin at the
+# unveiling venue (Hong Kong). All of these count in the passport total and can be stamped.
 BUILD_DATE = os.environ.get('BUILD_DATE') or datetime.date.today().isoformat()
 LB_API = ''  # set from statues.json config.leaderboard_api in load()
 
@@ -50,6 +54,11 @@ def load():
     for s in data['statues']:
         n = counts.get(s['slug'], 0)
         s['checkins'] = n if isinstance(n, int) and n > 0 else 0
+    mpath = os.path.join(ROOT, 'merchants.json')
+    data['merchants'] = {}
+    if os.path.exists(mpath):
+        with open(mpath, encoding='utf-8') as f:
+            data['merchants'] = json.load(f)
     return data
 
 
@@ -181,10 +190,12 @@ def sort_year(y):
 
 
 def unveil_key(s):
-    for fmt in ('%d %b %Y', '%b %Y'):
+    # first date in the string: '16 Sep 2021', 'Apr 2025', '6–9 Apr 2022', '~1 Feb 2025 (San Salvador); Apr 2025 (El Zonte)'
+    m = re.search(r'(?:(\d{1,2})(?:[–-]\d{1,2})? )?([A-Z][a-z]{2}) (\d{4})', s.get('unveiled') or '')
+    if m:
         try:
-            return datetime.datetime.strptime(s['unveiled'], fmt)
-        except (ValueError, KeyError):
+            return datetime.datetime.strptime(f"{m.group(1) or 1} {m.group(2)} {m.group(3)}", '%d %b %Y')
+        except ValueError:
             pass
     return datetime.datetime(sort_year(s['year']), 1, 1)
 
@@ -285,9 +296,9 @@ def home_ld(data):
         'mainEntity': [
             {'@type': 'Question', 'name': 'How many Satoshi statues are there?',
              'acceptedAnswer': {'@type': 'Answer', 'text':
-                 f"satoshistatues.com tracks {len(st)} Satoshi Nakamoto statues and Bitcoin monuments: {len(installed)} installed and "
+                 f"satoshistatues.com tracks {len(st)} Satoshi Nakamoto statues and Bitcoin monuments: {len(installed)} on the Satoshi Passport and "
                  f"{len(planned)} planned: " + ', '.join(f"Valentina Picozzi’s {s['city']} statue, unveiled {s['unveiled']} and awaiting a permanent public site" for s in planned) + ". "
-                 f"{len(s21)} of the 21 statues in Valentina Picozzi’s “21 Nodes” series are installed so far."}},
+                 f"{len(s21)} of the 21 statues in Valentina Picozzi’s “21 Nodes” series are on the passport so far."}},
             {'@type': 'Question', 'name': 'Where is the newest Satoshi statue?',
              'acceptedAnswer': {'@type': 'Answer', 'text':
                  f"The newest installed statue is in {newest['city']}, {newest['country']}, at {newest['place']}. "
@@ -326,7 +337,7 @@ figcaption{font-size:.75rem;color:#8b949e;margin-top:4px}
 .facts{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px 16px;font-size:.92rem}
 .facts dt{color:#8b949e}
 .badge{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:4px;font-weight:600}
-.b-installed{background:#1a3a2a;color:#3fb950}.b-restored{background:#3a2e1a;color:#f7931a}.b-planned{background:#1a2a3a;color:#58a6ff}.b-damaged{background:#3a2a1a;color:#f0883e}
+.b-installed{background:#1a3a2a;color:#3fb950}.b-restored{background:#3a2e1a;color:#f7931a}.b-planned{background:#1a2a3a;color:#58a6ff}.b-damaged{background:#3a2a1a;color:#f0883e}.b-donated{background:#2a1f3a;color:#bc8cff}
 .actions{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
 .btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;border-radius:8px;font-weight:700;text-decoration:none;font-size:.92rem;border:1px solid #30363d;color:#e6edf3;background:#21262d}
 .btn.primary{background:#f7931a;border-color:#f7931a;color:#0d1117}
@@ -383,7 +394,7 @@ def head(title, desc, canonical, image, iw, ih, img_alt, extra_ld):
   {ICON_LINKS}
   {FEED_LINK}
   {extra_ld}
-  <style>{CSS}{ALERT_CSS}{VISIT_CSS}{EVENTS_CSS}</style>
+  <style>{CSS}{ALERT_CSS}{STORY_CSS}{VISIT_CSS}{EVENTS_CSS}</style>
   {api_script()}
 </head>
 <body>
@@ -590,6 +601,45 @@ def src_list(sources):
 APPROX_HTML = ' <span class="approx" style="color:#d29922">(📍 Approximate location)</span>'
 
 
+def pin_sub(s):
+    # statue.pin_note (str, optional) explains what the pin marks, e.g. 'Pin: unveiling location (20 Apr 2026)'
+    if (s.get('pin_note') or '').strip():
+        return ' · 📍 ' + e(s['pin_note'].strip())
+    return ' · 📍 Approximate location' if s.get('pin_approx') else ''
+
+
+def pin_html(s):
+    if (s.get('pin_note') or '').strip():
+        return f' <span class="approx" style="color:#d29922">(📍 {e(s["pin_note"].strip())})</span>'
+    return APPROX_HTML if s.get('pin_approx') else ''
+
+
+# ---------- "The story" (optional per statue; see GUIDES.md) ----------
+# statues.json → statue.story: [{"label": "Artist", "text": "…", "reported": true?, "sources": [{"label", "url"}]}]
+# Only sourced facts. `reported: true` marks partly confirmed items (shown with a 'Reported' tag).
+def story_html(s):
+    items = [x for x in (s.get('story') or []) if (x.get('text') or '').strip()]
+    if not items:
+        return ''
+    rows = []
+    for x in items:
+        cites = ''.join(f' <a class="cite" href="{e(c["url"])}" target="_blank" rel="noopener noreferrer">{e(c["label"])}</a>'
+                        for c in x.get('sources', []) if c.get('url'))
+        tag = '<span class="rep">Reported</span> ' if x.get('reported') else ''
+        rows.append(f'<dt>{e(x["label"])}</dt><dd>{tag}{e(x["text"].strip())}'
+                    f'{f"<span class=cites>Sources:{cites}</span>" if cites else ""}</dd>')
+    return (f'<section class="story" id="story" aria-labelledby="story-title"><h2 id="story-title">📖 The story</h2>'
+            f'<dl>{"".join(rows)}</dl>'
+            f'<p class="note" style="font-size:.8rem;color:#8b949e;margin-top:8px">Only facts we could source. Items tagged “Reported” are not fully confirmed.</p></section>')
+
+
+STORY_CSS = ('.story{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:4px 16px 14px;margin:22px 0;scroll-margin-top:12px}'
+             '.story h2{margin:14px 0 6px}.story dt{font-size:.95rem;color:#f7931a;font-weight:700;margin:14px 0 4px}'
+             '.story dd{margin:0;font-size:.95rem;line-height:1.55}.story .cites{display:block;font-size:.8rem;color:#8b949e;margin-top:4px}'
+             '.story .cite{margin-right:6px;display:inline-block;padding:6px 0}'
+             '.story .rep{display:inline-block;font-size:.7rem;font-weight:700;color:#d29922;border:1px solid #d29922;border-radius:4px;padding:0 5px;margin-right:2px;vertical-align:1px}')
+
+
 def statue_page(s, data):
     title = f"{s['label']} – Location, Directions & Photos"
     desc = describe(s)
@@ -609,6 +659,10 @@ def statue_page(s, data):
         acc = e(s['access'])
         if s.get('accessSource'):
             acc += f' <a href="{e(s["accessSource"]["url"])}" target="_blank" rel="noopener noreferrer">Source: {e(s["accessSource"]["label"])}</a>'
+    elif ((s.get('visit') or {}).get('hours_access') or '').strip():
+        # no short `access` line: summarise the guide's sourced Hours & access instead of saying 'Unknown'
+        first = re.split(r'\n\s*\n', s['visit']['hours_access'].strip())[0]
+        acc = e(first) + ' <a href="#visiting">More in Visiting ↓</a>'
     else:
         acc = 'Unknown. Check locally before you go.'
     directions = f"https://www.google.com/maps/dir/?api=1&destination={s['lat']},{s['lng']}"
@@ -630,7 +684,7 @@ def statue_page(s, data):
     out += f'''  <main>
     <div class="crumbs"><a href="/">Map</a> › {e(s['label'])}</div>
     <h1>{e(s['label'])}</h1>
-    <p class="sub">{e(s['place'])} · {e(s['city'])}, {e(s['country'])}{' · 📍 Approximate location' if s.get('pin_approx') else ''}</p>
+    <p class="sub">{e(s['place'])} · {e(s['city'])}, {e(s['country'])}{pin_sub(s)}</p>
     {img_html}
     <dl class="facts">
       <dt>Location</dt><dd>{e(s['place'])}, {e(s['city'])}, {e(s['country'])}</dd>
@@ -640,7 +694,7 @@ def statue_page(s, data):
       <dt>Type</dt><dd>{e(s['type'])}</dd>
       <dt>Status</dt><dd>{status_badge(s['status'], s.get('statusLabel'))}</dd>
       <dt>Access</dt><dd>{acc}</dd>
-      <dt>Coordinates</dt><dd>{s['lat']}, {s['lng']}{APPROX_HTML if s.get('pin_approx') else ''}</dd>
+      <dt>Coordinates</dt><dd>{s['lat']}, {s['lng']}{pin_html(s)}</dd>
     </dl>
     <div class="actions">
       <a class="btn primary" href="{directions}" target="_blank" rel="noopener noreferrer">🧭 Get Directions</a>
@@ -651,7 +705,8 @@ def statue_page(s, data):
     <h2>About</h2>
     <p class="note">{e(s['note'])}</p>
     {stamp}
-    {visit_html(s)}
+    {story_html(s)}
+    {visit_html(s, data)}
     {events_html(s, data)}
     {checkin_count_html(s)}
     {photo_cta(s, data)}
@@ -962,7 +1017,7 @@ def og_image(s):
     for l in place:
         d.text((70, y), l, font=fr(28), fill=(139, 148, 158)); y += 36
     st = s.get('statusLabel') or s['status']
-    col = {'Installed': (63, 185, 80), 'Restored': (247, 147, 26), 'Damaged': (240, 136, 62), 'Planned': (88, 166, 255)}.get(s['status'], (139, 148, 158))
+    col = {'Installed': (63, 185, 80), 'Restored': (247, 147, 26), 'Damaged': (240, 136, 62), 'Donated': (188, 140, 255), 'Planned': (88, 166, 255)}.get(s['status'], (139, 148, 158))
     st = st if d.textlength(st, font=fb(24)) <= text_w - 40 else s['status']
     bw = d.textlength(st, font=fb(24)) + 32
     d.rounded_rectangle((70, OG_H - 150, 70 + bw, OG_H - 108), radius=8, outline=col, width=3)
@@ -986,8 +1041,9 @@ def bin_outputs(data):
 #   exact_spot     str   "## Exact spot"
 #   photo_tip      str   "## Photo tip"
 #   hours_access   str   "## Hours & access" (omit to reuse the statue's `access` + `accessSource`)
-#   nearby         list  "## Nearby Bitcoin places" lines "Name | URL | note" → [{"name", "url", "note"}]
-#   nearby_note    str   non-pipe text in that section, e.g. "None within 1 km on BTC Map (checked …)"
+#   nearby         list  optional hand-curated notes for BTC Map places → [{"name", "url", "note"}]; the list itself comes
+#                        from merchants.json (tools/fetch_merchants.py). Same place → note appended; others listed after.
+#   merchants      false  hide the BTC Map list (statue not installed yet)
 #   sources        list  "## Sources" lines "Label | URL" → [{"label", "url"}]
 # Import with: python3 tools/import_guide.py <page>.md
 # statue.pin_approx (bool, optional): coordinates are approximate → "Approximate location" on card + page
@@ -1005,7 +1061,66 @@ def paras(t):
     return ''.join(f'<p class="note">{e(p.strip())}</p>' for p in re.split(r'\n\s*\n', t.strip()) if p.strip())
 
 
-def visit_html(s):
+def btcmap_map_url(s):
+    return f"https://btcmap.org/map#16/{s['lat']}/{s['lng']}"
+
+
+def place_type(icon):
+    icon = (icon or '').replace('local_', '').replace('_', ' ').strip()
+    return '' if icon in ('', 'question mark', 'currency bitcoin') else icon
+
+
+def fmt_km(k):
+    return f'{round(k * 1000 / 10) * 10:.0f} m' if k < 1 else f'{k:.1f} km'
+
+
+def merchants_html(s, data):
+    """BTC Map list from merchants.json: up to 5 within 1 km; else nearest 3 within 5 km; else 'none listed yet'.
+    Hand-curated visit.nearby entries for the same BTC Map place only contribute their note; others are listed after."""
+    v = s.get('visit') or {}
+    if v.get('merchants') is False:
+        return ('<h3>Nearby places that accept bitcoin</h3><p class="note">Nearby places will be listed once the statue has a '
+                'permanent site.</p>')
+    m = (data.get('merchants') or {}).get('places', {}).get(s['page'])
+    if not m:
+        return ''
+    curated = {re.sub(r'.*/merchant/', '', n['url']): n for n in v.get('nearby', []) if n.get('url')}
+    near = m['nearest']
+    if m['within_1km']:
+        show, scope = [x for x in near if x['km'] <= 1][:5], ''
+    elif m['within_5km']:
+        show, scope = near[:3], '<p class="note">None within 1 km. The nearest within 5 km:</p>'
+    else:
+        show, scope = [], ''
+    fetched = (data.get('merchants') or {}).get('fetched') or ''
+    out = '<h3>Nearby places that accept bitcoin</h3>'
+    if m['within_1km'] > 5:
+        out += f'<p class="note merch-count"><strong>{m["within_1km"]} places</strong> within 1 km on BTC Map. The nearest 5:</p>'
+    out += scope
+    if show:
+        items = []
+        for x in show:
+            bits = [b for b in (place_type(x.get('icon')), fmt_km(x['km'])) if b]
+            ver = (f'last verified {datetime.date.fromisoformat(x["verified_at"]).strftime("%b %Y")}'
+                   if x.get('verified_at') else 'not verified on BTC Map')
+            cn = curated.pop(str(x['id']), {}).get('note')
+            items.append(f'<li><a href="https://btcmap.org/merchant/{x["id"]}" target="_blank" rel="noopener noreferrer">{e(x["name"])}</a>'
+                         f' – {e(", ".join(bits))} <span class="ver">· {ver}</span>{" – " + e(cn) if cn else ""}</li>')
+        out += f'<ul class="visit-nearby">{"".join(items)}</ul>'
+    else:
+        out += (f'<p class="note">None listed within 5 km on BTC Map yet. <a href="{btcmap_map_url(s)}" target="_blank" rel="noopener noreferrer">See the BTC Map map</a> '
+                f'or <a href="https://btcmap.org/add-location" target="_blank" rel="noopener noreferrer">add a place to BTC Map</a>.</p>')
+    extra = [n for n in curated.values() if n.get('name')]
+    if extra:
+        out += '<p class="note">Also noted in our guide:</p><ul class="visit-nearby">' + ''.join(
+            f'<li><a href="{e(n["url"])}" target="_blank" rel="noopener noreferrer">{e(n["name"])}</a>{" – " + e(n["note"]) if n.get("note") else ""}</li>'
+            for n in extra) + '</ul>'
+    out += (f'<p class="note" style="font-size:.8rem;color:#8b949e">From <a href="https://btcmap.org/" target="_blank" rel="noopener noreferrer">BTC Map</a>'
+            f'{" (checked " + e(fetched) + ")" if fetched else ""}; straight-line distances from the map pin, ATMs and unnamed listings left out. Check before you go.</p>')
+    return out
+
+
+def visit_html(s, data=None):
     if not has_guide(s):
         return ''
     v = s['visit']
@@ -1019,14 +1134,9 @@ def visit_html(s):
         src = (f' <a href="{e(s["accessSource"]["url"])}" target="_blank" rel="noopener noreferrer">Source: {e(s["accessSource"]["label"])}</a>'
                if s.get('accessSource') else '')
         rows.append(f'<h3>Hours &amp; access</h3><p class="note">{e(s["access"])}{src}</p>')
-    if v.get('nearby') or (v.get('nearby_note') or '').strip():
-        items = ''.join(
-            f'<li><a href="{e(n["url"])}" target="_blank" rel="noopener noreferrer">{e(n["name"])}</a>'
-            f'{" – " + e(n["note"]) if n.get("note") else ""}</li>' for n in v.get('nearby', []) if n.get('name') and n.get('url'))
-        lst = f'<ul class="visit-nearby">{items}</ul>' if items else ''
-        nn = f'<p class="note">{e(v["nearby_note"].strip())}</p>' if (v.get('nearby_note') or '').strip() else ''
-        rows.append(f'<h3>Nearby places that accept bitcoin</h3>{lst}{nn}'
-                    f'<p class="note" style="font-size:.8rem;color:#8b949e">From <a href="https://btcmap.org/" target="_blank" rel="noopener noreferrer">BTC Map</a>. Check before you go.</p>')
+    mh = merchants_html(s, data or {})
+    if mh:
+        rows.append(mh)
     srcs = (f'<h3>Guide sources</h3>{src_list(v["sources"])}' if v.get('sources') else '')
     upd = f'<p class="note" style="font-size:.8rem;color:#8b949e;margin-top:8px">Guide updated {e(v["updated"])}.</p>' if v.get('updated') else ''
     return f'<section class="visit" id="visiting" aria-labelledby="visiting-title"><h2 id="visiting-title">🧭 Visiting</h2>{"".join(rows)}{srcs}{upd}</section>'
@@ -1035,7 +1145,7 @@ def visit_html(s):
 VISIT_CSS = ('.visit{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:4px 16px 14px;margin:22px 0;scroll-margin-top:12px}'
              '.visit h2{margin:14px 0 6px}.visit h3{font-size:.95rem;color:#f7931a;margin:14px 0 4px}'
              '.visit .note+.note{margin-top:6px}.visit-nearby{padding-left:18px;font-size:.92rem}.visit-nearby li{margin:4px 0}'
-             '.visit a{display:inline-block;padding:13px 0;margin:-13px 0}.visit li{margin:8px 0}')
+             '.visit a{display:inline-block;padding:13px 0;margin:-13px 0}.visit li{margin:8px 0}.visit .ver{color:#8b949e;font-size:.85em}')
 
 
 # ---------- Upcoming Bitcoin events nearby (events.json → statue pages) ----------
@@ -1161,7 +1271,7 @@ html,body{margin:0;height:100%;background:#0d1117;font-family:-apple-system,Blin
 .loc{color:#8b949e;margin-bottom:8px}
 .st{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.75rem;font-weight:600;background:#1a3a2a;color:#3fb950}
 .st.Restored{background:#3a2e1a;color:#f7931a}.st.Planned{background:#1a2a3a;color:#58a6ff}
-.st.Removed{background:#3a1a1a;color:#f85149}.st.Damaged{background:#3a2a1a;color:#f0883e}
+.st.Removed{background:#3a1a1a;color:#f85149}.st.Damaged{background:#3a2a1a;color:#f0883e}.st.Donated{background:#2a1f3a;color:#bc8cff}
 .go{display:inline-block;margin-top:10px;background:#f7931a;color:#0d1117!important;padding:6px 12px;border-radius:6px;font-weight:600;text-decoration:none}
 .credit{position:absolute;top:10px;right:10px;z-index:1000;display:flex;align-items:center;gap:6px;background:rgba(13,17,23,.88);border:1px solid #30363d;color:#e6edf3;text-decoration:none;font-size:12px;font-weight:600;padding:5px 9px 5px 7px;border-radius:999px}
 .credit:hover{border-color:#f7931a}.credit img{display:block}
@@ -1455,7 +1565,7 @@ def replace_block(text, name, content, comment=('<!-- ', ' -->')):
 
 
 def build_index(data, text):
-    statues_js = [{k: v for k, v in s.items() if k not in ('slug', 'sources', 'accessSource', 'label', 'visit')} for s in data['statues']]
+    statues_js = [{k: v for k, v in s.items() if k not in ('slug', 'sources', 'accessSource', 'label', 'visit', 'story')} for s in data['statues']]
     for s, src in zip(statues_js, data['statues']):
         s['label'] = src['label']
         if has_guide(src):
@@ -1505,7 +1615,7 @@ def main():
         write_worker_statues(data)
         return
     stale = []
-    for rel, content in bin_outputs(data).items():
+    for rel, content in ({} if '--no-bin' in sys.argv else bin_outputs(data)).items():
         path = os.path.join(ROOT, rel)
         old = open(path, 'rb').read() if os.path.exists(path) else None
         if old != content:
