@@ -145,7 +145,11 @@
             }
           ]
         }
-      ]
+      ],
+      "last_confirmed": "2021-09",
+      "last_confirmed_source": "report",
+      "last_confirmed_url": "https://apnews.com/article/technology-business-arts-and-entertainment-hungary-blockchain-96a6b57589b73fd4e376fe5f91b022e3",
+      "alert": null
     },
     {
       "name": "Lugano",
@@ -321,7 +325,19 @@
             }
           ]
         }
-      ]
+      ],
+      "last_confirmed": "2026-04",
+      "last_confirmed_source": "report",
+      "last_confirmed_url": "https://www.rsi.ch/info/ticino-grigioni-e-insubria/Vandalizzata-ancora-la-statua-di-Nakamoto--3678644.html",
+      "last_confirmed_kind": "reported",
+      "alert": {
+        "type": "damaged",
+        "title": "Damaged, current status unconfirmed",
+        "text": "Vandalized for the second time and found seriously damaged in its central body. An OpenStreetMap mapper later noted it was no longer at its originally mapped spot (28 Jul 2026). Check that it is on display before you go.",
+        "date": "2026-04-19",
+        "source_url": "https://www.rsi.ch/info/ticino-grigioni-e-insubria/Vandalizzata-ancora-la-statua-di-Nakamoto--3678644.html",
+        "source_label": "RSI"
+      }
     },
     {
       "name": "El Zonte",
@@ -463,7 +479,11 @@
             }
           ]
         }
-      ]
+      ],
+      "last_confirmed": "2025-04",
+      "last_confirmed_source": "report",
+      "last_confirmed_url": "https://elsalvadorinenglish.com/2025/04/13/satoshi-rises-in-el-zonte-new-public-space-in-el-salvador-celebrating-sound-money-and-freedom/",
+      "alert": null
     },
     {
       "name": "Tokyo",
@@ -598,7 +618,11 @@
             }
           ]
         }
-      ]
+      ],
+      "last_confirmed": "2025-09",
+      "last_confirmed_source": "report",
+      "last_confirmed_url": "https://www.forbes.com/sites/frankcorva/2025/09/08/bitcoin-finds-a-home-in-the-heart-of-tokyo/",
+      "alert": null
     },
     {
       "name": "Hanoi",
@@ -718,7 +742,11 @@
             }
           ]
         }
-      ]
+      ],
+      "last_confirmed": "2025-09",
+      "last_confirmed_source": "report",
+      "last_confirmed_url": "https://vietnamnews.vn/economy/1724928/statue-of-bitcoin-creator-satoshi-unveiled-in-ha-noi.html",
+      "alert": null
     },
     {
       "name": "Miami",
@@ -847,6 +875,18 @@
             "url": "https://en.cryptonomist.ch/2025/11/12/satoshi-statue-miami/"
           }
         ]
+      },
+      "last_confirmed": "2025-11",
+      "last_confirmed_source": "report",
+      "last_confirmed_url": "https://www.miaminewtimes.com/news/francis-suarez-announces-new-weird-crypto-statue-for-miami-park-40501787/",
+      "last_confirmed_kind": "reported",
+      "alert": {
+        "type": "not_installed",
+        "title": "Not installed yet · approximate pin",
+        "text": "Unveiled in Miami Beach. A permanent waterfront park location was announced but has not been named, and no installation has been reported. The map pin is a generic Miami point, not a statue site.",
+        "date": "2025-11-11",
+        "source_url": "https://www.miaminewtimes.com/news/francis-suarez-announces-new-weird-crypto-statue-for-miami-park-40501787/",
+        "source_label": "Miami New Times"
       }
     },
     {
@@ -993,7 +1033,11 @@
           }
         ],
         "public_access": false
-      }
+      },
+      "last_confirmed": "2025-12",
+      "last_confirmed_source": "report",
+      "last_confirmed_url": "https://www.cryptotimes.io/2025/12/11/twenty-one-capital-installs-satoshi-statue-at-nyse/",
+      "alert": null
     },
     {
       "name": "Fornelli",
@@ -1105,7 +1149,11 @@
             }
           ]
         }
-      ]
+      ],
+      "last_confirmed": "2025-05",
+      "last_confirmed_source": "report",
+      "last_confirmed_url": "https://www.ansa.it/molise/notizie/2025/05/09/nel-cuore-del-molise-fornelli-diventa-il-paese-dei-bitcoin_86b9bc75-2554-4121-b171-11b2a2ac9e24.html",
+      "alert": null
     },
     {
       "name": "Hong Kong",
@@ -1272,6 +1320,18 @@
             "url": "https://api.btcmap.org/v4/places/search/"
           }
         ]
+      },
+      "last_confirmed": "2026-04",
+      "last_confirmed_source": "report",
+      "last_confirmed_url": "https://www.microbit.ai/en/news/press-releases/microbit-hashkey-group-hong-kong-unveils-its-first-satoshi-nakamoto-statue-at-web3-festival/",
+      "last_confirmed_kind": "reported",
+      "alert": {
+        "type": "donated",
+        "title": "Donated, current location unknown",
+        "text": "Unveiled at the Hong Kong Web3 Festival (HKCEC, Wan Chai) and donated to the Hong Kong SAR Government. No permanent display site has been reported. The map pin marks the unveiling venue.",
+        "date": "2026-04-20",
+        "source_url": "https://www.microbit.ai/en/news/press-releases/microbit-hashkey-group-hong-kong-unveils-its-first-satoshi-nakamoto-statue-at-web3-festival/",
+        "source_label": "MicroBit press release"
       }
     },
     {
@@ -1380,7 +1440,11 @@
             }
           ]
         }
-      ]
+      ],
+      "last_confirmed": "2018-03",
+      "last_confirmed_source": "report",
+      "last_confirmed_url": "https://www.rtvslo.si/news-in-english/a-world-first-in-kranj-a-monument-devoted-to-blockchain-technology/448636",
+      "alert": null
     },
     {
       "name": "Miami Bitcoin Bull",
@@ -1497,7 +1561,11 @@
             }
           ]
         }
-      ]
+      ],
+      "last_confirmed": "2025-04",
+      "last_confirmed_source": "report",
+      "last_confirmed_url": "https://www.local10.com/news/local/2025/04/19/miami-bull-crypto-statue-vandalized/",
+      "alert": null
     },
     {
       "name": "Vienna",
@@ -1639,7 +1707,11 @@
             }
           ]
         }
-      ]
+      ],
+      "last_confirmed": "2026-10",
+      "last_confirmed_source": "report",
+      "last_confirmed_url": "https://bitcoin-austria.at/beitraege/satoshi-statue-enthuellung-wien/",
+      "alert": null
     }
   ],
   "upcoming21": [

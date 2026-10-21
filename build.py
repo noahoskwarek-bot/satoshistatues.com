@@ -54,6 +54,17 @@ def load():
     for s in data['statues']:
         n = counts.get(s['slug'], 0)
         s['checkins'] = n if isinstance(n, int) and n > 0 else 0
+    ppath = os.path.join(ROOT, 'photos.json')
+    data['photos'] = {}
+    if os.path.exists(ppath):
+        with open(ppath, encoding='utf-8') as f:
+            plist = json.load(f).get('photos', [])
+        for ph in plist:
+            # only approved entries whose file exists are published (see PHOTOS.md)
+            if ph.get('approved') is True and os.path.exists(os.path.join(ROOT, 'photos', ph['slug'], ph['file'])):
+                data['photos'].setdefault(ph['slug'], []).append(ph)
+        for v in data['photos'].values():
+            v.sort(key=lambda ph: ph.get('month', ''), reverse=True)
     mpath = os.path.join(ROOT, 'merchants.json')
     data['merchants'] = {}
     if os.path.exists(mpath):
@@ -394,7 +405,7 @@ def head(title, desc, canonical, image, iw, ih, img_alt, extra_ld):
   {ICON_LINKS}
   {FEED_LINK}
   {extra_ld}
-  <style>{CSS}{ALERT_CSS}{STORY_CSS}{VISIT_CSS}{EVENTS_CSS}</style>
+  <style>{CSS}{ALERT_CSS}{STORY_CSS}{VISIT_CSS}{EVENTS_CSS}{GALLERY_CSS}</style>
   {api_script()}
 </head>
 <body>
@@ -495,7 +506,9 @@ def photo_js(data):
             'By sending, you let satoshistatues.com feature your photo with credit.\\n"}'
             'document.addEventListener("click",function(ev){var a=ev.target.closest&&ev.target.closest("[data-photo-subject]");if(!a)return;'
             'ev.preventDefault();location.href="mailto:"+to()+"?subject="+encodeURIComponent(a.getAttribute("data-photo-subject"))'
-            '+"&body="+encodeURIComponent(body(a.getAttribute("data-photo-label")||"statue"));},true);})();</script>')
+            '+"&body="+encodeURIComponent(body(a.getAttribute("data-photo-label")||"statue"));},true);'
+            'function fill(){var l=document.querySelectorAll("[data-photo-addr]");for(var i=0;i<l.length;i++){l[i].textContent=to();}}'
+            'fill();document.addEventListener("DOMContentLoaded",fill);})();</script>')
 
 
 def photo_cta(s, data):
@@ -614,6 +627,136 @@ def pin_html(s):
     return APPROX_HTML if s.get('pin_approx') else ''
 
 
+# ---------- Last confirmed line, status alert, visitor photos (see PHOTOS.md) ----------
+# statues.json → statue.last_confirmed (YYYY-MM), last_confirmed_source (visitor_photo | gps_checkin | report),
+# last_confirmed_url, optional last_confirmed_kind ('reported' = say "Last reported", not "standing"),
+# alert (null or {type, title, text, date YYYY-MM-DD, source_url, source_label}).
+# photos.json → {"photos": [{slug, file, credit, month YYYY-MM, approved}]}, images in /photos/<slug>/.
+# The newest approved photo overrides last_confirmed when it is newer (source visitor_photo).
+MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+CONFIRM_SOURCES = {'visitor_photo': 'Visitor photo', 'gps_checkin': 'GPS-verified check-in', 'report': 'News/official report'}
+
+
+def fmt_month(m):
+    y, mo = m.split('-')[:2]
+    return f'{MONTHS[int(mo) - 1]} {y}'
+
+
+def fmt_day(d):
+    y, mo, dd = d.split('-')
+    return f'{int(dd)} {MONTHS[int(mo) - 1]} {y}'
+
+
+def statue_photos(s, data):
+    return data.get('photos', {}).get(s['slug'], [])
+
+
+def photo_url(ph, small=False):
+    f = ph['file']
+    if small:
+        sm = re.sub(r'\.jpe?g$', '', f, flags=re.I) + '-sm.jpg'
+        if os.path.exists(os.path.join(ROOT, 'photos', ph['slug'], sm)):
+            f = sm
+    return f"/photos/{ph['slug']}/{f}"
+
+
+def last_confirmed(s, data):
+    """(month, source, url, kind) or None. The newest approved visitor photo wins when it is newer."""
+    lc = None
+    if re.fullmatch(r'\d{4}-\d{2}', s.get('last_confirmed') or ''):
+        lc = (s['last_confirmed'], s.get('last_confirmed_source') or 'report', s.get('last_confirmed_url') or '',
+              s.get('last_confirmed_kind') or 'standing')
+    phs = statue_photos(s, data)
+    if phs and re.fullmatch(r'\d{4}-\d{2}', phs[0].get('month') or '') and (not lc or phs[0]['month'] >= lc[0]):
+        lc = (phs[0]['month'], 'visitor_photo', '#visitor-photos', 'standing')
+    return lc
+
+
+def confirmed_html(s, data):
+    badge = (' <a class="pv-badge" href="#visitor-photos">📸 Photo-verified</a>' if statue_photos(s, data) else '')
+    lc = last_confirmed(s, data)
+    if not lc:
+        return (f'<p class="confirmed">Not yet confirmed by a visitor · <a href="#visitor-photos" data-photo-subject="{e(photo_subject(s))}" '
+                f'data-photo-label="{e(s["label"])}">Send a photo</a>{badge}</p>')
+    month, src, url, kind = lc
+    lead = 'Last reported' if kind == 'reported' else 'Last confirmed standing'
+    lab = e(CONFIRM_SOURCES.get(src, CONFIRM_SOURCES['report']))
+    if url:
+        ext = '' if url.startswith('#') or url.startswith('/') else ' target="_blank" rel="noopener noreferrer"'
+        lab = f'<a href="{e(url)}"{ext}>{lab}</a>'
+    return f'<p class="confirmed">{lead}: <strong>{fmt_month(month)}</strong> · {lab}{badge}</p>'
+
+
+ALERT_ICONS = {'damaged': '⚠️', 'donated': 'ℹ️', 'not_installed': '🚧', 'moved': '📍', 'removed': '⚠️'}
+
+
+def alert_html(s):
+    a = s.get('alert')
+    if not a or not (a.get('text') or '').strip():
+        return ''
+    t = (a.get('type') or 'notice').lower()
+    src = ''
+    if a.get('source_url'):
+        src = (f' <a href="{e(a["source_url"])}" target="_blank" rel="noopener noreferrer">Source: {e(a.get("source_label") or "report")}</a>')
+    date = f'<span class="sa-date">{fmt_day(a["date"])}</span> · ' if re.fullmatch(r'\d{4}-\d{2}-\d{2}', a.get('date') or '') else ''
+    return (f'<div class="status-alert sa-{e(t)}" role="note"><p class="sa-title">{ALERT_ICONS.get(t, "ℹ️")} {e(a.get("title") or t.replace("_", " ").capitalize())}</p>'
+            f'<p class="sa-text">{date}{e(a["text"].strip())}{src}</p></div>')
+
+
+GALLERY_JS = ('<script>(function(){var d=document.getElementById("pv-dialog");if(!d||!d.showModal)return;var im=d.querySelector("img"),cap=d.querySelector("p");'
+              'document.addEventListener("click",function(ev){var a=ev.target.closest&&ev.target.closest("[data-pv-full]");'
+              'if(a){ev.preventDefault();im.src=a.getAttribute("data-pv-full");im.alt=a.getAttribute("data-pv-alt")||"";cap.textContent=a.getAttribute("data-pv-cap")||"";d.showModal();return}'
+              'if(ev.target===d||ev.target.closest("[data-pv-close]")){d.close()}});'
+              'd.addEventListener("close",function(){im.removeAttribute("src")});})();</script>')
+
+
+def gallery_html(s, data):
+    phs = statue_photos(s, data)
+    subj = f'data-photo-subject="{e(photo_subject(s))}" data-photo-label="{e(s["label"])}"'
+    c = data.get('config', {})
+    addr_fallback = f'{e(c.get("photo_email_user", "photos"))} [at] {e(c.get("photo_email_domain", "satoshistatues.com").replace(".", " [dot] "))}'
+    ask = (f'Been here? Send your photo to <a href="#visitor-photos" {subj} data-photo-addr>{addr_fallback}</a> '
+           f'and it may appear here and earn a photo-verified badge.')
+    if not phs:
+        return (f'<section class="gallery" id="visitor-photos" aria-labelledby="vp-title"><h2 id="vp-title">📸 Visitor photos</h2>'
+                f'<p class="vp-empty">{ask}</p></section>')
+    items = []
+    for ph in phs:
+        cr = (ph.get('credit') or '').strip() or 'Anonymous'
+        cap = f'{cr} · {fmt_month(ph["month"])}' if ph.get('month') else cr
+        alt = f'Visitor photo of the {s["label"]} by {cr}'
+        wh = f' width="{ph["w"]}" height="{ph["h"]}"' if ph.get('w') else ''
+        items.append(f'<li><a href="{photo_url(ph)}" data-pv-full="{photo_url(ph)}" data-pv-alt="{e(alt)}" data-pv-cap="{e(cap)}">'
+                     f'<img src="{photo_url(ph, True)}" alt="{e(alt)}"{wh} loading="lazy" decoding="async"></a>'
+                     f'<span class="vp-cap">{e(cap)}</span></li>')
+    return (f'<section class="gallery" id="visitor-photos" aria-labelledby="vp-title"><h2 id="vp-title">📸 Visitor photos</h2>'
+            f'<ul class="vp-grid">{"".join(items)}</ul><p class="vp-more">{ask}</p>'
+            f'<dialog id="pv-dialog" aria-label="Photo"><button type="button" class="pv-close" data-pv-close aria-label="Close">✕</button>'
+            f'<img alt=""><p></p></dialog></section>' + GALLERY_JS)
+
+
+GALLERY_CSS = ('.confirmed{font-size:.88rem;color:#8b949e;margin:-8px 0 14px;line-height:1.6}.confirmed strong{color:#e6edf3}'
+               '.confirmed a{color:#f7931a}'
+               '.pv-badge{display:inline-flex;align-items:center;gap:4px;margin-left:6px;font-size:.75rem;font-weight:700;color:#3fb950!important;'
+               'border:1px solid #3fb950;border-radius:999px;padding:1px 8px;text-decoration:none;vertical-align:1px}'
+               '.status-alert{border:1px solid #30363d;border-left:4px solid #f0883e;background:#2a1d12;border-radius:10px;padding:12px 14px;margin:0 0 16px}'
+               '.status-alert.sa-donated{border-left-color:#bc8cff;background:#1f1830}.status-alert.sa-not_installed{border-left-color:#58a6ff;background:#121f30}'
+               '.sa-title{font-weight:700;font-size:.95rem;margin:0 0 4px;color:#e6edf3}.sa-text{font-size:.88rem;line-height:1.5;margin:0}'
+               '.sa-date{font-weight:700}.sa-text a{display:inline-block;padding:4px 0;color:#f7931a}'
+               '.gallery{margin:22px 0;scroll-margin-top:12px}.vp-empty,.vp-more{font-size:.9rem;color:#8b949e;background:#161b22;border:1px dashed #30363d;border-radius:10px;padding:12px 14px}'
+               '.vp-more{margin-top:10px;border-style:solid}.gallery a[data-photo-addr]{color:#f7931a;word-break:break-word}'
+               '.vp-grid{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}'
+               '.vp-grid a{display:block;border-radius:8px;overflow:hidden;border:1px solid #30363d;background:#161b22}'
+               '.vp-grid img{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:cover}'
+               '.vp-cap{display:block;font-size:.75rem;color:#8b949e;margin-top:3px}'
+               '#pv-dialog{border:0;padding:0;background:transparent;max-width:100vw;max-height:100vh;margin:auto;color:#e6edf3}'
+               '#pv-dialog::backdrop{background:rgba(0,0,0,.88)}'
+               '#pv-dialog img{display:block;max-width:96vw;max-height:84vh;width:auto;height:auto;border-radius:8px;margin:0 auto}'
+               '#pv-dialog p{text-align:center;font-size:.85rem;color:#c9d1d9;margin-top:6px}'
+               '.pv-close{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:10px;width:44px;height:44px;border-radius:50%;border:1px solid #30363d;'
+               'background:#21262d;color:#e6edf3;font-size:1.1rem;cursor:pointer}')
+
+
 # ---------- "The story" (optional per statue; see GUIDES.md) ----------
 # statues.json → statue.story: [{"label": "Artist", "text": "…", "reported": true?, "sources": [{"label", "url"}]}]
 # Only sourced facts. `reported: true` marks partly confirmed items (shown with a 'Reported' tag).
@@ -685,6 +828,8 @@ def statue_page(s, data):
     <div class="crumbs"><a href="/">Map</a> › {e(s['label'])}</div>
     <h1>{e(s['label'])}</h1>
     <p class="sub">{e(s['place'])} · {e(s['city'])}, {e(s['country'])}{pin_sub(s)}</p>
+    {confirmed_html(s, data)}
+    {alert_html(s)}
     {img_html}
     <dl class="facts">
       <dt>Location</dt><dd>{e(s['place'])}, {e(s['city'])}, {e(s['country'])}</dd>
@@ -708,6 +853,7 @@ def statue_page(s, data):
     {story_html(s)}
     {visit_html(s, data)}
     {events_html(s, data)}
+    {gallery_html(s, data)}
     {checkin_count_html(s)}
     {photo_cta(s, data)}
     <h2>Sources</h2>
