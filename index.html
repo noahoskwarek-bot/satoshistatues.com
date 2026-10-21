@@ -31,6 +31,7 @@
   <!-- BUILD:HEADLINKS:BEGIN -->
   <link rel="alternate" type="application/atom+xml" title="Satoshi Statues – new statues" href="https://www.satoshistatues.com/feed.xml" />
   <style>.alert-box{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.alert-title{font-weight:700;color:#e6edf3;font-size:.95rem;margin:0 0 6px}.alert-form{display:flex;gap:8px;flex-wrap:wrap;max-width:520px}.alert-form input[type=email]{flex:1 1 180px;min-width:0;min-height:44px;padding:10px 12px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:16px;font-family:inherit}.alert-form input[type=email]:focus{outline:2px solid #f7931a;border-color:#f7931a}.alert-form button{min-height:44px;padding:10px 16px;border-radius:8px;border:none;background:#f7931a;color:#0d1117;font-weight:700;font-size:.92rem;cursor:pointer;font-family:inherit}.alert-fine{font-size:.8rem;color:#8b949e;margin:6px 0 0;line-height:1.45}.feed-link{color:#f7931a;font-weight:600;display:inline-block;padding:13px 0;margin:-13px 0;text-decoration:none}.feed-link:hover{text-decoration:underline}.photo-cta{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.photo-actions{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 4px}.photo-actions .btn{max-width:100%}.photo-cta .alert-fine a,.photo-credit a{padding:15px 0;margin:-15px 0}.photo-cta .alert-fine a{color:#f7931a}.photo-credit{display:block;margin-top:2px}.checkin-count{font-size:.85rem;color:#3fb950;margin:6px 0 0}.photo-credit a{color:#8b949e}.alert-follow{display:flex;flex-wrap:wrap;gap:0 18px;margin-top:2px}.alert-follow .feed-link{padding:0;margin:0;min-height:44px;display:inline-flex;align-items:center;font-size:.85rem}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}</style>
+  <script>window.SS_API = "https://api.satoshistatues.workers.dev";</script>
   <script>(function(){var c=[109, 111, 99, 46, 115, 101, 117, 116, 97, 116, 115, 105, 104, 115, 111, 116, 97, 115, 64, 115, 111, 116, 111, 104, 112];function to(){return String.fromCharCode.apply(null,c.slice().reverse())}function body(l){return "Hi,\n\nHere is my photo of the "+l+" (attached).\n\nYour name or X handle (for credit): \nDate taken: \n\nBy sending, you let satoshistatues.com feature your photo with credit.\n"}document.addEventListener("click",function(ev){var a=ev.target.closest&&ev.target.closest("[data-photo-subject]");if(!a)return;ev.preventDefault();location.href="mailto:"+to()+"?subject="+encodeURIComponent(a.getAttribute("data-photo-subject"))+"&body="+encodeURIComponent(body(a.getAttribute("data-photo-label")||"statue"));},true);})();</script>
   <!-- BUILD:HEADLINKS:END -->
   <!-- BUILD:JSONLD:BEGIN -->
@@ -539,6 +540,19 @@
     .popup-photo a { color: #f7931a; }
     .popup-photo a:hover { text-decoration: underline; }
     .checkin-count { font-size: 0.8rem; color: #3fb950; margin: 6px 0 2px; }
+    .lb-note { margin-top: 6px; }
+    .lb-note a, .pp-lb-link { color: #f7931a; }
+    .lb-note a { padding: 14px 0; margin: -14px 0; }
+    .lb-nick { margin-top: 8px; }
+    .lb-nick-q { font-size: 0.8rem; color: #c9d1d9; margin-bottom: 6px; }
+    .lb-nick-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .lb-nick input { flex: 1 1 150px; min-width: 0; min-height: 44px; padding: 8px 10px; border-radius: 8px; border: 1px solid #30363d; background: #0d1117; color: #e6edf3; font-size: 16px; font-family: inherit; }
+    .lb-nick button { min-height: 44px; padding: 8px 14px; border-radius: 8px; border: none; background: #f7931a; color: #0d1117; font-weight: 700; font-family: inherit; cursor: pointer; }
+    .lb-nick button.lb-skip { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; font-weight: 600; }
+    .lb-nick-msg { font-size: 0.78rem; color: #f0883e; margin-top: 4px; }
+    .pp-lb { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .pp-lb-link { font-weight: 700; font-size: 0.9rem; min-height: 44px; display: inline-flex; align-items: center; text-decoration: none; }
+    .lb-head-btn { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; min-width: 44px; }
     .popup-credit { font-size: 0.72rem; color: #8b949e; margin: -4px 0 6px; }
     .popup-credit a { color: #8b949e; padding: 15px 0; margin: -15px 0; }
     .photo-consent { flex-basis: 100%; font-size: 0.72rem; margin-top: 2px; }
@@ -708,6 +722,7 @@
       header p { font-size: 0.78rem; margin-top: 2px; }
       .header-right { width: 100%; justify-content: flex-start; gap: 8px; }
       .header-right button { min-height: 44px; padding: 8px 12px; }
+      .header-right .lb-head-btn { min-height: 44px; padding: 8px 12px; }
       .tip-toggle { display: inline-block; }
       .tip-box { display: none; font-size: 0.78rem; margin-top: 6px; }
       header.tip-open .tip-box { display: block; }
@@ -750,6 +765,7 @@
     </div>
     <div class="header-right">
       <button class="passport-btn" id="passport-btn" type="button" onclick="openPassport()">🛂 Passport</button>
+      <a class="passport-btn lb-head-btn" href="/leaderboard/" aria-label="Leaderboard" title="Leaderboard">🏆</a>
       <button class="reset-btn" type="button" onclick="resetMap()">Reset Map</button>
       <button class="tip-btn tip-primary tip-toggle" id="tip-toggle" type="button" aria-expanded="false" aria-controls="tip-box" onclick="toggleTip()">₿ Tip</button>
     </div>
@@ -783,6 +799,8 @@
           <li><a href="/budapest/">Satoshi Statue Budapest</a></li>
           <li><a href="/kranj/">Kranj Bitcoin Monument</a></li>
           <li><a href="/21-nodes/">21 Nodes tracker</a></li>
+          <li><a href="/leaderboard/">🏆 Passport leaderboard</a></li>
+          <li><a href="/privacy/">Privacy</a></li>
         </ul>
         <!-- BUILD:LINKS:END -->
       </footer>
@@ -825,7 +843,8 @@
         </div>
       </details>
       <div class="pp-foot">
-        <p class="modal-note">Tap <strong>Check in here</strong> when you're within about 200 m of a statue to collect its stamp. Stamps live only in this browser on this device. Nothing is uploaded, and clearing browser data erases them.</p>
+        <p class="modal-note">Tap <strong>Check in here</strong> when you're within 150 m of a statue to collect its stamp. Stamps are saved in this browser. Each check-in also goes to the <a href="/leaderboard/">leaderboard</a> with a random device ID: your location is only checked, never stored. <a href="/privacy/">Privacy</a></p>
+        <div class="pp-lb"><a class="pp-lb-link" href="/leaderboard/">🏆 Leaderboard</a><button class="pp-link" type="button" onclick="lbNickPrompt()">✏️ Leaderboard name</button></div>
         <button class="pp-link" type="button" id="geo-test-btn" onclick="testLocation()">📡 Test my location</button>
       </div>
     </div>
@@ -1157,7 +1176,7 @@
 
     // ---------- Passport, comments & corrections ----------
     const REPO = 'noahoskwarek-bot/satoshistatues.com';
-    const CHECKIN_RADIUS_M = 200;
+    const CHECKIN_RADIUS_M = 150; // same radius the leaderboard server enforces
     const PASSPORT_KEY = 'satoshiPassport.v1';
     // Stable per-location id (used for passport stamps and the comment thread term)
     function slugOf(s) {
@@ -1443,13 +1462,17 @@
         const { latitude, longitude, accuracy } = pos.coords;
         const d = haversineM(latitude, longitude, s.lat, s.lng);
         if (d <= CHECKIN_RADIUS_M) {
-          passport[s.slug] = { date: new Date().toISOString() };
-          trackCheckin(s);
-          const saved = savePassport();
-          refreshVisitedUI(s);
-          setMsg(s, 'ok', saved
-            ? `🟠 Stamped! ${s.name} is in your passport. That's ${visitedCount()} of ${checkable.length}.`
-            : `🟠 You're here, but this browser won't let us save the stamp (private mode?).`);
+          if (btn) btn.textContent = '🏆 Saving…';
+          lbSubmit(s, pos.coords).then(r => {
+            if (r.rejected) { setMsg(s, 'warn', r.html); return; }
+            passport[s.slug] = { date: new Date().toISOString() };
+            trackCheckin(s);
+            const saved = savePassport();
+            refreshVisitedUI(s);
+            setMsg(s, 'ok', (saved
+              ? `🟠 Stamped! ${s.name} is in your passport. That's ${visitedCount()} of ${checkable.length}.`
+              : `🟠 You're here, but this browser won't let us save the stamp (private mode?).`) + r.html);
+          });
         } else {
           const acc = accuracy && accuracy > CHECKIN_RADIUS_M ? ` (your location fix is only accurate to about ${fmtDist(accuracy)})` : '';
           setMsg(s, 'warn', `So close… well, sort of! You're about <strong>${fmtDist(d)}</strong> from ${s.name}${acc}. Get within ${CHECKIN_RADIUS_M} m to collect the stamp.`);
@@ -1621,15 +1644,19 @@
         const s = best.st;
         if (best.d <= CHECKIN_RADIUS_M) {
           if (isVisited(s)) { show('ok', `✓ You're at <strong>${s.name}</strong>. Already stamped on ${fmtDate(passport[s.slug].date)}.`); return; }
-          passport[s.slug] = { date: new Date().toISOString() };
-          trackCheckin(s);
-          const saved = savePassport();
-          refreshVisitedUI(s);
-          renderPassportList(s.slug);
-          refreshBadge();
-          show('ok', saved
-            ? `🟠 Stamped! <strong>${s.name}</strong> is in your passport. That's ${visitedCount()} of ${checkable.length}.`
-            : `🟠 You're at ${s.name}, but this browser won't let us save the stamp (private mode?).`);
+          btn.textContent = '🏆 Saving…';
+          lbSubmit(s, pos.coords).then(r => {
+            if (r.rejected) { show('warn', r.html); return; }
+            passport[s.slug] = { date: new Date().toISOString() };
+            trackCheckin(s);
+            const saved = savePassport();
+            refreshVisitedUI(s);
+            renderPassportList(s.slug);
+            refreshBadge();
+            show('ok', (saved
+              ? `🟠 Stamped! <strong>${s.name}</strong> is in your passport. That's ${visitedCount()} of ${checkable.length}.`
+              : `🟠 You're at ${s.name}, but this browser won't let us save the stamp (private mode?).`) + r.html);
+          });
         } else {
           const acc = accuracy && accuracy > CHECKIN_RADIUS_M ? ` Your location is only accurate to about ${fmtDist(accuracy)}.` : '';
           show('warn', `Nearest statue: <strong>${s.name}</strong>, about <strong>${fmtDist(best.d)}</strong> away. Get within ${CHECKIN_RADIUS_M} m to collect the stamp.${acc}`);
@@ -1934,6 +1961,90 @@
       cards.push(card);
     });
     fitAll(false);
+    // ---------- Leaderboard (Cloudflare Worker API; see /privacy/) ----------
+    const LB_API = window.SS_API || '';
+    const LB_DEVICE = 'satoshiDevice.v1', LB_NICK = 'satoshiNick.v1', LB_NICK_SKIP = 'satoshiNickSkip.v1', LB_CLAIMED = 'satoshiClaimed.v1';
+    function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+    function lsSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+    function lbDevice() {
+      let id = lsGet(LB_DEVICE);
+      if (!id) {
+        id = (crypto.randomUUID ? crypto.randomUUID() : Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, '0')).join(''));
+        lsSet(LB_DEVICE, id);
+      }
+      return id;
+    }
+    async function lbPost(path, body) {
+      const r = await fetch(LB_API + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      let j = {};
+      try { j = await r.json(); } catch (e) {}
+      return { status: r.status, j };
+    }
+    function lbNickForm(intro) {
+      return `<form class="lb-nick" data-lb-nick><div class="lb-nick-q">${intro}</div><div class="lb-nick-row"><input name="nick" maxlength="20" aria-label="Nickname or X handle" placeholder="Nickname or @handle" value="${escHtml(lsGet(LB_NICK) || '')}" autocomplete="nickname"><button type="submit">Save</button>${intro.includes('optional') ? '<button type="button" class="lb-skip" data-lb-skip>No thanks</button>' : ''}</div><div class="lb-nick-msg" aria-live="polite"></div></form>`;
+    }
+    // Ask the server to record the stamp. Rejections (too far, poor accuracy, rate limits) block the stamp;
+    // if the leaderboard can't be reached, the stamp is still saved locally.
+    async function lbSubmit(s, c) {
+      if (!LB_API) return { html: '' };
+      try {
+        const { status, j } = await lbPost('/api/checkin', { device_id: lbDevice(), slug: s.slug, lat: c.latitude, lng: c.longitude, accuracy: c.accuracy });
+        if (j.ok) {
+          if (!j.already) s.checkins = Math.max((s.checkins || 0) + 1, 1);
+          const me = j.me;
+          let html = `<div class="lb-note">🏆 ${me && me.rank ? `You're <strong>#${me.rank}</strong> on the <a href="/leaderboard/">leaderboard</a> with ${me.stamps} stamp${me.stamps === 1 ? '' : 's'}.` : 'Saved to the <a href="/leaderboard/">leaderboard</a>.'}</div>`;
+          if (!(me && me.nickname) && !lsGet(LB_NICK_SKIP)) html += lbNickForm('Show a name or X handle on the leaderboard? (optional)');
+          return { html };
+        }
+        if (status >= 400 && status < 500) return { rejected: true, html: `🏆 ${escHtml(j.message || "The check-in wasn't accepted.")}` };
+        return { html: '<div class="lb-note">The leaderboard is unavailable right now, so this stamp is only in your passport.</div>' };
+      } catch (e) {
+        return { html: '<div class="lb-note">Couldn\'t reach the leaderboard, so this stamp is only in your passport.</div>' };
+      }
+    }
+    function lbNickPrompt() {
+      const out = document.getElementById('geo-test-result');
+      out.className = 'checkin-msg';
+      out.innerHTML = lbNickForm('Your leaderboard name or X handle (2–20 letters, numbers, spaces, _ or -, or @handle):');
+      const inp = out.querySelector('input'); if (inp) inp.focus();
+    }
+    document.addEventListener('submit', ev => {
+      const f = ev.target.closest && ev.target.closest('[data-lb-nick]');
+      if (!f) return;
+      ev.preventDefault();
+      const msg = f.querySelector('.lb-nick-msg'), v = f.nick.value;
+      lbPost('/api/nickname', { device_id: lbDevice(), nickname: v }).then(({ j }) => {
+        if (j.ok) {
+          lsSet(LB_NICK, j.nickname || '');
+          f.innerHTML = j.nickname ? `✓ Saved. You'll show as <strong>${escHtml(j.nickname)}</strong> on the <a href="/leaderboard/">leaderboard</a>.` : '✓ Name removed.';
+        } else { msg.textContent = j.message || "Couldn't save that name."; }
+      }).catch(() => { msg.textContent = "Couldn't reach the leaderboard."; });
+    }, true);
+    document.addEventListener('click', ev => {
+      const b = ev.target.closest && ev.target.closest('[data-lb-skip]');
+      if (!b) return;
+      lsSet(LB_NICK_SKIP, '1');
+      const f = b.closest('[data-lb-nick]'); if (f) f.remove();
+    }, true);
+    // One-time: add stamps collected before the leaderboard existed (labelled "earlier, unverified").
+    function lbClaim() {
+      if (!LB_API || lsGet(LB_CLAIMED)) return;
+      const stamps = Object.keys(passport).filter(k => passport[k] && passport[k].date).map(k => ({ slug: k, date: passport[k].date }));
+      if (!stamps.length) return;
+      lbPost('/api/claim', { device_id: lbDevice(), stamps }).then(({ j }) => { if (j.ok) lsSet(LB_CLAIMED, '1'); }).catch(() => {});
+    }
+    // Live "N people have checked in here" counts; the build-time numbers (checkins.json) are the fallback.
+    function lbCounts() {
+      if (!LB_API) return;
+      fetch(LB_API + '/api/counts').then(r => r.json()).then(j => {
+        if (!j || !j.ok) return;
+        statues.forEach(s => { s.checkins = Math.max(j.counts[s.slug] || 0, s.checkins || 0); });
+        if (detailStatue && isDetailOpen()) renderDetail();
+        statues.forEach(s => { if (s.marker && s.marker.isPopupOpen()) s.marker.getPopup().update(); });
+      }).catch(() => {});
+    }
+    lbClaim();
+    lbCounts();
     // Deep links: /?s=vienna or /#vienna open that statue (bottom sheet on mobile, popup on desktop)
     function statueFromLocation() {
       let key = new URLSearchParams(location.search).get('s') || '';

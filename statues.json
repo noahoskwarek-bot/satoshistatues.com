@@ -9,7 +9,9 @@
     "_photo_help": "Photo submissions: the CTA builds a mailto link in JS from photo_email_user + photo_email_domain (kept split so no plain address appears in the HTML). photo_x_handle is shown as the X alternative.",
     "photo_email_user": "photos",
     "photo_email_domain": "satoshistatues.com",
-    "photo_x_handle": "satoshistatue21"
+    "photo_x_handle": "satoshistatue21",
+    "_leaderboard_help": "Leaderboard API (Cloudflare Worker in /workspace/leaderboard). Statue coordinates for its server-side distance check come from `python3 build.py --worker`.",
+    "leaderboard_api": "https://api.satoshistatues.workers.dev"
   },
   "statues": [
     {

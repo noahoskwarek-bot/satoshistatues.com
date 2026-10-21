@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>if (location.protocol === "http:" && !/^(localhost|127\.)/.test(location.hostname)) location.replace("https:" + location.href.slice(5));</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Satoshi Passport Leaderboard – Who Has Visited the Most Satoshi Statues?</title>
+  <meta name="description" content="Leaderboard of visitors who checked in at Satoshi Nakamoto statues with the Satoshi Passport: GPS-checked stamps at 11 statues, plus recent check-ins." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.satoshistatues.com/leaderboard/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.satoshistatues.com/leaderboard/" />
+  <meta property="og:title" content="Satoshi Passport Leaderboard – Who Has Visited the Most Satoshi Statues?" />
+  <meta property="og:description" content="Leaderboard of visitors who checked in at Satoshi Nakamoto statues with the Satoshi Passport: GPS-checked stamps at 11 statues, plus recent check-ins." />
+  <meta property="og:image" content="https://www.satoshistatues.com/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Satoshi statues world map" />
+  <meta property="og:site_name" content="Satoshi Statues" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Satoshi Passport Leaderboard – Who Has Visited the Most Satoshi Statues?" />
+  <meta name="twitter:description" content="Leaderboard of visitors who checked in at Satoshi Nakamoto statues with the Satoshi Passport: GPS-checked stamps at 11 statues, plus recent check-ins." />
+  <meta name="twitter:image" content="https://www.satoshistatues.com/og-image.jpg" />
+  <meta name="twitter:image:alt" content="Satoshi statues world map" />
+  <meta name="theme-color" content="#0d1117" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23f7931a'/%3E%3Ctext x='32' y='45' font-size='38' font-weight='700' text-anchor='middle' fill='%230d1117' font-family='Arial'%3E%E2%82%BF%3C/text%3E%3C/svg%3E" />
+  <link rel="alternate" type="application/atom+xml" title="Satoshi Statues – new statues" href="https://www.satoshistatues.com/feed.xml" />
+  <script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "BreadcrumbList",
+ "itemListElement": [
+  {
+   "@type": "ListItem",
+   "position": 1,
+   "name": "Map",
+   "item": "https://www.satoshistatues.com/"
+  },
+  {
+   "@type": "ListItem",
+   "position": 2,
+   "name": "Leaderboard",
+   "item": "https://www.satoshistatues.com/leaderboard/"
+  }
+ ]
+}
+</script>
+  <style>*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#0d1117;color:#e6edf3;line-height:1.5}
+a{color:#f7931a}
+.top{background:#161b22;border-bottom:1px solid #30363d;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.top .brand{color:#f7931a;font-weight:700;font-size:1.1rem;text-decoration:none}
+.top nav{display:flex;gap:8px;flex-wrap:wrap}
+.top nav a{color:#e6edf3;text-decoration:none;border:1px solid #30363d;border-radius:6px;padding:8px 12px;font-size:.88rem;min-height:44px;display:inline-flex;align-items:center}
+.top nav a:hover{border-color:#f7931a;color:#f7931a}
+main{max-width:860px;margin:0 auto;padding:18px 16px calc(40px + env(safe-area-inset-bottom,0px))}
+.crumbs{font-size:.8rem;color:#8b949e;margin-bottom:10px}
+.crumbs a{color:#8b949e}
+h1{color:#f7931a;font-size:1.7rem;line-height:1.25;margin-bottom:4px}
+.sub{color:#8b949e;margin-bottom:16px}
+h2{font-size:1.1rem;margin:26px 0 10px;color:#e6edf3}
+figure{margin:0 0 16px}
+figure img{width:100%;height:auto;max-height:70vh;object-fit:contain;background:#161b22;border:1px solid #30363d;border-radius:10px;display:block}
+figcaption{font-size:.75rem;color:#8b949e;margin-top:4px}
+.facts{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px 16px;font-size:.92rem}
+.facts dt{color:#8b949e}
+.badge{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:4px;font-weight:600}
+.b-installed{background:#1a3a2a;color:#3fb950}.b-restored{background:#3a2e1a;color:#f7931a}.b-planned{background:#1a2a3a;color:#58a6ff}.b-damaged{background:#3a2a1a;color:#f0883e}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;border-radius:8px;font-weight:700;text-decoration:none;font-size:.92rem;border:1px solid #30363d;color:#e6edf3;background:#21262d}
+.btn.primary{background:#f7931a;border-color:#f7931a;color:#0d1117}
+.btn:hover{border-color:#f7931a}
+.note{font-size:.95rem}
+.src{font-size:.85rem;color:#8b949e;padding-left:18px}
+.src li{margin:3px 0}
+.others{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px}
+.others a{display:flex;min-height:44px;align-items:center;padding:6px 10px;border:1px solid #30363d;border-radius:8px;text-decoration:none;color:#e6edf3;font-size:.88rem;background:#161b22}
+.others a:hover{border-color:#f7931a;color:#f7931a}
+.callout{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:8px;padding:10px 14px;font-size:.9rem;margin:14px 0}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid #30363d;vertical-align:top}
+th{color:#8b949e;font-weight:600;font-size:.8rem}
+.tbl{overflow-x:auto;border:1px solid #30363d;border-radius:10px;background:#161b22}
+.big{font-size:3rem;font-weight:800;line-height:1}.big small{font-size:1.4rem;color:#8b949e}
+.bar{height:10px;background:#21262d;border-radius:5px;overflow:hidden;margin:10px 0 4px;max-width:420px}.bar span{display:block;height:100%;background:linear-gradient(90deg,#f7931a,#ffb347)}
+footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-size:.8rem;color:#8b949e}
+#comments{min-height:120px}
+@media (max-width:600px){h1{font-size:1.4rem}.facts{grid-template-columns:1fr;gap:0}.facts dt{margin-top:8px}.facts dt:first-child{margin-top:0}td,th{padding:8px 6px}}.alert-box{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.alert-title{font-weight:700;color:#e6edf3;font-size:.95rem;margin:0 0 6px}.alert-form{display:flex;gap:8px;flex-wrap:wrap;max-width:520px}.alert-form input[type=email]{flex:1 1 180px;min-width:0;min-height:44px;padding:10px 12px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:16px;font-family:inherit}.alert-form input[type=email]:focus{outline:2px solid #f7931a;border-color:#f7931a}.alert-form button{min-height:44px;padding:10px 16px;border-radius:8px;border:none;background:#f7931a;color:#0d1117;font-weight:700;font-size:.92rem;cursor:pointer;font-family:inherit}.alert-fine{font-size:.8rem;color:#8b949e;margin:6px 0 0;line-height:1.45}.feed-link{color:#f7931a;font-weight:600;display:inline-block;padding:13px 0;margin:-13px 0;text-decoration:none}.feed-link:hover{text-decoration:underline}.photo-cta{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.photo-actions{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 4px}.photo-actions .btn{max-width:100%}.photo-cta .alert-fine a,.photo-credit a{padding:15px 0;margin:-15px 0}.photo-cta .alert-fine a{color:#f7931a}.photo-credit{display:block;margin-top:2px}.checkin-count{font-size:.85rem;color:#3fb950;margin:6px 0 0}.photo-credit a{color:#8b949e}.alert-follow{display:flex;flex-wrap:wrap;gap:0 18px;margin-top:2px}.alert-follow .feed-link{padding:0;margin:0;min-height:44px;display:inline-flex;align-items:center;font-size:.85rem}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}.lb-me{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:14px 0;font-size:.92rem}.lb-list{list-style:none;border:1px solid #30363d;border-radius:10px;background:#161b22;overflow:hidden}.lb-list li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #30363d;min-height:52px}.lb-list li:last-child{border-bottom:none}.lb-list li.me{background:#1f2a1a}.lb-rank{flex:0 0 2.2em;font-weight:800;color:#f7931a;font-size:1.05rem;text-align:center}.lb-who{flex:1 1 auto;min-width:0;display:flex;flex-direction:column}.lb-name{font-weight:700;overflow-wrap:anywhere}.lb-name a{color:#e6edf3}.lb-meta{font-size:.78rem;color:#8b949e;font-weight:400}.lb-stamps{flex:0 0 auto;text-align:right;font-weight:800;font-size:1.15rem}.lb-stamps small{display:block;font-size:.7rem;font-weight:400;color:#8b949e}.lb-ver{display:inline-block;margin-left:6px;font-size:.7rem;font-weight:700;color:#0d1117;background:#3fb950;border-radius:4px;padding:1px 6px;vertical-align:middle}.lb-feed{list-style:none;font-size:.88rem}.lb-feed li{padding:8px 0;border-bottom:1px solid #21262d}.lb-feed a{color:#f7931a}.lb-feed time{color:#8b949e;font-size:.78rem;margin-left:4px}.lb-empty{color:#8b949e;font-size:.9rem;padding:12px}.lb-nick{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.lb-nick input{flex:1 1 160px;min-width:0;min-height:44px;padding:10px 12px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:16px;font-family:inherit}.lb-nick button{min-height:44px;padding:10px 16px;border-radius:8px;border:none;background:#f7931a;color:#0d1117;font-weight:700;font-size:.92rem;cursor:pointer;font-family:inherit}.lb-msg{font-size:.82rem;color:#f0883e;margin-top:6px;min-height:1em}</style>
+  <script>window.SS_API = "https://api.satoshistatues.workers.dev";</script>
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="/">🟠 Satoshi Nakamoto Statues</a>
+    <nav><a href="/">🗺️ Map</a><a href="/21-nodes/">21 Nodes</a><a href="/leaderboard/">🏆 Leaderboard</a></nav>
+  </header>
+  <main>
+    <div class="crumbs"><a href="/">Map</a> › Leaderboard</div>
+    <h1>🏆 Satoshi Passport Leaderboard</h1>
+    <p class="sub">Who has stamped the most of the 11 installed Satoshi statues? <span id="lb-total"></span></p>
+    <div class="lb-me" id="lb-me" aria-live="polite">Loading…</div>
+    <noscript><p class="note">The leaderboard needs JavaScript.</p></noscript>
+    <h2>Top visitors</h2>
+    <ol class="lb-list" id="lb-list"><li class="lb-empty">Loading…</li></ol>
+    <h2>Recent check-ins</h2>
+    <ul class="lb-feed" id="lb-feed"><li class="lb-empty">Loading…</li></ul>
+    <h2>How it works</h2>
+    <p class="note">Open a statue on the <a href="/">map</a> and tap <strong>Check in</strong> when you are within 150 m. The server checks the distance and records the stamp; your location itself is not stored. Each device can stamp each statue once, up to 5 new stamps a day. People are ranked by unique stamps; on a tie, whoever got there first ranks higher.</p>
+    <p class="note" style="margin-top:8px">Stamps collected before the leaderboard started were added from the passport saved in your browser. Their location wasn’t checked by the server, so they are labelled <em>earlier, unverified</em>. A <span class="lb-ver" style="margin-left:0">✓ verified</span> badge means we confirmed that person ourselves. GPS can be faked, so treat this as a friendly game.</p>
+    <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">What we store and how to delete it: <a href="/privacy/">Privacy</a>.</p>
+    <footer class="site"><a href="/">satoshistatues.com</a> · <a href="/21-nodes/">21 Nodes tracker</a> · <a href="/leaderboard/">Leaderboard</a> · <a href="/feed.xml">Feed</a> · <a href="https://njump.me/npub1dx7qh8fpp9l45lzrv9ff95f0f3gkrlvjhhptqjrxyhemze68kuhs72vv8h" rel="me">Nostr</a> · <a href="/privacy/">Privacy</a></footer>
+  </main>
+<script>
+(function () {
+  var A = window.SS_API, DEV = 'satoshiDevice.v1', NICK = 'satoshiNick.v1';
+  var esc = function (t) { return String(t).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  var get = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  var set = function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} };
+  var dev = get(DEV), meId = null;
+  function ago(iso) {
+    var s = Math.max(0, (Date.now() - Date.parse(iso)) / 1000);
+    if (s < 90) return 'just now'; if (s < 5400) return Math.round(s / 60) + ' min ago';
+    if (s < 129600) return Math.round(s / 3600) + ' h ago';
+    return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+  function nameHtml(e) {
+    var n = esc(e.name);
+    if (/^@[A-Za-z0-9_]{1,15}$/.test(e.name)) n = '<a href="https://x.com/' + e.name.slice(1) + '" target="_blank" rel="noopener noreferrer nofollow">' + n + '</a>';
+    return n + (e.verified ? '<span class="lb-ver" title="Verified by satoshistatues.com">✓ verified</span>' : '');
+  }
+  function stampsMeta(e) {
+    return e.legacy ? (e.gps + ' GPS-checked · ' + e.legacy + ' earlier, unverified') : 'all GPS-checked';
+  }
+  function board() {
+    return fetch(A + '/api/leaderboard?limit=100').then(function (r) { return r.json(); }).then(function (j) {
+      var el = document.getElementById('lb-list');
+      document.getElementById('lb-total').textContent = j.total_people ? (j.total_people === 1 ? '1 person' : j.total_people + ' people') + ' so far.' : '';
+      if (!j.entries.length) { el.innerHTML = '<li class="lb-empty">No check-ins yet. Visit a statue and be the first!</li>'; return; }
+      el.innerHTML = j.entries.map(function (e) {
+        return '<li' + (e.id === meId ? ' class="me"' : '') + '><span class="lb-rank">' + e.rank + '</span><span class="lb-who"><span class="lb-name">' + nameHtml(e) +
+          (e.id === meId ? ' <span class="lb-meta">(you)</span>' : '') + '</span><span class="lb-meta">' + stampsMeta(e) + '</span></span><span class="lb-stamps">' + e.stamps +
+          '<small>of ' + j.statues + '</small></span></li>';
+      }).join('');
+    }).catch(function () { document.getElementById('lb-list').innerHTML = '<li class="lb-empty">The leaderboard could not be loaded. Please try again later.</li>'; });
+  }
+  function feed() {
+    return fetch(A + '/api/recent?limit=20').then(function (r) { return r.json(); }).then(function (j) {
+      var el = document.getElementById('lb-feed');
+      el.innerHTML = j.items.length ? j.items.map(function (i) {
+        return '<li><span class="lb-name">' + nameHtml(i) + '</span> checked in at ' + (i.page ? '<a href="/' + i.page + '/">' + esc(i.statue) + '</a>' : esc(i.statue)) +
+          ' <time datetime="' + esc(i.at) + '">' + ago(i.at) + '</time></li>';
+      }).join('') : '<li class="lb-empty">No check-ins yet.</li>';
+    }).catch(function () {});
+  }
+  function me() {
+    var box = document.getElementById('lb-me');
+    if (!dev) { box.innerHTML = 'Check in at a statue from the <a href="/">map</a> to join. Stamps are only accepted within 150 m of the statue.'; return Promise.resolve(); }
+    return fetch(A + '/api/me', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ device_id: dev }) })
+      .then(function (r) { return r.json(); }).then(function (j) {
+        if (!j.ok) return; var m = j.me; meId = m.id;
+        box.innerHTML = (m.rank ? 'You are <strong>#' + m.rank + '</strong> with <strong>' + m.stamps + '</strong> stamp' + (m.stamps === 1 ? '' : 's') + '. ' : 'No stamps on the leaderboard yet. ') +
+          'Your name: <strong>' + nameHtml(m) + '</strong>' +
+          '<form class="lb-nick" id="lb-nick"><input name="nick" maxlength="20" aria-label="Nickname or X handle" placeholder="Nickname or @handle" value="' + esc(m.nickname || '') + '"><button type="submit">Save name</button></form><div class="lb-msg" id="lb-msg" aria-live="polite"></div>';
+        document.getElementById('lb-nick').addEventListener('submit', function (ev) {
+          ev.preventDefault();
+          var v = this.nick.value, msg = document.getElementById('lb-msg');
+          fetch(A + '/api/nickname', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ device_id: dev, nickname: v }) })
+            .then(function (r) { return r.json(); }).then(function (k) {
+              if (k.ok) { set(NICK, k.nickname || ''); me().then(board).then(function () { var mm = document.getElementById('lb-msg'); if (mm) { mm.style.color = '#3fb950'; mm.textContent = 'Saved.'; } }); feed(); }
+              else { msg.style.color = ''; msg.textContent = k.message || 'Could not save that name.'; }
+            }).catch(function () { msg.textContent = 'Could not reach the leaderboard.'; });
+        });
+      }).catch(function () {});
+  }
+  if (!A) return;
+  me().then(board); feed();
+})();
+</script>
+  <script data-goatcounter="https://satoshistatues.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
