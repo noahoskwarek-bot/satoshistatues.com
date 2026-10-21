@@ -30,7 +30,7 @@
   <meta name="twitter:image:alt" content="Satoshi Nakamoto Statues: interactive world map of Satoshi statues and Bitcoin monuments" />
   <!-- BUILD:HEADLINKS:BEGIN -->
   <link rel="alternate" type="application/atom+xml" title="Satoshi Statues – new statues" href="https://www.satoshistatues.com/feed.xml" />
-  <style>.alert-box{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.alert-title{font-weight:700;color:#e6edf3;font-size:.95rem;margin:0 0 6px}.alert-form{display:flex;gap:8px;flex-wrap:wrap;max-width:520px}.alert-form input[type=email]{flex:1 1 180px;min-width:0;min-height:44px;padding:10px 12px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:16px;font-family:inherit}.alert-form input[type=email]:focus{outline:2px solid #f7931a;border-color:#f7931a}.alert-form button{min-height:44px;padding:10px 16px;border-radius:8px;border:none;background:#f7931a;color:#0d1117;font-weight:700;font-size:.92rem;cursor:pointer;font-family:inherit}.alert-fine{font-size:.8rem;color:#8b949e;margin:6px 0 0;line-height:1.45}.feed-link{color:#f7931a;font-weight:600;display:inline-block;padding:13px 0;margin:-13px 0;text-decoration:none}.feed-link:hover{text-decoration:underline}.photo-cta{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.photo-actions{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 4px}.photo-actions .btn{max-width:100%}.photo-cta .alert-fine a,.photo-credit a{padding:15px 0;margin:-15px 0}.photo-cta .alert-fine a{color:#f7931a}.photo-credit{display:block;margin-top:2px}.photo-credit a{color:#8b949e}.alert-follow{display:flex;flex-wrap:wrap;gap:0 18px;margin-top:2px}.alert-follow .feed-link{padding:0;margin:0;min-height:44px;display:inline-flex;align-items:center;font-size:.85rem}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}</style>
+  <style>.alert-box{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.alert-title{font-weight:700;color:#e6edf3;font-size:.95rem;margin:0 0 6px}.alert-form{display:flex;gap:8px;flex-wrap:wrap;max-width:520px}.alert-form input[type=email]{flex:1 1 180px;min-width:0;min-height:44px;padding:10px 12px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:16px;font-family:inherit}.alert-form input[type=email]:focus{outline:2px solid #f7931a;border-color:#f7931a}.alert-form button{min-height:44px;padding:10px 16px;border-radius:8px;border:none;background:#f7931a;color:#0d1117;font-weight:700;font-size:.92rem;cursor:pointer;font-family:inherit}.alert-fine{font-size:.8rem;color:#8b949e;margin:6px 0 0;line-height:1.45}.feed-link{color:#f7931a;font-weight:600;display:inline-block;padding:13px 0;margin:-13px 0;text-decoration:none}.feed-link:hover{text-decoration:underline}.photo-cta{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.photo-actions{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 4px}.photo-actions .btn{max-width:100%}.photo-cta .alert-fine a,.photo-credit a{padding:15px 0;margin:-15px 0}.photo-cta .alert-fine a{color:#f7931a}.photo-credit{display:block;margin-top:2px}.checkin-count{font-size:.85rem;color:#3fb950;margin:6px 0 0}.photo-credit a{color:#8b949e}.alert-follow{display:flex;flex-wrap:wrap;gap:0 18px;margin-top:2px}.alert-follow .feed-link{padding:0;margin:0;min-height:44px;display:inline-flex;align-items:center;font-size:.85rem}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}</style>
   <script>(function(){var c=[109, 111, 99, 46, 115, 101, 117, 116, 97, 116, 115, 105, 104, 115, 111, 116, 97, 115, 64, 115, 111, 116, 111, 104, 112];function to(){return String.fromCharCode.apply(null,c.slice().reverse())}function body(l){return "Hi,\n\nHere is my photo of the "+l+" (attached).\n\nYour name or X handle (for credit): \nDate taken: \n\nBy sending, you let satoshistatues.com feature your photo with credit.\n"}document.addEventListener("click",function(ev){var a=ev.target.closest&&ev.target.closest("[data-photo-subject]");if(!a)return;ev.preventDefault();location.href="mailto:"+to()+"?subject="+encodeURIComponent(a.getAttribute("data-photo-subject"))+"&body="+encodeURIComponent(body(a.getAttribute("data-photo-label")||"statue"));},true);})();</script>
   <!-- BUILD:HEADLINKS:END -->
   <!-- BUILD:JSONLD:BEGIN -->
@@ -538,6 +538,7 @@
     .popup-photo .photo-link { color: #f7931a; font-weight: 600; text-decoration: none; }
     .popup-photo a { color: #f7931a; }
     .popup-photo a:hover { text-decoration: underline; }
+    .checkin-count { font-size: 0.8rem; color: #3fb950; margin: 6px 0 2px; }
     .popup-credit { font-size: 0.72rem; color: #8b949e; margin: -4px 0 6px; }
     .popup-credit a { color: #8b949e; padding: 15px 0; margin: -15px 0; }
     .photo-consent { flex-basis: 100%; font-size: 0.72rem; margin-top: 2px; }
@@ -877,6 +878,7 @@
         "unveiled": "16 Sep 2021",
         "series21": false,
         "access": "Outdoors in Graphisoft Park. Can be visited 24/7, free of charge (per the statue’s official site).",
+        "checkins": 0,
         "label": "Satoshi Statue Budapest",
         "photoSubject": "Photo: Satoshi statue – Budapest"
       },
@@ -901,6 +903,7 @@
         "series21": true,
         "access": "In Parco Ciani, a public park open every day: 6:30–23:30 (March–October) and 6:30–21:00 (November–February). Free entry.",
         "statusLabel": "Damaged (Apr 2026), current status unconfirmed",
+        "checkins": 0,
         "label": "Satoshi Statue Lugano",
         "photoSubject": "Photo: Satoshi statue – Lugano"
       },
@@ -924,6 +927,7 @@
         "page": "el-zonte",
         "unveiled": "Apr 2025",
         "series21": true,
+        "checkins": 0,
         "label": "Satoshi Statue El Zonte",
         "photoSubject": "Photo: Satoshi statue – El Zonte"
       },
@@ -946,6 +950,7 @@
         "page": "tokyo",
         "unveiled": "Apr 2025",
         "series21": true,
+        "checkins": 0,
         "label": "Satoshi Statue Tokyo",
         "photoSubject": "Photo: Satoshi statue – Tokyo"
       },
@@ -969,6 +974,7 @@
         "unveiled": "9 Sep 2025",
         "series21": true,
         "access": "Indoors in the Blockchain Gallery at 1Matrix headquarters (Times City). Reported open to the public every Saturday.",
+        "checkins": 0,
         "label": "Satoshi Statue Hanoi",
         "photoSubject": "Photo: Satoshi statue – Hanoi"
       },
@@ -992,6 +998,7 @@
         "unveiled": "12 Nov 2025",
         "series21": true,
         "access": "Not yet installed at a permanent public site. A waterfront park location was announced but has not been confirmed.",
+        "checkins": 0,
         "label": "Satoshi Statue Miami (Valentina Picozzi)",
         "photoSubject": "Photo: Satoshi statue – Miami (Valentina Picozzi)"
       },
@@ -1015,6 +1022,7 @@
         "unveiled": "Dec 2025",
         "series21": true,
         "access": "Indoors at the New York Stock Exchange (NYSE museum). The NYSE building is not open to the general public, so the statue is not freely accessible.",
+        "checkins": 0,
         "label": "Satoshi Statue New York",
         "photoSubject": "Photo: Satoshi statue – New York"
       },
@@ -1037,6 +1045,7 @@
         "page": "fornelli",
         "unveiled": "1 May 2025",
         "series21": false,
+        "checkins": 0,
         "label": "Satoshi Statue Fornelli",
         "photoSubject": "Photo: Satoshi statue – Fornelli"
       },
@@ -1059,6 +1068,7 @@
         "page": "hong-kong",
         "unveiled": "20 Apr 2026",
         "series21": true,
+        "checkins": 0,
         "label": "Satoshi Statue Hong Kong",
         "photoSubject": "Photo: Satoshi statue – Hong Kong"
       },
@@ -1082,6 +1092,7 @@
         "unveiled": "Mar 2018",
         "series21": false,
         "creatorVerified": false,
+        "checkins": 0,
         "label": "Kranj Bitcoin Monument",
         "photoSubject": "Photo: Kranj Bitcoin Monument"
       },
@@ -1104,6 +1115,7 @@
         "page": "miami-bull",
         "unveiled": "Apr 2022",
         "series21": false,
+        "checkins": 0,
         "label": "Miami Bitcoin Bull",
         "photoSubject": "Photo: Miami Bitcoin Bull"
       },
@@ -1127,6 +1139,7 @@
         "unveiled": "14 Oct 2026",
         "series21": true,
         "access": "Outdoors at the head of the lake in Viertel Zwei, open to the public around the clock. Nearest U-Bahn: Krieau (U2).",
+        "checkins": 0,
         "label": "Satoshi Statue Vienna",
         "photoSubject": "Photo: Satoshi statue – Vienna"
       }
@@ -1342,6 +1355,19 @@
         : escHtml(cr);
       return `<div class="popup-credit">Photo: ${who}</div>`;
     }
+    // Anonymous GoatCounter event per successful GPS check-in (no coordinates are sent).
+    function trackCheckin(s, tries) {
+      const gc = window.goatcounter;
+      if (gc && typeof gc.count === 'function') {
+        try { gc.count({ path: 'checkin/' + s.slug, title: 'Check-in ' + s.name, event: true }); } catch (_) {}
+      } else if ((tries || 0) < 20) {
+        setTimeout(() => trackCheckin(s, (tries || 0) + 1), 500);
+      }
+    }
+    function checkinCountHtml(s) {
+      const n = s.checkins || 0;
+      return n > 0 ? `<div class="checkin-count">👣 ${n} ${n === 1 ? 'person has' : 'people have'} checked in here</div>` : '';
+    }
     function buildPopup(s) {
       const fullLocation = `${s.city}, ${s.country}`;
       const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`;
@@ -1379,6 +1405,7 @@
           <strong>Status:</strong> <span class="status-badge ${statusClass}">${s.statusLabel || s.status}</span><br><br>
           ${s.note}
         </div>
+        ${checkinCountHtml(s)}
         <div class="popup-actions">
           <a class="directions-btn" href="${mapsUrl}" target="_blank" rel="noopener noreferrer">Get Directions</a>
           ${earthBtn}
@@ -1417,6 +1444,7 @@
         const d = haversineM(latitude, longitude, s.lat, s.lng);
         if (d <= CHECKIN_RADIUS_M) {
           passport[s.slug] = { date: new Date().toISOString() };
+          trackCheckin(s);
           const saved = savePassport();
           refreshVisitedUI(s);
           setMsg(s, 'ok', saved
@@ -1594,6 +1622,7 @@
         if (best.d <= CHECKIN_RADIUS_M) {
           if (isVisited(s)) { show('ok', `✓ You're at <strong>${s.name}</strong>. Already stamped on ${fmtDate(passport[s.slug].date)}.`); return; }
           passport[s.slug] = { date: new Date().toISOString() };
+          trackCheckin(s);
           const saved = savePassport();
           refreshVisitedUI(s);
           renderPassportList(s.slug);
