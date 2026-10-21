@@ -238,6 +238,17 @@
     }
     .tip-box .tip-title { font-weight: 700; color: #e6edf3; font-size: 0.95rem; margin: 0 0 6px; }
     .tip-box.flash { box-shadow: 0 0 0 2px #f7931a; }
+    .embed-box { background: #161b22; border: 1px solid #30363d; border-radius: 10px; margin: 0 0 16px; font-size: 0.82rem; color: #8b949e; }
+    .embed-box summary { cursor: pointer; padding: 10px 14px; color: #e6edf3; font-weight: 700; font-size: 0.9rem; list-style-position: inside; min-height: 24px; }
+    .embed-box[open] summary { border-bottom: 1px solid #30363d; }
+    .embed-box > :not(summary) { margin-left: 14px; margin-right: 14px; }
+    .embed-help { margin-top: 10px; margin-bottom: 8px; line-height: 1.45; }
+    .embed-code { display: block; box-sizing: border-box; width: calc(100% - 28px); resize: vertical; background: #0d1117; color: #e6edf3; border: 1px solid #30363d; border-radius: 6px; padding: 8px; font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .embed-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .embed-actions .tip-btn { text-decoration: none; }
+    .embed-preview { margin-top: 10px; margin-bottom: 14px; }
+    .embed-preview:empty { display: none; }
+    .embed-preview iframe { display: block; width: 100%; height: 240px; border: 0; border-radius: 8px; }
     .tip-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
     .tip-btn { background: #21262d; border: 1px solid #30363d; color: #e6edf3; padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; cursor: pointer; text-decoration: none; font-family: inherit; }
     .tip-btn:hover { border-color: #f7931a; }
@@ -780,6 +791,21 @@
           </div>
           <img id="tip-qr" class="tip-qr" src="btc-tip-qr.png" alt="QR code for Bitcoin tip address" width="140" height="140" loading="lazy">
         </section>
+        <!-- BUILD:EMBED:BEGIN -->
+        <details class="embed-box" id="embed-box">
+          <summary>🧩 Embed this map</summary>
+          <p class="embed-help">Add this map to your blog or meetup site. Copy the code and paste it into an HTML block.</p>
+          <label class="sr-only" for="embed-code">Embed code</label>
+          <textarea id="embed-code" class="embed-code" readonly rows="6" spellcheck="false" onfocus="this.select()">&lt;div style=&quot;width:100%;height:450px;max-width:100%;border-radius:12px;overflow:hidden&quot;&gt;
+  &lt;iframe src=&quot;https://www.satoshistatues.com/embed/&quot; title=&quot;Map of Satoshi Nakamoto statues around the world&quot; loading=&quot;lazy&quot; allowfullscreen style=&quot;display:block;width:100%;height:100%;border:0&quot;&gt;&lt;/iframe&gt;
+&lt;/div&gt;</textarea>
+          <div class="embed-actions">
+            <button class="tip-btn tip-primary" type="button" id="embed-copy" onclick="copyEmbed()">Copy code</button>
+            <a class="tip-btn" href="/embed/" target="_blank" rel="noopener">Open preview ↗</a>
+          </div>
+          <div class="embed-preview" id="embed-preview" aria-hidden="true"></div>
+        </details>
+        <!-- BUILD:EMBED:END -->
         <a class="nodes-link" href="/21-nodes/">🟠 21 Nodes tracker: Valentina Picozzi’s series</a>
         <h2>Statue pages</h2>
         <!-- BUILD:LINKS:BEGIN -->
@@ -1358,6 +1384,20 @@
       if (navigator.clipboard) navigator.clipboard.writeText(a).then(done, () => prompt("Copy this address:", a));
       else prompt("Copy this address:", a);
     }
+    function copyEmbed() {
+      const ta = document.getElementById("embed-code"), b = document.getElementById("embed-copy"), code = ta.value;
+      const done = () => { b.textContent = "Copied ✓"; setTimeout(() => b.textContent = "Copy code", 2000); };
+      const fallback = () => { ta.focus(); ta.select(); ta.setSelectionRange(0, code.length); try { if (document.execCommand("copy")) return done(); } catch (e) {} toast("Select the code and copy it"); };
+      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(code).then(done, fallback);
+      else fallback();
+    }
+    (function () {
+      const box = document.getElementById("embed-box");
+      if (box) box.addEventListener("toggle", () => {
+        const pv = document.getElementById("embed-preview");
+        if (box.open && !pv.firstChild) pv.innerHTML = '<iframe src="/embed/" title="Embed preview" loading="lazy"></iframe>';
+      });
+    })();
     function resetMap() {
       map.closePopup();
       clearActiveCards();

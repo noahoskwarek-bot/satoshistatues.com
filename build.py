@@ -5,6 +5,7 @@ statues.json is the single source of truth. This script:
   * injects the statue array, JSON-LD and the crawlable link list into index.html
   * generates one static page per statue (/<page>/index.html)
   * generates /21-nodes/index.html, sitemap.xml, robots.txt and feed.xml (Atom)
+  * generates /embed/ (map-only iframe page, noindex) and the 'Embed this map' snippet box on the home page
   * renders the 'next statue' alert box from config.newsletter_action_url (Buttondown embed URL)
 
 Run `python3 build.py` after editing statues.json and commit the output.
@@ -1035,6 +1036,121 @@ VISIT_CSS = ('.visit{background:#161b22;border:1px solid #30363d;border-radius:1
              '.visit a{display:inline-block;padding:13px 0;margin:-13px 0}.visit li{margin:8px 0}')
 
 
+# ---------- Embeddable map (/embed/) ----------
+# Map-only page for iframes on blogs and meetup sites. Kept deliberately light: Leaflet + markercluster,
+# no passport/check-in/giscus/Buttondown/share-card/font code. noindex, canonical → home, not in the sitemap.
+# Optional ?statue=<page> focuses one statue and opens its popup.
+EMBED_URL = SITE + '/embed/'
+EMBED_TITLE = 'Map of Satoshi Nakamoto statues around the world'
+EMBED_SNIPPET = (
+    '<div style="width:100%;height:450px;max-width:100%;border-radius:12px;overflow:hidden">\n'
+    f'  <iframe src="{EMBED_URL}" title="{EMBED_TITLE}" loading="lazy" allowfullscreen'
+    ' style="display:block;width:100%;height:100%;border:0"></iframe>\n'
+    '</div>')
+
+EMBED_CSS = '''
+html,body{margin:0;height:100%;background:#0d1117;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+#map{position:absolute;inset:0;background:#0d1117}
+.btc-pin{display:flex;align-items:center;justify-content:center}
+.m,.c{border-radius:50%;display:flex;align-items:center;justify-content:center;color:#0d1117;line-height:1;background:#f7931a}
+.m{width:28px;height:28px;border:2px solid #fff;font-weight:700;font-size:15px;box-shadow:0 0 10px rgba(247,147,26,.6)}
+.c{width:36px;height:36px;border:3px solid rgba(255,255,255,.9);box-shadow:0 0 0 5px rgba(247,147,26,.35),0 0 12px rgba(247,147,26,.7);font-weight:800;font-size:14px}
+.leaflet-popup-content-wrapper{background:#161b22;color:#e6edf3;border-radius:10px}
+.leaflet-popup-tip{background:#161b22}
+.leaflet-popup-content{margin:12px 14px;font-size:.85rem;line-height:1.45}
+.leaflet-popup-content h3{margin:0 0 3px;color:#f7931a;font-size:1rem}
+.leaflet-container a.leaflet-popup-close-button{color:#8b949e}
+.loc{color:#8b949e;margin-bottom:8px}
+.st{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.75rem;font-weight:600;background:#1a3a2a;color:#3fb950}
+.st.Restored{background:#3a2e1a;color:#f7931a}.st.Planned{background:#1a2a3a;color:#58a6ff}
+.st.Removed{background:#3a1a1a;color:#f85149}.st.Damaged{background:#3a2a1a;color:#f0883e}
+.go{display:inline-block;margin-top:10px;background:#f7931a;color:#0d1117!important;padding:6px 12px;border-radius:6px;font-weight:600;text-decoration:none}
+.credit{position:absolute;top:10px;right:10px;z-index:1000;display:flex;align-items:center;gap:6px;background:rgba(13,17,23,.88);border:1px solid #30363d;color:#e6edf3;text-decoration:none;font-size:12px;font-weight:600;padding:5px 9px 5px 7px;border-radius:999px}
+.credit:hover{border-color:#f7931a}.credit img{display:block}
+.leaflet-control-attribution{background:rgba(13,17,23,.75)!important;color:#8b949e}.leaflet-control-attribution a{color:#8b949e}
+.leaflet-bar a{background:#161b22;color:#e6edf3;border-bottom-color:#30363d}.leaflet-bar a:hover{background:#21262d}
+'''.strip()
+
+EMBED_JS = r'''
+(function () {
+  var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  var map = L.map('map', { zoomSnap: 0.25, minZoom: 0.5, scrollWheelZoom: false, worldCopyJump: true });
+  map.once('focus', function () { map.scrollWheelZoom.enable(); });
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri', maxZoom: 16, detectRetina: true }).addTo(map);
+  var icon = L.divIcon({ className: 'btc-pin', html: '<div class="m">₿</div>', iconSize: [44, 44], iconAnchor: [22, 22], popupAnchor: [0, -16] });
+  var group = L.markerClusterGroup({ maxClusterRadius: 40, showCoverageOnHover: false, spiderfyOnMaxZoom: true,
+    iconCreateFunction: function (c) { return L.divIcon({ className: 'btc-pin', html: '<div class="c">' + c.getChildCount() + '</div>', iconSize: [44, 44], iconAnchor: [22, 22] }); } }).addTo(map);
+  var bySlug = {}, all = [];
+  STATUES.forEach(function (s) {
+    var html = '<h3>' + esc(s.n) + '</h3><div class="loc">' + esc(s.loc) + (s.a ? ' · approximate pin' : '') + '</div>' +
+      '<span class="st ' + esc(s.s) + '">' + esc(s.sl || s.s) + '</span><br>' +
+      '<a class="go" href="' + SITE + '/' + encodeURIComponent(s.p) + '/" target="_blank" rel="noopener">Photos &amp; details ↗</a>';
+    var m = L.marker([s.lat, s.lng], { icon: icon, title: s.n, alt: s.n }).bindPopup(html, { maxWidth: 260, autoPanPaddingTopLeft: [14, 56], autoPanPaddingBottomRight: [14, 30] });
+    group.addLayer(m); bySlug[s.p] = m; all.push(m);
+  });
+  var small = Math.min(innerWidth, innerHeight) < 500;
+  map.fitBounds(L.featureGroup(all).getBounds(), { padding: small ? [34, 34] : [48, 48], animate: false });
+  var want = (location.search.match(/[?&]statue=([a-z0-9-]+)/) || [])[1];
+  if (want && bySlug[want]) group.zoomToShowLayer(bySlug[want], function () { bySlug[want].openPopup(); });
+})();
+'''.strip()
+
+
+def embed_page(data):
+    pts = []
+    for s in data['statues']:
+        p = {'n': s['label'], 'loc': ', '.join(x for x in (s.get('place'), s['city'], s['country']) if x),
+             'lat': s['lat'], 'lng': s['lng'], 's': s['status'], 'p': s['page']}
+        if s.get('statusLabel'):
+            p['sl'] = s['statusLabel']
+        if s.get('pin_approx'):
+            p['a'] = 1
+        pts.append(p)
+    pts_js = json.dumps(pts, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
+    return f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Satoshi Nakamoto Statues: embeddable map</title>
+  <meta name="description" content="Interactive map of Satoshi Nakamoto statues around the world, for embedding on other websites." />
+  <meta name="robots" content="noindex, follow" />
+  <link rel="canonical" href="{SITE}/" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://server.arcgisonline.com" crossorigin>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <style>{EMBED_CSS}</style>
+</head>
+<body>
+  <div id="map" role="region" aria-label="{EMBED_TITLE}"></div>
+  <a class="credit" href="{SITE}/" target="_blank" rel="noopener"><img src="/brand/pin.svg" width="13" height="18" alt="" />satoshistatues.com</a>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script>var SITE = "{SITE}", STATUES = {pts_js};
+{EMBED_JS}</script>
+  <script data-goatcounter="https://satoshistatues.goatcounter.com/count" data-goatcounter-settings='{{"path": "/embed/", "allow_frame": true}}' async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
+'''
+
+
+def embed_box_html():
+    snippet = e(EMBED_SNIPPET)
+    return f'''        <details class="embed-box" id="embed-box">
+          <summary>🧩 Embed this map</summary>
+          <p class="embed-help">Add this map to your blog or meetup site. Copy the code and paste it into an HTML block.</p>
+          <label class="sr-only" for="embed-code">Embed code</label>
+          <textarea id="embed-code" class="embed-code" readonly rows="6" spellcheck="false" onfocus="this.select()">{snippet}</textarea>
+          <div class="embed-actions">
+            <button class="tip-btn tip-primary" type="button" id="embed-copy" onclick="copyEmbed()">Copy code</button>
+            <a class="tip-btn" href="/embed/" target="_blank" rel="noopener">Open preview ↗</a>
+          </div>
+          <div class="embed-preview" id="embed-preview" aria-hidden="true"></div>
+        </details>'''
+
+
 def page_lastmod(s):
     u = ((s.get('visit') or {}).get('updated') or '').strip()
     return max(BUILD_DATE, u) if re.fullmatch(r'\d{4}-\d{2}-\d{2}', u) else BUILD_DATE
@@ -1076,6 +1192,7 @@ def build_index(data, text):
         for s in sorted(data['statues'], key=lambda s: -sort_year(s['year']))) + '          <li><a href="/21-nodes/">21 Nodes tracker</a></li>\n          <li><a href="/leaderboard/">🏆 Passport leaderboard</a></li>\n          <li><a href="/privacy/">Privacy</a></li>\n        </ul>'
     text = replace_block(text, 'LINKS', links)
     text = replace_block(text, 'SIGNUP', '        ' + signup_html(data, 'home'))
+    text = replace_block(text, 'EMBED', embed_box_html())
     text = replace_block(text, 'HEADLINKS', '  ' + FEED_LINK + '\n  <style>' + ALERT_CSS + '</style>' + ('\n  ' + api_script() if api_script() else '') + ('\n  ' + photo_js(data) if photo_js(data) else ''))
     return text
 
@@ -1088,7 +1205,8 @@ def outputs(data):
              '.nojekyll': '',
              '21-nodes/index.html': nodes_page(data),
              'leaderboard/index.html': leaderboard_page(data),
-             'privacy/index.html': privacy_page(data)}
+             'privacy/index.html': privacy_page(data),
+             'embed/index.html': embed_page(data)}
     pages = [s['page'] for s in data['statues']]
     assert len(set(pages)) == len(pages), 'duplicate page slugs'
     if nostr_json(data):
