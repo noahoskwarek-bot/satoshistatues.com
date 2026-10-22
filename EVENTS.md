@@ -54,3 +54,16 @@ Edit `events.json`, then run `python3 build.py` and `python3 build.py --check`, 
 - **Budapest Bitcoin**: official site shows no dates for an upcoming edition.
 - **Consensus Miami 2027 / WebX 2027 (Tokyo)**: broad crypto/Web3 conferences, not Bitcoin events.
 - **BTC Balkans (Sofia)**: ~640 km from Budapest.
+
+## Checked 2026-10-22 and not added
+
+- **Bitcoin Treasuries Conference 2027 (New York)**: Sep 28, 2027 appears only on the organizer's Luma page; bitcointreasuries.net/conference still shows the 2026 event, so the dates aren't confirmed on the official site yet.
+- **The Sovereign Summit (Miami Beach, Feb 4–7, 2027)**: not Bitcoin-only (covers AI, energy and money).
+- **TOKEN2049 New York, Digital Assets Week NY, Blockchain Week UNGA, Vienna Blockchain Week 2027**: broad crypto, not Bitcoin events.
+- **Adopting Bitcoin Arnhem 2027 (May 28–29)**: ~700+ km from the nearest statue.
+- **Bitcoin Hanoi meetups**: small monthly meetups, location shared by DM only; not a conference.
+
+Note (2026-10-22): the asia.b.tc header still reads "Aug 27–28", but its 2027 section says August 26–27, 2027, so the Bitcoin Asia 2027 listing stays as is.
+
+Added 2026-10-22: **Miami Bitcoin Summit 2027** (Fri Feb 5, 2027, Fontainebleau Miami Beach, 4441 Collins Ave; Bitcoin-only; confirmed on miamibitcoinsummit.com), ~8 km from the Miami Bitcoin Bull.
+

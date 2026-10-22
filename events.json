@@ -66,6 +66,18 @@
       "verified": "2026-10-21"
     },
     {
+      "name": "Miami Bitcoin Summit 2027",
+      "start_date": "2027-02-05",
+      "city": "Miami Beach, Florida",
+      "country": "USA",
+      "lat": 25.8180,
+      "lng": -80.1223,
+      "url": "https://miamibitcoinsummit.com/",
+      "statue": "miami-bull",
+      "source_url": "https://miamibitcoinsummit.com/",
+      "verified": "2026-10-22"
+    },
+    {
       "name": "Swiss Bitcoin Conference 2027",
       "start_date": "2027-04-23",
       "end_date": "2027-04-25",
