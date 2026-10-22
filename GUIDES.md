@@ -97,8 +97,37 @@ reads the cache (builds stay offline) and renders, inside Visiting:
 - if none within 5 km: "None listed within 5 km on BTC Map yet" with links to the BTC Map map at the pin and to
   https://btcmap.org/add-location.
 
-A weekly GitHub Actions workflow (template in `tools/weekly-merchants.yml`; enable it by moving it to `.github/workflows/`) refreshes the cache, rebuilds text pages
+A weekly GitHub Actions workflow (template in `tools/weekly-merchants.yml`; enable it by moving it to `.github/workflows/`) refreshes both caches (`merchants.json` and `lodging.json`), rebuilds text pages
 with `python3 build.py --no-bin` and commits only when something changed. After moving a pin, re-run the fetch.
+
+## Stay nearby (accepts bitcoin) (automatic, BTC Map)
+
+Places to stay come from the same fetch: `python3 tools/fetch_merchants.py` refreshes `merchants.json` **and**
+`lodging.json` in one run (one bulk BTC Map call, `/v4/places` with the `osm:tourism` field). Kept: OSM
+`tourism=hotel`, `hostel`, `guest_house`, `motel`, `apartment` and `chalet` (holiday homes); camp/caravan sites, alpine
+huts and attractions are left out; unnamed entries are dropped. Every BTC Map place is listed because it accepts bitcoin.
+Stored per statue: name, type, haversine distance, BTC Map last-verified date (`verified_at`, from OSM `check_date` /
+`survey:date`; omitted when absent), coordinates, and the place's own website when it has one. Booking-site
+(Booking.com, Airbnb, Expedia…) and tracking/affiliate-style URLs are never used; the BTC Map listing is linked instead.
+
+Thresholds (one place: `statues.json` → `config.lodging`):
+
+```json
+"lodging": {"radius_mi": 5, "fallback_km": 25, "max_items": 5}
+```
+
+- up to `max_items` (5) within `radius_mi` (5 mi = 8.05 km), nearest first, with a count line when more exist;
+- if none: the nearest up to 5 within `fallback_km` (25 km = 15.5 mi), labelled "None within 5 mi (8 km). Nearest bitcoin
+  stays, X mi (Y km) away";
+- if none within 25 km: one line, "No bitcoin-accepting places to stay listed within 15.5 mi (25 km) on BTC Map yet."
+- statues with `visit.merchants: false` (not installed yet) say they will be listed once there is a permanent site.
+
+Distances are miles first, then km. Each list ends with "Confirm with the place that it still takes bitcoin before you
+book." The section sits inside Visiting (`/<page>/#stay`), after the nearby places list. The home map has a
+"🛏 Stays" toggle (top right, off by default) that shows the same stays as blue 🛏 pins outside the statue cluster; they
+are not statues, never stampable, and do not affect deep links, Nearby Statues, the passport (11) or the leaderboard.
+After changing `config.lodging`, re-run the fetch (it stores the nearest 5 within `fallback_km`) and rebuild.
+Never add, edit or invent places by hand; fix them on BTC Map / OpenStreetMap instead.
 
 ## The story (`story`)
 

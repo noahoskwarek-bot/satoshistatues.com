@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""Refresh merchants.json: places that accept bitcoin near each statue, from the BTC Map API.
+"""Refresh merchants.json and lodging.json: places (and places to stay) that accept bitcoin near each statue, from the BTC Map API.
 
-    python3 tools/fetch_merchants.py          # fetch all statues, rewrite merchants.json only if a list changed
-    python3 tools/fetch_merchants.py --force  # also bump the 'fetched' date when nothing changed
+    python3 tools/fetch_merchants.py          # fetch both, rewrite each file only if a list changed
+    python3 tools/fetch_merchants.py --force  # also bump the 'fetched' dates when nothing changed
+
+Lodging ("Stay nearby"): one bulk call to /v4/places with the osm:tourism field; keeps OSM tourism=hotel, hostel,
+guest_house, motel, apartment and chalet (camp/caravan sites, alpine huts and attractions are left out), named only.
+Radius/limit come from statues.json config.lodging (radius_mi, fallback_km, max_items); see GUIDES.md.
 
 The API's radius_km is a loose box, so every distance is re-checked here with haversine.
 ATMs and unnamed entries are dropped. build.py reads merchants.json (offline) and decides what to show:
@@ -20,10 +24,17 @@ import urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'merchants.json')
+LODGING_OUT = os.path.join(ROOT, 'lodging.json')
 API = 'https://api.btcmap.org/v4/places/search/?lat={lat}&lon={lng}&radius_km={r}'
 QUERY_KM = 6        # ask a bit wider than 5 km, then filter exactly
 KEEP = 5            # nearest places stored per statue
 ATM_ICONS = {'local_atm', 'atm'}
+LODGING_API = ('https://api.btcmap.org/v4/places?fields=id,lat,lon,name,osm:tourism,verified_at,website')
+LODGING_TYPES = ('hotel', 'hostel', 'guest_house', 'motel', 'apartment', 'chalet')
+# booking aggregators / tracking parameters: never shown as the link (BTC Map listing is used instead)
+NO_LINK_HOSTS = re.compile(r'(^|\.)(booking\.com|airbnb\.[a-z.]+|expedia\.[a-z.]+|hotels\.com|agoda\.com|trivago\.[a-z.]+|'
+                           r'tripadvisor\.[a-z.]+|vrbo\.com|hostelworld\.com|kayak\.[a-z.]+)$', re.I)
+TRACKING = re.compile(r'[?&](aff|affiliate|aid|ref|refid|utm_[a-z]+|partner|clickref)=', re.I)
 UA = 'satoshistatues.com build (https://www.satoshistatues.com)'
 
 
@@ -73,9 +84,89 @@ def summarize(s, places):
             'nearest': rows[:KEEP]}
 
 
+def clean_site(u):
+    import urllib.parse
+    u = (u or '').strip()
+    if not re.match(r'https?://', u, re.I):
+        return None
+    host = (urllib.parse.urlsplit(u).hostname or '').lower()
+    if not host or NO_LINK_HOSTS.search(host) or TRACKING.search(u):
+        return None
+    return u
+
+
+def lodging_config(cfg):
+    c = cfg.get('lodging') or {}
+    return float(c.get('radius_mi', 5)) * 1.609344, float(c.get('fallback_km', 25)), int(c.get('max_items', 5))
+
+
+def fetch_lodging(statues, cfg):
+    radius_km, fallback_km, keep = lodging_config(cfg)
+    req = urllib.request.Request(LODGING_API, headers={'User-Agent': UA, 'Accept': 'application/json'})
+    last = None
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                allp = json.load(r)
+            break
+        except Exception as ex:
+            last = ex
+            time.sleep(2 + attempt * 3)
+    else:
+        raise last
+    stays = [p for p in allp if p.get('osm:tourism') in LODGING_TYPES and named(p)
+             and p.get('lat') is not None and p.get('lon') is not None]
+    out = {}
+    for s in statues:
+        rows = []
+        for p in stays:
+            d = km(s['lat'], s['lng'], p['lat'], p['lon'])
+            if d <= fallback_km:
+                row = {'id': p['id'], 'name': p['name'].strip(), 'type': p['osm:tourism'], 'km': round(d, 3),
+                       'verified_at': (p.get('verified_at') or '')[:10] or None, 'lat': round(p['lat'], 6), 'lng': round(p['lon'], 6)}
+                site = clean_site(p.get('website'))
+                if site:
+                    row['website'] = site
+                rows.append(row)
+        rows.sort(key=lambda x: (x['km'], x['id']))
+        out[s['page']] = {'within_radius': sum(1 for x in rows if x['km'] <= radius_km),
+                          'within_fallback': len(rows), 'nearest': rows[:keep]}
+    return out
+
+
+def refresh_lodging(statues, cfg):
+    old = {}
+    if os.path.exists(LODGING_OUT):
+        with open(LODGING_OUT, encoding='utf-8') as f:
+            old = json.load(f)
+    try:
+        new = fetch_lodging(statues, cfg)
+    except Exception as ex:  # BTC Map outage: keep the cached file as-is
+        print(f'WARN lodging: {ex}; keeping lodging.json', file=sys.stderr)
+        return
+    radius_km, fallback_km, keep = lodging_config(cfg)
+    changed = new != old.get('stays')
+    if not changed and '--force' not in sys.argv:
+        print('lodging.json unchanged')
+        return
+    out = {'_comment': 'Generated by tools/fetch_merchants.py from the BTC Map API: OSM tourism=' + '/'.join(LODGING_TYPES)
+                       + ', named only, haversine km from the statue pin, nearest ' + str(keep) + ' within ' + str(fallback_km)
+                       + ' km. Booking-site and tracking links dropped. Do not edit by hand.',
+           'source': 'https://api.btcmap.org/v4/places',
+           'fetched': datetime.date.today().isoformat(),
+           'stays': new}
+    with open(LODGING_OUT, 'w', encoding='utf-8') as f:
+        json.dump(out, f, ensure_ascii=False, indent=1)
+        f.write('\n')
+    for k, v in new.items():
+        print(f'{k:15s} stays: {v["within_radius"]:3d} within {radius_km:.2f} km, {v["within_fallback"]:3d} within {fallback_km:g} km')
+
+
 def main():
     with open(os.path.join(ROOT, 'statues.json'), encoding='utf-8') as f:
-        statues = json.load(f)['statues']
+        sj = json.load(f)
+    statues = sj['statues']
+    refresh_lodging(statues, sj.get('config') or {})
     old = {}
     if os.path.exists(OUT):
         with open(OUT, encoding='utf-8') as f:

@@ -1,6 +1,6 @@
 # TEMPLATE: move to .github/workflows/weekly-merchants.yml to enable. The bot token cannot push workflow files
 # (it lacks the GitHub `workflow` scope), so this must be added by someone with that scope, e.g. via the GitHub web UI.
-# Weekly refresh of the "Nearby places that accept bitcoin" lists (BTC Map → merchants.json → statue pages).
+# Weekly refresh of the "Nearby places that accept bitcoin" and "Stay nearby" lists (BTC Map → merchants.json + lodging.json → pages).
 # Commits only when a list changed. Uses only the built-in GITHUB_TOKEN; no other secrets.
 # Runs Sundays 14:17 UTC (10:17 ET in summer, 9:17 ET in winter), well away from the daily ~6 AM ET
 # check-in refresh, and rebases on main right before pushing so the two never conflict.
@@ -38,8 +38,8 @@ jobs:
       - name: Stop if nothing changed
         id: diff
         run: |
-          if git diff --quiet -- merchants.json; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"; echo "No merchant changes."
+          if git diff --quiet -- merchants.json lodging.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"; echo "No merchant or lodging changes."
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
@@ -56,8 +56,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A merchants.json index.html sitemap.xml feed.xml */index.html */*/index.html
-          git commit -m "Weekly BTC Map refresh: nearby places ($(date -u +%F))"
+          git add -A merchants.json lodging.json index.html sitemap.xml feed.xml */index.html */*/index.html
+          git commit -m "Weekly BTC Map refresh: nearby places + stays ($(date -u +%F))"
           for i in 1 2 3; do
             git pull --rebase origin main && git push origin HEAD:main && break
             sleep 10

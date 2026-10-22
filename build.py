@@ -8,12 +8,13 @@ statues.json is the single source of truth. This script:
   * generates /embed/ (map-only iframe page, noindex) and the 'Embed this map' snippet box on the home page
   * renders 'Upcoming Bitcoin events nearby' on statue pages from events.json (see EVENTS.md)
   * renders 'The story' (statue.story) and the BTC Map 'Nearby places' list from merchants.json (see GUIDES.md)
+  * renders 'Stay nearby (accepts bitcoin)' from lodging.json (statue pages + toggleable map layer; see GUIDES.md)
   * renders the 'next statue' alert box from config.newsletter_action_url (Buttondown embed URL)
 
 Run `python3 build.py` after editing statues.json and commit the output.
 `python3 build.py --check` exits non-zero if the committed output is stale.
 `python3 build.py --no-bin` skips the binary OG images (used by the weekly merchants workflow).
-Refresh merchants.json with `python3 tools/fetch_merchants.py` (needs network; builds themselves stay offline).
+Refresh merchants.json + lodging.json with `python3 tools/fetch_merchants.py` (needs network; builds themselves stay offline).
 GitHub Pages serves the committed files as-is; there is no runtime build step.
 """
 import datetime
@@ -70,6 +71,11 @@ def load():
     if os.path.exists(mpath):
         with open(mpath, encoding='utf-8') as f:
             data['merchants'] = json.load(f)
+    lpath = os.path.join(ROOT, 'lodging.json')
+    data['lodging'] = {}
+    if os.path.exists(lpath):
+        with open(lpath, encoding='utf-8') as f:
+            data['lodging'] = json.load(f)
     return data
 
 
@@ -1267,6 +1273,85 @@ def merchants_html(s, data):
     return out
 
 
+# ---------- Stay nearby (accepts bitcoin): lodging.json (tools/fetch_merchants.py) ----------
+# Thresholds live in statues.json config.lodging: radius_mi (main radius, miles), fallback_km (labelled fallback),
+# max_items (per statue). Distances are shown miles first, then km. Never hand-edit lodging.json.
+STAY_TYPES = {'hotel': 'hotel', 'hostel': 'hostel', 'guest_house': 'guesthouse', 'motel': 'motel',
+              'apartment': 'apartment', 'chalet': 'holiday home'}
+MI = 1.609344
+
+
+def lodging_cfg(data):
+    c = (data.get('config') or {}).get('lodging') or {}
+    return float(c.get('radius_mi', 5)), float(c.get('fallback_km', 25)), int(c.get('max_items', 5))
+
+
+def fmt_mi(mi):
+    return f'{mi:.1f} mi' if mi < 100 else f'{mi:.0f} mi'
+
+
+def fmt_mi_km(k):
+    return f'{fmt_mi(k / MI)} ({fmt_km(k)})'
+
+
+def fmt_num(x):
+    return f'{x:g}'
+
+
+def statue_stays(s, data):
+    """(rows, fallback?) for a statue: up to max_items within radius_mi, else up to max_items within fallback_km."""
+    radius_mi, fallback_km, n = lodging_cfg(data)
+    L = ((data.get('lodging') or {}).get('stays') or {}).get(s['page'])
+    if not L:
+        return [], False
+    near = [x for x in L['nearest'] if x['km'] <= radius_mi * MI][:n]
+    if near:
+        return near, False
+    return [x for x in L['nearest'] if x['km'] <= fallback_km][:n], True
+
+
+def stay_link(x):
+    return x.get('website') or f'https://btcmap.org/merchant/{x["id"]}'
+
+
+def lodging_html(s, data):
+    v = s.get('visit') or {}
+    head = '<h3 id="stay">Stay nearby (accepts bitcoin)</h3>'
+    if v.get('merchants') is False:
+        return head + '<p class="note">Places to stay will be listed once the statue has a permanent site.</p>'
+    if not (data.get('lodging') or {}).get('stays'):
+        return ''
+    radius_mi, fallback_km, n = lodging_cfg(data)
+    L = data['lodging']['stays'].get(s['page']) or {}
+    rows, fallback = statue_stays(s, data)
+    rad = f'{fmt_num(radius_mi)} mi ({fmt_num(round(radius_mi * MI))} km)'
+    if not rows:
+        return (head + f'<p class="note">No bitcoin-accepting places to stay listed within {fmt_mi(fallback_km / MI)} ({fmt_num(fallback_km)} km) '
+                f'on <a href="{btcmap_map_url(s)}" target="_blank" rel="noopener noreferrer">BTC Map</a> yet.</p>')
+    out = head
+    if fallback:
+        out += (f'<p class="note">None within {rad}. Nearest bitcoin stay{"s" if len(rows) > 1 else ""}, '
+                f'{fmt_mi_km(rows[0]["km"])} away:</p>')
+    elif L.get('within_radius', 0) > n:
+        out += f'<p class="note merch-count"><strong>{L["within_radius"]} places to stay</strong> within {rad} on BTC Map. The nearest {n}:</p>'
+    items = []
+    for x in rows:
+        bits = [b for b in (STAY_TYPES.get(x.get('type'), ''), fmt_mi_km(x['km'])) if b]
+        ver = (f'last verified {datetime.date.fromisoformat(x["verified_at"]).strftime("%b %Y")}'
+               if x.get('verified_at') else 'not verified on BTC Map')
+        bm = (f' · <a href="https://btcmap.org/merchant/{x["id"]}" target="_blank" rel="noopener noreferrer">BTC Map</a>'
+              if x.get('website') else '')
+        items.append(f'<li><a href="{e(stay_link(x))}" target="_blank" rel="noopener noreferrer">{e(x["name"])}</a>'
+                     f' – {e(", ".join(bits))} <span class="ver">· {ver}{bm}</span></li>')
+    out += f'<ul class="visit-nearby">{"".join(items)}</ul>'
+    fetched = data['lodging'].get('fetched') or ''
+    out += ('<p class="note stay-warn">Confirm with the place that it still takes bitcoin before you book.</p>'
+            f'<p class="note" style="font-size:.8rem;color:#8b949e">Hotels, hostels, guesthouses and rentals from '
+            f'<a href="https://btcmap.org/" target="_blank" rel="noopener noreferrer">BTC Map</a>'
+            f'{" (checked " + e(fetched) + ")" if fetched else ""}; straight-line distances from the map pin. No paid or affiliate links.</p>')
+    return out
+
+
 def visit_html(s, data=None):
     if not has_guide(s):
         return ''
@@ -1284,6 +1369,9 @@ def visit_html(s, data=None):
     mh = merchants_html(s, data or {})
     if mh:
         rows.append(mh)
+    lh = lodging_html(s, data or {})
+    if lh:
+        rows.append(lh)
     srcs = (f'<h3>Guide sources</h3>{src_list(v["sources"])}' if v.get('sources') else '')
     upd = f'<p class="note" style="font-size:.8rem;color:#8b949e;margin-top:8px">Guide updated {e(v["updated"])}.</p>' if v.get('updated') else ''
     return f'<section class="visit" id="visiting" aria-labelledby="visiting-title"><h2 id="visiting-title">🧭 Visiting</h2>{"".join(rows)}{srcs}{upd}</section>'
@@ -1292,6 +1380,7 @@ def visit_html(s, data=None):
 VISIT_CSS = ('.visit{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:4px 16px 14px;margin:22px 0;scroll-margin-top:12px}'
              '.visit h2{margin:14px 0 6px}.visit h3{font-size:.95rem;color:#f7931a;margin:14px 0 4px}'
              '.visit .note+.note{margin-top:6px}.visit-nearby{padding-left:18px;font-size:.92rem}.visit-nearby li{margin:4px 0}'
+             '.stay-warn{font-size:.85rem;color:#e3b341}'
              '.visit a{display:inline-block;padding:13px 0;margin:-13px 0}.visit li{margin:8px 0}.visit .ver{color:#8b949e;font-size:.85em}')
 
 
@@ -1742,6 +1831,23 @@ def nearby_eligible(s):
     return s['status'] not in NOT_AT_SPOT_STATUSES and ((s.get('alert') or {}).get('type') or '') not in NOT_AT_SPOT_ALERTS
 
 
+def map_stays(data):
+    """Places to stay shown on statue pages, for the home map's toggleable 'Stays' layer (deduplicated by BTC Map id).
+    Never stampable: they are not statues and are not in the statues array, passport or leaderboard."""
+    seen, out = set(), []
+    for s in data['statues']:
+        if (s.get('visit') or {}).get('merchants') is False:
+            continue
+        for x in statue_stays(s, data)[0]:
+            if x['id'] in seen or x.get('lat') is None:
+                continue
+            seen.add(x['id'])
+            out.append({'n': x['name'], 't': STAY_TYPES.get(x.get('type'), ''), 'lat': x['lat'], 'lng': x['lng'],
+                        'u': stay_link(x), 'b': x['id'], 'v': x.get('verified_at') or '', 'p': s['page'],
+                        's': s['name'], 'd': fmt_mi_km(x['km'])})
+    return out
+
+
 def build_index(data, text):
     statues_js = [{k: v for k, v in s.items() if k not in ('slug', 'sources', 'accessSource', 'label', 'visit', 'story')} for s in data['statues']]
     for s, src in zip(statues_js, data['statues']):
@@ -1752,6 +1858,7 @@ def build_index(data, text):
         s['nearby_eligible'] = nearby_eligible(src)
     js = '    const statues = ' + json.dumps(statues_js, ensure_ascii=False, indent=2).replace('\n', '\n    ') + ';'
     text = replace_block(text, 'STATUES', js, comment=('// ', ''))
+    text = replace_block(text, 'STAYS', '    const stays = ' + json.dumps(map_stays(data), ensure_ascii=False) + ';', comment=('// ', ''))
     ldhtml, _ = home_ld(data)
     text = replace_block(text, 'JSONLD', '  ' + ldhtml)
     links = '        <ul>\n' + ''.join(
