@@ -36,6 +36,21 @@ NO_LINK_HOSTS = re.compile(r'(^|\.)(booking\.com|airbnb\.[a-z.]+|expedia\.[a-z.]
                            r'tripadvisor\.[a-z.]+|vrbo\.com|hostelworld\.com|kayak\.[a-z.]+)$', re.I)
 TRACKING = re.compile(r'[?&](aff|affiliate|aid|ref|refid|utm_[a-z]+|partner|clickref)=', re.I)
 UA = 'satoshistatues.com build (https://www.satoshistatues.com)'
+# Link check for lodging websites (see check_site): browser-like UA so bot filters treat us like a visitor
+LINK_UA = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+           'Chrome/130.0 Safari/537.36')
+LINK_TIMEOUT = 10
+DOH = 'https://dns.google/resolve?name={host}&type=A'
+# Parked / placeholder pages, matched conservatively: strong parking phrases anywhere in the first 64 KB,
+# 'coming soon' style phrases only in the <title>, or a redirect to a domain-parking / for-sale host.
+PARKED_BODY = re.compile(r'this domain (?:name )?(?:is|may be) (?:parked|for sale)|domain (?:is )?for sale|buy this domain|'
+                         r'parked free|domain parking|parkingcrew|sedoparking|bodis\.com|'
+                         r'website is being created here|new customer website is being created|'
+                         r'future home of something quite cool|web ?site coming soon', re.I)
+PARKED_TITLE = re.compile(r'coming soon|under construction|website is being created|default web site page|'
+                          r'domain (?:is )?for sale|parked domain|account suspended', re.I)
+PARKED_HOSTS = re.compile(r'(^|\.)(sedo\.com|dan\.com|afternic\.com|hugedomains\.com|parkingcrew\.net|bodis\.com|'
+                          r'undeveloped\.com|sav\.com)$', re.I)
 
 
 def km(a_lat, a_lng, b_lat, b_lng):
@@ -95,13 +110,98 @@ def clean_site(u):
     return u
 
 
+def _nxdomain(host):
+    """True only for a clear DNS failure: NXDOMAIN from Google DNS-over-HTTPS (works behind resolving proxies);
+    if DoH can't be reached, a local 'name not known' resolver error. Anything else counts as resolvable."""
+    import socket
+    import urllib.parse
+    try:
+        req = urllib.request.Request(DOH.format(host=urllib.parse.quote(host)), headers={'User-Agent': UA, 'Accept': 'application/dns-json'})
+        with urllib.request.urlopen(req, timeout=LINK_TIMEOUT) as r:
+            return json.load(r).get('Status') == 3
+    except Exception:
+        pass
+    try:
+        socket.getaddrinfo(host, 443)
+        return False
+    except socket.gaierror as ex:
+        return ex.errno in (getattr(socket, 'EAI_NONAME', -2), getattr(socket, 'EAI_NODATA', -5))
+    except Exception:
+        return False
+
+
+def _probe(url):
+    """('dead'|'alive'|'unknown', reason). HEAD first, GET if HEAD fails or isn't 2xx; redirects followed.
+    404/410 and parked pages are dead; 403/429/5xx/other HTTP answers are alive; network errors are unknown."""
+    import urllib.error
+    import urllib.parse
+    hdrs = {'User-Agent': LINK_UA, 'Accept': 'text/html,application/xhtml+xml,*/*;q=0.8', 'Accept-Language': 'en,de;q=0.8'}
+    status = None
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, headers=hdrs, method='HEAD'), timeout=LINK_TIMEOUT) as r:
+            status = r.status
+    except urllib.error.HTTPError as ex:
+        status = ex.code
+    except Exception:
+        status = None
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, headers=hdrs), timeout=LINK_TIMEOUT) as r:
+            final = (urllib.parse.urlsplit(r.geturl()).hostname or '').lower()
+            if PARKED_HOSTS.search(final):
+                return 'dead', f'redirects to parking host {final}'
+            body = r.read(65536).decode('utf-8', 'replace') if 'html' in (r.headers.get('Content-Type') or 'html') else ''
+    except urllib.error.HTTPError as ex:
+        if ex.code in (404, 410):
+            return 'dead', f'HTTP {ex.code}'
+        return 'alive', f'HTTP {ex.code}'
+    except Exception as ex:
+        if status in (404, 410):
+            return 'dead', f'HTTP {status} (HEAD; GET failed)'
+        if status is not None:
+            return 'alive', f'HTTP {status} (HEAD; GET failed)'
+        return 'unknown', type(ex).__name__
+    m = re.search(r'<title[^>]*>(.*?)</title>', body, re.I | re.S)
+    title = re.sub(r'\s+', ' ', m.group(1)).strip() if m else ''
+    if PARKED_BODY.search(body) or (title and PARKED_TITLE.search(title)):
+        return 'dead', f'placeholder page ({title[:60] or "parking text"})'
+    return 'alive', 'OK'
+
+
+_LINKS = {}
+
+
+def check_site(url):
+    """Is a lodging website worth linking? Returns (keep, reason). Dead = 404/410, NXDOMAIN or a parked/placeholder page.
+    403, 429, 5xx and timeouts are kept (bot protection or a slow server is not a dead site). An http:// link that can't
+    be reached at all is also tried over https://, and that answer is used when it is a clear one."""
+    import urllib.parse
+    if url in _LINKS:
+        return _LINKS[url]
+    host = (urllib.parse.urlsplit(url).hostname or '').lower()
+    if _nxdomain(host):
+        res = (False, 'DNS: no such domain')
+    else:
+        state, why = _probe(url)
+        if state == 'unknown' and url.lower().startswith('http://'):
+            state2, why2 = _probe('https://' + url[7:])
+            if state2 != 'unknown':
+                state, why = state2, why2 + ' (via https)'
+        res = (state != 'dead', why)
+    _LINKS[url] = res
+    return res
+
+
 def lodging_config(cfg):
     c = cfg.get('lodging') or {}
     return float(c.get('radius_mi', 5)) * 1.609344, float(c.get('fallback_km', 25)), int(c.get('max_items', 5))
 
 
+DROPPED = []
+
+
 def fetch_lodging(statues, cfg):
     radius_km, fallback_km, keep = lodging_config(cfg)
+    hide = set((cfg.get('lodging') or {}).get('hide_websites') or [])  # dead links confirmed by hand
     req = urllib.request.Request(LODGING_API, headers={'User-Agent': UA, 'Accept': 'application/json'})
     last = None
     for attempt in range(3):
@@ -129,6 +229,13 @@ def fetch_lodging(statues, cfg):
                     row['website'] = site
                 rows.append(row)
         rows.sort(key=lambda x: (x['km'], x['id']))
+        for row in rows[:keep]:  # only the stored ones are checked (cached per URL across statues)
+            if row.get('website'):
+                ok, why = ((False, 'listed in config.lodging.hide_websites') if row['website'] in hide
+                           else check_site(row['website']))
+                if not ok:
+                    DROPPED.append((s['page'], row['name'], row['website'], why))
+                    del row['website']  # build.py and the map fall back to the BTC Map listing
         out[s['page']] = {'within_radius': sum(1 for x in rows if x['km'] <= radius_km),
                           'within_fallback': len(rows), 'nearest': rows[:keep]}
     return out
@@ -145,13 +252,16 @@ def refresh_lodging(statues, cfg):
         print(f'WARN lodging: {ex}; keeping lodging.json', file=sys.stderr)
         return
     radius_km, fallback_km, keep = lodging_config(cfg)
+    for page, name, url, why in DROPPED:
+        print(f'lodging link dropped: {page}: {name}: {url} ({why})')
     changed = new != old.get('stays')
     if not changed and '--force' not in sys.argv:
         print('lodging.json unchanged')
         return
     out = {'_comment': 'Generated by tools/fetch_merchants.py from the BTC Map API: OSM tourism=' + '/'.join(LODGING_TYPES)
                        + ', named only, haversine km from the statue pin, nearest ' + str(keep) + ' within ' + str(fallback_km)
-                       + ' km. Booking-site and tracking links dropped. Do not edit by hand.',
+                       + ' km. Booking-site and tracking links dropped; dead websites (404/410, no such domain, parked/placeholder page) '
+                       'dropped by a link check, so those stays link to BTC Map. Do not edit by hand.',
            'source': 'https://api.btcmap.org/v4/places',
            'fetched': datetime.date.today().isoformat(),
            'stays': new}

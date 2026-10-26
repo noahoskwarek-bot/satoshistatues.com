@@ -110,10 +110,18 @@ Stored per statue: name, type, haversine distance, BTC Map last-verified date (`
 `survey:date`; omitted when absent), coordinates, and the place's own website when it has one. Booking-site
 (Booking.com, Airbnb, Expedia…) and tracking/affiliate-style URLs are never used; the BTC Map listing is linked instead.
 
+Dead-link check (each refresh, the stored stays only): each website gets a HEAD request (GET if HEAD fails), browser-like
+User-Agent, redirects followed, 10 s timeout. The website is dropped (the stay stays listed, linked to its BTC Map
+listing) on HTTP 404/410, a clear DNS failure (NXDOMAIN via Google DNS-over-HTTPS) or a parked/placeholder page
+(domain-for-sale/parking text, a "coming soon"/"under construction"/"website is being created" title, or a redirect
+to a parking host). 403, 429, 5xx and timeouts count as alive. An `http://` link that can't be reached is also tried
+over `https://`. Extra dead links confirmed by hand go in `config.lodging.hide_websites` (list of exact URLs); the
+fetch prints every dropped link. merchants.json stores no websites, so it needs no check.
+
 Thresholds (one place: `statues.json` → `config.lodging`):
 
 ```json
-"lodging": {"radius_mi": 5, "fallback_km": 25, "max_items": 5}
+"lodging": {"radius_mi": 5, "fallback_km": 25, "max_items": 5, "hide_websites": ["http://www.ecoapartment.at/"]}
 ```
 
 - up to `max_items` (5) within `radius_mi` (5 mi = 8.05 km), nearest first, with a count line when more exist;
