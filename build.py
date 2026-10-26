@@ -177,6 +177,15 @@ def checkin_count_html(s):
             f'{count_text(n) if n else ""}</p>')
 
 
+def checkin_script():
+    # Shared check-in core (checkin.js, hand-written): loaded by the home map and every statue page.
+    # ?v= is a content hash so browsers pick up changes right after a deploy.
+    import hashlib
+    with open(os.path.join(ROOT, 'checkin.js'), 'rb') as f:
+        v = hashlib.sha256(f.read()).hexdigest()[:10]
+    return f'<script src="/checkin.js?v={v}"></script>'
+
+
 def api_script():
     return f'<script>window.SS_API = {json.dumps(LB_API)};</script>' if LB_API else ''
 
@@ -782,6 +791,43 @@ STORY_CSS = ('.story{background:#161b22;border:1px solid #30363d;border-radius:1
              '.story .rep{display:inline-block;font-size:.7rem;font-weight:700;color:#d29922;border:1px solid #d29922;border-radius:4px;padding:0 5px;margin-right:2px;vertical-align:1px}')
 
 
+CHECKIN_CSS = ('.checkin-box{background:#161b22;border:1px solid #30363d;border-left:3px solid #3fb950;border-radius:10px;padding:12px 14px;margin:14px 0}'
+               '.ci-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}'
+               '.btn.ci-btn{background:#238636;border-color:#238636;color:#fff;font-size:1rem}.btn.ci-btn:hover{background:#2ea043;border-color:#2ea043}.btn.ci-btn:disabled{opacity:.7;cursor:wait}'
+               '.ci-stamp{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border:2px dashed #3fb950;border-radius:8px;color:#3fb950;font-weight:700;transform:rotate(-1deg)}'
+               '.ci-map{color:#8b949e;font-size:.88rem;display:inline-flex;align-items:center;min-height:44px}.ci-map:hover{color:#f7931a}'
+               '.ci-note{font-size:.85rem;color:#8b949e;margin:8px 0 0;line-height:1.45}.ci-note a{color:#f7931a}'
+               '.checkin-msg{margin-top:10px;font-size:.88rem;line-height:1.45;color:#e6edf3;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:9px 11px}'
+               '.checkin-msg.ok{border-color:#3fb950;color:#3fb950}.checkin-msg.warn{border-color:#f7931a}'
+               '.checkin-msg details{margin-top:6px}.checkin-msg summary{cursor:pointer;color:#f7931a;font-weight:600}.checkin-msg ul{margin:6px 0 0 18px;padding:0}.checkin-msg li{margin:3px 0}'
+               '.checkin-msg a{color:#f7931a}.geo-diag{margin-top:6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.7rem;color:#8b949e;word-break:break-word}'
+               '.lb-note{margin-top:6px}.lb-nick{margin-top:8px}.lb-nick-q{font-size:.82rem;color:#c9d1d9;margin-bottom:6px}.lb-nick-row{display:flex;gap:6px;flex-wrap:wrap}'
+               '.lb-nick input{flex:1 1 150px;min-width:0;min-height:44px;padding:8px 10px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:16px;font-family:inherit}'
+               '.lb-nick button{min-height:44px;padding:8px 14px;border-radius:8px;border:none;background:#f7931a;color:#0d1117;font-weight:700;font-family:inherit;cursor:pointer}'
+               '.lb-nick button.lb-skip{background:#21262d;color:#c9d1d9;border:1px solid #30363d;font-weight:600}.lb-nick-msg{font-size:.8rem;color:#f0883e;margin-top:4px}'
+               '.ci-share{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.ci-share .btn{color:#e6edf3;font-size:.85rem}'
+               '.checkin-box [hidden]{display:none!important}')
+
+
+def checkin_box(s, data):
+    # One-tap passport stamp on the statue page (logic in checkin.js, shared with the home map).
+    # Only statues the map lets you stamp (CHECKABLE) get it; others keep the "not yet installed" note.
+    if s['status'] not in CHECKABLE:
+        return ''
+    stampable = ','.join(o['slug'] for o in data['statues'] if o['status'] in CHECKABLE)
+    attrs = {'data-slug': s['slug'], 'data-name': s['name'], 'data-label': s['label'], 'data-city': s['city'],
+             'data-page': s['page'], 'data-url': page_url(s), 'data-lat': s['lat'], 'data-lng': s['lng'],
+             'data-checkins': s.get('checkins', 0), 'data-checkable': stampable}
+    a = ' '.join(f'{k}="{e(str(v))}"' for k, v in attrs.items())
+    return (f'\n    <style>{CHECKIN_CSS}</style><div class="checkin-box" data-ss-checkin {a}>'
+            f'<div class="ci-row"><button class="btn ci-btn" type="button" data-ss-checkin-btn>📍 Check in here</button>'
+            f'<span class="ci-stamp" hidden></span>'
+            f'<a class="ci-map" href="/?s={s["page"]}">🗺️ Open on the map</a></div>'
+            f'<p class="ci-note">At the statue? Tap to stamp your Satoshi Passport (within 150 m). '
+            f'Your location is only checked, never stored. <a href="/leaderboard/">Leaderboard</a></p>'
+            f'<div class="checkin-msg" aria-live="polite" hidden></div></div>')
+
+
 def statue_page(s, data):
     title = f"{s['label']} – Location, Directions & Photos"
     desc = describe(s)
@@ -814,9 +860,10 @@ def statue_page(s, data):
                   f'<a href="/21-nodes/">See all 21 Nodes →</a></div>')
     others = ''.join(f'<li><a href="/{o["page"]}/">{e(o["label"])}</a></li>'
                      for o in sorted(data['statues'], key=lambda o: -sort_year(o['year'])) if o is not s)
-    stamp = ('<p class="note" style="margin-top:6px;color:#8b949e">Visiting? Open it on the map and tap <strong>Check in</strong> within 150 m to stamp your Satoshi Passport and join the <a href="/leaderboard/">leaderboard</a>.</p>'
-             if s['status'] in CHECKABLE else
-             '<p class="note" style="margin-top:6px;color:#8b949e">Not yet installed, so it can’t be stamped in the Satoshi Passport (not counted in the total).</p>')
+    # stampable statues get the check-in box (with its own "Open on the map" link) near the top instead
+    map_btn = '' if s['status'] in CHECKABLE else f'\n      <a class="btn" href="/?s={s["page"]}">🗺️ Open on the map</a>'
+    stamp = ('' if s['status'] in CHECKABLE else
+             '\n    <p class="note" style="margin-top:6px;color:#8b949e">Not yet installed, so it can’t be stamped in the Satoshi Passport (not counted in the total).</p>')
     giscus_attrs = {
         'data-repo': REPO, 'data-repo-id': GISCUS['repoId'], 'data-category': GISCUS['category'],
         'data-category-id': GISCUS['categoryId'], 'data-mapping': 'specific', 'data-term': f"statue-{s['slug']}",
@@ -828,7 +875,7 @@ def statue_page(s, data):
     <h1>{e(s['label'])}</h1>
     <p class="sub">{e(s['place'])} · {e(s['city'])}, {e(s['country'])}{pin_sub(s)}</p>
     {confirmed_html(s, data)}
-    {alert_html(s)}
+    {alert_html(s)}{checkin_box(s, data)}
     {img_html}
     <dl class="facts">
       <dt>Location</dt><dd>{e(s['place'])}, {e(s['city'])}, {e(s['country'])}</dd>
@@ -841,14 +888,12 @@ def statue_page(s, data):
       <dt>Coordinates</dt><dd>{s['lat']}, {s['lng']}{pin_html(s)}</dd>
     </dl>
     <div class="actions">
-      <a class="btn primary" href="{directions}" target="_blank" rel="noopener noreferrer">🧭 Get Directions</a>
-      <a class="btn" href="/?s={s['page']}">🗺️ Open on the map</a>
+      <a class="btn primary" href="{directions}" target="_blank" rel="noopener noreferrer">🧭 Get Directions</a>{map_btn}
       <a class="btn" href="#comments">💬 Comments</a>
     </div>
     {series}
     <h2>About</h2>
-    <p class="note">{e(s['note'])}</p>
-    {stamp}
+    <p class="note">{e(s['note'])}</p>{stamp}
     {story_html(s)}
     {visit_html(s, data)}
     {events_html(s, data)}
@@ -866,7 +911,7 @@ def statue_page(s, data):
     {footer(data)}
   </main>
 '''
-    return out + LIVE_COUNT_JS + '\n' + TAIL
+    return out + (checkin_script() + '\n' if s['status'] in CHECKABLE else '') + LIVE_COUNT_JS + '\n' + TAIL
 
 
 def nodes_page(data):
@@ -1867,7 +1912,7 @@ def build_index(data, text):
     text = replace_block(text, 'LINKS', links)
     text = replace_block(text, 'SIGNUP', '        ' + signup_html(data, 'home'))
     text = replace_block(text, 'EMBED', embed_box_html())
-    text = replace_block(text, 'HEADLINKS', '  ' + FEED_LINK + '\n  <style>' + ALERT_CSS + '</style>' + ('\n  ' + api_script() if api_script() else '') + ('\n  ' + photo_js(data) if photo_js(data) else ''))
+    text = replace_block(text, 'HEADLINKS', '  ' + FEED_LINK + '\n  <style>' + ALERT_CSS + '</style>' + ('\n  ' + api_script() if api_script() else '') + '\n  ' + checkin_script() + ('\n  ' + photo_js(data) if photo_js(data) else ''))
     return text
 
 # ---------- /passport/ → home page passport (redirect page) ----------

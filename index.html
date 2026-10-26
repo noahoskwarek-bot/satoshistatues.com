@@ -32,6 +32,7 @@
   <link rel="alternate" type="application/atom+xml" title="Satoshi Statues – new statues" href="https://www.satoshistatues.com/feed.xml" />
   <style>.alert-box{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.alert-title{font-weight:700;color:#e6edf3;font-size:.95rem;margin:0 0 6px}.alert-form{display:flex;gap:8px;flex-wrap:wrap;max-width:520px}.alert-form input[type=email]{flex:1 1 180px;min-width:0;min-height:44px;padding:10px 12px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:16px;font-family:inherit}.alert-form input[type=email]:focus{outline:2px solid #f7931a;border-color:#f7931a}.alert-form button{min-height:44px;padding:10px 16px;border-radius:8px;border:none;background:#f7931a;color:#0d1117;font-weight:700;font-size:.92rem;cursor:pointer;font-family:inherit}.alert-fine{font-size:.8rem;color:#8b949e;margin:6px 0 0;line-height:1.45}.feed-link{color:#f7931a;font-weight:600;display:inline-block;padding:13px 0;margin:-13px 0;text-decoration:none}.feed-link:hover{text-decoration:underline}.photo-cta{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.photo-actions{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 4px}.photo-actions .btn{max-width:100%}.photo-cta .alert-fine a,.photo-credit a{padding:15px 0;margin:-15px 0}.photo-cta .alert-fine a{color:#f7931a}.photo-credit{display:block;margin-top:2px}.checkin-count{font-size:.85rem;color:#3fb950;margin:6px 0 0}.photo-credit a{color:#8b949e}.alert-follow{display:flex;flex-wrap:wrap;gap:0 18px;margin-top:2px}.alert-follow .feed-link{padding:0;margin:0;min-height:44px;display:inline-flex;align-items:center;font-size:.85rem}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}</style>
   <script>window.SS_API = "https://api.satoshistatues.workers.dev";</script>
+  <script src="/checkin.js?v=d17d5f13e8"></script>
   <script>(function(){var c=[109, 111, 99, 46, 115, 101, 117, 116, 97, 116, 115, 105, 104, 115, 111, 116, 97, 115, 64, 115, 111, 116, 111, 104, 112];function to(){return String.fromCharCode.apply(null,c.slice().reverse())}function body(l){return "Hi,\n\nHere is my photo of the "+l+" (attached).\n\nYour name or X handle (for credit): \nDate taken: \n\nBy sending, you let satoshistatues.com feature your photo with credit.\n"}document.addEventListener("click",function(ev){var a=ev.target.closest&&ev.target.closest("[data-photo-subject]");if(!a)return;ev.preventDefault();location.href="mailto:"+to()+"?subject="+encodeURIComponent(a.getAttribute("data-photo-subject"))+"&body="+encodeURIComponent(body(a.getAttribute("data-photo-label")||"statue"));},true);})();</script>
   <!-- BUILD:HEADLINKS:END -->
   <!-- BUILD:JSONLD:BEGIN -->
@@ -1350,8 +1351,6 @@
 
     // ---------- Passport, comments & corrections ----------
     const REPO = 'noahoskwarek-bot/satoshistatues.com';
-    const CHECKIN_RADIUS_M = 150; // same radius the leaderboard server enforces
-    const PASSPORT_KEY = 'satoshiPassport.v1';
     // Stable per-location id (used for passport stamps and the comment thread term)
     function slugOf(s) {
       return s.id || s.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -1369,20 +1368,6 @@
     }
     function isVisited(s) { return !!passport[s.slug]; }
     function visitedCount() { return checkable.filter(isVisited).length; }
-    function fmtDate(iso) {
-      try { return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); } catch (e) { return iso; }
-    }
-    function haversineM(lat1, lon1, lat2, lon2) {
-      const R = 6371000, toRad = d => d * Math.PI / 180;
-      const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
-      const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
-      return 2 * R * Math.asin(Math.sqrt(a));
-    }
-    function fmtDist(m) {
-      if (m < 1000) return `${Math.round(m)} m`;
-      const km = m / 1000;
-      return `${km < 10 ? km.toFixed(1) : Math.round(km).toLocaleString()} km`;
-    }
     function correctionUrl(s) {
       const title = `Correction: ${s.name}`;
       const body = [
@@ -1602,15 +1587,6 @@
         : escHtml(cr);
       return `<div class="popup-credit">Photo: ${who}</div>`;
     }
-    // Anonymous GoatCounter event per successful GPS check-in (no coordinates are sent).
-    function trackCheckin(s, tries) {
-      const gc = window.goatcounter;
-      if (gc && typeof gc.count === 'function') {
-        try { gc.count({ path: 'checkin/' + s.slug, title: 'Check-in ' + s.name, event: true }); } catch (_) {}
-      } else if ((tries || 0) < 20) {
-        setTimeout(() => trackCheckin(s, (tries || 0) + 1), 500);
-      }
-    }
     function checkinCountHtml(s) {
       const n = s.checkins || 0;
       return n > 0 ? `<div class="checkin-count">👣 ${n} ${n === 1 ? 'person has' : 'people have'} checked in here</div>` : '';
@@ -1678,7 +1654,7 @@
     function checkIn(s, btn) {
       if (!isCheckable(s)) return;
       if (!('geolocation' in navigator)) {
-        setMsg(s, 'warn', "Your browser can't share its location, so check-in isn't available here.");
+        setMsg(s, 'warn', CHECKIN_NO_GEO);
         return;
       }
       if (btn) { btn.disabled = true; btn.textContent = '📡 Locating…'; }
@@ -1693,95 +1669,14 @@
             trackCheckin(s);
             const saved = savePassport();
             refreshVisitedUI(s);
-            setMsg(s, 'ok', (saved
-              ? `🟠 Stamped! ${s.name} is in your passport. That's ${visitedCount()} of ${checkable.length}.`
-              : `🟠 You're here, but this browser won't let us save the stamp (private mode?).`) + r.html + shareRowHtml(s));
+            setMsg(s, 'ok', checkinOkHtml(s, saved, visitedCount(), checkable.length) + r.html + shareRowHtml(s));
           });
         } else {
-          const acc = accuracy && accuracy > CHECKIN_RADIUS_M ? ` (your location fix is only accurate to about ${fmtDist(accuracy)})` : '';
-          setMsg(s, 'warn', `So close… well, sort of! You're about <strong>${fmtDist(d)}</strong> from ${s.name}${acc}. Get within ${CHECKIN_RADIUS_M} m to collect the stamp.`);
+          setMsg(s, 'warn', checkinTooFarHtml(s, d, accuracy));
         }
       }, err => {
         geoErrorHtml(err).then(html => setMsg(s, 'warn', html));
       }, GEO_OPTS);
-    }
-    const GEO_OPTS = { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 };
-    // ----- Location diagnostics & platform help -----
-    function detectPlatform() {
-      const ua = navigator.userAgent || '';
-      const iOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-      const inApp = /FBAN|FBAV|Instagram|\bLine\/|GSA\/|; wv\)|Twitter|TikTok|Snapchat/i.test(ua);
-      if (inApp) {
-        const m = ua.match(/FBAN|FBAV|Instagram|Line|GSA|Twitter|TikTok|Snapchat/i);
-        const app = m ? ({ FBAN: 'Facebook', FBAV: 'Facebook', GSA: 'Google app' }[m[0]] || m[0]) : 'app';
-        return { key: 'inapp', label: `in-app browser (${iOS ? 'iOS' : /Android/.test(ua) ? 'Android' : 'unknown OS'} · ${app})` };
-      }
-      if (iOS && /CriOS/.test(ua)) return { key: 'ios-chrome', label: 'iOS Chrome' };
-      if (iOS && /FxiOS|EdgiOS|OPiOS/.test(ua)) return { key: 'ios-other', label: 'iOS browser (' + ua.match(/FxiOS|EdgiOS|OPiOS/)[0] + ')' };
-      if (iOS && /Safari/.test(ua)) return { key: 'ios-safari', label: 'iOS Safari' };
-      if (iOS) return { key: 'ios-other', label: 'iOS web view' };
-      if (/Android/.test(ua) && /Chrome\//.test(ua)) return { key: 'android', label: 'Android Chrome' };
-      if (/Android/.test(ua)) return { key: 'android', label: 'Android browser' };
-      if (/Edg\//.test(ua)) return { key: 'desktop', label: 'desktop Edge' };
-      if (/Firefox\//.test(ua)) return { key: 'desktop', label: 'desktop Firefox' };
-      if (/Chrome\//.test(ua)) return { key: 'desktop', label: 'desktop Chrome' };
-      if (/Safari\//.test(ua)) return { key: 'desktop', label: 'desktop Safari' };
-      return { key: 'desktop', label: 'browser' };
-    }
-    async function geoPermissionState() {
-      try {
-        if (!navigator.permissions || !navigator.permissions.query) return 'n/a';
-        const r = await Promise.race([
-          navigator.permissions.query({ name: 'geolocation' }),
-          new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 1500))
-        ]);
-        return r.state;
-      } catch (e) { return 'n/a'; }
-    }
-    function escHtml(t) {
-      return String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    }
-    function blockedHelp(pf) {
-      switch (pf.key) {
-        case 'ios-chrome': return `<ul>
-          <li>iPhone <strong>Settings › Privacy &amp; Security › Location Services</strong>: on.</li>
-          <li>Same screen › <strong>Chrome</strong>: <strong>While Using the App</strong>, and <strong>Precise Location</strong> on.</li>
-          <li>Chrome may remember a "Don't Allow" for this site. Try an <strong>Incognito tab</strong>, or open the page in <strong>Safari</strong>.</li></ul>`;
-        case 'ios-safari': return `<ul>
-          <li>Tap <strong>aA</strong> in the address bar › <strong>Website Settings</strong> › <strong>Location</strong> › <strong>Allow</strong>.</li>
-          <li>iPhone <strong>Settings › Apps › Safari › Location</strong>: Ask or Allow.</li>
-          <li>Also check <strong>Settings › Privacy &amp; Security › Location Services</strong> is on.</li></ul>`;
-        case 'ios-other': return `<ul>
-          <li>iPhone <strong>Settings › Privacy &amp; Security › Location Services</strong>: on, and allowed for this browser.</li>
-          <li>Or open the page in <strong>Safari</strong>.</li></ul>`;
-        case 'inapp': return `<ul><li>Built-in app browsers often can't share your location. Use the menu (⋯) to <strong>open this page in Safari or Chrome</strong>.</li></ul>`;
-        case 'android': return `<ul>
-          <li>Tap the icon left of the address bar › <strong>Permissions › Location › Allow</strong>.</li>
-          <li>Phone <strong>Settings › Location</strong>: on, and allowed for this browser.</li></ul>`;
-        default: return `<ul>
-          <li>Click the icon left of the address bar › <strong>Location › Allow</strong>, then reload.</li>
-          <li>Make sure your computer's location services are on for this browser.</li></ul>`;
-      }
-    }
-    async function geoErrorHtml(err) {
-      const pf = detectPlatform();
-      const perm = await geoPermissionState();
-      const names = { 1: 'PERMISSION_DENIED', 2: 'POSITION_UNAVAILABLE', 3: 'TIMEOUT' };
-      let main, help;
-      if (err.code === 1) {
-        main = pf.key === 'inapp'
-          ? "This app's built-in browser blocked location access."
-          : 'Location access was blocked for this site.';
-        help = blockedHelp(pf);
-      } else if (err.code === 3) {
-        main = 'Finding your location took too long.';
-        help = '<ul><li>Step outside or near a window and try again.</li><li>Check that Location Services are on.</li></ul>';
-      } else {
-        main = "We couldn't get your location right now.";
-        help = '<ul><li>Check that Location Services are on, then try again.</li></ul>' + (pf.key === 'inapp' ? blockedHelp(pf) : '');
-      }
-      const diag = `Details: code ${err.code} (${names[err.code] || '?'}) · "${escHtml(err.message || '')}" · permission: ${perm} · secure: ${window.isSecureContext ? 'yes' : 'no'} · ${pf.label}`;
-      return `${main}<details><summary>How to fix</summary>${help}</details><div class="geo-diag">${diag}</div>`;
     }
     function testLocation() {
       const out = document.getElementById('geo-test-result');
@@ -2397,70 +2292,6 @@
     });
     fitAll(false);
     // ---------- Leaderboard (Cloudflare Worker API; see /privacy/) ----------
-    const LB_API = window.SS_API || '';
-    const LB_DEVICE = 'satoshiDevice.v1', LB_NICK = 'satoshiNick.v1', LB_NICK_SKIP = 'satoshiNickSkip.v1', LB_CLAIMED = 'satoshiClaimed.v1';
-    function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
-    function lsSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
-    function lbDevice() {
-      let id = lsGet(LB_DEVICE);
-      if (!id) {
-        id = (crypto.randomUUID ? crypto.randomUUID() : Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, '0')).join(''));
-        lsSet(LB_DEVICE, id);
-      }
-      return id;
-    }
-    async function lbPost(path, body) {
-      const r = await fetch(LB_API + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-      let j = {};
-      try { j = await r.json(); } catch (e) {}
-      return { status: r.status, j };
-    }
-    function lbNickForm(intro) {
-      return `<form class="lb-nick" data-lb-nick><div class="lb-nick-q">${intro}</div><div class="lb-nick-row"><input name="nick" maxlength="20" aria-label="Nickname or X handle" placeholder="Nickname or @handle" value="${escHtml(lsGet(LB_NICK) || '')}" autocomplete="nickname"><button type="submit">Save</button>${intro.includes('optional') ? '<button type="button" class="lb-skip" data-lb-skip>No thanks</button>' : ''}</div><div class="lb-nick-msg" aria-live="polite"></div></form>`;
-    }
-    // Ask the server to record the stamp. Rejections (too far, poor accuracy, rate limits) block the stamp;
-    // if the leaderboard can't be reached, the stamp is still saved locally.
-    async function lbSubmit(s, c) {
-      if (!LB_API) return { html: '' };
-      try {
-        const { status, j } = await lbPost('/api/checkin', { device_id: lbDevice(), slug: s.slug, lat: c.latitude, lng: c.longitude, accuracy: c.accuracy });
-        if (j.ok) {
-          if (!j.already) s.checkins = Math.max((s.checkins || 0) + 1, 1);
-          const me = j.me;
-          let html = `<div class="lb-note">🏆 ${me && me.rank ? `You're <strong>#${me.rank}</strong> on the <a href="/leaderboard/">leaderboard</a> with ${me.stamps} stamp${me.stamps === 1 ? '' : 's'}.` : 'Saved to the <a href="/leaderboard/">leaderboard</a>.'}</div>`;
-          if (!(me && me.nickname) && !lsGet(LB_NICK_SKIP)) html += lbNickForm('Show a name or X handle on the leaderboard? (optional)');
-          return { html };
-        }
-        if (status >= 400 && status < 500) return { rejected: true, html: `🏆 ${escHtml(j.message || "The check-in wasn't accepted.")}` };
-        return { html: '<div class="lb-note">The leaderboard is unavailable right now, so this stamp is only in your passport.</div>' };
-      } catch (e) {
-        return { html: '<div class="lb-note">Couldn\'t reach the leaderboard, so this stamp is only in your passport.</div>' };
-      }
-    }
-    function lbNickPrompt() {
-      const out = document.getElementById('geo-test-result');
-      out.className = 'checkin-msg';
-      out.innerHTML = lbNickForm('Your leaderboard name or X handle (2–20 letters, numbers, spaces, _ or -, or @handle):');
-      const inp = out.querySelector('input'); if (inp) inp.focus();
-    }
-    document.addEventListener('submit', ev => {
-      const f = ev.target.closest && ev.target.closest('[data-lb-nick]');
-      if (!f) return;
-      ev.preventDefault();
-      const msg = f.querySelector('.lb-nick-msg'), v = f.nick.value;
-      lbPost('/api/nickname', { device_id: lbDevice(), nickname: v }).then(({ j }) => {
-        if (j.ok) {
-          lsSet(LB_NICK, j.nickname || '');
-          f.innerHTML = j.nickname ? `✓ Saved. You'll show as <strong>${escHtml(j.nickname)}</strong> on the <a href="/leaderboard/">leaderboard</a>.` : '✓ Name removed.';
-        } else { msg.textContent = j.message || "Couldn't save that name."; }
-      }).catch(() => { msg.textContent = "Couldn't reach the leaderboard."; });
-    }, true);
-    document.addEventListener('click', ev => {
-      const b = ev.target.closest && ev.target.closest('[data-lb-skip]');
-      if (!b) return;
-      lsSet(LB_NICK_SKIP, '1');
-      const f = b.closest('[data-lb-nick]'); if (f) f.remove();
-    }, true);
     // One-time: add stamps collected before the leaderboard existed (labelled "earlier, unverified").
     function lbClaim() {
       if (!LB_API || lsGet(LB_CLAIMED)) return;
