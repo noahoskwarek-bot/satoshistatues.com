@@ -76,7 +76,7 @@
           },
           {
             "label": "BTC Map API",
-            "url": "https://api.btcmap.org/v4/places/search/"
+            "url": "https://btcmap.org/map"
           }
         ],
         "public_access": true,
@@ -255,7 +255,7 @@
           },
           {
             "label": "BTC Map API",
-            "url": "https://api.btcmap.org/v4/places/search/"
+            "url": "https://btcmap.org/map"
           }
         ]
       },
@@ -408,7 +408,7 @@
           },
           {
             "label": "BTC Map API",
-            "url": "https://api.btcmap.org/v4/places/search/"
+            "url": "https://btcmap.org/map"
           }
         ],
         "public_access": true
@@ -559,7 +559,7 @@
           },
           {
             "label": "BTC Map API",
-            "url": "https://api.btcmap.org/v4/places/search/"
+            "url": "https://btcmap.org/map"
           }
         ]
       },
@@ -687,7 +687,7 @@
           },
           {
             "label": "BTC Map API",
-            "url": "https://api.btcmap.org/v4/places/search/"
+            "url": "https://btcmap.org/map"
           }
         ],
         "public_access": true
@@ -1031,7 +1031,7 @@
           },
           {
             "label": "BTC Map API",
-            "url": "https://api.btcmap.org/v4/places/search/"
+            "url": "https://btcmap.org/map"
           }
         ],
         "public_access": false
@@ -1092,7 +1092,7 @@
           },
           {
             "label": "BTC Map API",
-            "url": "https://api.btcmap.org/v4/places/search/"
+            "url": "https://btcmap.org/map"
           }
         ]
       },
@@ -1319,7 +1319,7 @@
           },
           {
             "label": "BTC Map API",
-            "url": "https://api.btcmap.org/v4/places/search/"
+            "url": "https://btcmap.org/map"
           }
         ]
       },
@@ -1387,7 +1387,7 @@
           },
           {
             "label": "BTC Map API",
-            "url": "https://api.btcmap.org/v4/places/search/"
+            "url": "https://btcmap.org/map"
           }
         ]
       },
@@ -1499,7 +1499,7 @@
           },
           {
             "label": "BTC Map API",
-            "url": "https://api.btcmap.org/v4/places/search/"
+            "url": "https://btcmap.org/map"
           }
         ],
         "public_access": true
@@ -1633,7 +1633,7 @@
           },
           {
             "label": "BTC Map API",
-            "url": "https://api.btcmap.org/v4/places/search/"
+            "url": "https://btcmap.org/map"
           }
         ],
         "public_access": true
