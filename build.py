@@ -71,6 +71,7 @@ def load():
     if os.path.exists(mpath):
         with open(mpath, encoding='utf-8') as f:
             data['merchants'] = json.load(f)
+    data['fountain'] = load_fountain()
     lpath = os.path.join(ROOT, 'lodging.json')
     data['lodging'] = {}
     if os.path.exists(lpath):
@@ -177,6 +178,146 @@ def checkin_count_html(s):
             f'{count_text(n) if n else ""}</p>')
 
 
+# ---------- Satoshi Fountain (reverse fountain: Lightning giveaway for verified check-ins) ----------
+# Switched by fountain.json "enabled" (default false). When off, every helper below returns '' / adds nothing, so the
+# build is byte-identical to one without this feature. Amounts, budget and limits live in the Worker, not here.
+FOUNTAIN_DEFAULTS = {'enabled': False, 'api': '', 'statues': [], 'claim_minutes': 15, 'address_retention_days': 90,
+                     'tip_presets': [1000, 5000, 21000]}
+
+
+def load_fountain():
+    cfg = dict(FOUNTAIN_DEFAULTS)
+    path = os.environ.get('FOUNTAIN_CONFIG') or os.path.join(ROOT, 'fountain.json')
+    if os.path.exists(path):
+        with open(path, encoding='utf-8') as f:
+            cfg.update({k: v for k, v in json.load(f).items() if not k.startswith('_')})
+    cfg['enabled'] = cfg.get('enabled') is True
+    return cfg
+
+
+def fountain_on(data, s=None):
+    f = data.get('fountain') or {}
+    return bool(f.get('enabled')) and (s is None or (s['slug'] in f.get('statues', []) and s['status'] in CHECKABLE))
+
+
+FOUNTAIN_CSS = ('.fountain{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:14px 0}'
+                '.fountain h2{margin:0 0 4px;font-size:1.05rem;color:#f7931a}.fountain p{font-size:.9rem;line-height:1.45}'
+                '.f-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}'
+                '.f-stat{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:8px 10px;font-size:.8rem;color:#8b949e}'
+                '.f-stat b{display:block;font-size:1.25rem;color:#e6edf3}'
+                '.f-msg{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:9px 11px;margin-top:8px}.f-msg.ok{border-color:#3fb950;color:#3fb950}'
+                '.f-form{display:grid;gap:8px;margin-top:8px;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:10px 11px}'
+                '.f-form input[name=addr]{font:inherit;font-size:16px;padding:10px;border-radius:8px;border:1px solid #30363d;background:#161b22;color:#e6edf3;min-height:44px;width:100%}'
+                '.f-form label{display:flex;gap:8px;align-items:center;font-size:.9rem;min-height:32px}.f-form input[type=checkbox]{width:20px;height:20px;accent-color:#f7931a}'
+                '.f-form button{width:100%;border:0;cursor:pointer;font:inherit;font-weight:700}.f-form button:disabled{opacity:.6}'
+                '.f-out{color:#f0883e;font-size:.88rem;min-height:1em}.f-q{font-weight:600}'
+                '.f-fine{font-size:.8rem;color:#8b949e}.f-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}'
+                '.f-row button.btn{cursor:pointer;font:inherit;font-weight:700}'
+                '.fountain h3{font-size:.95rem;margin:14px 0 4px}'
+                '.fountain textarea{width:100%;font:.75rem ui-monospace,Menlo,Consolas,monospace;background:#0d1117;color:#e6edf3;border:1px solid #30363d;border-radius:8px;padding:8px;word-break:break-all}'
+                '.f-recent ul{list-style:none;font-size:.85rem}.f-recent li{padding:4px 0;border-bottom:1px solid #21262d}.f-recent li span{color:#8b949e}'
+                '.fountain[hidden],.fountain [hidden]{display:none!important}')
+
+
+def fountain_box(s, data):
+    if not fountain_on(data, s):
+        return ''
+    f = data['fountain']
+    api = f.get('api') or LB_API
+    tips = ''.join(f'<button class="btn" type="button" data-f-tip="{int(n)}">{int(n):,} sats</button>' for n in f.get('tip_presets', []))
+    return (f'\n    <style>{FOUNTAIN_CSS}</style><section class="fountain" data-ss-fountain data-slug="{e(s["slug"])}" data-name="{e(s["name"])}" data-api="{e(api)}" hidden>'
+            f'<h2>⛲ Satoshi Fountain</h2>'
+            f'<p>A small Lightning giveaway for visitors who check in at this statue, while the giveaway budget lasts.</p>'
+            f'<div class="f-stats"><div class="f-stat"><b data-f-left>–</b>giveaway sats left</div>'
+            f'<div class="f-stat"><b data-f-tipped>–</b>sats tipped here</div></div>'
+            f'<p class="f-fine">Check in here to get a fixed <span data-f-amount></span> sats sent to a Lightning address. '
+            f'One per Lightning address per statue. 18+ only. No tip needed, and tipping never changes the giveaway. '
+            f'The giveaway can stop at any time. <a href="/terms/">Giveaway terms</a></p>'
+            f'<div data-f-claim></div>'
+            f'<h3>🧡 Support the map</h3>'
+            f'<p class="f-fine">Tips go to SatoshiStatues.com to help keep the map running. They are separate from the giveaway, '
+            f'are not tax-deductible and are not refundable.</p>'
+            f'<div class="f-row">{tips}</div><div data-f-tipout></div>'
+            f'<h3>Recent activity</h3><div class="f-recent" data-f-recent></div>'
+            f'</section>')
+
+
+def fountain_script(s, data):
+    if not fountain_on(data, s):
+        return ''
+    import hashlib
+    with open(os.path.join(ROOT, 'fountain.js'), 'rb') as f:
+        v = hashlib.sha256(f.read()).hexdigest()[:10]
+    return f'<script src="/fountain.js?v={v}"></script>\n'
+
+
+def fountain_footer_link(data):
+    return ' · <a href="/terms/">Terms</a>' if fountain_on(data) else ''
+
+
+def fountain_names(data):
+    return ', '.join(o['name'] for o in data['statues'] if o['slug'] in data['fountain'].get('statues', []))
+
+
+def fountain_privacy_html(data):
+    if not fountain_on(data):
+        return ''
+    f = data['fountain']
+    return f'''    <h2>Satoshi Fountain giveaway and tips</h2>
+    <ul class="src" style="font-size:.95rem;color:#e6edf3">
+      <li>The giveaway runs at selected statues ({e(fountain_names(data))}). It only uses data when you take part.</li>
+      <li>A GPS check-in at one of these statues creates a <strong>single-use code</strong> that is valid for {int(f.get('claim_minutes', 15))} minutes. We store a hash of the code, your hashed device ID, the statue and the time, and delete it after 1 day.</li>
+      <li>If you claim the giveaway we store the <strong>Lightning address</strong> you enter, the statue, the amount, the payout status and the time. The full address is kept for {int(f.get('address_retention_days', 90))} days for our payout records, then deleted. After that we only keep a masked form (like “sa…@w….com”) and a salted hash so each address can only be used once per statue.</li>
+      <li>Only the masked form is ever shown publicly, in the statue’s recent activity list.</li>
+      <li>Your <strong>IP address</strong> is used for daily limits as a salted, per-day hash and deleted after 7 days.</li>
+      <li>For tips we store the amount, the statue, the time and the payment reference. We don’t ask for your name.</li>
+      <li>Payouts and tip invoices are handled by our Lightning payment provider, which receives the Lightning address and amount needed to make the payment.</li>
+    </ul>
+    <p class="note">See the <a href="/terms/">terms</a>.</p>
+'''
+
+
+def terms_page(data):
+    title = 'Terms – satoshistatues.com'
+    desc = 'Terms for visiting statues, the Satoshi Fountain Lightning giveaway and tips on satoshistatues.com.'
+    canonical = SITE + '/terms/'
+    out = head(title, desc, canonical, SITE + '/og-image.jpg', 1200, 630, 'Satoshi statues world map', '')
+    li = lambda items: '<ul class="src" style="font-size:.95rem;color:#e6edf3">' + ''.join(f'<li>{x}</li>' for x in items) + '</ul>'
+    visiting = li(['Obey local laws and any rules at the site.',
+                   'Don’t trespass. Only visit statues from public places or during opening hours, and respect private property.',
+                   'Visiting statues, checking in and using this site are at your own risk. We don’t guarantee access, safety or that a statue is still there.'])
+    giveaway = li([f'The Satoshi Fountain is a small, optional giveaway run by SatoshiStatues.com at selected statues ({e(fountain_names(data))}).',
+                   'A GPS check-in verified by our server at one of these statues lets you get a <strong>fixed amount</strong> of sats sent to a Lightning address. The amount is shown on the statue page and is the same for everyone.',
+                   'It is funded only from a giveaway budget set by SatoshiStatues.com and runs <strong>while the giveaway budget lasts</strong>. Daily limits apply per statue, per network and overall.',
+                   'One payout per Lightning address per statue, and one per passport per statue.',
+                   'No purchase or tip is needed. Tipping never affects the giveaway.',
+                   'You must be <strong>18 or older</strong> to take part.',
+                   'The giveaway can change, pause or stop at any time without notice. Nobody is entitled to a payout.',
+                   'We may refuse or cancel payouts that look like abuse, for example faked locations, many devices or many addresses.',
+                   'Payouts are sent over Lightning and can’t be reversed. Check your Lightning address before you send it.',
+                   'Where the giveaway isn’t allowed, it doesn’t apply. You are responsible for any taxes that apply to you.'])
+    tips = li(['Tips are voluntary payments to SatoshiStatues.com that help keep the map running.',
+               'Tips are not tax-deductible, are not refundable and don’t buy any goods, services or rights.',
+               'Tips are kept separate from the giveaway and are never added to the giveaway budget.'])
+    out += f'''  <main>
+    <div class="crumbs"><a href="/">Map</a> › Terms</div>
+    <h1>Terms</h1>
+    <p class="sub">Plain terms for visiting statues, the Satoshi Fountain giveaway and tips.</p>
+    <h2>Visiting statues</h2>
+    {visiting}
+    <h2>Satoshi Fountain giveaway</h2>
+    {giveaway}
+    <h2>Tips</h2>
+    {tips}
+    <h2>Privacy</h2>
+    <p class="note">What we store and for how long: <a href="/privacy/">Privacy</a>.</p>
+    <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">Last updated {BUILD_DATE}.</p>
+    {footer(data)}
+  </main>
+'''
+    return out + TAIL
+
+
 def checkin_script():
     # Shared check-in core (checkin.js, hand-written): loaded by the home map and every statue page.
     # ?v= is a content hash so browsers pick up changes right after a deploy.
@@ -198,7 +339,7 @@ if(n>0){el.textContent="\\uD83D\\uDC63 "+n+(n===1?" person has":" people have")+
 def footer(data, extra=''):
     nostr = f' · <a href="{e(nostr_url(data))}" rel="me">Nostr</a>' if nostr_url(data) else ''
     return (f'<footer class="site"><a href="/">satoshistatues.com</a> · <a href="/21-nodes/">21 Nodes tracker</a> · '
-            f'<a href="/leaderboard/">Leaderboard</a> · <a href="/feed.xml">Feed</a>{nostr}{extra} · <a href="/privacy/">Privacy</a></footer>')
+            f'<a href="/leaderboard/">Leaderboard</a> · <a href="/feed.xml">Feed</a>{nostr}{extra}{fountain_footer_link(data)} · <a href="/privacy/">Privacy</a></footer>')
 
 
 def slug_of(s):
@@ -875,7 +1016,7 @@ def statue_page(s, data):
     <h1>{e(s['label'])}</h1>
     <p class="sub">{e(s['place'])} · {e(s['city'])}, {e(s['country'])}{pin_sub(s)}</p>
     {confirmed_html(s, data)}
-    {alert_html(s)}{checkin_box(s, data)}
+    {alert_html(s)}{checkin_box(s, data)}{fountain_box(s, data)}
     {img_html}
     <dl class="facts">
       <dt>Location</dt><dd>{e(s['place'])}, {e(s['city'])}, {e(s['country'])}</dd>
@@ -911,7 +1052,7 @@ def statue_page(s, data):
     {footer(data)}
   </main>
 '''
-    return out + (checkin_script() + '\n' if s['status'] in CHECKABLE else '') + LIVE_COUNT_JS + '\n' + TAIL
+    return out + (checkin_script() + '\n' if s['status'] in CHECKABLE else '') + fountain_script(s, data) + LIVE_COUNT_JS + '\n' + TAIL
 
 
 def nodes_page(data):
@@ -1111,7 +1252,7 @@ def privacy_page(data):
     </ul>
     <h2>Analytics</h2>
     <p class="note">We use <a href="https://www.goatcounter.com/" target="_blank" rel="noopener noreferrer">GoatCounter</a> for privacy-friendly page counts without cookies. A successful check-in also sends an anonymous “Check-in &lt;statue&gt;” event, without any location.</p>
-    <h2>Deleting your data</h2>
+{fountain_privacy_html(data)}    <h2>Deleting your data</h2>
     <p class="note">Email <strong>{e(mail)}</strong> with your leaderboard nickname (or the statue and rough time of your check-in) and we will delete your stamps and nickname. Clearing your browser data removes your local passport and device ID.</p>
     <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">Last updated {BUILD_DATE}.</p>
     {footer(data)}
@@ -1847,7 +1988,7 @@ def page_lastmod(s):
 
 
 def sitemap(data):
-    urls = [(SITE + p, BUILD_DATE) for p in ('/', '/21-nodes/', '/leaderboard/', '/privacy/')] + [(page_url(s), page_lastmod(s)) for s in data['statues']]
+    urls = [(SITE + p, BUILD_DATE) for p in ('/', '/21-nodes/', '/leaderboard/', '/privacy/') + (('/terms/',) if fountain_on(data) else ())] + [(page_url(s), page_lastmod(s)) for s in data['statues']]
     body = ''.join(f'  <url><loc>{u}</loc><lastmod>{m}</lastmod></url>\n' for u, m in urls)
     return f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{body}</urlset>\n'
 
@@ -1956,6 +2097,8 @@ def outputs(data):
     assert len(set(pages)) == len(pages), 'duplicate page slugs'
     if nostr_json(data):
         files['.well-known/nostr.json'] = nostr_json(data)
+    if fountain_on(data):
+        files['terms/index.html'] = terms_page(data)
     for s in data['statues']:
         files[f"{s['page']}/index.html"] = statue_page(s, data)
     return files
