@@ -1399,7 +1399,8 @@
       center: [20, 20],
       zoom: 2,
       minZoom: isMobile ? 1 : 2,
-      zoomSnap: 0.25
+      zoomSnap: 0.25,
+      worldCopyJump: true // pins only exist on the main world copy; jump back to it when panning past ±180°
     });
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
