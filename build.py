@@ -1376,6 +1376,11 @@ LB_CSS = (
     '.lb-nick input{flex:1 1 160px;min-width:0;min-height:44px;padding:10px 12px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:16px;font-family:inherit}'
     '.lb-nick button{min-height:44px;padding:10px 16px;border-radius:8px;border:none;background:#f7931a;color:#0d1117;font-weight:700;font-size:.92rem;cursor:pointer;font-family:inherit}'
     '.lb-msg{font-size:.82rem;color:#f0883e;margin-top:6px;min-height:1em}'
+    # Proof of Walk rank pill (same look as the home passport pill .pp-rank, sized for a list row)
+    '.lb-pill{display:inline-block;margin-left:6px;font-size:.72rem;font-weight:600;color:#c9d1d9;border:1px solid #30363d;border-radius:999px;padding:1px 8px;vertical-align:middle;white-space:nowrap;text-decoration:none}'
+    '.lb-pill strong{color:#f7931a;font-weight:800}'
+    '.lb-pill.gen{background:#1f1a0d;border-color:#6e5a1e;color:#f2cc60}.lb-pill.gen strong{color:#ffdf80}'
+    'a.lb-pill:hover{border-color:#f7931a}'
 )
 
 LB_JS = r"""<script>
@@ -1396,6 +1401,13 @@ LB_JS = r"""<script>
     if (/^@[A-Za-z0-9_]{1,15}$/.test(e.name)) n = '<a href="https://x.com/' + e.name.slice(1) + '" target="_blank" rel="noopener noreferrer nofollow">' + n + '</a>';
     return n + (e.verified ? '<span class="lb-ver" title="Verified by satoshistatues.com">✓ verified</span>' : '');
   }
+  // Proof of Walk rank pill from the Worker (entry.pow; null = no GPS stamps = no pill).
+  function pill(p) {
+    if (!p || !p.label) return '';
+    return p.genesis
+      ? '<a class="lb-pill gen" href="/proof-of-walk/" title="Proof of Walk: Genesis Block · ' + esc(p.label) + '">🧱 <strong>Genesis Block</strong></a>'
+      : '<a class="lb-pill" href="/proof-of-walk/" title="Proof of Walk rank">👣 <strong>' + esc(p.label) + '</strong></a>';
+  }
   function stampsMeta(e) {
     return e.legacy ? (e.gps + ' GPS-checked · ' + e.legacy + ' earlier, unverified') : 'all GPS-checked';
   }
@@ -1405,7 +1417,7 @@ LB_JS = r"""<script>
       document.getElementById('lb-total').textContent = j.total_people ? (j.total_people === 1 ? '1 person' : j.total_people + ' people') + ' so far.' : '';
       if (!j.entries.length) { el.innerHTML = '<li class="lb-empty">No check-ins yet. Visit a statue and be the first!</li>'; return; }
       el.innerHTML = j.entries.map(function (e) {
-        return '<li' + (e.id === meId ? ' class="me"' : '') + '><span class="lb-rank">' + e.rank + '</span><span class="lb-who"><span class="lb-name">' + nameHtml(e) +
+        return '<li' + (e.id === meId ? ' class="me"' : '') + '><span class="lb-rank">' + e.rank + '</span><span class="lb-who"><span class="lb-name">' + nameHtml(e) + pill(e.pow) +
           (e.id === meId ? ' <span class="lb-meta">(you)</span>' : '') + '</span><span class="lb-meta">' + stampsMeta(e) + '</span></span><span class="lb-stamps">' + e.stamps +
           '<small>of ' + j.statues + '</small></span></li>';
       }).join('');
@@ -1485,7 +1497,7 @@ GENESIS_TITLE = 'Genesis Block'
 ORDER_NAME = 'The Grand High Order of Fellow Travelers'
 
 
-POW_LB_LINK = '\n    <p class="note"><a href="/proof-of-walk/">👣 See your Proof of Walk rank →</a></p>'
+POW_LB_LINK = '\n    <p class="note">👣 Pills show each walker’s Proof of Walk rank (GPS-verified stamps only). <a href="/proof-of-walk/">How ranks work →</a></p>'
 
 
 def pow_cfg(data):
@@ -1667,7 +1679,7 @@ POW_JS = r"""<script src="/share.js"></script>
   }
   function loadList() {
     var el = $('pow-list'); if (!el) return;
-    getj('/api/pow/leaderboard?limit=50').then(function (j) {
+    getj('/api/pow/leaderboard?limit=5').then(function (j) {
       if (!j.ok) return off(el);
       if ($('pow-total')) $('pow-total').textContent = j.total_walkers + (j.total_walkers === 1 ? ' walker' : ' walkers') + ' so far.';
       el.innerHTML = j.entries.length ? j.entries.map(function (x) {
@@ -1724,6 +1736,7 @@ def pow_page(data):
     <h2>Proof of Walk leaderboard</h2>
     <p class="sub" id="pow-total"></p>
     <ol class="lb-list" id="pow-list"><li class="lb-empty">Loading…</li></ol>
+    <p class="note" style="margin-top:8px"><a href="/leaderboard/">See full leaderboard →</a></p>
     <h2>🧱 {e(ORDER_NAME)}</h2>
     <p class="note">Everyone who has stamped every statue on the map.{pow_genesis_note(data)} <a href="/proof-of-walk/fellow-travelers/">See the members’ roll →</a></p>
     <h2>How it works</h2>
