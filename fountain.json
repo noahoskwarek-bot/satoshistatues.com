@@ -5,7 +5,8 @@
   "statues": [
     "el-zonte",
     "budapest",
-    "lugano"
+    "lugano",
+    "vienna"
   ],
   "claim_minutes": 21,
   "address_retention_days": 90,

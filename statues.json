@@ -161,12 +161,12 @@
       "lat": 46.0042,
       "lng": 8.9585,
       "pin_approx": true,
-      "year": "2024 (restored 2025)",
+      "year": "2024 (restored 2025, back on display Oct 2026)",
       "artist": "Valentina Picozzi (Satoshigallery)",
       "artistUrl": "https://satoshigallery.com",
       "type": "Disappearing metal (1st of series)",
-      "status": "Damaged",
-      "note": "First of the optical-illusion series. Unveiled in Parco Ciani in Oct 2024, it was later moved to the Foce, the mouth of the Cassarate river, where vandals threw it into Lake Lugano on the night of 1–2 Aug 2025; divers recovered it in pieces. The artist repaired it with the kintsugi technique and it was re-inaugurated on 24 Oct 2025 in the central area of Parco Ciani, near the Dying Socrates sculpture. On 19 Apr 2026 it was vandalized again and found seriously damaged in its central body. An OpenStreetMap mapper noted it was no longer at its originally mapped spot as of 28 Jul 2026; current status unconfirmed.",
+      "status": "Restored",
+      "note": "First of the optical-illusion series. Unveiled in Parco Ciani in Oct 2024, it was later moved to the Foce, the mouth of the Cassarate river, where vandals threw it into Lake Lugano on the night of 1–2 Aug 2025; divers recovered it in pieces. The artist repaired it with the kintsugi technique and it was re-inaugurated on 24 Oct 2025 in the central area of Parco Ciani, near the Dying Socrates sculpture. On 19 Apr 2026 it was vandalized again and found seriously damaged in its central body. It was back on display in Parco Ciani on 22 Oct 2026, the eve of the 5th Plan ₿ Forum.",
       "img": "464209387_18424822771076669_4342153522642907768_n.jpg",
       "imgW": 512,
       "imgH": 640,
@@ -218,16 +218,24 @@
         {
           "label": "Il Giornale del Ticino (Apr 2026)",
           "url": "https://ilgiornaledelticino.ch/lugano-area-parco-ciani-ci-risiamo-vandali-sullicona-di-satoshi-nakamoto/"
+        },
+        {
+          "label": "Satoshigallery on X: back on display (22 Oct 2026)",
+          "url": "https://x.com/satoshigallery/status/2113362834549567992"
+        },
+        {
+          "label": "Visitor photo on X (24 Oct 2026)",
+          "url": "https://x.com/Bitcoinismymuse/status/2113906896616714444"
         }
       ],
       "label": "Satoshi Statue Lugano",
-      "statusLabel": "Damaged (Apr 2026), current status unconfirmed",
+      "statusLabel": "Back on display (Oct 2026)",
       "visit": {
-        "updated": "2026-10-21",
-        "getting_there": "Check that the statue is actually on display before you go (see Hours & access).\n\nFrom OpenStreetMap (straight-line distances from the 2024 statue position; routes unverified): the Palazzo Congressi bus stop is about 130 m away, and the Lugano Centro bus hub (TPL) about 360 m.\n\nParking: the paid underground Autosilo Piazza Castello is about 135 m away (OpenStreetMap).",
-        "exact_spot": "In Parco Ciani, Lugano's lakefront park. The statue was first installed there in Oct 2024 (pin 46.00441, 8.95659, OpenStreetMap node 12288711744), then moved to the Foce (Cassarate river mouth), where it was thrown into the lake on 1–2 Aug 2025. On 24 Oct 2025 it was re-inaugurated in the central area of Parco Ciani, near the \"Dying Socrates\" sculpture (Corriere del Ticino; Il Giornale del Ticino). That exact spot may differ from the 2024 pin and is unverified.",
-        "photo_tip": "It's a Satoshigallery design, so the figure reads from the side and nearly vanishes from the front. After the April 2026 damage, its current look is unknown.\n\nGeneric tip (not from a source): if it's on display, the lake makes a clean background for a head-on shot.",
-        "hours_access": "Current status unconfirmed. It was found seriously damaged on 19 Apr 2026 (RSI; Ticinonline), and an OpenStreetMap mapper noted it was no longer there as of 28 Jul 2026. Parco Ciani itself is open daily from 6:30 to 23:30 (March–October) and 6:30 to 21:00 (November–February), per the City of Lugano.",
+        "updated": "2026-10-29",
+        "getting_there": "From OpenStreetMap (straight-line distances from the 2024 statue position; routes unverified): the Palazzo Congressi bus stop is about 130 m away, and the Lugano Centro bus hub (TPL) about 360 m.\n\nParking: the paid underground Autosilo Piazza Castello is about 135 m away (OpenStreetMap).",
+        "exact_spot": "In Parco Ciani, Lugano's lakefront park. The statue was first installed there in Oct 2024 (pin 46.00441, 8.95659, OpenStreetMap node 12288711744), then moved to the Foce (Cassarate river mouth), where it was thrown into the lake on 1–2 Aug 2025. On 24 Oct 2025 it was re-inaugurated in the central area of Parco Ciani, near the \"Dying Socrates\" sculpture (Corriere del Ticino; Il Giornale del Ticino). It was damaged there again on 19 Apr 2026 and was back on display in Parco Ciani on 22 Oct 2026, on its plinth on the lakeside lawn (Satoshigallery and visitor photos on X). That exact spot may differ from the 2024 pin and is unverified.",
+        "photo_tip": "It's a Satoshigallery design, so the figure reads from the side and nearly vanishes from the front.\n\nGeneric tip (not from a source): the lake makes a clean background for a head-on shot.",
+        "hours_access": "Back on display since 22 Oct 2026 (Satoshigallery on X; visitor photos from the Plan ₿ Forum, 23–26 Oct 2026), after it was found seriously damaged on 19 Apr 2026 (RSI; Ticinonline). It is outdoors in the park, with no admission fee mentioned. Parco Ciani itself is open daily from 6:30 to 23:30 (March–October) and 6:30 to 21:00 (November–February), per the City of Lugano.",
         "sources": [
           {
             "label": "City of Lugano: Parco Ciani",
@@ -248,6 +256,14 @@
           {
             "label": "Corriere del Ticino (24 Oct 2025)",
             "url": "https://www.cdt.ch/news/lugano-ha-di-nuovo-la-sua-statua-di-satoshi-nakamoto-409350"
+          },
+          {
+            "label": "Satoshigallery on X (22 Oct 2026)",
+            "url": "https://x.com/satoshigallery/status/2113362834549567992"
+          },
+          {
+            "label": "Visitor photos on X (24 and 26 Oct 2026)",
+            "url": "https://x.com/TheBTCoinQueen/status/2114622993108517239"
           },
           {
             "label": "OpenStreetMap node 12288711744 history",
@@ -311,7 +327,7 @@
         },
         {
           "label": "History",
-          "text": "After the unveiling it was moved to the Foce, at the mouth of the Cassarate river. Around 2 a.m. on Saturday 2 Aug 2025 a group of youths threw it into the lake; divers recovered it on 3 Aug. It was repaired and re-inaugurated on 24 Oct 2025 after a petition with about 1,300 signatures led by Luca Esposito (Satoshi Spritz). It was vandalized again on 19 Apr 2026.",
+          "text": "After the unveiling it was moved to the Foce, at the mouth of the Cassarate river. Around 2 a.m. on Saturday 2 Aug 2025 a group of youths threw it into the lake; divers recovered it on 3 Aug. It was repaired and re-inaugurated on 24 Oct 2025 after a petition with about 1,300 signatures led by Luca Esposito (Satoshi Spritz). It was vandalized again on 19 Apr 2026 and was back on display in Parco Ciani on 22 Oct 2026.",
           "sources": [
             {
               "label": "RSI (Aug 2025)",
@@ -328,18 +344,10 @@
           ]
         }
       ],
-      "last_confirmed": "2026-04",
+      "last_confirmed": "2026-10",
       "last_confirmed_source": "report",
-      "last_confirmed_url": "https://www.rsi.ch/info/ticino-grigioni-e-insubria/Vandalizzata-ancora-la-statua-di-Nakamoto--3678644.html",
-      "last_confirmed_kind": "reported",
-      "alert": {
-        "type": "damaged",
-        "title": "Damaged, current status unconfirmed",
-        "text": "Vandalized for the second time and found seriously damaged in its central body. An OpenStreetMap mapper later noted it was no longer at its originally mapped spot (28 Jul 2026). Check that it is on display before you go.",
-        "date": "2026-04-19",
-        "source_url": "https://www.rsi.ch/info/ticino-grigioni-e-insubria/Vandalizzata-ancora-la-statua-di-Nakamoto--3678644.html",
-        "source_label": "RSI"
-      }
+      "last_confirmed_url": "https://x.com/satoshigallery/status/2113362834549567992",
+      "alert": null
     },
     {
       "name": "El Zonte",

@@ -36,7 +36,7 @@
   <script>(function(){var c=[109, 111, 99, 46, 115, 101, 117, 116, 97, 116, 115, 105, 104, 115, 111, 116, 97, 115, 64, 115, 111, 116, 111, 104, 112];function to(){return String.fromCharCode.apply(null,c.slice().reverse())}function body(l){return "Hi,\n\nHere is my photo of the "+l+" (attached).\n\nYour name or X handle (for credit): \nDate taken: \n\nBy sending, you let satoshistatues.com feature your photo with credit.\n"}document.addEventListener("click",function(ev){var a=ev.target.closest&&ev.target.closest("[data-photo-subject]");if(!a)return;ev.preventDefault();location.href="mailto:"+to()+"?subject="+encodeURIComponent(a.getAttribute("data-photo-subject"))+"&body="+encodeURIComponent(body(a.getAttribute("data-photo-label")||"statue"));},true);})();</script>
   <style>.gw-badge{display:inline-block;font-size:.7rem;padding:2px 7px;border-radius:4px;margin-top:7px;font-weight:600;background:rgba(247,147,26,.12);border:1px solid rgba(247,147,26,.45);color:#f7931a;line-height:1.35}.gw-badge.gw-paused{background:#21262d;border-color:#30363d;color:#8b949e}.gw-badge[hidden],.gw-pop[hidden]{display:none!important}.gw-pop{background:#0d1117;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:8px;padding:8px 10px;margin:8px 0 10px;font-size:.82rem;line-height:1.45;color:#e6edf3}.gw-pop b{color:#f7931a}.gw-pop.gw-paused{border-left-color:#8b949e}.gw-pop.gw-paused b{color:#8b949e}.gw-pop .gw-links{margin-top:4px;font-size:.78rem}.gw-pop a{color:#f7931a;font-weight:600;text-decoration:none}.gw-pop a:hover{text-decoration:underline}.gw-pop .gw-links .gw-terms{color:#8b949e;font-weight:400}@media (max-width:768px){.gw-pop{font-size:.88rem;padding:10px 12px 0}.gw-pop .gw-links{margin-top:0}.gw-pop a{display:inline-flex;align-items:center;min-height:44px}}</style>
   <script>(function () {
-  var API = window.SS_API || '', SLUGS = ["budapest", "lugano", "el-zonte"], state = {};
+  var API = window.SS_API || '', SLUGS = ["budapest", "lugano", "el-zonte", "vienna"], state = {};
   var num = function (n) { return Number(n || 0).toLocaleString('en-US'); };
   function info(slug) {
     var j = state[slug];
@@ -134,20 +134,20 @@
   {
    "@type": "ListItem",
    "position": 1,
+   "url": "https://www.satoshistatues.com/lugano/",
+   "name": "Satoshi Statue Lugano"
+  },
+  {
+   "@type": "ListItem",
+   "position": 2,
    "url": "https://www.satoshistatues.com/hong-kong/",
    "name": "Satoshi Statue Hong Kong"
   },
   {
    "@type": "ListItem",
-   "position": 2,
+   "position": 3,
    "url": "https://www.satoshistatues.com/vienna/",
    "name": "Satoshi Statue Vienna"
-  },
-  {
-   "@type": "ListItem",
-   "position": 3,
-   "url": "https://www.satoshistatues.com/lugano/",
-   "name": "Satoshi Statue Lugano"
   },
   {
    "@type": "ListItem",
@@ -907,9 +907,9 @@
         <h2>Statue pages</h2>
         <!-- BUILD:LINKS:BEGIN -->
         <ul>
+          <li><a href="/lugano/">Satoshi Statue Lugano</a></li>
           <li><a href="/hong-kong/">Satoshi Statue Hong Kong</a></li>
           <li><a href="/vienna/">Satoshi Statue Vienna</a></li>
-          <li><a href="/lugano/">Satoshi Statue Lugano</a></li>
           <li><a href="/el-zonte/">Satoshi Statue El Zonte</a></li>
           <li><a href="/tokyo/">Satoshi Statue Tokyo</a></li>
           <li><a href="/hanoi/">Satoshi Statue Hanoi</a></li>
@@ -1044,12 +1044,12 @@
         "lat": 46.0042,
         "lng": 8.9585,
         "pin_approx": true,
-        "year": "2024 (restored 2025)",
+        "year": "2024 (restored 2025, back on display Oct 2026)",
         "artist": "Valentina Picozzi (Satoshigallery)",
         "artistUrl": "https://satoshigallery.com",
         "type": "Disappearing metal (1st of series)",
-        "status": "Damaged",
-        "note": "First of the optical-illusion series. Unveiled in Parco Ciani in Oct 2024, it was later moved to the Foce, the mouth of the Cassarate river, where vandals threw it into Lake Lugano on the night of 1–2 Aug 2025; divers recovered it in pieces. The artist repaired it with the kintsugi technique and it was re-inaugurated on 24 Oct 2025 in the central area of Parco Ciani, near the Dying Socrates sculpture. On 19 Apr 2026 it was vandalized again and found seriously damaged in its central body. An OpenStreetMap mapper noted it was no longer at its originally mapped spot as of 28 Jul 2026; current status unconfirmed.",
+        "status": "Restored",
+        "note": "First of the optical-illusion series. Unveiled in Parco Ciani in Oct 2024, it was later moved to the Foce, the mouth of the Cassarate river, where vandals threw it into Lake Lugano on the night of 1–2 Aug 2025; divers recovered it in pieces. The artist repaired it with the kintsugi technique and it was re-inaugurated on 24 Oct 2025 in the central area of Parco Ciani, near the Dying Socrates sculpture. On 19 Apr 2026 it was vandalized again and found seriously damaged in its central body. It was back on display in Parco Ciani on 22 Oct 2026, the eve of the 5th Plan ₿ Forum.",
         "img": "464209387_18424822771076669_4342153522642907768_n.jpg",
         "imgW": 512,
         "imgH": 640,
@@ -1057,19 +1057,11 @@
         "unveiled": "25 Oct 2024",
         "series21": true,
         "access": "In Parco Ciani, a public park open every day: 6:30–23:30 (March–October) and 6:30–21:00 (November–February).",
-        "statusLabel": "Damaged (Apr 2026), current status unconfirmed",
-        "last_confirmed": "2026-04",
+        "statusLabel": "Back on display (Oct 2026)",
+        "last_confirmed": "2026-10",
         "last_confirmed_source": "report",
-        "last_confirmed_url": "https://www.rsi.ch/info/ticino-grigioni-e-insubria/Vandalizzata-ancora-la-statua-di-Nakamoto--3678644.html",
-        "last_confirmed_kind": "reported",
-        "alert": {
-          "type": "damaged",
-          "title": "Damaged, current status unconfirmed",
-          "text": "Vandalized for the second time and found seriously damaged in its central body. An OpenStreetMap mapper later noted it was no longer at its originally mapped spot (28 Jul 2026). Check that it is on display before you go.",
-          "date": "2026-04-19",
-          "source_url": "https://www.rsi.ch/info/ticino-grigioni-e-insubria/Vandalizzata-ancora-la-statua-di-Nakamoto--3678644.html",
-          "source_label": "RSI"
-        },
+        "last_confirmed_url": "https://x.com/satoshigallery/status/2113362834549567992",
+        "alert": null,
         "checkins": 0,
         "label": "Satoshi Statue Lugano",
         "guide": true,
@@ -1391,7 +1383,8 @@
         "label": "Satoshi Statue Vienna",
         "guide": true,
         "photoSubject": "Photo: Satoshi statue – Vienna",
-        "nearby_eligible": true
+        "nearby_eligible": true,
+        "giveaway": true
       }
     ];
     // BUILD:STATUES:END
