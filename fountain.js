@@ -47,26 +47,37 @@
       });
     };
   }
+  // Payout rules come from the API: fixed (payout_sats) or a server-drawn amount (payout_min–payout_max + bonus_sats).
+  function isRange(s) { return s.payout_mode !== 'fixed' && s.payout_max > 0; }
+  function minPay(s) { return isRange(s) ? 1 : s.payout_sats; }
+  function howMuch(s) {
+    return isRange(s) ? num(s.payout_min) + '–' + num(s.payout_max) + ' sats' + (s.bonus_sats ? ', or the rare Lucky ' + num(s.bonus_sats) + ' bonus' : '')
+      : 'a fixed ' + num(s.payout_sats) + ' sats';
+  }
+  var FREE = '<p class="f-free">Free to play. No purchase or tip necessary. A tip won’t improve your odds. 18+. <a href="/rules/">Official Rules</a></p>';
   function closedText(s) {
     if (s.paused) return 'The giveaway is paused at the moment.';
-    if (s.giveaway_sats_left < s.payout_sats) return 'The giveaway budget has run out. Thanks for visiting!';
+    if (s.giveaway_sats_left < minPay(s)) return 'The giveaway budget has run out. Thanks for visiting!';
     return 'Today’s giveaway limit here has been reached. Try again tomorrow.';
   }
   function renderClaim() {
     var el = $('[data-f-claim]'), s = state;
-    if (done) { el.innerHTML = done; return; }
+    if (done) { if (el.getAttribute('data-done') !== '1') { el.innerHTML = done; el.setAttribute('data-done', '1'); } return; }
     if (!s.open) { el.innerHTML = '<p class="f-msg">' + esc(closedText(s)) + '</p>'; return; }
     var c = savedClaim();
     if (!c) {
       el.innerHTML = '<p class="f-msg">Check in above (within 150 m) to get the giveaway. No tip needed.</p>';
       return;
     }
+    var range = isRange(s);
     el.innerHTML = '<form class="f-form" data-f-form novalidate>' +
-      '<p class="f-q">✅ You’re checked in. Get ' + num(s.payout_sats) + ' sats sent to a Lightning address:</p>' +
+      '<p class="f-q">✅ You’re checked in. ' + (range ? 'Get ' + esc(howMuch(s)) + ' sent to a Lightning address:'
+        : 'Get ' + num(s.payout_sats) + ' sats sent to a Lightning address:') + '</p>' +
       '<input name="addr" type="email" inputmode="email" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="name@wallet.com" aria-label="Lightning address">' +
       '<label><input type="checkbox" name="adult"> I’m 18 or older</label>' +
       '<label><input type="checkbox" name="terms"> I accept the <a href="/terms/" target="_blank" rel="noopener">giveaway terms</a></label>' +
-      '<button class="btn primary" type="submit">⚡ Send ' + num(s.payout_sats) + ' sats</button>' +
+      '<button class="btn primary" type="submit">' + (range ? '⚡ Send the sats' : '⚡ Send ' + num(s.payout_sats) + ' sats') + '</button>' +
+      (range ? FREE : '') +
       '<p class="f-out" aria-live="polite"></p></form>';
   }
   function renderRecent() {
@@ -74,14 +85,16 @@
     if (!items.length) { el.innerHTML = '<p class="f-fine">No activity here yet.</p>'; return; }
     el.innerHTML = '<ul>' + items.map(function (x) {
       return '<li>' + (x.kind === 'payout'
-        ? '⚡ ' + num(x.sats) + ' giveaway sats sent to ' + esc(x.who || 'a visitor')
+        ? (x.bonus ? '⚡ Lucky ' + num(x.sats) + '! ' + num(x.sats) + ' sats sent to ' : '⚡ ' + num(x.sats) + ' giveaway sats sent to ') + esc(x.who || 'a visitor')
         : '🧡 ' + num(x.sats) + ' sats tipped') + ' <span>· ' + esc(ago(x.at)) + '</span></li>';
     }).join('') + '</ul>';
   }
   function render() {
     if (!state) return;
     $('[data-f-left]').textContent = num(state.giveaway_sats_left);
-    box.querySelectorAll('[data-f-amount]').forEach(function (n) { n.textContent = num(state.payout_sats); });
+    var hm = $('[data-f-howmuch]'); if (hm && (isRange(state) || state.payout_sats > 0)) hm.textContent = howMuch(state);
+    // No tip pitch right after a claim: the support section stays hidden while the success screen shows.
+    var sup = $('[data-f-support]'); if (sup) sup.hidden = !!done;
     renderClaim();
     renderRecent();
     var first = box.hidden;
@@ -108,6 +121,13 @@
       .then(function (j) {
         if (j.ok) {
           sessionStorage.removeItem(CLAIM_KEY);
+          if (j.payout_mode && j.payout_mode !== 'fixed') {
+            done = successHtml(j);
+            renderClaim(); render();
+            roll($('[data-f-claim] .f-got'), j);
+            load();
+            return;
+          }
           done = '<p class="f-msg ok">⚡ ' + num(j.sats) + ' sats are on the way to ' + esc(j.to) + '. Enjoy your visit!' +
             (j.mock ? ' <span class="f-fine">(test mode: no real payment)</span>' : '') + '</p>';
           renderClaim();
@@ -120,6 +140,56 @@
         }
       }).catch(function () { btn.disabled = false; out.textContent = 'Couldn’t reach the server. Please try again.'; });
   });
+  // ----- Success screen (server-drawn amounts) -----
+  // The amount was already drawn and paid by the server (j.sats). The odometer is decoration only: it rolls each digit
+  // and stops on that number. prefers-reduced-motion shows the final amount at once.
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  function successHtml(j) {
+    var lucky = !!j.bonus, digits = String(j.sats).split('');
+    var odo = '<span class="f-odo" aria-hidden="true">' + digits.map(function (d, i) {
+      var cyc = reduce ? 0 : digits.length - i, strip = '';
+      for (var k = 0; k < cyc * 10 + (+d) + 1; k++) strip += '<span>' + (k % 10) + '</span>';
+      var stop = cyc * 10 + (+d);
+      return '<span class="d"><span class="s" data-stop="' + stop + '" style="transform:translateY(-' + stop + 'em)">' + strip + '</span></span>';
+    }).join('') + '</span><span class="f-odo-unit" aria-hidden="true">sats</span>';
+    var head = lucky ? 'Lucky ' + num(j.sats) + '! You got ' + num(j.sats) + ' sats!' : 'You got ' + num(j.sats) + ' sats!';
+    // With motion, the headline (and the Lucky tag + glow) appear when the counter lands, not before.
+    var later = reduce ? '' : ' style="visibility:hidden"';
+    return '<div class="f-msg ok f-got' + (lucky && reduce ? ' f-lucky' : '') + '" role="status">' +
+      (lucky ? '<div class="f-lucky-tag" data-f-land aria-hidden="true"' + later + '>⚡ Lucky ' + num(j.sats) + '!</div><br>' : '') +
+      odo + '<p class="f-big" data-f-land' + later + '>' + esc(head) + '</p>' +
+      '<p class="f-sub">On the way to ' + esc(j.to) + '. Enjoy your visit!' +
+      (j.reduced ? ' That was the last of the giveaway sats for now.' : '') +
+      (j.mock ? ' <span class="f-fine">(test mode: no real payment)</span>' : '') + '</p></div>';
+  }
+  function roll(card, j) {
+    if (!card) return;
+    var strips = card.querySelectorAll('.f-odo .s');
+    strips.forEach(function (s) { s.style.transform = 'translateY(-' + (+s.getAttribute('data-stop')) + 'em)'; });
+    if (reduce) return;
+    // Start from 0 on every digit, then let the CSS transition (1.5 s) roll to the stop.
+    strips.forEach(function (s) { s.style.transition = 'none'; s.style.transform = 'translateY(0)'; });
+    void card.offsetHeight;
+    strips.forEach(function (s) { s.style.transition = ''; s.style.transform = 'translateY(-' + (+s.getAttribute('data-stop')) + 'em)'; });
+    setTimeout(function () {
+      card.querySelectorAll('[data-f-land]').forEach(function (n) { n.style.visibility = ''; });
+      if (j.bonus) { card.classList.add('f-lucky'); confetti(card); }
+    }, 1500);
+  }
+  function confetti(card) {
+    var colors = ['#f7931a', '#ffd28a', '#3fb950', '#e6edf3', '#58a6ff'];
+    for (var i = 0; i < 28; i++) {
+      var a = (i / 28) * Math.PI * 2, r = 90 + (i % 4) * 25, p = document.createElement('span');
+      p.className = 'f-conf';
+      p.style.background = colors[i % colors.length];
+      p.style.setProperty('--x', Math.round(Math.cos(a) * r * 1.4) + 'px');
+      p.style.setProperty('--y', Math.round(Math.sin(a) * r * 0.8) + 'px');
+      p.style.setProperty('--r', (i % 2 ? '' : '-') + (180 + i * 17) + 'deg');
+      p.style.setProperty('--dl', (i % 5) * 40 + 'ms');
+      card.appendChild(p);
+    }
+    setTimeout(function () { card.querySelectorAll('.f-conf').forEach(function (n) { n.remove(); }); }, 2000);
+  }
   // ----- Tips (separate from the giveaway) -----
   var poll = null;
   box.addEventListener('click', function (ev) {

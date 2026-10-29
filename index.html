@@ -41,9 +41,12 @@
   function info(slug) {
     var j = state[slug];
     if (!j) return { kind: 'static' };
-    if (!j.enabled || !(j.payout_sats > 0) || j.giveaway_sats_left < j.payout_sats) return { kind: 'off' };
+    var range = j.payout_mode !== 'fixed' && j.payout_max > 0;
+    var min = range ? 1 : j.payout_sats;
+    if (!j.enabled || !(min > 0) || j.giveaway_sats_left < min) return { kind: 'off' };
     if (j.paused) return { kind: 'paused' };
-    return { kind: j.open ? 'open' : 'limit', sats: j.payout_sats };
+    return { kind: j.open ? 'open' : 'limit', sats: range ? 0 : j.payout_sats,
+      range: range ? num(j.payout_min) + '–' + num(j.payout_max) + ' sats' : '', bonus: range && j.bonus_sats ? num(j.bonus_sats) : '' };
   }
   function badgeText(i) {
     if (i.kind === 'paused') return '⚡ Giveaway paused';
@@ -51,8 +54,9 @@
   }
   function popText(i) {
     if (i.kind === 'paused') return '<b>⚡ Sats giveaway:</b> paused at the moment.';
-    var amt = i.sats ? num(i.sats) + ' sats' : 'a small, fixed amount of sats';
-    return '<b>⚡ Sats giveaway:</b> ' + amt + ' per verified check-in, while the giveaway budget lasts.' +
+    var amt = i.range ? i.range : i.sats ? num(i.sats) + ' sats' : '1–100 sats';
+    var bonus = i.range ? i.bonus : i.sats ? '' : '210';
+    return '<b>⚡ Sats giveaway:</b> ' + amt + ' per verified check-in' + (bonus ? ', with a rare ' + bonus + ' bonus' : '') + ', while the giveaway budget lasts.' +
       (i.kind === 'limit' ? ' Today’s limit here has been reached. Try again tomorrow.' : '');
   }
   function fill(el, slug, pop) {
@@ -70,7 +74,7 @@
     var i = info(s.slug);
     return '<div class="gw-pop' + (i.kind === 'paused' ? ' gw-paused' : '') + '" data-gw-pop="' + s.slug + '"' + (i.kind === 'off' ? ' hidden' : '') + '>' +
       '<div data-gw-text>' + popText(i) + '</div>' +
-      '<div class="gw-links"><a href="/' + encodeURIComponent(s.page) + '/#giveaway">See how it works ›</a> <span class="gw-terms">· 18+ · <a class="gw-terms" href="/terms/">Terms</a></span></div></div>';
+      '<div class="gw-links"><a href="/' + encodeURIComponent(s.page) + '/#giveaway">See how it works ›</a> <span class="gw-terms">· 18+ · <a class="gw-terms" href="/rules/">Rules</a></span></div></div>';
   };
   function apply(slug) {
     document.querySelectorAll('[data-gw-badge="' + slug + '"]').forEach(function (el) { fill(el, slug, false); });

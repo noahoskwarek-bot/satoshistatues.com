@@ -1,5 +1,5 @@
 {
-  "_help": "Reverse fountain (Lightning giveaway) UI. enabled=false keeps the build byte-identical to a build without this feature: no widget, no /terms/ page, no privacy section, no footer link. The giveaway amount, budget and caps live in the Worker (wrangler.toml vars + admin endpoint), not here. api empty = use statues.json config.leaderboard_api. address_retention_days must match the Worker's FOUNTAIN_ADDRESS_RETENTION_DAYS. See FOUNTAIN.md.",
+  "_help": "Reverse fountain (Lightning giveaway) UI. enabled=false keeps the build byte-identical to a build without this feature: no widget, no /terms/ page, no privacy section, no footer link. The giveaway amount, budget and caps live in the Worker (wrangler.toml vars + admin endpoint), not here. api empty = use statues.json config.leaderboard_api. address_retention_days must match the Worker's FOUNTAIN_ADDRESS_RETENTION_DAYS. See FOUNTAIN.md. payout mirrors the Worker payout vars (PAYOUT_MODE, PAYOUT_SATS, PAYOUT_TIERS, PAYOUT_BONUS_SATS, PAYOUT_BONUS_WEIGHT, FOUNTAIN_CAP_SATS_DAY) and must match them: it feeds the static copy and the Official Rules page; the live widget reads the Worker's /api/fountain.",
   "enabled": true,
   "api": "",
   "statues": [
@@ -13,5 +13,34 @@
     1000,
     5000,
     21000
-  ]
+  ],
+  "payout": {
+    "mode": "random",
+    "fixed_sats": 21,
+    "tiers": [
+      [
+        1,
+        10,
+        440
+      ],
+      [
+        11,
+        25,
+        313
+      ],
+      [
+        26,
+        50,
+        170
+      ],
+      [
+        51,
+        100,
+        72
+      ]
+    ],
+    "bonus_sats": 210,
+    "bonus_weight": 5,
+    "cap_sats_day": 240
+  }
 }

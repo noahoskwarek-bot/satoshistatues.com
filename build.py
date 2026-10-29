@@ -195,6 +195,33 @@ def load_fountain():
     return cfg
 
 
+def payout_info(data):
+    """Payout rules from fountain.json "payout" (mirrors the Worker vars). Exact odds and mean via Fraction."""
+    from fractions import Fraction
+    p = (data.get('fountain') or {}).get('payout') or {}
+    fixed = int(p.get('fixed_sats', 21))
+    if p.get('mode') != 'random':
+        return {'mode': 'fixed', 'sats': fixed}
+    tiers = [(int(a), int(b), int(w)) for a, b, w in p['tiers']]
+    bonus, bw = int(p.get('bonus_sats', 0)), int(p.get('bonus_weight', 0))
+    assert tiers and all(1 <= a <= b and w > 0 for a, b, w in tiers) and bw >= 0, 'bad fountain.json payout tiers'
+    total = sum(w for _, _, w in tiers) + bw
+    mean = (sum(Fraction(w * (a + b), 2) for a, b, w in tiers) + bw * bonus) / total
+    odds = Fraction(total, bw) if bw else None
+    fmt = lambda f: str(f.numerator) if f.denominator == 1 else f'{float(f):.2f}'
+    return {'mode': 'random', 'min': min(a for a, _, _ in tiers), 'max': max(b for _, b, _ in tiers), 'bonus': bonus if bw else 0,
+            'odds': fmt(odds) if odds else '', 'mean': fmt(mean), 'tiers': tiers, 'total': total, 'bonus_weight': bw,
+            'cap_sats_day': int(p.get('cap_sats_day', 240))}
+
+
+def payout_phrase(data):
+    """Static amount phrase for the widget and terms (the widget refines it from /api/fountain)."""
+    pi = payout_info(data)
+    if pi['mode'] == 'fixed':
+        return f"a fixed {pi['sats']} sats"
+    return f"{pi['min']}–{pi['max']} sats" + (f", or the rare Lucky {pi['bonus']} bonus" if pi['bonus'] else '')
+
+
 def fountain_on(data, s=None):
     f = data.get('fountain') or {}
     return bool(f.get('enabled')) and (s is None or (s['slug'] in f.get('statues', []) and s['status'] in CHECKABLE))
@@ -216,6 +243,20 @@ FOUNTAIN_CSS = ('.fountain{background:#161b22;border:1px solid #30363d;border-le
                 '.fountain h3{font-size:.95rem;margin:14px 0 4px}'
                 '.fountain textarea{width:100%;font:.75rem ui-monospace,Menlo,Consolas,monospace;background:#0d1117;color:#e6edf3;border:1px solid #30363d;border-radius:8px;padding:8px;word-break:break-all}'
                 '.f-recent ul{list-style:none;font-size:.85rem}.f-recent li{padding:4px 0;border-bottom:1px solid #21262d}.f-recent li span{color:#8b949e}'
+                '.f-free{font-size:.78rem;color:#8b949e;line-height:1.4;margin:0}.f-free a{color:#f7931a}'
+                '.f-got{position:relative;text-align:center;padding:16px 12px 14px;overflow:hidden}'
+                '.f-got .f-big{font-size:1.15rem;font-weight:800;color:#e6edf3;margin:0}'
+                '.f-odo{display:inline-flex;font-variant-numeric:tabular-nums;font-size:2.6rem;font-weight:800;line-height:1;height:1em;overflow:hidden;color:#f7931a;vertical-align:bottom}'
+                '.f-odo .d{display:block;height:1em;overflow:hidden}.f-odo .s{display:flex;flex-direction:column;transition:transform 1.5s cubic-bezier(.15,.75,.25,1)}'
+                '.f-odo .s span{display:block;height:1em;line-height:1em}.f-odo-unit{font-size:1.1rem;font-weight:700;color:#f7931a;margin-left:6px}'
+                '.f-got .f-sub{font-size:.85rem;color:#8b949e;margin:8px 0 0}'
+                '.f-got.f-lucky{border-color:#f7931a;box-shadow:0 0 0 1px #f7931a,0 0 22px rgba(247,147,26,.55);animation:f-glow 1.6s ease-in-out 2}'
+                '.f-lucky-tag{display:inline-block;font-weight:800;color:#0d1117;background:#f7931a;border-radius:999px;padding:3px 12px;margin-bottom:8px;font-size:.9rem}'
+                '@keyframes f-glow{50%{box-shadow:0 0 0 2px #ffd28a,0 0 40px rgba(247,147,26,.85)}}'
+                '.f-conf{position:absolute;left:50%;top:45%;width:8px;height:12px;border-radius:2px;opacity:0;pointer-events:none;'
+                'animation:f-burst 1.3s cubic-bezier(.2,.7,.3,1) forwards;animation-delay:var(--dl)}'
+                '@keyframes f-burst{0%{opacity:1;transform:translate(-50%,-50%) rotate(0)}100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) rotate(var(--r))}}'
+                '@media (prefers-reduced-motion:reduce){.f-odo .s{transition:none}.f-got.f-lucky{animation:none}.f-conf{display:none}}'
                 '.fountain[hidden],.fountain [hidden]{display:none!important}')
 
 
@@ -229,16 +270,25 @@ def fountain_box(s, data):
             f'<h2>⛲ Satoshi Fountain</h2>'
             f'<p>A small Lightning giveaway for visitors who check in at this statue, while the giveaway budget lasts.</p>'
             f'<div class="f-stats"><div class="f-stat"><b data-f-left>–</b>giveaway sats left</div></div>'
-            f'<p class="f-fine">Check in here to get a fixed <span data-f-amount></span> sats sent to a Lightning address. '
+            f'<p class="f-fine">Check in here to get <span data-f-howmuch>{e(payout_phrase(data))}</span> sent to a Lightning address. '
             f'One per Lightning address per statue. 18+ only. No tip needed, and tipping never changes the giveaway. '
-            f'The giveaway can stop at any time. <a href="/terms/">Giveaway terms</a></p>'
+            f'The giveaway can stop at any time. {rules_links(data)}</p>'
             f'<div data-f-claim></div>'
-            f'<h3>🧡 Support the map</h3>'
+            f'<div data-f-support><h3>🧡 Support the map</h3>'
             f'<p class="f-fine">Tips go to SatoshiStatues.com to help keep the map running. They are separate from the giveaway, '
             f'are not tax-deductible and are not refundable.</p>'
-            f'<div class="f-row">{tips}</div><div data-f-tipout></div>'
+            f'<div class="f-row">{tips}</div><div data-f-tipout></div></div>'
             f'<h3>Recent activity</h3><div class="f-recent" data-f-recent></div>'
             f'</section>')
+
+
+def rules_on(data):
+    return fountain_on(data) and payout_info(data)['mode'] == 'random'
+
+
+def rules_links(data):
+    return ('<a href="/rules/">Official Rules</a> · <a href="/terms/">Giveaway terms</a>' if rules_on(data)
+            else '<a href="/terms/">Giveaway terms</a>')
 
 
 def fountain_script(s, data):
@@ -269,9 +319,12 @@ GIVEAWAY_HOME_JS = r'''(function () {
   function info(slug) {
     var j = state[slug];
     if (!j) return { kind: 'static' };
-    if (!j.enabled || !(j.payout_sats > 0) || j.giveaway_sats_left < j.payout_sats) return { kind: 'off' };
+    var range = j.payout_mode !== 'fixed' && j.payout_max > 0;
+    var min = range ? 1 : j.payout_sats;
+    if (!j.enabled || !(min > 0) || j.giveaway_sats_left < min) return { kind: 'off' };
     if (j.paused) return { kind: 'paused' };
-    return { kind: j.open ? 'open' : 'limit', sats: j.payout_sats };
+    return { kind: j.open ? 'open' : 'limit', sats: range ? 0 : j.payout_sats,
+      range: range ? num(j.payout_min) + '–' + num(j.payout_max) + ' sats' : '', bonus: range && j.bonus_sats ? num(j.bonus_sats) : '' };
   }
   function badgeText(i) {
     if (i.kind === 'paused') return '⚡ Giveaway paused';
@@ -279,8 +332,9 @@ GIVEAWAY_HOME_JS = r'''(function () {
   }
   function popText(i) {
     if (i.kind === 'paused') return '<b>⚡ Sats giveaway:</b> paused at the moment.';
-    var amt = i.sats ? num(i.sats) + ' sats' : 'a small, fixed amount of sats';
-    return '<b>⚡ Sats giveaway:</b> ' + amt + ' per verified check-in, while the giveaway budget lasts.' +
+    var amt = i.range ? i.range : i.sats ? num(i.sats) + ' sats' : __NEUTRAL__;
+    var bonus = i.range ? i.bonus : i.sats ? '' : __NEUTRAL_BONUS__;
+    return '<b>⚡ Sats giveaway:</b> ' + amt + ' per verified check-in' + (bonus ? ', with a rare ' + bonus + ' bonus' : '') + ', while the giveaway budget lasts.' +
       (i.kind === 'limit' ? ' Today’s limit here has been reached. Try again tomorrow.' : '');
   }
   function fill(el, slug, pop) {
@@ -298,7 +352,7 @@ GIVEAWAY_HOME_JS = r'''(function () {
     var i = info(s.slug);
     return '<div class="gw-pop' + (i.kind === 'paused' ? ' gw-paused' : '') + '" data-gw-pop="' + s.slug + '"' + (i.kind === 'off' ? ' hidden' : '') + '>' +
       '<div data-gw-text>' + popText(i) + '</div>' +
-      '<div class="gw-links"><a href="/' + encodeURIComponent(s.page) + '/#giveaway">See how it works ›</a> <span class="gw-terms">· 18+ · <a class="gw-terms" href="/terms/">Terms</a></span></div></div>';
+      '<div class="gw-links"><a href="/' + encodeURIComponent(s.page) + '/#giveaway">See how it works ›</a> <span class="gw-terms">· 18+ · <a class="gw-terms" href="__RULES_HREF__">__RULES_LABEL__</a></span></div></div>';
   };
   function apply(slug) {
     document.querySelectorAll('[data-gw-badge="' + slug + '"]').forEach(function (el) { fill(el, slug, false); });
@@ -322,7 +376,12 @@ def giveaway_home_head(data):
     slugs = [s['slug'] for s in data['statues'] if fountain_on(data, s)]
     if not slugs:
         return ''
-    js = GIVEAWAY_HOME_JS.replace('__SLUGS__', json.dumps(slugs))
+    pi = payout_info(data)
+    rnd = pi['mode'] == 'random'
+    neutral = f"'{pi['min']}–{pi['max']} sats'" if rnd else "'a small, fixed amount of sats'"
+    js = (GIVEAWAY_HOME_JS.replace('__SLUGS__', json.dumps(slugs)).replace('__NEUTRAL_BONUS__', f"'{pi['bonus']}'" if rnd and pi['bonus'] else "''")
+          .replace('__NEUTRAL__', neutral)
+          .replace('__RULES_HREF__', '/rules/' if rules_on(data) else '/terms/').replace('__RULES_LABEL__', 'Rules' if rules_on(data) else 'Terms'))
     return f'\n  <style>{GIVEAWAY_HOME_CSS}</style>\n  <script>{js}</script>'
 
 
@@ -362,7 +421,9 @@ def terms_page(data):
                    'Don’t trespass. Only visit statues from public places or during opening hours, and respect private property.',
                    'Visiting statues, checking in and using this site are at your own risk. We don’t guarantee access, safety or that a statue is still there.'])
     giveaway = li([f'The Satoshi Fountain is a small, optional giveaway run by SatoshiStatues.com at selected statues ({e(fountain_names(data))}).',
-                   'A GPS check-in verified by our server at one of these statues lets you get a <strong>fixed amount</strong> of sats sent to a Lightning address. The amount is shown on the statue page and is the same for everyone.',
+                   ('A GPS check-in verified by our server at one of these statues lets you get a <strong>fixed amount</strong> of sats sent to a Lightning address. The amount is shown on the statue page and is the same for everyone.'
+                    if not rules_on(data) else
+                    f'A GPS check-in verified by our server at one of these statues lets you get sats sent to a Lightning address. Our server picks the amount: {e(payout_phrase(data))}. The exact odds are in the <a href="/rules/">Official Rules</a>, which also apply.'),
                    'It is funded only from a giveaway budget set by SatoshiStatues.com and runs <strong>while the giveaway budget lasts</strong>. Daily limits apply per statue, per network and overall.',
                    'One payout per Lightning address per statue, and one per passport per statue.',
                    'No purchase or tip is needed. Tipping never affects the giveaway.',
@@ -385,7 +446,61 @@ def terms_page(data):
     <h2>Tips</h2>
     {tips}
     <h2>Privacy</h2>
-    <p class="note">What we store and for how long: <a href="/privacy/">Privacy</a>.</p>
+    <p class="note">What we store and for how long: <a href="/privacy/">Privacy</a>.</p>{'<p class="note">Giveaway amounts and odds: <a href="/rules/">Official Rules</a>.</p>' if rules_on(data) else ''}
+    <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">Last updated {BUILD_DATE}.</p>
+    {footer(data)}
+  </main>
+'''
+    return out + TAIL
+
+
+def rules_page(data):
+    """Official Rules for the giveaway in random-amount mode (Grant's draft; numbers from fountain.json payout)."""
+    pi = payout_info(data)
+    title = 'Official Rules: Satoshi Fountain giveaway – satoshistatues.com'
+    desc = 'Official Rules for the Satoshi Fountain Lightning giveaway on satoshistatues.com: eligibility, amounts, odds and limits.'
+    out = head(title, desc, SITE + '/rules/', SITE + '/og-image.jpg', 1200, 630, 'Satoshi statues world map', '')
+    li = lambda items: '<ul class="src" style="font-size:.95rem;color:#e6edf3">' + ''.join(f'<li>{x}</li>' for x in items) + '</ul>'
+    pct = lambda w: f'{100 * w / pi["total"]:.1f}%'.replace('.0%', '%')
+    rows = ''.join(f'<tr><td>{a}–{b} sats (each amount in this range equally likely)</td><td>{w} in {pi["total"]:,} ({pct(w)})</td></tr>' for a, b, w in pi['tiers'])
+    if pi['bonus']:
+        rows = f'<tr><td>{pi["bonus"]} sats (Lucky {pi["bonus"]})</td><td>1 in {pi["odds"]} ({pct(pi["bonus_weight"])})</td></tr>' + rows
+    table = ('<table style="width:100%;border-collapse:collapse;font-size:.9rem;margin:8px 0" class="rules-odds">'
+             '<thead><tr><th style="text-align:left">Amount per valid check-in</th><th style="text-align:left">Odds</th></tr></thead>'
+             f'<tbody>{rows}</tbody></table>')
+    out += f'''  <style>.rules-odds td,.rules-odds th{{border-bottom:1px solid #30363d;padding:6px 4px;vertical-align:top}}.rules-odds th{{color:#8b949e;font-weight:600}}</style>
+  <main>
+    <div class="crumbs"><a href="/">Map</a> › Official Rules</div>
+    <h1>Official Rules: Satoshi Fountain giveaway</h1>
+    <p class="sub">No purchase or tip necessary. A tip won’t improve your odds. 18+. Void where prohibited.</p>
+    <h2>1. Sponsor</h2>
+    {li(['Noah Oskwarek, operator of SatoshiStatues.com (the “Sponsor”).'])}
+    <h2>2. Eligibility</h2>
+    {li(['Open to people <strong>18 or older</strong> where permitted by law. Void where prohibited or restricted.'])}
+    <h2>3. How to take part</h2>
+    {li([f'Complete a check-in at a participating statue ({e(fountain_names(data))}) that our server verifies (GPS, within 150 m), then enter a Lightning address within the time shown.',
+         '<strong>No purchase or tip is necessary.</strong> Tips never affect taking part, the odds or the amount.',
+         'One payout per Lightning address per statue and one per passport (device) per statue. Daily limits apply per statue, per network and overall.'])}
+    <h2>4. Amounts and odds</h2>
+    {li([f'Each valid check-in receives a random amount from {pi["min"]} to {pi["max"]} sats' + (f', or a rare {pi["bonus"]}-sat bonus' if pi['bonus'] else '') + '. Our server picks the amount with a cryptographic random number generator. Nothing you do on the page changes it.',
+         (f'The odds of the {pi["bonus"]}-sat bonus are <strong>1 in {pi["odds"]}</strong> per valid check-in. ' if pi['bonus'] else '') + f'The average amount is <strong>{pi["mean"]} sats</strong>.',
+         'The total giveaway budget is set by the Sponsor, and the giveaway sats left are shown on each participating statue page.',
+         f'If the amount picked is more than what is left of the giveaway budget, or of the daily limit of {pi["cap_sats_day"]:,} sats across all statues, you receive what is left instead.'])}
+    {table}
+    <h2>5. Period</h2>
+    {li(['From the start of the giveaway until the giveaway budget runs out or the Sponsor ends it, whichever comes first.'])}
+    <h2>6. Payment</h2>
+    {li(['Paid in sats over Lightning only, to the Lightning address you enter. No cash or other alternative. Not transferable.',
+         'Lightning payments can’t be reversed. Check your Lightning address before you send it.',
+         'Recipients are responsible for any taxes that apply to them.'])}
+    <h2>7. Changes and disqualification</h2>
+    {li(['The Sponsor may end, pause or change the giveaway at any time.',
+         'The Sponsor may refuse or cancel payouts and disqualify anyone for fraud, spoofed or faked location, automation, multiple devices or addresses, or other abuse.'])}
+    <h2>8. Safety</h2>
+    {li(['Taking part is at your own risk. Obey local laws and any rules at the site.',
+         'Don’t trespass. Only visit statues from public places or during opening hours, and respect private property.'])}
+    <h2>9. Data</h2>
+    <p class="note">What we store and for how long: <a href="/privacy/">Privacy</a>. See also the <a href="/terms/">Terms</a>.</p>
     <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">Last updated {BUILD_DATE}.</p>
     {footer(data)}
   </main>
@@ -2063,7 +2178,7 @@ def page_lastmod(s):
 
 
 def sitemap(data):
-    urls = [(SITE + p, BUILD_DATE) for p in ('/', '/21-nodes/', '/leaderboard/', '/privacy/') + (('/terms/',) if fountain_on(data) else ())] + [(page_url(s), page_lastmod(s)) for s in data['statues']]
+    urls = [(SITE + p, BUILD_DATE) for p in ('/', '/21-nodes/', '/leaderboard/', '/privacy/') + (('/terms/',) if fountain_on(data) else ()) + (('/rules/',) if rules_on(data) else ())] + [(page_url(s), page_lastmod(s)) for s in data['statues']]
     body = ''.join(f'  <url><loc>{u}</loc><lastmod>{m}</lastmod></url>\n' for u, m in urls)
     return f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{body}</urlset>\n'
 
@@ -2176,6 +2291,8 @@ def outputs(data):
         files['.well-known/nostr.json'] = nostr_json(data)
     if fountain_on(data):
         files['terms/index.html'] = terms_page(data)
+    if rules_on(data):
+        files['rules/index.html'] = rules_page(data)
     for s in data['statues']:
         files[f"{s['page']}/index.html"] = statue_page(s, data)
     return files

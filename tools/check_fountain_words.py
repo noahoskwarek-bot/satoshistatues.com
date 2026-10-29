@@ -3,17 +3,19 @@
 
 Fails (exit 1) if any banned word appears in the built site output or in the Worker source strings.
 Usage: python3 tools/check_fountain_words.py [SITE_DIR] [--worker /workspace/leaderboard/src]
-Banned: pool, "your sats", "fountain balance", refill, donation(s), winner(s).
+Banned: pool, "your sats", "fountain balance", refill, donation(s), winner(s), jackpot(s), lottery, spin(s), slot(s),
+casino(s), gamble/gambling (Grant's review of the random-amount giveaway).
 Strict giveaway-copy check (only the giveaway UI itself, since the wider site legitimately says "Donated" statue and
 "random device ID"): also donate/donated, win/winning, prize, random, lottery, jackpot, "free money", tip-to-unlock.
 Scanned: fountain.js, the home-map giveaway callout block in index.html, each statue page's fountain section, and
-the terms page (CSS stripped).
+the terms page and the Official Rules page (CSS stripped).
 Two pre-existing, unrelated statue-history sentences (Vienna and Hong Kong pages describe the statues' own
 donation history) are allow-listed by exact phrase; any other hit fails.
 """
 import os, re, sys
 
-BANNED = [r'\bpools?\b', r'your\s+sats', r'fountain\s+balance', r'\brefill', r'\bdonations?\b', r'\bwinners?\b']
+BANNED = [r'\bpools?\b', r'your\s+sats', r'fountain\s+balance', r'\brefill', r'\bdonations?\b', r'\bwinners?\b',
+          r'\bjackpots?\b', r'\blotter(?:y|ies)\b', r'\bspins?\b', r'\bslots?\b', r'\bcasinos?\b', r'\bgambl\w*']
 ALLOW = ['Extra donations fund maintenance', 'in a donation ceremony', 'since the donation']
 EXTS = ('.html', '.xml', '.js', '.mjs', '.json', '.txt', '.toml', '.sql')
 SKIP_DIRS = {'.git', 'node_modules', '.wrangler', 'tools', 'test'}
@@ -39,7 +41,10 @@ def scan(root, skip_files=SKIP_FILES):
 
 
 STRICT = BANNED + [r'\bdonat\w*', r'\bwin(?:s|ning|ners?)?\b', r'\bprizes?\b', r'\brandom\w*', r'\blotter\w*',
-                   r'\bjackpots?\b', r'free\s+money', r'tip[\s-]+to[\s-]+unlock']
+                   r'\bjackpots?\b', r'free\s+money', r'tip[\s-]+to[\s-]+unlock', r'\bprize\s+pool', r'\bspins?\b', r'\bslots?\b',
+                   r'\bcasinos?\b', r'\bgambl\w*', r'\bbet(?:s|ting)?\b']
+# The Official Rules must state the method plainly (Grant's draft), so these exact factual phrases are allowed there only.
+RULES_ALLOW = ['receives a random amount from', 'cryptographic random number generator']
 
 
 def giveaway_copy(root):
@@ -52,6 +57,11 @@ def giveaway_copy(root):
     m = re.search(r'<style>\.gw-badge.*?</script>', read('index.html'), re.S)
     if m:
         out.append(('index.html (giveaway callouts)', m.group(0)))
+    if read('rules/index.html'):
+        t = nostyle(read('rules/index.html'))
+        for a in RULES_ALLOW:
+            t = t.replace(a, '')
+        out.append(('rules/index.html', t))
     if read('terms/index.html'):
         out.append(('terms/index.html', nostyle(read('terms/index.html'))))
     for d in sorted(os.listdir(root)):
