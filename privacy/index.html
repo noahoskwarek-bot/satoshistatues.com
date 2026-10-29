@@ -94,10 +94,21 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
     </ul>
     <h2>Analytics</h2>
     <p class="note">We use <a href="https://www.goatcounter.com/" target="_blank" rel="noopener noreferrer">GoatCounter</a> for privacy-friendly page counts without cookies. A successful check-in also sends an anonymous “Check-in &lt;statue&gt;” event, without any location.</p>
+    <h2>Satoshi Fountain giveaway and tips</h2>
+    <ul class="src" style="font-size:.95rem;color:#e6edf3">
+      <li>The giveaway runs at selected statues (Budapest, Lugano, El Zonte). It only uses data when you take part.</li>
+      <li>A GPS check-in at one of these statues creates a <strong>single-use code</strong> that is valid for 15 minutes. We store a hash of the code, your hashed device ID, the statue and the time, and delete it after 1 day.</li>
+      <li>If you claim the giveaway we store the <strong>Lightning address</strong> you enter, the statue, the amount, the payout status and the time. The full address is kept for 90 days for our payout records, then deleted. After that we only keep a masked form (like “sa…@w….com”) and a salted hash so each address can only be used once per statue.</li>
+      <li>Only the masked form is ever shown publicly, in the statue’s recent activity list.</li>
+      <li>Your <strong>IP address</strong> is used for daily limits as a salted, per-day hash and deleted after 7 days.</li>
+      <li>For tips we store the amount, the statue, the time and the payment reference. We don’t ask for your name.</li>
+      <li>To send a payout, our server asks the wallet service behind your Lightning address for an invoice, and our Lightning payment provider pays it. Tip invoices are created by the same provider.</li>
+    </ul>
+    <p class="note">See the <a href="/terms/">terms</a>.</p>
     <h2>Deleting your data</h2>
     <p class="note">Email <strong>photos [at] satoshistatues [dot] com</strong> with your leaderboard nickname (or the statue and rough time of your check-in) and we will delete your stamps and nickname. Clearing your browser data removes your local passport and device ID.</p>
     <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">Last updated 2026-10-21.</p>
-    <footer class="site"><a href="/">satoshistatues.com</a> · <a href="/21-nodes/">21 Nodes tracker</a> · <a href="/leaderboard/">Leaderboard</a> · <a href="/feed.xml">Feed</a> · <a href="https://njump.me/npub1dx7qh8fpp9l45lzrv9ff95f0f3gkrlvjhhptqjrxyhemze68kuhs72vv8h" rel="me">Nostr</a> · <a href="/privacy/">Privacy</a></footer>
+    <footer class="site"><a href="/">satoshistatues.com</a> · <a href="/21-nodes/">21 Nodes tracker</a> · <a href="/leaderboard/">Leaderboard</a> · <a href="/feed.xml">Feed</a> · <a href="https://njump.me/npub1dx7qh8fpp9l45lzrv9ff95f0f3gkrlvjhhptqjrxyhemze68kuhs72vv8h" rel="me">Nostr</a> · <a href="/terms/">Terms</a> · <a href="/privacy/">Privacy</a></footer>
   </main>
   <script data-goatcounter="https://satoshistatues.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>

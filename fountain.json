@@ -1,9 +1,17 @@
 {
   "_help": "Reverse fountain (Lightning giveaway) UI. enabled=false keeps the build byte-identical to a build without this feature: no widget, no /terms/ page, no privacy section, no footer link. The giveaway amount, budget and caps live in the Worker (wrangler.toml vars + admin endpoint), not here. api empty = use statues.json config.leaderboard_api. address_retention_days must match the Worker's FOUNTAIN_ADDRESS_RETENTION_DAYS. See FOUNTAIN.md.",
-  "enabled": false,
+  "enabled": true,
   "api": "",
-  "statues": ["el-zonte", "budapest", "lugano"],
+  "statues": [
+    "el-zonte",
+    "budapest",
+    "lugano"
+  ],
   "claim_minutes": 15,
   "address_retention_days": 90,
-  "tip_presets": [1000, 5000, 21000]
+  "tip_presets": [
+    1000,
+    5000,
+    21000
+  ]
 }
