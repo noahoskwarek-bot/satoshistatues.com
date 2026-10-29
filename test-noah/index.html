@@ -72,7 +72,7 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
   </main>
   <script src="/share.js?v=8f2049d65a"></script>
   <script src="/checkin.js?v=83662f3c8a"></script>
-  <script src="/fountain.js?v=e1fed25006"></script>
+  <script src="/fountain.js?v=5dc092b33c"></script>
   <script>(function () {
   var box = document.querySelector('[data-tp-checkin]'); if (!box) return;
   var btn = box.querySelector('button'), out = box.querySelector('.checkin-msg'), slug = box.getAttribute('data-slug'), IDLE = btn.textContent;
@@ -87,7 +87,8 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
       window.lbPost('/api/checkin', { device_id: window.lbDevice(), slug: slug, lat: c.latitude, lng: c.longitude, accuracy: c.accuracy }).then(function (r) {
         btn.disabled = false; btn.textContent = IDLE;
         var j = r.j || {};
-        if (j.ok && j.fountain) show('ok', '✅ Checked in at the test spot. Use the form below to get the test sats.');
+        if (j.ok && j.fountain && j.fountain.state === 'drawn') show('ok', '✅ Checked in at the test spot. Your amount is below.');
+        else if (j.ok && j.fountain) show('ok', '✅ Checked in at the test spot.');
         else if (j.ok) show('warn', 'Checked in, but the giveaway isn’t running here right now.');
         else show('warn', escHtml(j.message || 'The check-in wasn’t accepted.'));
       }).catch(function () { btn.disabled = false; btn.textContent = IDLE; show('warn', 'Couldn’t reach the check-in server. Try again.'); });

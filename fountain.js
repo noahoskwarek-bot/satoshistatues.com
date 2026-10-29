@@ -9,7 +9,7 @@
   var shareName = box.getAttribute('data-share-name'), pageUrl = box.getAttribute('data-url') || location.origin + location.pathname;
   var CLAIM_KEY = 'satoshiFountainClaim.v1';
   if (!API) return;
-  var state = null, done = null;
+  var state = null, done = null, notice = null, rollNext = false;
   var $ = function (sel) { return box.querySelector(sel); };
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   var num = function (n) { return Number(n || 0).toLocaleString('en-US'); };
@@ -39,9 +39,20 @@
       return orig.apply(this, arguments).then(function (res) {
         try {
           var f = res && res.j && res.j.fountain;
-          if (path === '/api/checkin' && f && f.claim && body && body.slug === slug) {
-            sessionStorage.setItem(CLAIM_KEY, JSON.stringify({ slug: slug, claim: f.claim, exp: Date.now() + f.expires_in * 1000 - 30000 }));
-            setTimeout(render, 0);
+          if (path === '/api/checkin' && f && body && body.slug === slug) {
+            // Reveal at check-in: the server drew the amount and holds it for this claim (f.sats). A repeat check-in
+            // returns the same amount (f.repeat), so it is shown without the odometer roll.
+            if (f.claim) {
+              var prev = savedClaim();
+              var seen = !!(f.repeat || (prev && prev.revealed && prev.sats === f.sats));
+              sessionStorage.setItem(CLAIM_KEY, JSON.stringify({ slug: slug, claim: f.claim, exp: Date.now() + f.expires_in * 1000 - 30000,
+                sats: f.sats, bonus: !!f.bonus, reduced: !!f.reduced, revealed: seen }));
+              notice = null; rollNext = !seen;
+            } else if (f.state) {
+              sessionStorage.removeItem(CLAIM_KEY);
+              notice = f;
+            }
+            setTimeout(function () { render(); load(); if (rollNext || notice) box.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); }, 0);
           }
         } catch (e) {}
         return res;
@@ -64,10 +75,12 @@
   function renderClaim() {
     var el = $('[data-f-claim]'), s = state;
     if (done) { if (el.getAttribute('data-done') !== '1') { el.innerHTML = done; el.setAttribute('data-done', '1'); } return; }
-    if (!s.open) { el.innerHTML = '<p class="f-msg">' + esc(closedText(s)) + '</p>'; return; }
     var c = savedClaim();
+    if (c && c.sats > 0) { renderReveal(el, c); return; }
+    if (notice) { el.innerHTML = '<p class="f-msg">' + esc(notice.message || closedText(s)) + '</p>'; return; }
+    if (!s.open) { el.innerHTML = '<p class="f-msg">' + esc(closedText(s)) + '</p>'; return; }
     if (!c) {
-      el.innerHTML = '<p class="f-msg">Check in above (within ' + (+box.getAttribute('data-radius') || 150) + ' m) to get the giveaway. No tip needed.</p>';
+      el.innerHTML = '<p class="f-msg">Check in above (within ' + (+box.getAttribute('data-radius') || 150) + ' m) to see your giveaway amount. No tip needed.</p>';
       return;
     }
     var range = isRange(s);
@@ -80,6 +93,46 @@
       '<button class="btn primary" type="submit">' + (range ? '⚡ Send the sats' : '⚡ Send ' + num(s.payout_sats) + ' sats') + '</button>' +
       (range ? FREE : '') +
       '<p class="f-out" aria-live="polite"></p></form>';
+  }
+  // The amount drawn at check-in, then the address form. Drawn and held by the server; nothing here changes it.
+  function revealHead(c) {
+    return c.bonus ? 'Lucky ' + num(c.sats) + '! You got ' + num(c.sats) + ' sats!' : 'You got ' + num(c.sats) + ' sats!';
+  }
+  function renderReveal(el, c) {
+    if (el.getAttribute('data-reveal') === c.claim) return;   // already showing this one (don't restart the roll)
+    var roll1 = rollNext && !c.revealed;
+    var mins = Math.max(1, Math.round((c.exp - Date.now()) / 60000));
+    el.innerHTML = revealCard(c, roll1) +
+      '<form class="f-form" data-f-form novalidate>' +
+      '<p class="f-q">Lightning address (claim within ' + mins + ' min):</p>' +
+      '<input name="addr" type="email" inputmode="email" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="name@wallet.com" aria-label="Lightning address">' +
+      '<label><input type="checkbox" name="adult"> I’m 18 or older</label>' +
+      '<label><input type="checkbox" name="terms"> I accept the <a href="/terms/" target="_blank" rel="noopener">giveaway terms</a></label>' +
+      '<button class="btn primary" type="submit">⚡ Claim ' + num(c.sats) + ' sats</button>' +
+      (state && isRange(state) ? FREE : '') +
+      '<p class="f-out" aria-live="polite"></p></form>';
+    el.setAttribute('data-reveal', c.claim);
+    if (roll1) {
+      rollNext = false;
+      roll($('[data-f-claim] .f-got'), { bonus: c.bonus });
+      try { c.revealed = true; sessionStorage.setItem(CLAIM_KEY, JSON.stringify(c)); } catch (e) {}
+    }
+  }
+  function revealCard(c, animate) {
+    var lucky = !!c.bonus, digits = String(c.sats).split('');
+    var still = reduce || !animate;
+    var odo = '<span class="f-odo" aria-hidden="true">' + digits.map(function (d, i) {
+      var cyc = still ? 0 : digits.length - i, strip = '';
+      for (var k = 0; k < cyc * 10 + (+d) + 1; k++) strip += '<span>' + (k % 10) + '</span>';
+      var stop = cyc * 10 + (+d);
+      return '<span class="d"><span class="s" data-stop="' + stop + '" style="transform:translateY(-' + stop + 'em)">' + strip + '</span></span>';
+    }).join('') + '</span><span class="f-odo-unit" aria-hidden="true">sats</span>';
+    var later = still ? '' : ' style="visibility:hidden"';
+    return '<div class="f-msg ok f-got' + (lucky && still ? ' f-lucky' : '') + '" role="status">' +
+      (lucky ? '<div class="f-lucky-tag" data-f-land aria-hidden="true"' + later + '>⚡ Lucky ' + num(c.sats) + '!</div><br>' : '') +
+      odo + '<p class="f-big" data-f-land' + later + '>' + esc(revealHead(c)) + '</p>' +
+      '<p class="f-sub">' + (c.reduced ? 'That’s what’s left of the giveaway budget right now. ' : '') +
+      'Enter a Lightning address to claim ' + (c.sats === 1 ? 'it' : 'them') + '.</p></div>';
   }
   function renderRecent() {
     var el = $('[data-f-recent]'), items = (state.recent || []).filter(function (x) { return x.kind === 'payout'; });
@@ -122,6 +175,13 @@
       .then(function (j) {
         if (j.ok) {
           sessionStorage.removeItem(CLAIM_KEY);
+          if (c.sats > 0) {
+            // Already revealed at check-in: a plain confirmation (amount from the server's reply) and the share prompt.
+            done = '<p class="f-msg ok">⚡ ' + (j.bonus ? 'Lucky ' + num(j.sats) + '! ' : '') + num(j.sats) + ' sats are on the way to ' + esc(j.to) + '. Enjoy your visit!' +
+              (j.mock ? ' <span class="f-fine">(test mode: no real payment)</span>' : '') + '</p>' + shareHtml(j);
+            renderClaim(); render(); load();
+            return;
+          }
           if (j.payout_mode && j.payout_mode !== 'fixed') {
             done = successHtml(j) + shareHtml(j);
             renderClaim(); render();
@@ -137,7 +197,12 @@
           out.textContent = j.message || 'Something went wrong. Please try again.';
           if (j.error === 'payout_unconfirmed') { sessionStorage.removeItem(CLAIM_KEY); return; }
           btn.disabled = false;
-          if (['claim_used', 'checkin_stale', 'checkin_required', 'address_used', 'device_used'].indexOf(j.error) >= 0 && j.error !== 'address_used') sessionStorage.removeItem(CLAIM_KEY);
+          if (['claim_used', 'checkin_stale', 'checkin_required', 'address_used', 'device_used'].indexOf(j.error) >= 0 && j.error !== 'address_used') {
+            sessionStorage.removeItem(CLAIM_KEY);
+            var cl = $('[data-f-claim]'); if (cl) cl.removeAttribute('data-reveal');
+            var note = document.createElement('p'); note.className = 'f-msg'; note.textContent = j.message || 'Check in again at the statue.';
+            if (cl) { cl.innerHTML = ''; cl.appendChild(note); }
+          }
         }
       }).catch(function () { btn.disabled = false; out.textContent = 'Couldn’t reach the server. Please try again.'; });
   });

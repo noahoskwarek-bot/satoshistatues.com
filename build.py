@@ -424,7 +424,7 @@ def terms_page(data):
     giveaway = li([f'The Satoshi Fountain is a small, optional giveaway run by SatoshiStatues.com at selected statues ({e(fountain_names(data))}).',
                    ('A GPS check-in verified by our server at one of these statues lets you get a <strong>fixed amount</strong> of sats sent to a Lightning address. The amount is shown on the statue page and is the same for everyone.'
                     if not rules_on(data) else
-                    f'A GPS check-in verified by our server at one of these statues lets you get sats sent to a Lightning address. Our server picks the amount: {e(payout_phrase(data))}. The exact odds are in the <a href="/rules/">Official Rules</a>, which also apply.'),
+                    f'A GPS check-in verified by our server at one of these statues lets you get sats sent to a Lightning address. Our server draws the amount when your check-in is verified and shows it before you enter an address: {e(payout_phrase(data))}. The exact odds are in the <a href="/rules/">Official Rules</a>, which also apply.'),
                    'It is funded only from a giveaway budget set by SatoshiStatues.com and runs <strong>while the giveaway budget lasts</strong>. Daily limits apply per statue, per network and overall.',
                    'One payout per Lightning address per statue, and one per passport per statue.',
                    'No purchase or tip is needed. Tipping never affects the giveaway.',
@@ -479,14 +479,15 @@ def rules_page(data):
     <h2>2. Eligibility</h2>
     {li(['Open to people <strong>18 or older</strong> where permitted by law. Void where prohibited or restricted.'])}
     <h2>3. How to take part</h2>
-    {li([f'Complete a check-in at a participating statue ({e(fountain_names(data))}) that our server verifies (GPS, within 150 m), then enter a Lightning address within the time shown.',
+    {li([f'Complete a check-in at a participating statue ({e(fountain_names(data))}) that our server verifies (GPS, within 150 m). Our server then draws your amount and shows it to you right away. To receive it, enter a Lightning address within the claim time shown ({int(data["fountain"].get("claim_minutes", 15))} minutes).',
          '<strong>No purchase or tip is necessary.</strong> Tips never affect taking part, the odds or the amount.',
          'One payout per Lightning address per statue and one per passport (device) per statue. Daily limits apply per statue, per network and overall.'])}
     <h2>4. Amounts and odds</h2>
     {li([f'Each valid check-in receives a random amount from {pi["min"]} to {pi["max"]} sats' + (f', or a rare {pi["bonus"]}-sat bonus' if pi['bonus'] else '') + '. Our server picks the amount with a cryptographic random number generator. Nothing you do on the page changes it.',
          (f'The odds of the {pi["bonus"]}-sat bonus are <strong>1 in {pi["odds"]}</strong> per valid check-in. ' if pi['bonus'] else '') + f'The average amount is <strong>{pi["mean"]} sats</strong>.',
+         f'The amount is drawn once per passport (device) per statue per day, at check-in. It is reserved for you during the claim time ({int(data["fountain"].get("claim_minutes", 15))} minutes) and counts against the giveaway budget and daily limits while it is reserved. If it isn’t claimed in time, it is released back to the giveaway budget. Checking in again the same day shows the same amount; it doesn’t draw a new one.',
          'The total giveaway budget is set by the Sponsor, and the giveaway sats left are shown on each participating statue page.',
-         f'If the amount picked is more than what is left of the giveaway budget, or of the daily limit of {pi["cap_sats_day"]:,} sats across all statues, you receive what is left instead.'])}
+         f'If the amount drawn is more than what is left of the giveaway budget, or of the daily limit of {pi["cap_sats_day"]:,} sats across all statues, you are shown and can claim what is left instead. If nothing is left, you are told before you enter a Lightning address.'])}
     {table}
     <h2>5. Period</h2>
     {li(['From the start of the giveaway until the giveaway budget runs out or the Sponsor ends it, whichever comes first.'])}
@@ -2320,7 +2321,8 @@ TEST_PAGE_JS = """<script>(function () {
       window.lbPost('/api/checkin', { device_id: window.lbDevice(), slug: slug, lat: c.latitude, lng: c.longitude, accuracy: c.accuracy }).then(function (r) {
         btn.disabled = false; btn.textContent = IDLE;
         var j = r.j || {};
-        if (j.ok && j.fountain) show('ok', '✅ Checked in at the test spot. Use the form below to get the test sats.');
+        if (j.ok && j.fountain && j.fountain.state === 'drawn') show('ok', '✅ Checked in at the test spot. Your amount is below.');
+        else if (j.ok && j.fountain) show('ok', '✅ Checked in at the test spot.');
         else if (j.ok) show('warn', 'Checked in, but the giveaway isn’t running here right now.');
         else show('warn', escHtml(j.message || 'The check-in wasn’t accepted.'));
       }).catch(function () { btn.disabled = false; btn.textContent = IDLE; show('warn', 'Couldn’t reach the check-in server. Try again.'); });
