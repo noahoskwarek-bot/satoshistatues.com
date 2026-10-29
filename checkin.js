@@ -200,6 +200,9 @@ function checkinTooFarHtml(s, d, accuracy) {
     }
     function shareRow(p) {
       const url = d.url;
+      const more = `<div class="ci-share"><a class="btn" href="/?s=${s.page}">🖼️ Share card on the map</a><a class="btn" href="/#passport">🛂 My passport</a></div>`;
+      // share.js (every statue page): share sheet + X with the check-in line. Older cached pages keep the X-only row.
+      if (window.SSShare && d.shareName) return window.SSShare.row(`I just checked in at ${d.shareName} ⚡`, url, 'Share your check-in') + more;
       const x = `https://x.com/intent/post?text=${encodeURIComponent(shareText(p))}&url=${encodeURIComponent(url)}`;
       return `<div class="ci-share"><a class="btn" href="${x}" target="_blank" rel="noopener noreferrer">𝕏 Share on X</a><a class="btn" href="/?s=${s.page}">📤 Share card on the map</a><a class="btn" href="/#passport">🛂 My passport</a></div>`;
     }

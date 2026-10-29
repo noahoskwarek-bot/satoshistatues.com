@@ -6,6 +6,7 @@
   if (!box || !window.fetch) return;
   var API = box.getAttribute('data-api') || window.SS_API || '';
   var slug = box.getAttribute('data-slug'), name = box.getAttribute('data-name');
+  var shareName = box.getAttribute('data-share-name'), pageUrl = box.getAttribute('data-url') || location.origin + location.pathname;
   var CLAIM_KEY = 'satoshiFountainClaim.v1';
   if (!API) return;
   var state = null, done = null;
@@ -122,14 +123,14 @@
         if (j.ok) {
           sessionStorage.removeItem(CLAIM_KEY);
           if (j.payout_mode && j.payout_mode !== 'fixed') {
-            done = successHtml(j);
+            done = successHtml(j) + shareHtml(j);
             renderClaim(); render();
             roll($('[data-f-claim] .f-got'), j);
             load();
             return;
           }
           done = '<p class="f-msg ok">⚡ ' + num(j.sats) + ' sats are on the way to ' + esc(j.to) + '. Enjoy your visit!' +
-            (j.mock ? ' <span class="f-fine">(test mode: no real payment)</span>' : '') + '</p>';
+            (j.mock ? ' <span class="f-fine">(test mode: no real payment)</span>' : '') + '</p>' + shareHtml(j);
           renderClaim();
           load();
         } else {
@@ -140,6 +141,13 @@
         }
       }).catch(function () { btn.disabled = false; out.textContent = 'Couldn’t reach the server. Please try again.'; });
   });
+  // Share prompt under the success message. The amount is the one the server returned (j.sats), never a fixed number,
+  // so it reads right for the fixed 21 sats and for drawn amounts. No Lightning address and no tip amounts in the text.
+  function shareHtml(j) {
+    if (!window.SSShare || !shareName) return '';
+    var n = Math.floor(+j.sats), got = n > 0 ? ' and got ' + num(n) + ' sats' + (j.bonus ? ' (Lucky ' + num(n) + ')' : '') : '';
+    return window.SSShare.row('I just checked in at ' + shareName + got + ' ⚡', pageUrl, 'Share your visit');
+  }
   // ----- Success screen (server-drawn amounts) -----
   // The amount was already drawn and paid by the server (j.sats). The odometer is decoration only: it rolls each digit
   // and stops on that number. prefers-reduced-motion shows the final amount at once.

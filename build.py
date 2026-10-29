@@ -24,6 +24,7 @@ import os
 import re
 import sys
 import unicodedata
+import urllib.parse
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SITE = 'https://www.satoshistatues.com'
@@ -266,7 +267,7 @@ def fountain_box(s, data):
     f = data['fountain']
     api = f.get('api') or LB_API
     tips = ''.join(f'<button class="btn" type="button" data-f-tip="{int(n)}">{int(n):,} sats</button>' for n in f.get('tip_presets', []))
-    return (f'\n    <style>{FOUNTAIN_CSS}</style><section class="fountain" id="giveaway" data-ss-fountain data-slug="{e(s["slug"])}" data-name="{e(s["name"])}" data-api="{e(api)}" hidden>'
+    return (f'\n    <style>{FOUNTAIN_CSS}</style><section class="fountain" id="giveaway" data-ss-fountain data-slug="{e(s["slug"])}" data-name="{e(s["name"])}" data-share-name="{e(share_name(s))}" data-url="{e(page_url(s))}" data-api="{e(api)}" hidden>'
             f'<h2>⛲ Satoshi Fountain</h2>'
             f'<p>A small Lightning giveaway for visitors who check in at this statue, while the giveaway budget lasts.</p>'
             f'<div class="f-stats"><div class="f-stat"><b data-f-left>–</b>giveaway sats left</div></div>'
@@ -515,6 +516,39 @@ def checkin_script():
     with open(os.path.join(ROOT, 'checkin.js'), 'rb') as f:
         v = hashlib.sha256(f.read()).hexdigest()[:10]
     return f'<script src="/checkin.js?v={v}"></script>'
+
+
+def share_script():
+    # Share buttons (share.js, hand-written): loaded on every statue page. ?v= is a content hash like checkin.js.
+    import hashlib
+    with open(os.path.join(ROOT, 'share.js'), 'rb') as f:
+        v = hashlib.sha256(f.read()).hexdigest()[:10]
+    return f'<script src="/share.js?v={v}"></script>'
+
+
+def share_name(s):
+    """'the Lugano Satoshi statue' for share text; other monuments keep their own name ('the Miami Bitcoin Bull')."""
+    return f"the {s['city']} Satoshi statue" if s['label'].startswith('Satoshi Statue ') else f"the {s['label']}"
+
+
+SHARE_CSS = ('.ss-share{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0}'
+             '.ss-share .btn{font-size:.85rem;color:#e6edf3;cursor:pointer;font-family:inherit}'
+             '.ss-share-q{flex-basis:100%;font-size:.85rem;font-weight:600;color:#c9d1d9}'
+             '.ss-share-ok{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}'
+             '.f-msg.ok .ss-share-q,.checkin-msg.ok .ss-share-q{color:#e6edf3}')
+
+
+def share_box(s):
+    """Static share row for a statue page (works without JS: the X link is a plain link; share.js adds the share sheet)."""
+    text = f"Check out {share_name(s)} 🟠 Location, directions and photos"
+    url = page_url(s)
+    x = f"https://x.com/intent/post?text={urllib.parse.quote(text, safe='')}&url={urllib.parse.quote(url, safe='')}"
+    return (f'<style>{SHARE_CSS}</style><div class="ss-share" role="group" aria-label="Share this statue">'
+            f'<span class="ss-share-q">Share this statue</span>'
+            f'<button class="btn" type="button" data-ss-share data-text="{e(text)}" data-url="{e(url)}" '
+            f'aria-label="Share with your phone’s share sheet, or copy the link">📤 Share</button>'
+            f'<a class="btn" href="{e(x)}" target="_blank" rel="noopener noreferrer" aria-label="Share on X (opens in a new tab)">𝕏 Share on X</a>'
+            f'<span class="ss-share-ok" role="status" aria-live="polite"></span></div>')
 
 
 def api_script():
@@ -1147,7 +1181,7 @@ def checkin_box(s, data):
         return ''
     stampable = ','.join(o['slug'] for o in data['statues'] if o['status'] in CHECKABLE)
     attrs = {'data-slug': s['slug'], 'data-name': s['name'], 'data-label': s['label'], 'data-city': s['city'],
-             'data-page': s['page'], 'data-url': page_url(s), 'data-lat': s['lat'], 'data-lng': s['lng'],
+             'data-page': s['page'], 'data-url': page_url(s), 'data-share-name': share_name(s), 'data-lat': s['lat'], 'data-lng': s['lng'],
              'data-checkins': s.get('checkins', 0), 'data-checkable': stampable}
     a = ' '.join(f'{k}="{e(str(v))}"' for k, v in attrs.items())
     return (f'\n    <style>{CHECKIN_CSS}</style><div class="checkin-box" data-ss-checkin {a}>'
@@ -1222,6 +1256,7 @@ def statue_page(s, data):
       <a class="btn primary" href="{directions}" target="_blank" rel="noopener noreferrer">🧭 Get Directions</a>{map_btn}
       <a class="btn" href="#comments">💬 Comments</a>
     </div>
+    {share_box(s)}
     {series}
     <h2>About</h2>
     <p class="note">{e(s['note'])}</p>{stamp}
@@ -1242,7 +1277,7 @@ def statue_page(s, data):
     {footer(data)}
   </main>
 '''
-    return out + (checkin_script() + '\n' if s['status'] in CHECKABLE else '') + fountain_script(s, data) + LIVE_COUNT_JS + '\n' + TAIL
+    return out + share_script() + '\n' + (checkin_script() + '\n' if s['status'] in CHECKABLE else '') + fountain_script(s, data) + LIVE_COUNT_JS + '\n' + TAIL
 
 
 def nodes_page(data):
