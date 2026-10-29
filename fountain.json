@@ -43,9 +43,10 @@
     "bonus_weight": 5,
     "cap_sats_day": 240
   },
-  "_test_page_help": "Temporary hidden test statue page for the live end-to-end giveaway test (built only while this key is present and enabled is true). Not a statue: never on the map, sitemap, passport or leaderboard; noindex. Its location, radius and on/off switch live in the Worker's D1 (fountain_test_statue), never here. Remove this key, git rm -r the slug folder and rebuild after the test.",
+  "_test_page_help": "Temporary hidden test statue page for the live end-to-end giveaway test (built only while this key is present and enabled is true). Not a statue: never on the map, sitemap, passport or leaderboard; noindex. Its location, radius and on/off switch live in the Worker's D1 (fountain_test_statue), never here. Remove this key, git rm -r the slug folder and rebuild after the test. radius_m is only the number shown on the page and must match the Worker's D1 radius_m.",
   "test_page": {
     "slug": "test-noah",
-    "name": "Test statue"
+    "name": "Test statue",
+    "radius_m": 250
   }
 }

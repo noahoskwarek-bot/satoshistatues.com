@@ -2296,7 +2296,7 @@ def test_page_cfg(data):
         return None
     assert re.fullmatch(r'test-[a-z0-9-]+', slug), 'test_page.slug must start with test-'
     assert slug not in [o['page'] for o in data['statues']], 'test_page.slug clashes with a statue page'
-    return {'slug': slug, 'name': t.get('name') or 'Test statue'}
+    return {'slug': slug, 'name': t.get('name') or 'Test statue', 'radius_m': int(t.get('radius_m') or 150)}
 
 
 TEST_PAGE_CSS = ('.tp{max-width:640px;margin:0 auto;padding:16px}.tp h1{font-size:1.4rem;margin:8px 0}'
@@ -2335,7 +2335,7 @@ TEST_PAGE_JS = """<script>(function () {
 def test_fountain_box(t, data):
     """The normal giveaway box for the test spot, without the tip section (tips aren't offered here)."""
     api = data['fountain'].get('api') or LB_API
-    return (f'<style>{FOUNTAIN_CSS}</style><section class="fountain" id="giveaway" data-ss-fountain data-slug="{e(t["slug"])}" data-name="{e(t["name"])}" data-api="{e(api)}" hidden>'
+    return (f'<style>{FOUNTAIN_CSS}</style><section class="fountain" id="giveaway" data-ss-fountain data-slug="{e(t["slug"])}" data-name="{e(t["name"])}" data-api="{e(api)}" data-radius="{int(t["radius_m"])}" hidden>'
             f'<h2>⛲ Satoshi Fountain (test)</h2>'
             f'<p>A private test of the Lightning giveaway, while the test budget lasts.</p>'
             f'<div class="f-stats"><div class="f-stat"><b data-f-left>–</b>test sats left</div></div>'

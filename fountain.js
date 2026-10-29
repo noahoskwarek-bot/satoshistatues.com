@@ -67,7 +67,7 @@
     if (!s.open) { el.innerHTML = '<p class="f-msg">' + esc(closedText(s)) + '</p>'; return; }
     var c = savedClaim();
     if (!c) {
-      el.innerHTML = '<p class="f-msg">Check in above (within 150 m) to get the giveaway. No tip needed.</p>';
+      el.innerHTML = '<p class="f-msg">Check in above (within ' + (+box.getAttribute('data-radius') || 150) + ' m) to get the giveaway. No tip needed.</p>';
       return;
     }
     var range = isRange(s);
