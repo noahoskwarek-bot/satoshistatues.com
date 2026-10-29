@@ -51,3 +51,4 @@ and it is `noindex, nofollow`. The page has no coordinates: the Worker checks th
 D1 row (`fountain_test_statue`), and the check-in isn't recorded or stamped. The giveaway box is the normal one without
 the tip section. While the Worker's test statue is off, the box stays hidden and a check-in says the statue isn't installed.
 Remove after the test: delete `test_page` and `_test_page_help` from `fountain.json`, `git rm -r test-noah`, rebuild.
+Removed 2026-10-29 (Noah: "Yes, remove the test statue now"): page deleted, Worker test statue switched off with its location cleared; the test payout history is kept in D1.
