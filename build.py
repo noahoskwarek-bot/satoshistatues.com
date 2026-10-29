@@ -884,45 +884,17 @@ def signup_html(data, where):
     return f'<section class="alert-box" aria-label="New statue alerts">{title}{body}</section>'
 
 
-def photo_subject(s):
-    lab = s['label']
-    if lab.startswith('Satoshi Statue '):
-        return 'Photo: Satoshi statue – ' + lab[len('Satoshi Statue '):]
-    return 'Photo: ' + lab
-
-
-def photo_js(data):
-    # Assemble the photo-submission mailto at click time; the address is never a plain string in the HTML.
-    c = data.get('config', {})
-    u, dom = c.get('photo_email_user'), c.get('photo_email_domain')
-    if not (u and dom):
-        return ''
-    codes = [ord(ch) for ch in (u + '@' + dom)][::-1]
-    return ('<script>(function(){var c=' + json.dumps(codes) + ';'
-            'function to(){return String.fromCharCode.apply(null,c.slice().reverse())}'
-            'function body(l){return "Hi,\\n\\nHere is my photo of the "+l+" (attached).\\n\\nYour name or X handle (for credit): \\nDate taken: \\n\\n'
-            'By sending, you let satoshistatues.com feature your photo with credit.\\n"}'
-            'document.addEventListener("click",function(ev){var a=ev.target.closest&&ev.target.closest("[data-photo-subject]");if(!a)return;'
-            'ev.preventDefault();location.href="mailto:"+to()+"?subject="+encodeURIComponent(a.getAttribute("data-photo-subject"))'
-            '+"&body="+encodeURIComponent(body(a.getAttribute("data-photo-label")||"statue"));},true);'
-            '})();</script>')
+# Visitor photos: we don't collect them by email. One short line asks people to post their own photo and tag us.
+SOCIAL_TAGS = [('X', '@satoshistatue21', 'https://x.com/satoshistatue21'),
+               ('Instagram', '@satoshi.statues', 'https://www.instagram.com/satoshi.statues/'),
+               ('TikTok', '@satoshistatues', 'https://www.tiktok.com/@satoshistatues')]
+SOCIAL_LINE = ('📸 Snap a photo? Post it and tag us: '
+               + ', '.join(f'<a href="{u}" target="_blank" rel="noopener noreferrer">{h}</a> on {n}' for n, h, u in SOCIAL_TAGS)
+               + ', #SatoshiStatues.')
 
 
 def photo_cta(s, data):
-    c = data.get('config', {})
-    if not (c.get('photo_email_user') and c.get('photo_email_domain')):
-        return ''
-    xh = c.get('photo_x_handle')
-    xbtn = (f'<a class="btn" href="https://x.com/{e(xh)}" target="_blank" rel="noopener noreferrer">Or tag @{e(xh)} on X</a>' if xh else '')
-    fallback = f'{e(c["photo_email_user"])} [at] {e(c["photo_email_domain"].replace(".", " [dot] "))}'
-    shout = (f'<a href="https://x.com/{e(xh)}" target="_blank" rel="noopener noreferrer">@{e(xh)}</a>' if xh else 'us')
-    return (f'<section class="photo-cta" id="photo" aria-label="Share your photo">'
-            f'<p class="alert-title">📸 Been here? Share your photo</p>'
-            f'<p class="alert-fine">Your shot could become this statue’s featured photo, help Bitcoiners plan their visit, and get a shoutout from {shout} on X.</p>'
-            f'<p class="alert-fine">Send it with your name or X handle for credit.</p>'
-            f'<div class="photo-actions"><a class="btn primary" href="#photo" data-photo-subject="{e(photo_subject(s))}" data-photo-label="{e(s["label"])}">📸 Send us your photo</a>{xbtn}</div>'
-            f'<noscript><p class="alert-fine">Email: {fallback} with the subject “{e(photo_subject(s))}”.</p></noscript>'
-            f'<p class="alert-fine">By sending, you let satoshistatues.com feature your photo with credit.</p></section>' + photo_js(data))
+    return f'<section class="photo-cta" id="photo" aria-label="Post your photo"><p class="alert-fine" style="margin:0">{SOCIAL_LINE}</p></section>'
 
 
 def credit_html(s):
@@ -1073,8 +1045,7 @@ def confirmed_html(s, data):
     badge = (' <a class="pv-badge" href="#visitor-photos">📸 Photo-verified</a>' if statue_photos(s, data) else '')
     lc = last_confirmed(s, data)
     if not lc:
-        return (f'<p class="confirmed">Not yet confirmed by a visitor · <a href="#photo" data-photo-subject="{e(photo_subject(s))}" '
-                f'data-photo-label="{e(s["label"])}">Send a photo</a>{badge}</p>')
+        return f'<p class="confirmed">Not yet confirmed by a visitor · <a href="#photo">Post a photo</a>{badge}</p>'
     month, src, url, kind = lc
     lead = 'Last reported' if kind == 'reported' else 'Last confirmed standing'
     lab = e(CONFIRM_SOURCES.get(src, CONFIRM_SOURCES['report']))
@@ -1498,7 +1469,7 @@ GENESIS_TITLE = 'Genesis Block'
 ORDER_NAME = 'The Grand High Order of Fellow Travelers'
 
 
-SUPPORT_EMAIL = 'support@satoshistatues.com'  # Zoho Mail mailbox (photos@ is an alias on it)
+SUPPORT_EMAIL = 'support@satoshistatues.com'  # Zoho Mail support mailbox
 POW_LB_LINK = '\n    <p class="note">👣 Pills show each walker’s Proof of Walk rank (GPS-verified stamps only). <a href="/proof-of-walk/">How ranks work →</a></p>'
 
 
@@ -1782,7 +1753,6 @@ def pow_privacy_html(data):
 
 def privacy_page(data):
     c = data.get('config', {})
-    mail = f'{c.get("photo_email_user", "photos")} [at] {c.get("photo_email_domain", "satoshistatues.com").replace(".", " [dot] ")}'
     title = 'Privacy – satoshistatues.com'
     desc = 'What satoshistatues.com stores for the Satoshi Passport leaderboard and analytics, and how to have it deleted.'
     canonical = SITE + '/privacy/'
@@ -1803,7 +1773,7 @@ def privacy_page(data):
     <h2>Analytics</h2>
     <p class="note">We use <a href="https://www.goatcounter.com/" target="_blank" rel="noopener noreferrer">GoatCounter</a> for privacy-friendly page counts without cookies. A successful check-in also sends an anonymous “Check-in &lt;statue&gt;” event, without any location.</p>
 {fountain_privacy_html(data)}    <h2>Deleting your data</h2>
-    <p class="note">Email <strong>{e(mail)}</strong> with your leaderboard nickname (or the statue and rough time of your check-in) and we will delete your stamps and nickname. Clearing your browser data removes your local passport and device ID.</p>
+    <p class="note">Email <a href="mailto:{SUPPORT_EMAIL}">{SUPPORT_EMAIL}</a> with your leaderboard nickname (or the statue and rough time of your check-in) and we will delete your stamps and nickname. Clearing your browser data removes your local passport and device ID.</p>
     <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">Last updated {BUILD_DATE}.</p>
     {footer(data)}
   </main>
@@ -2590,7 +2560,6 @@ def build_index(data, text):
         s['label'] = src['label']
         if has_guide(src):
             s['guide'] = True
-        s['photoSubject'] = photo_subject(src)
         s['nearby_eligible'] = nearby_eligible(src)
         if fountain_on(data, src):
             s['giveaway'] = True
@@ -2605,7 +2574,7 @@ def build_index(data, text):
     text = replace_block(text, 'LINKS', links)
     text = replace_block(text, 'SIGNUP', '        ' + signup_html(data, 'home'))
     text = replace_block(text, 'EMBED', embed_box_html())
-    text = replace_block(text, 'HEADLINKS', '  ' + FEED_LINK + '\n  <style>' + ALERT_CSS + '</style>' + ('\n  ' + api_script() if api_script() else '') + '\n  ' + checkin_script() + ('\n  ' + photo_js(data) if photo_js(data) else '') + giveaway_home_head(data))
+    text = replace_block(text, 'HEADLINKS', '  ' + FEED_LINK + '\n  <style>' + ALERT_CSS + '</style>' + ('\n  ' + api_script() if api_script() else '') + '\n  ' + checkin_script() + giveaway_home_head(data))
     return text
 
 # ---------- Temporary hidden test statue (fountain.json "test_page") ----------

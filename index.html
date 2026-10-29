@@ -33,7 +33,6 @@
   <style>.alert-box{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.alert-title{font-weight:700;color:#e6edf3;font-size:.95rem;margin:0 0 6px}.alert-form{display:flex;gap:8px;flex-wrap:wrap;max-width:520px}.alert-form input[type=email]{flex:1 1 180px;min-width:0;min-height:44px;padding:10px 12px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:16px;font-family:inherit}.alert-form input[type=email]:focus{outline:2px solid #f7931a;border-color:#f7931a}.alert-form button{min-height:44px;padding:10px 16px;border-radius:8px;border:none;background:#f7931a;color:#0d1117;font-weight:700;font-size:.92rem;cursor:pointer;font-family:inherit}.alert-fine{font-size:.8rem;color:#8b949e;margin:6px 0 0;line-height:1.45}.feed-link{color:#f7931a;font-weight:600;display:inline-block;padding:13px 0;margin:-13px 0;text-decoration:none}.feed-link:hover{text-decoration:underline}.photo-cta{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.photo-actions{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 4px}.photo-actions .btn{max-width:100%}.photo-cta .alert-fine a,.photo-credit a{padding:15px 0;margin:-15px 0}.photo-cta .alert-fine a{color:#f7931a}.photo-credit{display:block;margin-top:2px}.checkin-count{font-size:.85rem;color:#3fb950;margin:6px 0 0}.photo-credit a{color:#8b949e}.alert-follow{display:flex;flex-wrap:wrap;gap:0 18px;margin-top:2px}.alert-follow .feed-link{padding:0;margin:0;min-height:44px;display:inline-flex;align-items:center;font-size:.85rem}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}</style>
   <script>window.SS_API = "https://api.satoshistatues.workers.dev";window.SS_POW = true;</script>
   <script src="/checkin.js?v=bfc6e9c5d4"></script>
-  <script>(function(){var c=[109, 111, 99, 46, 115, 101, 117, 116, 97, 116, 115, 105, 104, 115, 111, 116, 97, 115, 64, 115, 111, 116, 111, 104, 112];function to(){return String.fromCharCode.apply(null,c.slice().reverse())}function body(l){return "Hi,\n\nHere is my photo of the "+l+" (attached).\n\nYour name or X handle (for credit): \nDate taken: \n\nBy sending, you let satoshistatues.com feature your photo with credit.\n"}document.addEventListener("click",function(ev){var a=ev.target.closest&&ev.target.closest("[data-photo-subject]");if(!a)return;ev.preventDefault();location.href="mailto:"+to()+"?subject="+encodeURIComponent(a.getAttribute("data-photo-subject"))+"&body="+encodeURIComponent(body(a.getAttribute("data-photo-label")||"statue"));},true);})();</script>
   <style>.gw-badge{display:inline-block;font-size:.7rem;padding:2px 7px;border-radius:4px;margin-top:7px;font-weight:600;background:rgba(247,147,26,.12);border:1px solid rgba(247,147,26,.45);color:#f7931a;line-height:1.35}.gw-badge.gw-paused{background:#21262d;border-color:#30363d;color:#8b949e}.gw-badge[hidden],.gw-pop[hidden]{display:none!important}.gw-pop{background:#0d1117;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:8px;padding:8px 10px;margin:8px 0 10px;font-size:.82rem;line-height:1.45;color:#e6edf3}.gw-pop b{color:#f7931a}.gw-pop.gw-paused{border-left-color:#8b949e}.gw-pop.gw-paused b{color:#8b949e}.gw-pop .gw-links{margin-top:4px;font-size:.78rem}.gw-pop a{color:#f7931a;font-weight:600;text-decoration:none}.gw-pop a:hover{text-decoration:underline}.gw-pop .gw-links .gw-terms{color:#8b949e;font-weight:400}@media (max-width:768px){.gw-pop{font-size:.88rem;padding:10px 12px 0}.gw-pop .gw-links{margin-top:0}.gw-pop a{display:inline-flex;align-items:center;min-height:44px}}</style>
   <script>(function () {
   var API = window.SS_API || '', SLUGS = ["budapest", "lugano", "el-zonte", "vienna"], state = {};
@@ -1037,7 +1036,6 @@
         "checkins": 0,
         "label": "Satoshi Statue Budapest",
         "guide": true,
-        "photoSubject": "Photo: Satoshi statue – Budapest",
         "nearby_eligible": true,
         "giveaway": true
       },
@@ -1070,7 +1068,6 @@
         "checkins": 0,
         "label": "Satoshi Statue Lugano",
         "guide": true,
-        "photoSubject": "Photo: Satoshi statue – Lugano",
         "nearby_eligible": true,
         "giveaway": true
       },
@@ -1100,7 +1097,6 @@
         "checkins": 0,
         "label": "Satoshi Statue El Zonte",
         "guide": true,
-        "photoSubject": "Photo: Satoshi statue – El Zonte",
         "nearby_eligible": true,
         "giveaway": true
       },
@@ -1130,7 +1126,6 @@
         "checkins": 0,
         "label": "Satoshi Statue Tokyo",
         "guide": true,
-        "photoSubject": "Photo: Satoshi statue – Tokyo",
         "nearby_eligible": true
       },
       {
@@ -1161,7 +1156,6 @@
         "checkins": 0,
         "label": "Satoshi Statue Hanoi",
         "guide": true,
-        "photoSubject": "Photo: Satoshi statue – Hanoi",
         "nearby_eligible": true
       },
       {
@@ -1200,7 +1194,6 @@
         "checkins": 0,
         "label": "Satoshi Statue Miami (Valentina Picozzi)",
         "guide": true,
-        "photoSubject": "Photo: Satoshi statue – Miami (Valentina Picozzi)",
         "nearby_eligible": false
       },
       {
@@ -1230,7 +1223,6 @@
         "checkins": 0,
         "label": "Satoshi Statue New York",
         "guide": true,
-        "photoSubject": "Photo: Satoshi statue – New York",
         "nearby_eligible": true
       },
       {
@@ -1259,7 +1251,6 @@
         "checkins": 0,
         "label": "Satoshi Statue Fornelli",
         "guide": true,
-        "photoSubject": "Photo: Satoshi statue – Fornelli",
         "nearby_eligible": true
       },
       {
@@ -1299,7 +1290,6 @@
         "checkins": 0,
         "label": "Satoshi Statue Hong Kong",
         "guide": true,
-        "photoSubject": "Photo: Satoshi statue – Hong Kong",
         "nearby_eligible": false
       },
       {
@@ -1328,7 +1318,6 @@
         "checkins": 0,
         "label": "Kranj Bitcoin Monument",
         "guide": true,
-        "photoSubject": "Photo: Kranj Bitcoin Monument",
         "nearby_eligible": true
       },
       {
@@ -1357,7 +1346,6 @@
         "checkins": 0,
         "label": "Miami Bitcoin Bull",
         "guide": true,
-        "photoSubject": "Photo: Miami Bitcoin Bull",
         "nearby_eligible": true
       },
       {
@@ -1387,7 +1375,6 @@
         "checkins": 0,
         "label": "Satoshi Statue Vienna",
         "guide": true,
-        "photoSubject": "Photo: Satoshi statue – Vienna",
         "nearby_eligible": true,
         "giveaway": true
       }
@@ -1692,7 +1679,7 @@
         </div>
         ${msgHtml}
         <div class="popup-links"><a href="/${s.page}/">📄 Statue page</a>${s.guide ? ` · <a href="/${s.page}/#visiting">🧭 Visiting guide</a>` : ''} · <a href="${correctionUrl(s)}" target="_blank" rel="noopener noreferrer">✏️ Suggest a correction</a></div>
-        ${s.photoSubject ? `<div class="popup-photo"><a class="photo-link" href="/${s.page}/#photo" data-photo-subject="${s.photoSubject}" data-photo-label="${s.label}">📸 Been here? Share your photo</a><span class="photo-or">or tag <a href="https://x.com/satoshistatue21" target="_blank" rel="noopener noreferrer">@satoshistatue21</a></span><div class="photo-consent">Send it with your name or X handle for credit. By sending, you let satoshistatues.com feature your photo with credit.</div></div>` : ''}
+        <div class="popup-photo">📸 Snap a photo? Post it and tag us: <a href="https://x.com/satoshistatue21" target="_blank" rel="noopener noreferrer">@satoshistatue21</a> on X, <a href="https://www.instagram.com/satoshi.statues/" target="_blank" rel="noopener noreferrer">@satoshi.statues</a> on Instagram, <a href="https://www.tiktok.com/@satoshistatues" target="_blank" rel="noopener noreferrer">@satoshistatues</a> on TikTok, #SatoshiStatues.</div>
       `;
     }
     function bySlug(slug) { return statues.find(s => s.slug === slug); }

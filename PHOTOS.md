@@ -1,8 +1,9 @@
 # Visitor photos, "Last confirmed" line and status alerts
 
 ## Adding a visitor photo
-1. Photos arrive at photos@satoshistatues.com (or via @satoshistatue21 on X). Only use photos the sender agreed to publish
-   (the mail template says so), and check that the photo really shows that statue.
+1. We don't collect photos by email. The site asks visitors to post their own photo on social media and tag us
+   (@satoshistatue21 on X, @satoshi.statues on Instagram, @satoshistatues on TikTok, #SatoshiStatues). Only use a photo
+   the poster clearly agreed to have featured, and check that it really shows that statue.
 2. Run, from the repo root:
    ```
    python3 tools/add_photo.py path/to/photo.jpg lugano --credit "Nickname" --month 2026-10
@@ -20,8 +21,8 @@ To hide a photo, set `"approved": false` in photos.json (or delete the entry and
 ## How the pages use it
 - **Visitor photos** section: rendered only on statues with at least one approved photo (newest first, lazy-loaded
   thumbnails, tap to enlarge with a native `<dialog>`, no libraries). With no approved photos nothing is rendered at
-  all: no heading, no empty state. The existing "📸 Been here? Share your photo" box is unchanged and always sits
-  below (it builds the photos@ mailto in JS from `config.photo_email_user` / `photo_email_domain`).
+  all: no heading, no empty state. The "📸 Snap a photo? Post it and tag us" line always sits below
+  (build.py `SOCIAL_TAGS` / `photo_cta`).
 - **📸 Photo-verified** badge next to the "Last confirmed" line when a statue has at least one approved photo.
 - **Last confirmed line** under the title. build.py uses the newest approved photo if it is at least as new as
   `last_confirmed`, otherwise the statues.json fields:
@@ -29,7 +30,7 @@ To hide a photo, set `"approved": false` in photos.json (or delete the entry and
     (shown as "Visitor photo", "GPS-verified check-in", "News/official report") · `last_confirmed_url`: link for the source.
   - `last_confirmed_kind: "reported"` says "Last reported" instead of "Last confirmed standing" (use it when the source
     does not show the statue standing in place, e.g. damaged, donated or not installed).
-  - No date → "Not yet confirmed by a visitor · Send a photo" (the link opens the photo email, like the box).
+  - No date → "Not yet confirmed by a visitor · Post a photo" (the link jumps to the tag-us line).
   - Seeded values are news/official reports only (the latest dated source per statue). Never invent a date, and never
     mark a report as a visitor confirmation.
 - **Status alert** (`alert`: null or `{type, title, text, date YYYY-MM-DD, source_url, source_label}`), shown as a banner
