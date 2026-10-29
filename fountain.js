@@ -85,7 +85,10 @@
     box.querySelectorAll('[data-f-amount]').forEach(function (n) { n.textContent = num(state.payout_sats); });
     renderClaim();
     renderRecent();
+    var first = box.hidden;
     box.hidden = false;
+    // Home-map callouts link to #giveaway; the box is hidden until the API answers, so scroll once it appears.
+    if (first && location.hash === '#giveaway') box.scrollIntoView({ block: 'start' });
   }
   function load() {
     return getJSON('/api/fountain?slug=' + encodeURIComponent(slug)).then(function (j) {

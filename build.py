@@ -225,7 +225,7 @@ def fountain_box(s, data):
     f = data['fountain']
     api = f.get('api') or LB_API
     tips = ''.join(f'<button class="btn" type="button" data-f-tip="{int(n)}">{int(n):,} sats</button>' for n in f.get('tip_presets', []))
-    return (f'\n    <style>{FOUNTAIN_CSS}</style><section class="fountain" data-ss-fountain data-slug="{e(s["slug"])}" data-name="{e(s["name"])}" data-api="{e(api)}" hidden>'
+    return (f'\n    <style>{FOUNTAIN_CSS}</style><section class="fountain" id="giveaway" data-ss-fountain data-slug="{e(s["slug"])}" data-name="{e(s["name"])}" data-api="{e(api)}" hidden>'
             f'<h2>⛲ Satoshi Fountain</h2>'
             f'<p>A small Lightning giveaway for visitors who check in at this statue, while the giveaway budget lasts.</p>'
             f'<div class="f-stats"><div class="f-stat"><b data-f-left>–</b>giveaway sats left</div>'
@@ -249,6 +249,82 @@ def fountain_script(s, data):
     with open(os.path.join(ROOT, 'fountain.js'), 'rb') as f:
         v = hashlib.sha256(f.read()).hexdigest()[:10]
     return f'<script src="/fountain.js?v={v}"></script>\n'
+
+
+# Home-page map callouts for giveaway statues (popup / mobile detail sheet + a small badge on the sidebar card).
+# Only emitted when fountain.json is enabled, and only statues listed there get s.giveaway in the map data.
+# Static first: a neutral label without an amount. Then /api/fountain?slug= refines it (amount from the Worker's
+# PAYOUT_SATS, "paused", or hidden when the budget is out). Any API failure keeps the neutral label, never an error.
+GIVEAWAY_HOME_CSS = ('.gw-badge{display:inline-block;font-size:.7rem;padding:2px 7px;border-radius:4px;margin-top:7px;font-weight:600;'
+                     'background:rgba(247,147,26,.12);border:1px solid rgba(247,147,26,.45);color:#f7931a;line-height:1.35}'
+                     '.gw-badge.gw-paused{background:#21262d;border-color:#30363d;color:#8b949e}.gw-badge[hidden],.gw-pop[hidden]{display:none!important}'
+                     '.gw-pop{background:#0d1117;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:8px;padding:8px 10px;margin:8px 0 10px;font-size:.82rem;line-height:1.45;color:#e6edf3}'
+                     '.gw-pop b{color:#f7931a}.gw-pop.gw-paused{border-left-color:#8b949e}.gw-pop.gw-paused b{color:#8b949e}'
+                     '.gw-pop .gw-links{margin-top:4px;font-size:.78rem}.gw-pop a{color:#f7931a;font-weight:600;text-decoration:none}.gw-pop a:hover{text-decoration:underline}'
+                     '.gw-pop .gw-links .gw-terms{color:#8b949e;font-weight:400}'
+                     '@media (max-width:768px){.gw-pop{font-size:.88rem;padding:10px 12px 0}.gw-pop .gw-links{margin-top:0}.gw-pop a{display:inline-flex;align-items:center;min-height:44px}}')
+
+GIVEAWAY_HOME_JS = r'''(function () {
+  var API = window.SS_API || '', SLUGS = __SLUGS__, state = {};
+  var num = function (n) { return Number(n || 0).toLocaleString('en-US'); };
+  function info(slug) {
+    var j = state[slug];
+    if (!j) return { kind: 'static' };
+    if (!j.enabled || !(j.payout_sats > 0) || j.giveaway_sats_left < j.payout_sats) return { kind: 'off' };
+    if (j.paused) return { kind: 'paused' };
+    return { kind: j.open ? 'open' : 'limit', sats: j.payout_sats };
+  }
+  function badgeText(i) {
+    if (i.kind === 'paused') return '⚡ Giveaway paused';
+    return i.sats ? '⚡ ' + num(i.sats) + '-sat giveaway' : '⚡ Sats giveaway';
+  }
+  function popText(i) {
+    if (i.kind === 'paused') return '<b>⚡ Sats giveaway:</b> paused at the moment.';
+    var amt = i.sats ? num(i.sats) + ' sats' : 'a small, fixed amount of sats';
+    return '<b>⚡ Sats giveaway:</b> ' + amt + ' per verified check-in, while the giveaway budget lasts.' +
+      (i.kind === 'limit' ? ' Today’s limit here has been reached. Try again tomorrow.' : '');
+  }
+  function fill(el, slug, pop) {
+    var i = info(slug);
+    el.hidden = i.kind === 'off';
+    el.classList.toggle('gw-paused', i.kind === 'paused');
+    if (!pop) { el.textContent = badgeText(i); return; }
+    el.querySelector('[data-gw-text]').innerHTML = popText(i);
+  }
+  window.giveawayBadgeHtml = function (s) {
+    var i = info(s.slug);
+    return '<span class="gw-badge' + (i.kind === 'paused' ? ' gw-paused' : '') + '" data-gw-badge="' + s.slug + '"' + (i.kind === 'off' ? ' hidden' : '') + '>' + badgeText(i) + '</span>';
+  };
+  window.giveawayPopupHtml = function (s) {
+    var i = info(s.slug);
+    return '<div class="gw-pop' + (i.kind === 'paused' ? ' gw-paused' : '') + '" data-gw-pop="' + s.slug + '"' + (i.kind === 'off' ? ' hidden' : '') + '>' +
+      '<div data-gw-text>' + popText(i) + '</div>' +
+      '<div class="gw-links"><a href="/' + encodeURIComponent(s.page) + '/#giveaway">See how it works ›</a> <span class="gw-terms">· 18+ · <a class="gw-terms" href="/terms/">Terms</a></span></div></div>';
+  };
+  function apply(slug) {
+    document.querySelectorAll('[data-gw-badge="' + slug + '"]').forEach(function (el) { fill(el, slug, false); });
+    document.querySelectorAll('[data-gw-pop="' + slug + '"]').forEach(function (el) { fill(el, slug, true); });
+  }
+  function load() {
+    if (!API || !window.fetch) return;
+    SLUGS.forEach(function (slug) {
+      fetch(API + '/api/fountain?slug=' + encodeURIComponent(slug)).then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) { if (j && j.ok && typeof j.enabled === 'boolean') { state[slug] = j; apply(slug); } })
+        .catch(function () {});
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load); else load();
+})();'''
+
+
+def giveaway_home_head(data):
+    if not fountain_on(data):
+        return ''
+    slugs = [s['slug'] for s in data['statues'] if fountain_on(data, s)]
+    if not slugs:
+        return ''
+    js = GIVEAWAY_HOME_JS.replace('__SLUGS__', json.dumps(slugs))
+    return f'\n  <style>{GIVEAWAY_HOME_CSS}</style>\n  <script>{js}</script>'
 
 
 def fountain_footer_link(data):
@@ -2042,6 +2118,8 @@ def build_index(data, text):
             s['guide'] = True
         s['photoSubject'] = photo_subject(src)
         s['nearby_eligible'] = nearby_eligible(src)
+        if fountain_on(data, src):
+            s['giveaway'] = True
     js = '    const statues = ' + json.dumps(statues_js, ensure_ascii=False, indent=2).replace('\n', '\n    ') + ';'
     text = replace_block(text, 'STATUES', js, comment=('// ', ''))
     text = replace_block(text, 'STAYS', '    const stays = ' + json.dumps(map_stays(data), ensure_ascii=False) + ';', comment=('// ', ''))
@@ -2053,7 +2131,7 @@ def build_index(data, text):
     text = replace_block(text, 'LINKS', links)
     text = replace_block(text, 'SIGNUP', '        ' + signup_html(data, 'home'))
     text = replace_block(text, 'EMBED', embed_box_html())
-    text = replace_block(text, 'HEADLINKS', '  ' + FEED_LINK + '\n  <style>' + ALERT_CSS + '</style>' + ('\n  ' + api_script() if api_script() else '') + '\n  ' + checkin_script() + ('\n  ' + photo_js(data) if photo_js(data) else ''))
+    text = replace_block(text, 'HEADLINKS', '  ' + FEED_LINK + '\n  <style>' + ALERT_CSS + '</style>' + ('\n  ' + api_script() if api_script() else '') + '\n  ' + checkin_script() + ('\n  ' + photo_js(data) if photo_js(data) else '') + giveaway_home_head(data))
     return text
 
 # ---------- /passport/ → home page passport (redirect page) ----------
