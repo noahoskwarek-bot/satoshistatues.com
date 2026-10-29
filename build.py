@@ -271,7 +271,7 @@ def fountain_privacy_html(data):
       <li>Only the masked form is ever shown publicly, in the statue’s recent activity list.</li>
       <li>Your <strong>IP address</strong> is used for daily limits as a salted, per-day hash and deleted after 7 days.</li>
       <li>For tips we store the amount, the statue, the time and the payment reference. We don’t ask for your name.</li>
-      <li>Payouts and tip invoices are handled by our Lightning payment provider, which receives the Lightning address and amount needed to make the payment.</li>
+      <li>To send a payout, our server asks the wallet service behind your Lightning address for an invoice, and our Lightning payment provider pays it. Tip invoices are created by the same provider.</li>
     </ul>
     <p class="note">See the <a href="/terms/">terms</a>.</p>
 '''
