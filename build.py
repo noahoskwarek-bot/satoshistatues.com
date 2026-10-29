@@ -182,7 +182,7 @@ def checkin_count_html(s):
 # ---------- Satoshi Fountain (reverse fountain: Lightning giveaway for verified check-ins) ----------
 # Switched by fountain.json "enabled" (default false). When off, every helper below returns '' / adds nothing, so the
 # build is byte-identical to one without this feature. Amounts, budget and limits live in the Worker, not here.
-FOUNTAIN_DEFAULTS = {'enabled': False, 'api': '', 'statues': [], 'claim_minutes': 15, 'address_retention_days': 90,
+FOUNTAIN_DEFAULTS = {'enabled': False, 'api': '', 'statues': [], 'claim_minutes': 21, 'address_retention_days': 90,
                      'tip_presets': [1000, 5000, 21000]}
 
 
@@ -401,7 +401,7 @@ def fountain_privacy_html(data):
     return f'''    <h2>Satoshi Fountain giveaway and tips</h2>
     <ul class="src" style="font-size:.95rem;color:#e6edf3">
       <li>The giveaway runs at selected statues ({e(fountain_names(data))}). It only uses data when you take part.</li>
-      <li>A GPS check-in at one of these statues creates a <strong>single-use code</strong> that is valid for {int(f.get('claim_minutes', 15))} minutes. We store a hash of the code, your hashed device ID, the statue and the time, and delete it after 1 day.</li>
+      <li>A GPS check-in at one of these statues creates a <strong>single-use code</strong> that is valid for {int(f.get('claim_minutes', 21))} minutes. We store a hash of the code, your hashed device ID, the statue and the time, and delete it after 1 day.</li>
       <li>If you claim the giveaway we store the <strong>Lightning address</strong> you enter, the statue, the amount, the payout status and the time. The full address is kept for {int(f.get('address_retention_days', 90))} days for our payout records, then deleted. After that we only keep a masked form (like “sa…@w….com”) and a salted hash so each address can only be used once per statue.</li>
       <li>Only the masked form is ever shown publicly, in the statue’s recent activity list.</li>
       <li>Your <strong>IP address</strong> is used for daily limits as a salted, per-day hash and deleted after 7 days.</li>
@@ -424,7 +424,7 @@ def terms_page(data):
     giveaway = li([f'The Satoshi Fountain is a small, optional giveaway run by SatoshiStatues.com at selected statues ({e(fountain_names(data))}).',
                    ('A GPS check-in verified by our server at one of these statues lets you get a <strong>fixed amount</strong> of sats sent to a Lightning address. The amount is shown on the statue page and is the same for everyone.'
                     if not rules_on(data) else
-                    f'A GPS check-in verified by our server at one of these statues lets you get sats sent to a Lightning address. Our server draws the amount when your check-in is verified and shows it before you enter an address: {e(payout_phrase(data))}. The exact odds are in the <a href="/rules/">Official Rules</a>, which also apply.'),
+                    f'A GPS check-in verified by our server at one of these statues lets you get sats sent to a Lightning address. Our server draws the amount when your check-in is verified and shows it before you enter an address: {e(payout_phrase(data))}. It is reserved for you for {int(data["fountain"].get("claim_minutes", 21))} minutes, and released if you don’t claim it in that time. The exact odds are in the <a href="/rules/">Official Rules</a>, which also apply.'),
                    'It is funded only from a giveaway budget set by SatoshiStatues.com and runs <strong>while the giveaway budget lasts</strong>. Daily limits apply per statue, per network and overall.',
                    'One payout per Lightning address per statue, and one per passport per statue.',
                    'No purchase or tip is needed. Tipping never affects the giveaway.',
@@ -479,13 +479,13 @@ def rules_page(data):
     <h2>2. Eligibility</h2>
     {li(['Open to people <strong>18 or older</strong> where permitted by law. Void where prohibited or restricted.'])}
     <h2>3. How to take part</h2>
-    {li([f'Complete a check-in at a participating statue ({e(fountain_names(data))}) that our server verifies (GPS, within 150 m). Our server then draws your amount and shows it to you right away. To receive it, enter a Lightning address within the claim time shown ({int(data["fountain"].get("claim_minutes", 15))} minutes).',
+    {li([f'Complete a check-in at a participating statue ({e(fountain_names(data))}) that our server verifies (GPS, within 150 m). Our server then draws your amount and shows it to you right away. To receive it, enter a Lightning address within the claim time shown ({int(data["fountain"].get("claim_minutes", 21))} minutes).',
          '<strong>No purchase or tip is necessary.</strong> Tips never affect taking part, the odds or the amount.',
          'One payout per Lightning address per statue and one per passport (device) per statue. Daily limits apply per statue, per network and overall.'])}
     <h2>4. Amounts and odds</h2>
     {li([f'Each valid check-in receives a random amount from {pi["min"]} to {pi["max"]} sats' + (f', or a rare {pi["bonus"]}-sat bonus' if pi['bonus'] else '') + '. Our server picks the amount with a cryptographic random number generator. Nothing you do on the page changes it.',
          (f'The odds of the {pi["bonus"]}-sat bonus are <strong>1 in {pi["odds"]}</strong> per valid check-in. ' if pi['bonus'] else '') + f'The average amount is <strong>{pi["mean"]} sats</strong>.',
-         f'The amount is drawn once per passport (device) per statue per day, at check-in. It is reserved for you during the claim time ({int(data["fountain"].get("claim_minutes", 15))} minutes) and counts against the giveaway budget and daily limits while it is reserved. If it isn’t claimed in time, it is released back to the giveaway budget. Checking in again the same day shows the same amount; it doesn’t draw a new one.',
+         f'The amount is drawn once per passport (device) per statue per day, at check-in. It is reserved for you during the claim time ({int(data["fountain"].get("claim_minutes", 21))} minutes) and counts against the giveaway budget and daily limits while it is reserved. If it isn’t claimed in time, it is released back to the giveaway budget. Checking in again the same day shows the same amount; it doesn’t draw a new one.',
          'The total giveaway budget is set by the Sponsor, and the giveaway sats left are shown on each participating statue page.',
          f'If the amount drawn is more than what is left of the giveaway budget, or of the daily limit of {pi["cap_sats_day"]:,} sats across all statues, you are shown and can claim what is left instead. If nothing is left, you are told before you enter a Lightning address.'])}
     {table}

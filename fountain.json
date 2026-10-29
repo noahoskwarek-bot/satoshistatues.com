@@ -7,7 +7,7 @@
     "budapest",
     "lugano"
   ],
-  "claim_minutes": 15,
+  "claim_minutes": 21,
   "address_retention_days": 90,
   "tip_presets": [
     1000,

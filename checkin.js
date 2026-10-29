@@ -13,6 +13,21 @@ function haversineM(lat1, lon1, lat2, lon2) {
   const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(a));
 }
+// "About N away" for a too-far check-in, rounded like the server's message (never exact metres): under 1 km to the
+// nearest 50 m (under 500 m) or 100 m, never at or below the radius; 1–10 km whole km; above that 2 significant figures.
+function roundedDist(m, above) {
+  if (!isFinite(m) || m < 0) return 'some distance';
+  if (m < 950) {
+    const step = m < 475 ? 50 : 100;
+    let r = Math.max(step, Math.round(m / step) * step);
+    if (r <= (above || 0)) r = (Math.floor(above / step) + 1) * step;
+    return r >= 1000 ? '1 km' : `${r} m`;
+  }
+  const km = m / 1000;
+  if (km < 10) return `${Math.max(1, Math.round(km))} km`;
+  const mag = Math.pow(10, Math.floor(Math.log10(km)) - 1);
+  return `${(Math.round(km / mag) * mag).toLocaleString('en-US')} km`;
+}
 function fmtDist(m) {
   if (m < 1000) return `${Math.round(m)} m`;
   const km = m / 1000;
@@ -178,7 +193,7 @@ function checkinOkHtml(s, saved, n, total) {
 }
 function checkinTooFarHtml(s, d, accuracy) {
   const acc = accuracy && accuracy > CHECKIN_RADIUS_M ? ` (your location fix is only accurate to about ${fmtDist(accuracy)})` : '';
-  return `So close… well, sort of! You're about <strong>${fmtDist(d)}</strong> from ${s.name}${acc}. Get within ${CHECKIN_RADIUS_M} m to collect the stamp.`;
+  return `So close… well, sort of! You're about <strong>${roundedDist(d, CHECKIN_RADIUS_M)}</strong> from ${s.name}${acc}. Get within ${CHECKIN_RADIUS_M} m to collect the stamp.`;
 }
 // ----- Statue page "📍 Check in here" box (build.py renders <div data-ss-checkin …>; the home page has none) -----
 (function () {
