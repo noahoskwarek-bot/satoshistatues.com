@@ -1,6 +1,6 @@
 # Satoshi Fountain (reverse fountain) — site side
 
-Off by default. `fountain.json` → `"enabled": false` keeps the build byte-identical to one without the feature: there is no widget, no `/terms/` page, no privacy section, no footer link and no sitemap entry. The giveaway amount, budget and limits live in the leaderboard Worker (`/workspace/leaderboard`, see its `FOUNTAIN.md`), not in the site. In live mode the Worker talks to Noah's Coinos wallet over Nostr Wallet Connect (NIP-47, one budget-capped `NWC_URL` secret): payouts use `pay_invoice` and tips use `make_invoice` + `lookup_invoice` (or a Lightning address with LUD-21 verify, `TIP_MODE=lnaddress`). The site's terms and privacy copy only say "our Lightning payment provider", so they didn't change.
+Off by default. `fountain.json` → `"enabled": false` keeps the build byte-identical to one without the feature: there is no widget, no `/terms/` page, no privacy section, no footer link and no sitemap entry. The giveaway amount, budget and limits live in the leaderboard Worker (`/workspace/leaderboard`, see its `FOUNTAIN.md`), not in the site. In live mode the Worker talks to the site's Coinos wallet over Nostr Wallet Connect (NIP-47, one budget-capped `NWC_URL` secret): payouts use `pay_invoice` and tips use `make_invoice` + `lookup_invoice` (or a Lightning address with LUD-21 verify, `TIP_MODE=lnaddress`). The site's terms and privacy copy only say "our Lightning payment provider", so they didn't change.
 
 When `enabled` is true:
 - Pilot statue pages (`statues`) get a "⛲ Satoshi Fountain" widget under the check-in box. It shows giveaway sats left, sats tipped here and recent activity (masked addresses), plus a claim form after a verified check-in and "Support the map" tip buttons. The logic is in `fountain.js`. It wraps `lbPost` from `checkin.js` to pick up the claim token, so `checkin.js` itself is unchanged.
@@ -25,7 +25,7 @@ when paused; hidden when the giveaway is disabled or the budget is below one pay
 statue-page fountain sections.
 
 ## Random amounts (branch `fountain-random`)
-Live since 2026-10-29 (Noah approved 9:47 AM ET): random 1–121 sats with a rare **Lucky 1,021** at 1 in 121, average exactly 42 sats, a 9,500 giveaway budget and 1,300 sats per UTC day. The Rizful NWC connection limit is 50,000 sats per 30 days. (First version, 2026-10-28: 1–100 sats, Lucky 210 at 1 in 200, average 21, 240 per day.) Odds line on the statue box and in /rules/ section 4: "Each verified check-in reveals 1–121 sats or, about 1 in 121 times, a Lucky 1,021 sats, while the giveaway budget and daily limits last."
+Live since 2026-10-29 (approved 9:47 AM ET): random 1–121 sats with a rare **Lucky 1,021** at 1 in 121, average exactly 42 sats, a 9,500 giveaway budget and 1,300 sats per UTC day. The Rizful NWC connection limit is 50,000 sats per 30 days. (First version, 2026-10-28: 1–100 sats, Lucky 210 at 1 in 200, average 21, 240 per day.) Odds line on the statue box and in /rules/ section 4: "Each verified check-in reveals 1–121 sats or, about 1 in 121 times, a Lucky 1,021 sats, while the giveaway budget and daily limits last."
 - `fountain.json` → `payout` mirrors the Worker's payout vars and **must match them**: `mode` (`fixed`|`random`), `fixed_sats`,
   `tiers` (`[lo, hi, weight]`), `bonus_sats`, `bonus_weight`, `cap_sats_day`. build.py computes the exact odds and mean
   from it (`payout_info`, with `Fraction`) for the static copy and the **Official Rules** page at `/rules/` (generated only
@@ -44,11 +44,11 @@ Live since 2026-10-29 (Noah approved 9:47 AM ET): random 1–121 sats with a rar
 - Word check: global list adds jackpot, lottery, spin, slot, casino, gamble; the strict giveaway-copy list adds those plus
   prize pool and bet, and now also scans `/rules/` (two factual phrases about the random amount are allowed there only).
 
-## Temporary test statue page (`/test-noah/`)
-`fountain.json` → `test_page: {"slug": "test-noah", "name": "Test statue"}` builds one private page for the live end-to-end
+## Temporary test statue page (removed)
+`fountain.json` → `test_page: {"slug": "<test slug>", "name": "Test statue"}` builds one private page for the live end-to-end
 test. It is not in `statues.json`, so it is not on the map, sitemap, feed, passport, leaderboard, statue lists or embeds,
 and it is `noindex, nofollow`. The page has no coordinates: the Worker checks the GPS fix against the location in its
 D1 row (`fountain_test_statue`), and the check-in isn't recorded or stamped. The giveaway box is the normal one without
 the tip section. While the Worker's test statue is off, the box stays hidden and a check-in says the statue isn't installed.
-Remove after the test: delete `test_page` and `_test_page_help` from `fountain.json`, `git rm -r test-noah`, rebuild.
-Removed 2026-10-29 (Noah: "Yes, remove the test statue now"): page deleted, Worker test statue switched off with its location cleared; the test payout history is kept in D1.
+Remove after the test: delete `test_page` and `_test_page_help` from `fountain.json`, `git rm -r <test slug>`, rebuild.
+Removed 2026-10-29 (owner approved): page deleted, Worker test statue switched off with its location cleared; the test payout history is kept in D1.

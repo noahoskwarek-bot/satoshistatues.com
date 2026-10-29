@@ -224,7 +224,7 @@ def payout_phrase(data):
 
 
 def odds_line(data):
-    """One-line odds disclosure (Noah, 2026-10-29) for the statue giveaway box and the Official Rules. '' in fixed mode."""
+    """One-line odds disclosure (2026-10-29) for the statue giveaway box and the Official Rules. '' in fixed mode."""
     pi = payout_info(data)
     if pi['mode'] == 'fixed':
         return ''
@@ -486,7 +486,7 @@ def rules_page(data):
     <h1>Official Rules: Satoshi Fountain giveaway</h1>
     <p class="sub">No purchase or tip necessary. A tip won’t improve your odds. 18+. Void where prohibited.</p>
     <h2>1. Sponsor</h2>
-    {li(['Noah Oskwarek, operator of SatoshiStatues.com (the “Sponsor”).'])}
+    {li(['SatoshiStatues.com (the “Sponsor”).'])}
     <h2>2. Eligibility</h2>
     {li(['Open to people <strong>18 or older</strong> where permitted by law. Void where prohibited or restricted.'])}
     <h2>3. How to take part</h2>
