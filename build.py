@@ -1426,7 +1426,7 @@ def leaderboard_page(data):
     <ul class="lb-feed" id="lb-feed"><li class="lb-empty">Loading…</li></ul>
     <h2>How it works</h2>
     <p class="note">Open a statue on the <a href="/">map</a> and tap <strong>Check in</strong> when you are within 150 m. The server checks the distance and records the stamp; your location itself is not stored. Each device can stamp each statue once, up to 5 new stamps a day. People are ranked by unique GPS-verified stamps; on a tie, whoever got there first ranks higher. Earlier, unverified stamps only order people who have no GPS stamps yet.</p>
-    <p class="note" style="margin-top:8px">Stamps collected before the leaderboard started were added from the passport saved in your browser. Their location wasn’t checked by the server, so they are labelled <em>earlier, unverified</em>. A <span class="lb-ver" style="margin-left:0">✓ verified</span> badge means we confirmed that person ourselves. GPS can be faked, so treat this as a friendly game.</p>
+    <p class="note" style="margin-top:8px">GPS can be faked, so treat this as a friendly game.</p>
     <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">What we store and how to delete it: <a href="/privacy/">Privacy</a>.</p>
     {footer(data)}
   </main>
