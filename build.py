@@ -471,7 +471,7 @@ def terms_page(data):
 
 
 def rules_page(data):
-    """Official Rules for the giveaway in random-amount mode (Grant's draft; numbers from fountain.json payout)."""
+    """Official Rules for the giveaway in random-amount mode (numbers from fountain.json payout)."""
     pi = payout_info(data)
     title = 'Official Rules: Satoshi Fountain giveaway – satoshistatues.com'
     desc = 'Official Rules for the Satoshi Fountain Lightning giveaway on satoshistatues.com: eligibility, amounts, odds and limits.'
@@ -1428,7 +1428,7 @@ def leaderboard_page(data):
     <h2>Recent check-ins</h2>
     <ul class="lb-feed" id="lb-feed"><li class="lb-empty">Loading…</li></ul>
     <h2>How it works</h2>
-    <p class="note">Open a statue on the <a href="/">map</a> and tap <strong>Check in</strong> when you are within 150 m. The server checks the distance and records the stamp; your location itself is not stored. Each device can stamp each statue once, up to 5 new stamps a day. People are ranked by unique GPS-verified stamps; on a tie, whoever got there first ranks higher.</p>
+    <p class="note">Open a statue on the <a href="/">map</a> and tap <strong>Check in here</strong> when you are within 150 m. The server checks the distance and records the stamp; your location itself is not stored. Each device can stamp each statue once, up to 5 new stamps in 24 hours. People are ranked by unique GPS-verified stamps; on a tie, whoever got there first ranks higher.</p>
     <p class="note" style="margin-top:8px">GPS can be faked, so treat this as a friendly game.</p>
     <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">What we store and how to delete it: <a href="/privacy/">Privacy</a>.</p>
     {footer(data)}
@@ -1606,7 +1606,7 @@ POW_JS = r"""<script src="/share.js"></script>
       '<input id="pow-rln" maxlength="120" inputmode="email" autocomplete="off" placeholder="name@wallet.com" required>' +
       '<label for="pow-rcode">Recovery code</label><input id="pow-rcode" maxlength="40" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX" required>' +
       '<p class="pow-fine">Moves your stamps, rank and nickname to this device; the old device loses them. Nothing is paid and your wallet isn’t contacted. ' +
-      'You get a fresh recovery code afterwards. 5 tries per day.</p>' +
+      'You get a fresh recovery code afterwards. 5 tries per day from each network.</p>' +
       '<button type="submit">Recover passport</button><div class="lb-msg" id="pow-rmsg" aria-live="polite"></div>' +
       '<p class="pow-fine">Trouble recovering? Email <a href="mailto:__SUPPORT__">__SUPPORT__</a></p></form></details>';
     $('pow-rform').addEventListener('submit', function (ev) {
@@ -1626,7 +1626,7 @@ POW_JS = r"""<script src="/share.js"></script>
   }
   function loadMe() {
     var el = $('pow-me'); if (!el) return;
-    if (!dev) { el.innerHTML = '<div class="pow-rank">No rank yet</div><p class="pow-sub">Check in at a statue (within 150 m) to earn your first stamp. Open a statue on the <a href="/">map</a> or its page and tap <strong>Check in</strong>.</p>'; return; }
+    if (!dev) { el.innerHTML = '<div class="pow-rank">No rank yet</div><p class="pow-sub">Check in at a statue (within 150 m) to earn your first stamp. Open a statue on the <a href="/">map</a> or its page and tap <strong>Check in here</strong>.</p>'; return; }
     post('/api/pow/me', { device_id: dev }).then(function (j) { if (j.ok) renderMe(j.me); else off(el); }).catch(function () { off(el); });
   }
   function loadList() {
@@ -1693,7 +1693,7 @@ def pow_page(data):
     <h2>🧱 {e(ORDER_NAME)}</h2>
     <p class="note">Everyone who has stamped every statue on the map.{pow_genesis_note(data)} <a href="/proof-of-walk/fellow-travelers/">See the members’ roll →</a></p>
     <h2>How it works</h2>
-    <p class="note">Open a statue page or the <a href="/">map</a> and tap <strong>Check in</strong> when you are there. Your rank is the number of different statues you have stamped. Ranks are just for fun: they cost nothing and aren’t linked to tips or the giveaway.</p>
+    <p class="note">Open a statue page or the <a href="/">map</a> and tap <strong>Check in here</strong> when you are within 150 m. Your rank is the number of different statues you have stamped with a GPS-verified check-in. Ranks are just for fun: they cost nothing and aren’t linked to tips or the giveaway.</p>
     <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">What we store and how to delete it: <a href="/privacy/">Privacy</a>.</p>
     {footer(data)}
   </main>
@@ -2548,7 +2548,7 @@ def build_index(data, text):
     text = replace_block(text, 'JSONLD', '  ' + ldhtml)
     links = '        <ul>\n' + ''.join(
         f'          <li><a href="/{s["page"]}/">{e(s["label"])}</a></li>\n'
-        for s in sorted(data['statues'], key=lambda s: -sort_year(s['year']))) + '          <li><a href="/21-nodes/">21 Nodes tracker</a></li>\n          <li><a href="/leaderboard/">🏆 Passport leaderboard</a></li>\n          <li><a href="/privacy/">Privacy</a></li>\n        </ul>'
+        for s in sorted(data['statues'], key=lambda s: -sort_year(s['year']))) + '          <li><a href="/21-nodes/">21 Nodes tracker</a></li>\n          <li><a href="/leaderboard/">🏆 Leaderboard</a></li>\n          <li><a href="/privacy/">Privacy</a></li>\n        </ul>'
     text = replace_block(text, 'LINKS', links)
     text = replace_block(text, 'SIGNUP', '        ' + signup_html(data, 'home'))
     text = replace_block(text, 'EMBED', embed_box_html())

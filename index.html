@@ -32,7 +32,7 @@
   <link rel="alternate" type="application/atom+xml" title="Satoshi Statues – new statues" href="https://www.satoshistatues.com/feed.xml" />
   <style>.alert-box{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.alert-fine{font-size:.8rem;color:#8b949e;margin:6px 0 0;line-height:1.45}.photo-cta{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.photo-actions{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 4px}.photo-actions .btn{max-width:100%}.photo-cta .alert-fine a,.photo-credit a{padding:15px 0;margin:-15px 0}.photo-cta .alert-fine a{color:#f7931a}.follow-x .alert-fine a{color:#f7931a;font-weight:600}.photo-credit{display:block;margin-top:2px}.checkin-count{font-size:.85rem;color:#3fb950;margin:6px 0 0}.photo-credit a{color:#8b949e}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}</style>
   <script>window.SS_API = "https://api.satoshistatues.workers.dev";window.SS_POW = true;</script>
-  <script src="/checkin.js?v=bfc6e9c5d4"></script>
+  <script src="/checkin.js?v=9f8e930cc0"></script>
   <style>.gw-badge{display:inline-block;font-size:.7rem;padding:2px 7px;border-radius:4px;margin-top:7px;font-weight:600;background:rgba(247,147,26,.12);border:1px solid rgba(247,147,26,.45);color:#f7931a;line-height:1.35}.gw-badge.gw-paused{background:#21262d;border-color:#30363d;color:#8b949e}.gw-badge[hidden],.gw-pop[hidden]{display:none!important}.gw-pop{background:#0d1117;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:8px;padding:8px 10px;margin:8px 0 10px;font-size:.82rem;line-height:1.45;color:#e6edf3}.gw-pop b{color:#f7931a}.gw-pop.gw-paused{border-left-color:#8b949e}.gw-pop.gw-paused b{color:#8b949e}.gw-pop .gw-links{margin-top:4px;font-size:.78rem}.gw-pop a{color:#f7931a;font-weight:600;text-decoration:none}.gw-pop a:hover{text-decoration:underline}.gw-pop .gw-links .gw-terms{color:#8b949e;font-weight:400}@media (max-width:768px){.gw-pop{font-size:.88rem;padding:10px 12px 0}.gw-pop .gw-links{margin-top:0}.gw-pop a{display:inline-flex;align-items:center;min-height:44px}}</style>
   <script>(function () {
   var API = window.SS_API || '', SLUGS = ["budapest", "lugano", "el-zonte", "vienna"], state = {};
@@ -923,7 +923,7 @@
           <li><a href="/budapest/">Satoshi Statue Budapest</a></li>
           <li><a href="/kranj/">Kranj Bitcoin Monument</a></li>
           <li><a href="/21-nodes/">21 Nodes tracker</a></li>
-          <li><a href="/leaderboard/">🏆 Passport leaderboard</a></li>
+          <li><a href="/leaderboard/">🏆 Leaderboard</a></li>
           <li><a href="/privacy/">Privacy</a></li>
         </ul>
         <!-- BUILD:LINKS:END -->
@@ -938,7 +938,7 @@
       </div>
       <div class="pp-hero">
         <div class="pp-count" aria-live="polite"><span id="pp-n">0</span><span class="pp-of">/ <span id="pp-total">11</span></span></div>
-        <div class="pp-label" id="passport-sub">statues visited</div>
+        <div class="pp-label" id="passport-sub">statues stamped</div>
         <div class="passport-progress"><span id="passport-bar"></span></div>
         <a class="pp-rank" id="pp-rank" href="/proof-of-walk/" hidden></a>
       </div>
@@ -990,7 +990,7 @@
         </div>
         <button class="modal-close" type="button" aria-label="Close" onclick="closeModals()">✕</button>
       </div>
-      <p class="modal-note">Share tips, visit reports and photo links. Comments are powered by <a href="https://giscus.app" target="_blank" rel="noopener noreferrer">giscus</a> and need a GitHub account. Spotted a mistake? <a id="comments-correction" href="#" target="_blank" rel="noopener noreferrer">Suggest a correction</a>.</p>
+      <p class="modal-note">Share visit reports, tips and photo links. Comments are powered by <a href="https://giscus.app" target="_blank" rel="noopener noreferrer">giscus</a> and need a GitHub account. Spotted a mistake? <a id="comments-correction" href="#" target="_blank" rel="noopener noreferrer">Suggest a correction</a>.</p>
       <div id="giscus-container"></div>
     </div>
   </div>
@@ -1754,7 +1754,7 @@
       document.getElementById('pp-n').textContent = n;
       document.getElementById('pp-total').textContent = total;
       document.getElementById('passport-sub').textContent = n === total && total ? '🏆 Full set! Every statue stamped.'
-        : n === 0 ? `statues visited · ${total} to collect` : `statues visited · ${total - n} to go`;
+        : n === 0 ? `statues stamped · ${total} to collect` : `statues stamped · ${total - n} to go`;
       document.getElementById('passport-bar').style.width = `${total ? (100 * n / total) : 0}%`;
       renderComplete(document.getElementById('passport-modal').classList.contains('open'));
     }
@@ -1763,7 +1763,7 @@
     function isComplete() { return checkable.length > 0 && (PREVIEW_COMPLETE || visitedCount() === checkable.length); }
     function completeShareText() {
       const t = checkable.length;
-      return `I visited every Satoshi statue on Earth 🟠 ${t}/${t} stamps on the Satoshi Statues passport @satoshistatue21`;
+      return `I visited every Satoshi statue on Earth 🟠 ${t}/${t} stamps on the Satoshi Passport @satoshistatue21`;
     }
     function renderComplete(draw) {
       const box = document.getElementById('pp-complete');
@@ -2122,7 +2122,7 @@
     }
     function statueShareText(s) {
       const what = /^Satoshi Statue /.test(s.label || '') ? `Satoshi in ${s.city}` : `the ${s.name} in ${s.city}`;
-      return `I found ${what} 🟠 ${visitedCount()}/${checkable.length} stamps on the Satoshi Statues passport @satoshistatue21`;
+      return `I found ${what} 🟠 ${visitedCount()}/${checkable.length} stamps on the Satoshi Passport @satoshistatue21`;
     }
     function statueUrl(s) { return `${SITE_URL}/${s.page}/`; }
     function xIntent(text, url) { return `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`; }
@@ -2179,7 +2179,7 @@
       } catch (e) { badge = null; }
       }
       const n = visitedCount();
-      const xText = `${shareBase()} on the Satoshi Statues passport @satoshistatue21`;
+      const xText = `${shareBase()} on the Satoshi Passport @satoshistatue21`;
       document.getElementById('share-x').href =
         `https://twitter.com/intent/tweet?text=${encodeURIComponent(xText)}&url=${encodeURIComponent(SITE_URL)}&hashtags=Bitcoin`;
       document.getElementById('share-fb').href =

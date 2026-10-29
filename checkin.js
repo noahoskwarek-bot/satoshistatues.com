@@ -226,11 +226,11 @@ function checkinTooFarHtml(s, d, accuracy) {
     const show = (cls, html) => { out.className = `checkin-msg ${cls}`; out.innerHTML = html; out.hidden = false; };
     function shareText(p) {
       const what = /^Satoshi Statue /.test(s.label || '') ? `Satoshi in ${s.city}` : `the ${s.name} in ${s.city}`;
-      return `I found ${what} 🟠 ${visitedCount(p)}/${checkable.length} stamps on the Satoshi Statues passport @satoshistatue21`;
+      return `I found ${what} 🟠 ${visitedCount(p)}/${checkable.length} stamps on the Satoshi Passport @satoshistatue21`;
     }
     function shareRow(p) {
       const url = d.url;
-      const more = `<div class="ci-share"><a class="btn" href="/?s=${s.page}">🖼️ Share card on the map</a><a class="btn" href="/#passport">🛂 My passport</a></div>`;
+      const more = `<div class="ci-share"><a class="btn" href="/?s=${s.page}">📤 Share card on the map</a><a class="btn" href="/#passport">🛂 My passport</a></div>`;
       // share.js (every statue page): share sheet + X with the check-in line. Older cached pages keep the X-only row.
       if (window.SSShare && d.shareName) return window.SSShare.row(`I just checked in at ${d.shareName} ⚡`, url, 'Share your check-in') + more;
       const x = `https://x.com/intent/post?text=${encodeURIComponent(shareText(p))}&url=${encodeURIComponent(url)}`;

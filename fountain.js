@@ -211,7 +211,7 @@
   function shareHtml(j) {
     if (!window.SSShare || !shareName) return '';
     var n = Math.floor(+j.sats), got = n > 0 ? ' and got ' + num(n) + ' sats' + (j.bonus ? ' (Lucky ' + num(n) + ')' : '') : '';
-    return window.SSShare.row('I just checked in at ' + shareName + got + ' ⚡', pageUrl, 'Share your visit');
+    return window.SSShare.row('I just checked in at ' + shareName + got + ' ⚡', pageUrl, 'Share your check-in');
   }
   // ----- Success screen (server-drawn amounts) -----
   // The amount was already drawn and paid by the server (j.sats). The odometer is decoration only: it rolls each digit
