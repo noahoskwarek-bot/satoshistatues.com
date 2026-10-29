@@ -25,21 +25,21 @@ when paused; hidden when the giveaway is disabled or the budget is below one pay
 statue-page fountain sections.
 
 ## Random amounts (branch `fountain-random`)
-Noah asked for "Random 1–100 sats with a rare 210-sat jackpot, averaging about 21". The site copy says **Lucky 210** / rare bonus.
+Live since 2026-10-29 (Noah approved 9:47 AM ET): random 1–121 sats with a rare **Lucky 1,021** at 1 in 121, average exactly 42 sats, a 9,500 giveaway budget and 1,300 sats per UTC day. The Rizful NWC connection limit is 50,000 sats per 30 days. (First version, 2026-10-28: 1–100 sats, Lucky 210 at 1 in 200, average 21, 240 per day.) Odds line on the statue box and in /rules/ section 4: "Each verified check-in reveals 1–121 sats or, about 1 in 121 times, a Lucky 1,021 sats, while the giveaway budget and daily limits last."
 - `fountain.json` → `payout` mirrors the Worker's payout vars and **must match them**: `mode` (`fixed`|`random`), `fixed_sats`,
   `tiers` (`[lo, hi, weight]`), `bonus_sats`, `bonus_weight`, `cap_sats_day`. build.py computes the exact odds and mean
   from it (`payout_info`, with `Fraction`) for the static copy and the **Official Rules** page at `/rules/` (generated only
   in random mode; also in the sitemap and linked from the widget, the terms page and the map popup).
-  Defaults: 1–10 (440/1000), 11–25 (313), 26–50 (170), 51–100 (72), 210 (5 = 1 in 200). Expected amount: exactly 21 sats.
+  Live: 1–10 (220/1210), 11–25 (420), 26–50 (340), 51–121 (220), 1,021 (10 = 1 in 121). Expected amount: exactly 42 sats. A bonus that doesn't fit the budget or the day's 1,300 is trimmed (not redrawn) and isn't labelled Lucky.
 - The widget reads the live rules from `/api/fountain` (`payout_mode`, `payout_min`, `payout_max`, `bonus_sats`) and works
   with a fixed-mode Worker too (then it shows the fixed amount as before).
 - Next to the Send button: "Free to play. No purchase or tip necessary. A tip won’t improve your odds. 18+. Official Rules".
 - Success screen: an odometer counter rolls each digit for 1.5 s and stops on the amount the server already paid (`j.sats`);
-  it's decoration only. Headline "You got 37 sats!", or "Lucky 210! You got 210 sats!" with a glow and a small CSS
+  it's decoration only. Headline "You got 37 sats!", or "Lucky 1,021! You got 1,021 sats!" with a glow and a small CSS
   confetti burst (28 spans, no library). `prefers-reduced-motion` shows the final amount at once, no confetti. No reels,
   levers or slot-machine look. The "Support the map" tip section is hidden while the success screen shows.
-- Recent activity: "⚡ 37 giveaway sats sent to al…@e….com", bonus entries "⚡ Lucky 210! 210 sats sent to …".
-- Home map: popup "⚡ Sats giveaway: 1–100 sats per verified check-in, with a rare 210 bonus, while the giveaway budget lasts.",
+- Recent activity: "⚡ 37 giveaway sats sent to al…@e….com", bonus entries "⚡ Lucky 1,021! 1,021 sats sent to …".
+- Home map: popup "⚡ Sats giveaway: 1–121 sats per verified check-in, with a rare 1,021 bonus, while the giveaway budget lasts.",
   badge "⚡ Sats giveaway".
 - Word check: global list adds jackpot, lottery, spin, slot, casino, gamble; the strict giveaway-copy list adds those plus
   prize pool and bet, and now also scans `/rules/` (two factual phrases about the random amount are allowed there only).

@@ -131,7 +131,7 @@
     return '<div class="f-msg ok f-got' + (lucky && still ? ' f-lucky' : '') + '" role="status">' +
       (lucky ? '<div class="f-lucky-tag" data-f-land aria-hidden="true"' + later + '>⚡ Lucky ' + num(c.sats) + '!</div><br>' : '') +
       odo + '<p class="f-big" data-f-land' + later + '>' + esc(revealHead(c)) + '</p>' +
-      '<p class="f-sub">' + (c.reduced ? 'That’s what’s left of the giveaway budget right now. ' : '') +
+      '<p class="f-sub">' + (c.reduced ? 'That’s what’s left of today’s giveaway limit or budget right now. ' : '') +
       'Enter a Lightning address to claim ' + (c.sats === 1 ? 'it' : 'them') + '.</p></div>';
   }
   function renderRecent() {

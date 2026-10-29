@@ -54,8 +54,8 @@
   }
   function popText(i) {
     if (i.kind === 'paused') return '<b>⚡ Sats giveaway:</b> paused at the moment.';
-    var amt = i.range ? i.range : i.sats ? num(i.sats) + ' sats' : '1–100 sats';
-    var bonus = i.range ? i.bonus : i.sats ? '' : '210';
+    var amt = i.range ? i.range : i.sats ? num(i.sats) + ' sats' : '1–121 sats';
+    var bonus = i.range ? i.bonus : i.sats ? '' : '1,021';
     return '<b>⚡ Sats giveaway:</b> ' + amt + ' per verified check-in' + (bonus ? ', with a rare ' + bonus + ' bonus' : '') + ', while the giveaway budget lasts.' +
       (i.kind === 'limit' ? ' Today’s limit here has been reached. Try again tomorrow.' : '');
   }

@@ -220,7 +220,17 @@ def payout_phrase(data):
     pi = payout_info(data)
     if pi['mode'] == 'fixed':
         return f"a fixed {pi['sats']} sats"
-    return f"{pi['min']}–{pi['max']} sats" + (f", or the rare Lucky {pi['bonus']} bonus" if pi['bonus'] else '')
+    return f"{pi['min']:,}–{pi['max']:,} sats" + (f", or the rare Lucky {pi['bonus']:,} bonus" if pi['bonus'] else '')
+
+
+def odds_line(data):
+    """One-line odds disclosure (Noah, 2026-10-29) for the statue giveaway box and the Official Rules. '' in fixed mode."""
+    pi = payout_info(data)
+    if pi['mode'] == 'fixed':
+        return ''
+    return (f"Each verified check-in reveals {pi['min']:,}–{pi['max']:,} sats" +
+            (f" or, about 1 in {pi['odds']} times, a Lucky {pi['bonus']:,} sats" if pi['bonus'] else '') +
+            ", while the giveaway budget and daily limits last.")
 
 
 def fountain_on(data, s=None):
@@ -275,6 +285,7 @@ def fountain_box(s, data):
     return (f'\n    <style>{FOUNTAIN_CSS}</style><section class="fountain" id="giveaway" data-ss-fountain data-slug="{e(s["slug"])}" data-name="{e(s["name"])}" data-share-name="{e(share_name(s))}" data-url="{e(page_url(s))}" data-api="{e(api)}" hidden>'
             f'<h2>⛲ Satoshi Fountain</h2>'
             f'<p>A small Lightning giveaway for visitors who check in at this statue, while the giveaway budget lasts.</p>'
+            + (f'<p class="f-fine f-odds">{e(odds_line(data))}</p>' if odds_line(data) else '') +
             f'<div class="f-stats"><div class="f-stat"><b data-f-left>–</b>giveaway sats left</div></div>'
             f'<p class="f-fine">Check in here to get <span data-f-howmuch>{e(payout_phrase(data))}</span> sent to a Lightning address. '
             f'One per Lightning address per statue. 18+ only. No tip needed, and tipping never changes the giveaway. '
@@ -385,7 +396,7 @@ def giveaway_home_head(data):
     pi = payout_info(data)
     rnd = pi['mode'] == 'random'
     neutral = f"'{pi['min']}–{pi['max']} sats'" if rnd else "'a small, fixed amount of sats'"
-    js = (GIVEAWAY_HOME_JS.replace('__SLUGS__', json.dumps(slugs)).replace('__NEUTRAL_BONUS__', f"'{pi['bonus']}'" if rnd and pi['bonus'] else "''")
+    js = (GIVEAWAY_HOME_JS.replace('__SLUGS__', json.dumps(slugs)).replace('__NEUTRAL_BONUS__', f"'{pi['bonus']:,}'" if rnd and pi['bonus'] else "''")
           .replace('__NEUTRAL__', neutral)
           .replace('__RULES_HREF__', '/rules/' if rules_on(data) else '/terms/').replace('__RULES_LABEL__', 'Rules' if rules_on(data) else 'Terms'))
     return f'\n  <style>{GIVEAWAY_HOME_CSS}</style>\n  <script>{js}</script>'
@@ -468,9 +479,9 @@ def rules_page(data):
     out = head(title, desc, SITE + '/rules/', SITE + '/og-image.jpg', 1200, 630, 'Satoshi statues world map', '')
     li = lambda items: '<ul class="src" style="font-size:.95rem;color:#e6edf3">' + ''.join(f'<li>{x}</li>' for x in items) + '</ul>'
     pct = lambda w: f'{100 * w / pi["total"]:.1f}%'.replace('.0%', '%')
-    rows = ''.join(f'<tr><td>{a}–{b} sats (each amount in this range equally likely)</td><td>{w} in {pi["total"]:,} ({pct(w)})</td></tr>' for a, b, w in pi['tiers'])
+    rows = ''.join(f'<tr><td>{a:,}–{b:,} sats (each amount in this range equally likely)</td><td>{w} in {pi["total"]:,} ({pct(w)})</td></tr>' for a, b, w in pi['tiers'])
     if pi['bonus']:
-        rows = f'<tr><td>{pi["bonus"]} sats (Lucky {pi["bonus"]})</td><td>1 in {pi["odds"]} ({pct(pi["bonus_weight"])})</td></tr>' + rows
+        rows = f'<tr><td>{pi["bonus"]:,} sats (Lucky {pi["bonus"]:,})</td><td>1 in {pi["odds"]} ({pct(pi["bonus_weight"])})</td></tr>' + rows
     table = ('<table style="width:100%;border-collapse:collapse;font-size:.9rem;margin:8px 0" class="rules-odds">'
              '<thead><tr><th style="text-align:left">Amount per valid check-in</th><th style="text-align:left">Odds</th></tr></thead>'
              f'<tbody>{rows}</tbody></table>')
@@ -488,11 +499,11 @@ def rules_page(data):
          '<strong>No purchase or tip is necessary.</strong> Tips never affect taking part, the odds or the amount.',
          'One payout per Lightning address per statue and one per passport (device) per statue. Daily limits apply per statue, per network and overall.'])}
     <h2>4. Amounts and odds</h2>
-    {li([f'Each valid check-in receives a random amount from {pi["min"]} to {pi["max"]} sats' + (f', or a rare {pi["bonus"]}-sat bonus' if pi['bonus'] else '') + '. Our server picks the amount with a cryptographic random number generator. Nothing you do on the page changes it.',
-         (f'The odds of the {pi["bonus"]}-sat bonus are <strong>1 in {pi["odds"]}</strong> per valid check-in. ' if pi['bonus'] else '') + f'The average amount is <strong>{pi["mean"]} sats</strong>.',
+    {li([e(odds_line(data)), f'Each valid check-in receives a random amount from {pi["min"]:,} to {pi["max"]:,} sats' + (f', or a rare {pi["bonus"]:,}-sat bonus' if pi['bonus'] else '') + '. Our server picks the amount with a cryptographic random number generator. Nothing you do on the page changes it.',
+         (f'The odds of the {pi["bonus"]:,}-sat bonus are <strong>1 in {pi["odds"]}</strong> per valid check-in. ' if pi['bonus'] else '') + f'The average amount is <strong>{pi["mean"]} sats</strong>.',
          f'The amount is drawn once per passport (device) per statue per day, at check-in. It is reserved for you during the claim time ({int(data["fountain"].get("claim_minutes", 21))} minutes) and counts against the giveaway budget and daily limits while it is reserved. If it isn’t claimed in time, it is released back to the giveaway budget. Checking in again the same day shows the same amount; it doesn’t draw a new one.',
          'The total giveaway budget is set by the Sponsor, and the giveaway sats left are shown on each participating statue page.',
-         f'If the amount drawn is more than what is left of the giveaway budget, or of the daily limit of {pi["cap_sats_day"]:,} sats across all statues, you are shown and can claim what is left instead. If nothing is left, you are told before you enter a Lightning address.'])}
+         f'If the amount drawn is more than what is left of the giveaway budget, or of the daily limit of {pi["cap_sats_day"]:,} sats across all statues, you are shown and can claim what is left instead' + (f', so a Lucky {pi["bonus"]:,} draw may not be paid in full' if pi['bonus'] else '') + '. If nothing is left, you are told before you enter a Lightning address.'])}
     {table}
     <h2>5. Period</h2>
     {li(['From the start of the giveaway until the giveaway budget runs out or the Sponsor ends it, whichever comes first.'])}
