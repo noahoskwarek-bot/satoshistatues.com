@@ -490,7 +490,7 @@ def rules_page(data):
     <h1>Official Rules: Satoshi Fountain giveaway</h1>
     <p class="sub">No purchase or tip necessary. A tip won’t improve your odds. 18+. Void where prohibited.</p>
     <h2>1. Sponsor</h2>
-    {li(['SatoshiStatues.com (the “Sponsor”).'])}
+    {li(['SatoshiStatues.com (the “Sponsor”).', f'Questions: <a href="mailto:{SUPPORT_EMAIL}">{SUPPORT_EMAIL}</a>'])}
     <h2>2. Eligibility</h2>
     {li(['Open to people <strong>18 or older</strong> where permitted by law. Void where prohibited or restricted.'])}
     <h2>3. How to take part</h2>
@@ -1498,6 +1498,7 @@ GENESIS_TITLE = 'Genesis Block'
 ORDER_NAME = 'The Grand High Order of Fellow Travelers'
 
 
+SUPPORT_EMAIL = 'support@satoshistatues.com'  # Zoho Mail mailbox (photos@ is an alias on it)
 POW_LB_LINK = '\n    <p class="note">👣 Pills show each walker’s Proof of Walk rank (GPS-verified stamps only). <a href="/proof-of-walk/">How ranks work →</a></p>'
 
 
@@ -1657,7 +1658,8 @@ POW_JS = r"""<script src="/share.js"></script>
       '<label for="pow-rcode">Recovery code</label><input id="pow-rcode" maxlength="40" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX" required>' +
       '<p class="pow-fine">Moves your stamps, rank and nickname to this device; the old device loses them. Nothing is paid and your wallet isn’t contacted. ' +
       'You get a fresh recovery code afterwards. 5 tries per day.</p>' +
-      '<button type="submit">Recover passport</button><div class="lb-msg" id="pow-rmsg" aria-live="polite"></div></form></details>';
+      '<button type="submit">Recover passport</button><div class="lb-msg" id="pow-rmsg" aria-live="polite"></div>' +
+      '<p class="pow-fine">Trouble recovering? Email <a href="mailto:__SUPPORT__">__SUPPORT__</a></p></form></details>';
     $('pow-rform').addEventListener('submit', function (ev) {
       ev.preventDefault();
       if (!dev) { dev = (crypto.randomUUID ? crypto.randomUUID() : Array.from(crypto.getRandomValues(new Uint8Array(16)), function (b) { return b.toString(16).padStart(2, '0'); }).join('')); set(DEV, dev); }
@@ -1704,6 +1706,7 @@ POW_JS = r"""<script src="/share.js"></script>
 })();
 </script>"""
 
+POW_JS = POW_JS.replace('__SUPPORT__', SUPPORT_EMAIL)
 
 def pow_map_attr(data):
     ex = pow_genesis_exclude(data)

@@ -189,7 +189,8 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
       '<label for="pow-rcode">Recovery code</label><input id="pow-rcode" maxlength="40" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX" required>' +
       '<p class="pow-fine">Moves your stamps, rank and nickname to this device; the old device loses them. Nothing is paid and your wallet isn’t contacted. ' +
       'You get a fresh recovery code afterwards. 5 tries per day.</p>' +
-      '<button type="submit">Recover passport</button><div class="lb-msg" id="pow-rmsg" aria-live="polite"></div></form></details>';
+      '<button type="submit">Recover passport</button><div class="lb-msg" id="pow-rmsg" aria-live="polite"></div>' +
+      '<p class="pow-fine">Trouble recovering? Email <a href="mailto:support@satoshistatues.com">support@satoshistatues.com</a></p></form></details>';
     $('pow-rform').addEventListener('submit', function (ev) {
       ev.preventDefault();
       if (!dev) { dev = (crypto.randomUUID ? crypto.randomUUID() : Array.from(crypto.getRandomValues(new Uint8Array(16)), function (b) { return b.toString(16).padStart(2, '0'); }).join('')); set(DEV, dev); }
