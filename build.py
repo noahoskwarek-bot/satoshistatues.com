@@ -36,6 +36,7 @@ CHECKABLE = ('Installed', 'Restored', 'Damaged', 'Donated')  # Damaged = still i
 # unveiling venue (Hong Kong). All of these count in the passport total and can be stamped.
 BUILD_DATE = os.environ.get('BUILD_DATE') or datetime.date.today().isoformat()
 LB_API = ''  # set from statues.json config.leaderboard_api in load()
+POW_ON = False  # config.proof_of_walk.enabled, set in load()
 
 e = lambda t: html.escape(str(t), quote=True)
 
@@ -44,10 +45,13 @@ def load():
     with open(os.path.join(ROOT, 'statues.json'), encoding='utf-8') as f:
         data = json.load(f)
     data.setdefault('config', {})
-    global LB_API
+    global LB_API, POW_ON
     LB_API = data['config'].get('leaderboard_api', '')
+    POW_ON = bool(pow_cfg(data))
     for s in data['statues']:
         s['slug'] = slug_of(s)
+    for s in pow_genesis_exclude(data):
+        assert any(x['slug'] == s and x['status'] in CHECKABLE for x in data['statues']), f'proof_of_walk.genesis_exclude: unknown statue {s}'
     cpath = os.path.join(ROOT, 'checkins.json')
     counts = {}
     if os.path.exists(cpath):
@@ -564,7 +568,9 @@ def share_box(s):
 
 
 def api_script():
-    return f'<script>window.SS_API = {json.dumps(LB_API)};</script>' if LB_API else ''
+    if not LB_API:
+        return ''
+    return f'<script>window.SS_API = {json.dumps(LB_API)};' + ('window.SS_POW = true;' if POW_ON else '') + '</script>'
 
 
 LIVE_COUNT_JS = """<script>(function(){var A=window.SS_API;if(!A||!window.fetch)return;fetch(A+"/api/counts").then(function(r){return r.json()}).then(function(j){if(!j||!j.ok)return;
@@ -1201,7 +1207,8 @@ def checkin_box(s, data):
             f'<span class="ci-stamp" hidden></span>'
             f'<a class="ci-map" href="/?s={s["page"]}">🗺️ Open on the map</a></div>'
             f'<p class="ci-note">At the statue? Tap to stamp your Satoshi Passport (within 150 m). '
-            f'Your location is only checked, never stored. <a href="/leaderboard/">Leaderboard</a></p>'
+            f'Your location is only checked, never stored. <a href="/leaderboard/">Leaderboard</a>'
+            + (' · <a href="/proof-of-walk/">Proof of Walk</a>' if POW_ON else '') + '</p>'
             f'<div class="checkin-msg" aria-live="polite" hidden></div></div>')
 
 
@@ -1451,7 +1458,7 @@ def leaderboard_page(data):
     out += f"""  <main>
     <div class="crumbs"><a href="/">Map</a> › Leaderboard</div>
     <h1>🏆 Satoshi Passport Leaderboard</h1>
-    <p class="sub">Who has stamped the most of the {n} installed Satoshi statues? <span id="lb-total"></span></p>
+    <p class="sub">Who has stamped the most of the {n} installed Satoshi statues? <span id="lb-total"></span></p>{POW_LB_LINK if POW_ON else ''}
     <div class="lb-me" id="lb-me" aria-live="polite">Loading…</div>
     <noscript><p class="note">The leaderboard needs JavaScript.</p></noscript>
     <h2>Top visitors</h2>
@@ -1478,9 +1485,25 @@ GENESIS_TITLE = 'Genesis Block'
 ORDER_NAME = 'The Grand High Order of Fellow Travelers'
 
 
+POW_LB_LINK = '\n    <p class="note"><a href="/proof-of-walk/">👣 See your Proof of Walk rank →</a></p>'
+
+
 def pow_cfg(data):
     c = data['config'].get('proof_of_walk') or {}
     return c if c.get('enabled') else None
+
+
+def pow_genesis_exclude(data):
+    # Statues the Genesis Block doesn't require yet (gold bonus stamps instead). Must match the Worker's POW_GENESIS_EXCLUDE.
+    c = pow_cfg(data) or {}
+    return list(c.get('genesis_exclude') or [])
+
+
+def pow_genesis_note(data):
+    names = [x['city'] for x in data['statues'] if x['slug'] in pow_genesis_exclude(data)]
+    if not names:
+        return ''
+    return f' {" and ".join(names)} {"is a gold bonus stamp" if len(names) == 1 else "are gold bonus stamps"} for now, until the spot is confirmed: it still counts toward your rank.'
 
 
 def pow_rank(n):
@@ -1509,6 +1532,14 @@ POW_CSS = (
     '.pow-pips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}'
     '.pow-pip{width:26px;height:26px;border-radius:50%;border:2px solid #30363d;background:#0d1117;display:inline-flex;align-items:center;justify-content:center;font-size:.7rem;color:#8b949e}'
     '.pow-pip.on{background:#f7931a;border-color:#f7931a;color:#0d1117;font-weight:800}'
+    '.pow-pip.ex{border-style:dashed;border-color:#6e5a1e}'
+    '.pow-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:1.05rem;font-weight:700;letter-spacing:.04em;color:#ffdf80;background:#0d1117;border:1px dashed #6e5a1e;border-radius:8px;padding:10px 12px;margin:6px 0;word-break:break-all;user-select:all}'
+    '.pow-codebox{background:#1f1a0d;border:1px solid #6e5a1e;border-radius:8px;padding:10px 12px;margin:10px 0;font-size:.86rem;color:#e6edf3}'
+    '.pow-codebox button,.pow-ghost{min-height:40px;padding:8px 14px;border-radius:8px;border:1px solid #30363d;background:#21262d;color:#e6edf3;font-weight:600;font-size:.86rem;cursor:pointer;font-family:inherit}'
+    '.pow-recover{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:10px 14px;margin:10px 0}'
+    '.pow-recover summary{cursor:pointer;font-weight:700;color:#e6edf3;font-size:.92rem;min-height:32px;display:flex;align-items:center}'
+    '.pow-recover[open] summary{margin-bottom:6px}'
+    '.pow-key{font-size:.84rem;color:#c9d1d9;margin:8px 0 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center}'
     '.pow-pip.gold{background:#e3b341;border-color:#f2cc60;color:#0d1117;font-weight:800;box-shadow:0 0 0 2px #6e5a1e}'
     '.pow-genesis{background:#1f1a0d;border:1px solid #6e5a1e;border-radius:8px;padding:10px 12px;margin:10px 0;color:#f2cc60;font-size:.9rem}'
     '.pow-genesis strong{color:#ffdf80}'
@@ -1527,11 +1558,11 @@ POW_CSS = (
 )
 
 
-def pow_ladder_html():
+def pow_ladder_html(data):
     rows = [('1', pow_rank(1), 'Your first GPS-verified stamp.')]
     rows += [(str(n), pow_rank(n), '') for n in range(2, POW_FINAL_AT)]
     rows += [(f'{POW_FINAL_AT}+', pow_rank(POW_FINAL_AT), 'The top rank.')]
-    rows += [('Every statue', GENESIS_TITLE, f'Stamp every statue on the map and join {ORDER_NAME}. Statues added later earn gold bonus stamps; the title stays yours.')]
+    rows += [('Every statue', GENESIS_TITLE, f'Stamp every statue on the map and join {ORDER_NAME}.{pow_genesis_note(data)} Statues added later earn gold bonus stamps; the title stays yours.')]
     body = ''.join(f'<tr><td>{e(a)}</td><td><strong>{e(b)}</strong>{(" <span class=pow-fine>" + e(c) + "</span>") if c else ""}</td></tr>' for a, b, c in rows)
     return f'<table class="pow-ladder"><thead><tr><th>Stamps</th><th>Rank</th></tr></thead><tbody>{body}</tbody></table>'
 
@@ -1554,8 +1585,8 @@ POW_JS = r"""<script src="/share.js"></script>
     var have = {}; (me.slugs || []).forEach(function (s) { have[s] = 1; });
     var gold = {}; (me.bonus_stamps || []).forEach(function (s) { gold[s] = 1; });
     return '<div class="pow-pips" aria-label="' + me.stamps + ' of ' + me.map_statues + ' statues stamped">' + MAP.map(function (m) {
-      var cls = gold[m.slug] ? 'pow-pip gold' : have[m.slug] ? 'pow-pip on' : 'pow-pip';
-      return '<span class="' + cls + '" title="' + esc(m.name) + (have[m.slug] ? ' ✓' : '') + '">' + (have[m.slug] ? '✓' : '') + '</span>';
+      var cls = gold[m.slug] ? 'pow-pip gold' : have[m.slug] ? 'pow-pip on' : m.bonus ? 'pow-pip ex' : 'pow-pip';
+      return '<span class="' + cls + '" title="' + esc(m.name) + (m.bonus ? ' (gold bonus)' : '') + (have[m.slug] ? ' ✓' : '') + '">' + (have[m.slug] ? '✓' : '') + '</span>';
     }).join('') + '</div>';
   }
   function renderMe(me) {
@@ -1566,26 +1597,69 @@ POW_JS = r"""<script src="/share.js"></script>
     if (me.genesis) h += '<div class="pow-genesis">🧱 <strong>Genesis Block</strong> · member of The Grand High Order of Fellow Travelers since ' +
       esc((me.joined_at || '').slice(0, 10)) + (me.bonus_stamps && me.bonus_stamps.length ? ' · ' + me.bonus_stamps.length + ' gold bonus stamp' + (me.bonus_stamps.length === 1 ? '' : 's') : '') +
       (me.missing_new && me.missing_new.length ? '<br><span class="pow-fine">New on the map since you joined: ' + me.missing_new.length + ' statue' + (me.missing_new.length === 1 ? '' : 's') + ' to collect as gold bonus stamps.</span>' : '') + '</div>';
-    else if (me.stamps > 0) h += '<p class="pow-fine">Stamp all ' + me.map_statues + ' statues to mine the Genesis Block.</p>';
+    else if (me.stamps > 0) h += '<p class="pow-fine">Stamp all ' + (me.genesis_statues || me.map_statues) + ' Genesis statues to mine the Genesis Block' +
+      (me.genesis_excluded && me.genesis_excluded.length ? ' (dashed circles are gold bonus stamps: they count toward your rank, not the Genesis Block).' : '.') + '</p>';
     if (me.share && window.SSShare) h += window.SSShare.row(me.share, URL_POW, 'Share your rank');
     h += '<form class="pow-form" id="pow-form"><label for="pow-nick">Passport nickname (shown on the leaderboard)</label>' +
       '<input id="pow-nick" name="nick" maxlength="20" autocomplete="nickname" placeholder="Nickname or @handle" value="' + esc(me.nickname || get(NICK) || '') + '">' +
-      '<label for="pow-ln">Lightning address (optional)</label>' +
+      '<label for="pow-ln">Lightning address (optional, for passport recovery)</label>' +
       '<input id="pow-ln" name="ln" maxlength="120" inputmode="email" autocomplete="off" placeholder="' + esc(me.lightning_address || 'name@wallet.com') + '">' +
-      '<p class="pow-fine">Your passport lives on this device. No password. The Lightning address is only checked for format, is never shown publicly and is never paid.</p>' +
+      '<p class="pow-fine">Your passport lives on this device. No password. Add a Lightning address and you get a one-time recovery code: the two together move your passport to a new phone. ' +
+      'The address is never shown publicly, never paid and never contacted, and we keep only a scrambled (hashed) copy.</p>' +
       '<button type="submit">Save</button><div class="lb-msg" id="pow-msg" aria-live="polite"></div></form>';
+    if (me.recovery_set) h += '<div class="pow-key">🔑 Recovery is on for ' + esc(me.lightning_address || 'your address') +
+      '. <button class="pow-ghost" type="button" id="pow-newcode">New recovery code</button></div>';
+    h += '<div id="pow-codeslot"></div>';
     el.innerHTML = h;
+    if ($('pow-newcode')) $('pow-newcode').addEventListener('click', function () {
+      if (!confirm('Make a new recovery code? Your old code stops working.')) return;
+      post('/api/pow/recovery-code', { device_id: dev }).then(function (j) { if (j.ok) { renderMe(j.me); showCode(j.recovery_code); } });
+    });
     $('pow-form').addEventListener('submit', function (ev) {
       ev.preventDefault();
       var body = { device_id: dev, nickname: $('pow-nick').value };
       if ($('pow-ln').value.trim()) body.lightning_address = $('pow-ln').value;
       post('/api/pow/profile', body).then(function (j) {
-        if (j.ok) { set(NICK, j.me.nickname || ''); renderMe(j.me); $('pow-msg').textContent = 'Saved.'; loadList(); }
+        if (j.ok) { set(NICK, j.me.nickname || ''); renderMe(j.me); $('pow-msg').textContent = 'Saved.'; if (j.recovery_code) showCode(j.recovery_code); loadList(); }
         else $('pow-msg').textContent = j.message || 'Couldn’t save that.';
       }).catch(function () { $('pow-msg').textContent = 'Couldn’t reach the server.'; });
     });
   }
   var dev = get(DEV);
+  function showCode(code) {
+    var el = $('pow-codeslot'); if (!el || !code) return;
+    el.innerHTML = '<div class="pow-codebox"><strong>🔑 Your recovery code</strong><div class="pow-code" id="pow-code">' + esc(code) + '</div>' +
+      'Save it now (screenshot, password manager or paper). <strong>We can’t show it again.</strong> With your Lightning address it moves your passport to a new device. ' +
+      'Anyone with both could move it too, so keep the code private.<br><button type="button" id="pow-copy">Copy code</button></div>';
+    $('pow-copy').addEventListener('click', function () {
+      if (navigator.clipboard) navigator.clipboard.writeText(code).then(function () { $('pow-copy').textContent = 'Copied'; });
+    });
+    el.scrollIntoView({ block: 'nearest' });
+  }
+  function renderRecover() {
+    var el = $('pow-recover'); if (!el) return;
+    el.innerHTML = '<details class="pow-recover"' + (location.hash === '#recover' ? ' open' : '') + '><summary>New phone or cleared browser? Recover your passport</summary>' +
+      '<form class="pow-form" id="pow-rform"><label for="pow-rln">Lightning address you saved</label>' +
+      '<input id="pow-rln" maxlength="120" inputmode="email" autocomplete="off" placeholder="name@wallet.com" required>' +
+      '<label for="pow-rcode">Recovery code</label><input id="pow-rcode" maxlength="40" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX" required>' +
+      '<p class="pow-fine">Moves your stamps, rank and nickname to this device; the old device loses them. Nothing is paid and your wallet isn’t contacted. ' +
+      'You get a fresh recovery code afterwards. 5 tries per day.</p>' +
+      '<button type="submit">Recover passport</button><div class="lb-msg" id="pow-rmsg" aria-live="polite"></div></form></details>';
+    $('pow-rform').addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      if (!dev) { dev = (crypto.randomUUID ? crypto.randomUUID() : Array.from(crypto.getRandomValues(new Uint8Array(16)), function (b) { return b.toString(16).padStart(2, '0'); }).join('')); set(DEV, dev); }
+      $('pow-rmsg').textContent = 'Checking…';
+      post('/api/pow/recover', { device_id: dev, lightning_address: $('pow-rln').value, code: $('pow-rcode').value }).then(function (j) {
+        if (!j.ok) { $('pow-rmsg').textContent = j.message || 'Couldn’t recover that passport.'; return; }
+        var p = {}; try { p = JSON.parse(get('satoshiPassport.v1')) || {}; } catch (e) {}
+        (j.me.stamped || []).forEach(function (s) { if (!p[s.slug]) p[s.slug] = { date: s.at }; });
+        set('satoshiPassport.v1', JSON.stringify(p)); set('satoshiClaimed.v1', '1'); if (j.me.nickname) set(NICK, j.me.nickname);
+        $('pow-rmsg').textContent = ''; el.querySelector('details').open = false;
+        renderMe(j.me); showCode(j.recovery_code); loadList();
+        $('pow-msg').textContent = '✅ Passport recovered: ' + j.me.stamps + ' stamp' + (j.me.stamps === 1 ? '' : 's') + ' moved to this device.';
+      }).catch(function () { $('pow-rmsg').textContent = 'Couldn’t reach the server.'; });
+    });
+  }
   function loadMe() {
     var el = $('pow-me'); if (!el) return;
     if (!dev) { el.innerHTML = '<div class="pow-rank">No rank yet</div><p class="pow-sub">Check in at a statue (within 150 m) to earn your first stamp. Open a statue on the <a href="/">map</a> or its page and tap <strong>Check in</strong>.</p>'; return; }
@@ -1613,13 +1687,14 @@ POW_JS = r"""<script src="/share.js"></script>
       }).join('') : '<li class="lb-empty">No members yet. The first walker to stamp every statue on the map mines the Genesis Block.</li>';
     }).catch(function () { off(el); });
   }
-  loadMe(); loadList(); loadRoll();
+  loadMe(); renderRecover(); loadList(); loadRoll();
 })();
 </script>"""
 
 
 def pow_map_attr(data):
-    m = [{'slug': s['slug'], 'name': s['name']} for s in data['statues'] if s['status'] in CHECKABLE]
+    ex = pow_genesis_exclude(data)
+    m = [dict({'slug': s['slug'], 'name': s['name']}, **({'bonus': 1} if s['slug'] in ex else {})) for s in data['statues'] if s['status'] in CHECKABLE]
     return e(json.dumps(m, ensure_ascii=False))
 
 
@@ -1631,7 +1706,8 @@ def pow_page(data):
     n = sum(1 for s in data['statues'] if s['status'] in CHECKABLE)
     canonical = SITE + '/proof-of-walk/'
     title = 'Proof of Walk – Satoshi Passport Ranks'
-    desc = f'Passport ranks for walking to Satoshi statues: every GPS-verified stamp is a confirmation. Stamp all {n} statues to mine the Genesis Block.'
+    n -= len(pow_genesis_exclude(data))
+    desc = f'Passport ranks for walking to Satoshi statues: every GPS-verified stamp is a confirmation. Stamp all {n} Genesis statues to mine the Genesis Block.'
     lds = ld(breadcrumb_ld([('Map', SITE + '/'), ('Proof of Walk', canonical)]))
     out = pow_body_tag(pow_head(data, title, desc, canonical, lds), data, 'main')
     pv = '<span class="pow-preview">Preview</span>' if pow_cfg(data).get('preview') else ''
@@ -1640,15 +1716,16 @@ def pow_page(data):
     <h1>👣 Proof of Walk{pv}</h1>
     <p class="sub">Passport ranks for walking to Satoshi statues. Every GPS-verified stamp is another confirmation.</p>
     <div class="pow-card" id="pow-me" aria-live="polite">Loading…</div>
+    <div id="pow-recover"></div>
     <noscript><p class="note">Proof of Walk needs JavaScript.</p></noscript>
     <h2>Ranks</h2>
-    {pow_ladder_html()}
+    {pow_ladder_html(data)}
     <p class="note" style="margin-top:6px">One stamp per statue, from a check-in our server verifies (within 150 m). Stamps from before the leaderboard started don’t count here.</p>
     <h2>Proof of Walk leaderboard</h2>
     <p class="sub" id="pow-total"></p>
     <ol class="lb-list" id="pow-list"><li class="lb-empty">Loading…</li></ol>
     <h2>🧱 {e(ORDER_NAME)}</h2>
-    <p class="note">Everyone who has stamped every statue on the map. <a href="/proof-of-walk/fellow-travelers/">See the members’ roll →</a></p>
+    <p class="note">Everyone who has stamped every statue on the map.{pow_genesis_note(data)} <a href="/proof-of-walk/fellow-travelers/">See the members’ roll →</a></p>
     <h2>How it works</h2>
     <p class="note">Open a statue page or the <a href="/">map</a> and tap <strong>Check in</strong> when you are there. Your rank is the number of different statues you have stamped. Ranks are just for fun: they cost nothing and aren’t linked to tips or the giveaway.</p>
     <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">What we store and how to delete it: <a href="/privacy/">Privacy</a>.</p>
@@ -1681,8 +1758,9 @@ def pow_privacy_html(data):
         return ''
     return ('\n      <li><strong>Proof of Walk</strong> ranks are worked out from your GPS-verified stamps. If you stamp every statue on the map, '
             'your nickname (or “Anonymous #…”) and the date are listed on the Fellow Travelers roll.</li>'
-            '\n      <li>If you add a <strong>Lightning address</strong> to your passport, we only check its format and keep it with your device ID. '
-            'It is never shown publicly (you see a masked form) and never paid. Clear the field and save to delete it.</li>')
+            '\n      <li>If you add a <strong>Lightning address</strong> to your passport, it is used only to recover your passport on a new device, together with a one-time recovery code we show you once. '
+            'We keep a hashed copy of the address and of the code plus a masked form for you to see, never the address itself. It is never shown publicly, never paid and never contacted. '
+            'Recovery attempts are counted per network (as a salted hash, kept 1 day). Clear the field and save to delete it and switch recovery off.</li>')
 
 
 def privacy_page(data):

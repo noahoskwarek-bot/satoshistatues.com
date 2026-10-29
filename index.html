@@ -31,8 +31,8 @@
   <!-- BUILD:HEADLINKS:BEGIN -->
   <link rel="alternate" type="application/atom+xml" title="Satoshi Statues – new statues" href="https://www.satoshistatues.com/feed.xml" />
   <style>.alert-box{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.alert-title{font-weight:700;color:#e6edf3;font-size:.95rem;margin:0 0 6px}.alert-form{display:flex;gap:8px;flex-wrap:wrap;max-width:520px}.alert-form input[type=email]{flex:1 1 180px;min-width:0;min-height:44px;padding:10px 12px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:16px;font-family:inherit}.alert-form input[type=email]:focus{outline:2px solid #f7931a;border-color:#f7931a}.alert-form button{min-height:44px;padding:10px 16px;border-radius:8px;border:none;background:#f7931a;color:#0d1117;font-weight:700;font-size:.92rem;cursor:pointer;font-family:inherit}.alert-fine{font-size:.8rem;color:#8b949e;margin:6px 0 0;line-height:1.45}.feed-link{color:#f7931a;font-weight:600;display:inline-block;padding:13px 0;margin:-13px 0;text-decoration:none}.feed-link:hover{text-decoration:underline}.photo-cta{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.photo-actions{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 4px}.photo-actions .btn{max-width:100%}.photo-cta .alert-fine a,.photo-credit a{padding:15px 0;margin:-15px 0}.photo-cta .alert-fine a{color:#f7931a}.photo-credit{display:block;margin-top:2px}.checkin-count{font-size:.85rem;color:#3fb950;margin:6px 0 0}.photo-credit a{color:#8b949e}.alert-follow{display:flex;flex-wrap:wrap;gap:0 18px;margin-top:2px}.alert-follow .feed-link{padding:0;margin:0;min-height:44px;display:inline-flex;align-items:center;font-size:.85rem}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}</style>
-  <script>window.SS_API = "https://api.satoshistatues.workers.dev";</script>
-  <script src="/checkin.js?v=4ae412fed7"></script>
+  <script>window.SS_API = "https://api.satoshistatues.workers.dev";window.SS_POW = true;</script>
+  <script src="/checkin.js?v=bfc6e9c5d4"></script>
   <script>(function(){var c=[109, 111, 99, 46, 115, 101, 117, 116, 97, 116, 115, 105, 104, 115, 111, 116, 97, 115, 64, 115, 111, 116, 111, 104, 112];function to(){return String.fromCharCode.apply(null,c.slice().reverse())}function body(l){return "Hi,\n\nHere is my photo of the "+l+" (attached).\n\nYour name or X handle (for credit): \nDate taken: \n\nBy sending, you let satoshistatues.com feature your photo with credit.\n"}document.addEventListener("click",function(ev){var a=ev.target.closest&&ev.target.closest("[data-photo-subject]");if(!a)return;ev.preventDefault();location.href="mailto:"+to()+"?subject="+encodeURIComponent(a.getAttribute("data-photo-subject"))+"&body="+encodeURIComponent(body(a.getAttribute("data-photo-label")||"statue"));},true);})();</script>
   <style>.gw-badge{display:inline-block;font-size:.7rem;padding:2px 7px;border-radius:4px;margin-top:7px;font-weight:600;background:rgba(247,147,26,.12);border:1px solid rgba(247,147,26,.45);color:#f7931a;line-height:1.35}.gw-badge.gw-paused{background:#21262d;border-color:#30363d;color:#8b949e}.gw-badge[hidden],.gw-pop[hidden]{display:none!important}.gw-pop{background:#0d1117;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:8px;padding:8px 10px;margin:8px 0 10px;font-size:.82rem;line-height:1.45;color:#e6edf3}.gw-pop b{color:#f7931a}.gw-pop.gw-paused{border-left-color:#8b949e}.gw-pop.gw-paused b{color:#8b949e}.gw-pop .gw-links{margin-top:4px;font-size:.78rem}.gw-pop a{color:#f7931a;font-weight:600;text-decoration:none}.gw-pop a:hover{text-decoration:underline}.gw-pop .gw-links .gw-terms{color:#8b949e;font-weight:400}@media (max-width:768px){.gw-pop{font-size:.88rem;padding:10px 12px 0}.gw-pop .gw-links{margin-top:0}.gw-pop a{display:inline-flex;align-items:center;min-height:44px}}</style>
   <script>(function () {
@@ -712,6 +712,10 @@
     .pp-label { color: #8b949e; font-size: 0.9rem; margin: 6px 0 10px; }
     .pp-hero .passport-progress { height: 10px; border-radius: 5px; max-width: 420px; margin: 0 auto; }
     .pp-hero .passport-progress span { background: linear-gradient(90deg, #f7931a, #ffb347); }
+    .pp-rank { display: inline-block; margin: 10px 0 0; font-size: 0.9rem; color: #c9d1d9; text-decoration: none; border: 1px solid #30363d; border-radius: 999px; padding: 6px 12px; }
+    .pp-rank strong { color: #f7931a; }
+    .pp-rank:hover { border-color: #f7931a; }
+    .pp-rank[hidden] { display: none; }
     .pp-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0 6px; }
     .pp-primary { min-height: 48px; border-radius: 10px; border: none; background: #f7931a; color: #0d1117; font-weight: 700; font-size: 0.95rem; font-family: inherit; cursor: pointer; padding: 10px 12px; }
     .pp-primary:hover { background: #ffb347; }
@@ -937,6 +941,7 @@
         <div class="pp-count" aria-live="polite"><span id="pp-n">0</span><span class="pp-of">/ <span id="pp-total">11</span></span></div>
         <div class="pp-label" id="passport-sub">statues visited</div>
         <div class="passport-progress"><span id="passport-bar"></span></div>
+        <a class="pp-rank" id="pp-rank" href="/proof-of-walk/" hidden></a>
       </div>
       <div class="pp-complete" id="pp-complete" hidden>
         <div class="pp-complete-badge"><span class="pp-trophy" aria-hidden="true">🏆</span><div><strong>Passport complete!</strong><span id="pp-complete-sub">You visited every Satoshi statue on Earth.</span></div></div>
@@ -1865,8 +1870,24 @@
     function closeModals() {
       document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open'));
     }
+    // Proof of Walk rank in the passport (only when the build sets window.SS_POW; the Worker is the source of truth).
+    function powHomeRank() {
+      const el = document.getElementById('pp-rank');
+      if (!el || !window.SS_POW || !window.SS_API || !window.fetch) return;
+      let dev = null; try { dev = localStorage.getItem('satoshiDevice.v1'); } catch (e) {}
+      const idle = () => { el.innerHTML = '👣 Proof of Walk: check in at a statue for your first rank →'; el.hidden = false; };
+      if (!dev) return idle();
+      fetch(window.SS_API + '/api/pow/me', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ device_id: dev }) })
+        .then(r => r.json()).then(j => {
+          if (!j || !j.ok) { el.hidden = true; return; }
+          if (!j.me.rank || !j.me.rank.label) return idle();
+          el.innerHTML = '👣 <strong>' + String(j.me.rank.label).replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';') + '</strong> on Proof of Walk' + (j.me.genesis ? ' · 🧱 Genesis Block' : '') + ' →';
+          el.hidden = false;
+        }).catch(() => { el.hidden = true; });
+    }
     function openPassport() {
       updatePassportCounter();
+      powHomeRank();
       renderPassportList();
       loadCardFonts();
       if (!isMobile) document.getElementById('pp-more').open = true;

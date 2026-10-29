@@ -151,6 +151,8 @@ async function lbSubmit(s, c) {
       if (!j.already) s.checkins = Math.max((s.checkins || 0) + 1, 1);
       const me = j.me;
       let html = `<div class="lb-note">🏆 ${me && me.rank ? `You're <strong>#${me.rank}</strong> on the <a href="/leaderboard/">leaderboard</a> with ${me.stamps} stamp${me.stamps === 1 ? '' : 's'}.` : 'Saved to the <a href="/leaderboard/">leaderboard</a>.'}</div>`;
+      if (j.pow && j.pow.me && j.pow.me.rank && j.pow.me.rank.label && !j.pow.ranked_up)
+        html += `<div class="lb-note">👣 ${escHtml(j.pow.me.rank.label)} on <a href="/proof-of-walk/">Proof of Walk</a></div>`;
       if (!(me && me.nickname) && !lsGet(LB_NICK_SKIP)) html += lbNickForm('Show a name or X handle on the leaderboard? (optional)');
       html += powRankUpHtml(j.pow);
       return { html };
