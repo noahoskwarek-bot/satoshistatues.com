@@ -43,3 +43,11 @@ Noah asked for "Random 1–100 sats with a rare 210-sat jackpot, averaging about
   badge "⚡ Sats giveaway".
 - Word check: global list adds jackpot, lottery, spin, slot, casino, gamble; the strict giveaway-copy list adds those plus
   prize pool and bet, and now also scans `/rules/` (two factual phrases about the random amount are allowed there only).
+
+## Temporary test statue page (`/test-noah/`)
+`fountain.json` → `test_page: {"slug": "test-noah", "name": "Test statue"}` builds one private page for the live end-to-end
+test. It is not in `statues.json`, so it is not on the map, sitemap, feed, passport, leaderboard, statue lists or embeds,
+and it is `noindex, nofollow`. The page has no coordinates: the Worker checks the GPS fix against the location in its
+D1 row (`fountain_test_statue`), and the check-in isn't recorded or stamped. The giveaway box is the normal one without
+the tip section. While the Worker's test statue is off, the box stays hidden and a check-in says the statue isn't installed.
+Remove after the test: delete `test_page` and `_test_page_help` from `fountain.json`, `git rm -r test-noah`, rebuild.

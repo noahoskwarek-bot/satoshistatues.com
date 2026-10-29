@@ -2283,6 +2283,108 @@ def build_index(data, text):
     text = replace_block(text, 'HEADLINKS', '  ' + FEED_LINK + '\n  <style>' + ALERT_CSS + '</style>' + ('\n  ' + api_script() if api_script() else '') + '\n  ' + checkin_script() + ('\n  ' + photo_js(data) if photo_js(data) else '') + giveaway_home_head(data))
     return text
 
+# ---------- Temporary hidden test statue (fountain.json "test_page") ----------
+# A private page for one live end-to-end giveaway test. Not a statue: not in statues.json, so it is not on the map,
+# sitemap, feed, passport, leaderboard, statue lists or embeds; noindex/nofollow; reachable only by its direct URL.
+# The test spot's location lives only in the Worker's D1 (fountain_test_statue); the page never has it, so the
+# distance check is done by the server alone. Check-ins here are not recorded and do not stamp the passport.
+# Remove: delete "test_page" from fountain.json, `git rm -r <slug>/`, rebuild. See FOUNTAIN.md.
+def test_page_cfg(data):
+    t = (data.get('fountain') or {}).get('test_page') or {}
+    slug = t.get('slug') if isinstance(t, dict) else None
+    if not fountain_on(data) or not slug:
+        return None
+    assert re.fullmatch(r'test-[a-z0-9-]+', slug), 'test_page.slug must start with test-'
+    assert slug not in [o['page'] for o in data['statues']], 'test_page.slug clashes with a statue page'
+    return {'slug': slug, 'name': t.get('name') or 'Test statue'}
+
+
+TEST_PAGE_CSS = ('.tp{max-width:640px;margin:0 auto;padding:16px}.tp h1{font-size:1.4rem;margin:8px 0}'
+                 '.tp .tp-note{background:#161b22;border:1px solid #30363d;border-left:3px solid #8b949e;border-radius:10px;padding:10px 12px;font-size:.88rem;color:#c9d1d9;line-height:1.45}'
+                 '.tp .tp-ci{margin:14px 0}.tp .tp-ci button{width:100%;min-height:48px;font:inherit;font-weight:700;cursor:pointer;border:0}'
+                 '.tp .checkin-msg{margin-top:8px;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:9px 11px;font-size:.9rem}'
+                 '.tp .checkin-msg.ok{border-color:#3fb950;color:#3fb950}.tp .checkin-msg.warn{border-color:#f0883e}'
+                 '.tp .checkin-msg[hidden]{display:none}.tp .geo-diag{font-size:.75rem;color:#8b949e;margin-top:6px}')
+
+TEST_PAGE_JS = """<script>(function () {
+  var box = document.querySelector('[data-tp-checkin]'); if (!box) return;
+  var btn = box.querySelector('button'), out = box.querySelector('.checkin-msg'), slug = box.getAttribute('data-slug'), IDLE = btn.textContent;
+  function show(cls, html) { out.className = 'checkin-msg ' + cls; out.innerHTML = html; out.hidden = false; }
+  if (!navigator.geolocation || !window.SS_API) { show('warn', 'Location or the check-in server isn’t available in this browser.'); btn.disabled = true; return; }
+  btn.addEventListener('click', function () {
+    btn.disabled = true; btn.textContent = '📍 Finding your location…'; out.hidden = true;
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      btn.textContent = 'Checking…';
+      var c = pos.coords;
+      // window.lbPost is wrapped by fountain.js, which stores the claim token from a passed check-in.
+      window.lbPost('/api/checkin', { device_id: window.lbDevice(), slug: slug, lat: c.latitude, lng: c.longitude, accuracy: c.accuracy }).then(function (r) {
+        btn.disabled = false; btn.textContent = IDLE;
+        var j = r.j || {};
+        if (j.ok && j.fountain) show('ok', '✅ Checked in at the test spot. Use the form below to get the test sats.');
+        else if (j.ok) show('warn', 'Checked in, but the giveaway isn’t running here right now.');
+        else show('warn', escHtml(j.message || 'The check-in wasn’t accepted.'));
+      }).catch(function () { btn.disabled = false; btn.textContent = IDLE; show('warn', 'Couldn’t reach the check-in server. Try again.'); });
+    }, function (err) {
+      btn.disabled = false; btn.textContent = IDLE;
+      geoErrorHtml(err).then(function (h) { show('warn', h); });
+    }, GEO_OPTS);
+  });
+})();</script>"""
+
+
+def test_fountain_box(t, data):
+    """The normal giveaway box for the test spot, without the tip section (tips aren't offered here)."""
+    api = data['fountain'].get('api') or LB_API
+    return (f'<style>{FOUNTAIN_CSS}</style><section class="fountain" id="giveaway" data-ss-fountain data-slug="{e(t["slug"])}" data-name="{e(t["name"])}" data-api="{e(api)}" hidden>'
+            f'<h2>⛲ Satoshi Fountain (test)</h2>'
+            f'<p>A private test of the Lightning giveaway, while the test budget lasts.</p>'
+            f'<div class="f-stats"><div class="f-stat"><b data-f-left>–</b>test sats left</div></div>'
+            f'<p class="f-fine">Check in at the test spot to get <span data-f-howmuch>a fixed 21 sats</span> sent to a Lightning address. '
+            f'One per Lightning address. 18+ only. <a href="/terms/">Giveaway terms</a></p>'
+            f'<div data-f-claim></div>'
+            f'<h3>Recent activity</h3><div class="f-recent" data-f-recent></div>'
+            f'</section>')
+
+
+def test_statue_page(t, data):
+    import hashlib
+    with open(os.path.join(ROOT, 'fountain.js'), 'rb') as f:
+        fv = hashlib.sha256(f.read()).hexdigest()[:10]
+    return f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>{e(t["name"])} · Satoshi Statues</title>
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <meta name="googlebot" content="noindex, nofollow" />
+  <meta name="referrer" content="no-referrer" />
+  <meta name="theme-color" content="#0d1117" />
+  {ICON_LINKS}
+  <style>{CSS}{TEST_PAGE_CSS}</style>
+  {api_script()}
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="/" title="Satoshi Nakamoto Statues: map home">{LOGO_IMG}<span class="tagline">Every Satoshi statue on Earth</span></a>
+  </header>
+  <main class="tp">
+    <h1>🧪 {e(t["name"])}</h1>
+    <p class="tp-note">Private test page for the giveaway. This isn’t a real statue: it isn’t on the map, and checking in here doesn’t stamp your passport or appear on the leaderboard.</p>
+    <div class="tp-ci" data-tp-checkin data-slug="{e(t["slug"])}">
+      <button class="btn primary" type="button">📍 Check in at the test spot</button>
+      <div class="checkin-msg" aria-live="polite" hidden></div>
+    </div>
+    {test_fountain_box(t, data)}
+  </main>
+  {checkin_script()}
+  <script src="/fountain.js?v={fv}"></script>
+  {TEST_PAGE_JS}
+</body>
+</html>
+'''
+
+
 # ---------- /passport/ → home page passport (redirect page) ----------
 # Nothing links to /passport/; it used to 404. GitHub Pages has no server redirects, so this is a meta refresh +
 # location.replace page. /#passport opens the passport modal on the home page (see openFromLocation in index.html).
@@ -2326,6 +2428,9 @@ def outputs(data):
         files['.well-known/nostr.json'] = nostr_json(data)
     if fountain_on(data):
         files['terms/index.html'] = terms_page(data)
+    tp = test_page_cfg(data)
+    if tp:
+        files[f"{tp['slug']}/index.html"] = test_statue_page(tp, data)
     if rules_on(data):
         files['rules/index.html'] = rules_page(data)
     for s in data['statues']:
