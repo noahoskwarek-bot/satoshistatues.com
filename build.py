@@ -1164,6 +1164,9 @@ def statue_page(s, data):
     alt = f"{s['label']}, {s['place']}, {s['city']}"
     lds = ld(statue_ld(s)) + '\n  ' + ld(breadcrumb_ld([('Map', SITE + '/'), (s['label'], page_url(s))]))
     out = head(title, desc, page_url(s), f"{SITE}/{og_path(s)}", OG_W, OG_H, f"{s['label']}: {s['city']}, {s['country']} (satoshistatues.com card)", lds)
+    nav_end = '<a href="/leaderboard/">🏆 Leaderboard</a></nav>'
+    assert out.count(nav_end) == 1 and HOME_TIP['button']
+    out = out.replace(nav_end, nav_end[:-len('</nav>')] + HOME_TIP['button'] + '</nav>')  # same '₿ Tip' as the home header
     img_html = ''
     if s.get('img'):
         src = s['img'] if s['img'].startswith('http') else '/' + s['img']
@@ -2687,8 +2690,9 @@ def passport_redirect_page():
 # ---------- "Tip the map" box on statue pages ----------
 # Statue pages reuse the home page's tip box verbatim (same Bitcoin address, QR image and buttons), taken from the
 # <section class="tip-box"> in index.html, so both always point at the same tip wallet. Tips are never offered inside
-# the giveaway widget (legal: keep tipping out of the claim flow); the box sits at the bottom of the page, by the signup box.
-HOME_TIP = {'html': ''}
+# the giveaway widget (legal: keep tipping out of the claim flow); the box sits at the bottom of the page, and the
+# home header's '₿ Tip' button is added to the statue page's top nav (it scrolls to the box).
+HOME_TIP = {'html': '', 'button': ''}
 TIP_CSS = ('.tip-box{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;'
            'margin:16px 0;font-size:.82rem;color:#8b949e;line-height:1.45;scroll-margin-top:12px;transition:box-shadow .3s}'
            '.tip-box .tip-title{font-weight:700;color:#e6edf3;font-size:.95rem;margin:0 0 6px}'
@@ -2699,7 +2703,8 @@ TIP_CSS = ('.tip-box{background:#161b22;border:1px solid #30363d;border-left:3px
            '.tip-qr{display:none;margin-top:8px;border-radius:6px;background:#fff}.tip-qr.show{display:block}'
            '.btc-address{display:inline-block;margin-top:6px;background:#0d1117;border:1px solid #30363d;color:#f7931a;padding:6px 10px;'
            'border-radius:6px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:.78rem;word-break:break-all;'
-           'cursor:pointer;user-select:all}.btc-address:hover{border-color:#f7931a}')
+           'cursor:pointer;user-select:all}.btc-address:hover{border-color:#f7931a}'
+           '.tip-box.flash{box-shadow:0 0 0 2px #f7931a}.top nav .tip-toggle{padding:8px 14px;font-size:.85rem}')
 
 
 def load_home_tip(idx):
@@ -2710,12 +2715,19 @@ def load_home_tip(idx):
     addr = re.search(r'<div class="btc-address"[^>]*>\s*([a-zA-Z0-9]+)\s*</div>', sec)
     if not addr or f'bitcoin:{addr.group(1)}' not in sec:
         raise SystemExit('tip-box address not found in index.html')
+    # The home header's '₿ Tip' button (same markup/classes); on statue pages it sits in the top nav and jumps to the box.
+    btn = re.search(r'<button class="tip-btn tip-primary tip-toggle" id="tip-toggle"[^>]*>.*?</button>', idx, re.S)
+    if not btn:
+        raise SystemExit('tip-toggle button not found in index.html')
+    HOME_TIP['button'] = btn.group(0)
     sec = sec.replace('src="btc-tip-qr.png"', 'src="/btc-tip-qr.png"')  # statue pages live one folder down
     a = json.dumps(addr.group(1))
     js = ('<script>function copyTipAddress(){var a=' + a + ',b=document.getElementById("tip-copy");'
           'var done=function(){b.textContent="Copied ✓";setTimeout(function(){b.textContent="Copy"},2000)};'
           'if(navigator.clipboard)navigator.clipboard.writeText(a).then(done,function(){prompt("Copy this address:",a)});'
           'else prompt("Copy this address:",a)}'
+          'function showTip(){var b=document.getElementById("tip-box");if(!b)return;b.scrollIntoView({behavior:"smooth",block:"center"});'
+          'b.classList.add("flash");setTimeout(function(){b.classList.remove("flash")},1600)}'
           '(function(){var el=document.querySelector(".tip-box .btc-address");if(el)el.addEventListener("click",function(){'
           'var r=document.createRange();r.selectNodeContents(this);var s=window.getSelection();s.removeAllRanges();s.addRange(r)})})();</script>')
     HOME_TIP['html'] = f'<style>{TIP_CSS}</style>\n    {sec}\n    {js}'
