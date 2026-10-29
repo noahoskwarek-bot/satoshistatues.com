@@ -110,7 +110,7 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
     <h2>Recent check-ins</h2>
     <ul class="lb-feed" id="lb-feed"><li class="lb-empty">Loading…</li></ul>
     <h2>How it works</h2>
-    <p class="note">Open a statue on the <a href="/">map</a> and tap <strong>Check in</strong> when you are within 150 m. The server checks the distance and records the stamp; your location itself is not stored. Each device can stamp each statue once, up to 5 new stamps a day. People are ranked by unique GPS-verified stamps; on a tie, whoever got there first ranks higher. Earlier, unverified stamps only order people who have no GPS stamps yet.</p>
+    <p class="note">Open a statue on the <a href="/">map</a> and tap <strong>Check in</strong> when you are within 150 m. The server checks the distance and records the stamp; your location itself is not stored. Each device can stamp each statue once, up to 5 new stamps a day. People are ranked by unique GPS-verified stamps; on a tie, whoever got there first ranks higher.</p>
     <p class="note" style="margin-top:8px">GPS can be faked, so treat this as a friendly game.</p>
     <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">What we store and how to delete it: <a href="/privacy/">Privacy</a>.</p>
     <footer class="site"><a href="/">satoshistatues.com</a> · <a href="/21-nodes/">21 Nodes tracker</a> · <a href="/leaderboard/">Leaderboard</a> · <a href="/feed.xml">Feed</a> · <a href="https://njump.me/npub1dx7qh8fpp9l45lzrv9ff95f0f3gkrlvjhhptqjrxyhemze68kuhs72vv8h" rel="me">Nostr</a> · <a href="/terms/">Terms</a> · <a href="/privacy/">Privacy</a></footer>
@@ -141,7 +141,7 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
       : '<a class="lb-pill" href="/proof-of-walk/" title="Proof of Walk rank">👣 <strong>' + esc(p.label) + '</strong></a>';
   }
   function stampsMeta(e) {
-    return e.legacy ? (e.gps + ' GPS-checked · ' + e.legacy + ' earlier, unverified') : 'all GPS-checked';
+    return e.legacy ? '' : 'all GPS-checked';
   }
   function board() {
     return fetch(A + '/api/leaderboard?limit=100').then(function (r) { return r.json(); }).then(function (j) {
@@ -171,7 +171,7 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
       .then(function (r) { return r.json(); }).then(function (j) {
         if (!j.ok) return; var m = j.me; meId = m.id;
         box.innerHTML = (m.rank ? 'You are <strong>#' + m.rank + '</strong> with <strong>' + m.gps + '</strong> GPS-verified stamp' + (m.gps === 1 ? '' : 's') +
-          (m.legacy ? ' (+' + m.legacy + ' earlier, unverified)' : '') + pill(m.pow) + '. ' : 'No stamps on the leaderboard yet. ') +
+          pill(m.pow) + '. ' : 'No stamps on the leaderboard yet. ') +
           'Your name: <strong>' + nameHtml(m) + '</strong>' +
           '<form class="lb-nick" id="lb-nick"><input name="nick" maxlength="20" aria-label="Nickname or X handle" placeholder="Nickname or @handle" value="' + esc(m.nickname || '') + '"><button type="submit">Save name</button></form><div class="lb-msg" id="lb-msg" aria-live="polite"></div>';
         document.getElementById('lb-nick').addEventListener('submit', function (ev) {

@@ -1358,7 +1358,7 @@ LB_JS = r"""<script>
       : '<a class="lb-pill" href="/proof-of-walk/" title="Proof of Walk rank">👣 <strong>' + esc(p.label) + '</strong></a>';
   }
   function stampsMeta(e) {
-    return e.legacy ? (e.gps + ' GPS-checked · ' + e.legacy + ' earlier, unverified') : 'all GPS-checked';
+    return e.legacy ? '' : 'all GPS-checked';
   }
   function board() {
     return fetch(A + '/api/leaderboard?limit=100').then(function (r) { return r.json(); }).then(function (j) {
@@ -1388,7 +1388,7 @@ LB_JS = r"""<script>
       .then(function (r) { return r.json(); }).then(function (j) {
         if (!j.ok) return; var m = j.me; meId = m.id;
         box.innerHTML = (m.rank ? 'You are <strong>#' + m.rank + '</strong> with <strong>' + m.gps + '</strong> GPS-verified stamp' + (m.gps === 1 ? '' : 's') +
-          (m.legacy ? ' (+' + m.legacy + ' earlier, unverified)' : '') + pill(m.pow) + '. ' : 'No stamps on the leaderboard yet. ') +
+          pill(m.pow) + '. ' : 'No stamps on the leaderboard yet. ') +
           'Your name: <strong>' + nameHtml(m) + '</strong>' +
           '<form class="lb-nick" id="lb-nick"><input name="nick" maxlength="20" aria-label="Nickname or X handle" placeholder="Nickname or @handle" value="' + esc(m.nickname || '') + '"><button type="submit">Save name</button></form><div class="lb-msg" id="lb-msg" aria-live="polite"></div>';
         document.getElementById('lb-nick').addEventListener('submit', function (ev) {
@@ -1428,7 +1428,7 @@ def leaderboard_page(data):
     <h2>Recent check-ins</h2>
     <ul class="lb-feed" id="lb-feed"><li class="lb-empty">Loading…</li></ul>
     <h2>How it works</h2>
-    <p class="note">Open a statue on the <a href="/">map</a> and tap <strong>Check in</strong> when you are within 150 m. The server checks the distance and records the stamp; your location itself is not stored. Each device can stamp each statue once, up to 5 new stamps a day. People are ranked by unique GPS-verified stamps; on a tie, whoever got there first ranks higher. Earlier, unverified stamps only order people who have no GPS stamps yet.</p>
+    <p class="note">Open a statue on the <a href="/">map</a> and tap <strong>Check in</strong> when you are within 150 m. The server checks the distance and records the stamp; your location itself is not stored. Each device can stamp each statue once, up to 5 new stamps a day. People are ranked by unique GPS-verified stamps; on a tie, whoever got there first ranks higher.</p>
     <p class="note" style="margin-top:8px">GPS can be faked, so treat this as a friendly game.</p>
     <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">What we store and how to delete it: <a href="/privacy/">Privacy</a>.</p>
     {footer(data)}
@@ -1685,7 +1685,7 @@ def pow_page(data):
     <noscript><p class="note">Proof of Walk needs JavaScript.</p></noscript>
     <h2>Ranks</h2>
     {pow_ladder_html(data)}
-    <p class="note" style="margin-top:6px">One stamp per statue, from a check-in our server verifies (within 150 m). Stamps from before the leaderboard started don’t count here.</p>
+    <p class="note" style="margin-top:6px">One stamp per statue, from a check-in our server verifies (within 150 m).</p>
     <h2>Proof of Walk leaderboard</h2>
     <p class="sub" id="pow-total"></p>
     <ol class="lb-list" id="pow-list"><li class="lb-empty">Loading…</li></ol>
@@ -1744,7 +1744,7 @@ def privacy_page(data):
       <li>Your passport stamps are saved in your browser (localStorage).</li>
       <li>When you check in, your browser sends your location, a <strong>random device ID</strong> (created in your browser, not linked to your name) and the statue to our leaderboard server. The server only uses the location to check that you are within 150 m. <strong>Coordinates are not stored.</strong> We keep the statue, the time and a rough distance band such as “under 50 m”.</li>
       <li>If you add a <strong>nickname or X handle</strong>, it is shown publicly on the leaderboard and in the recent check-ins feed.</li>
-      <li>The first time you use the leaderboard, stamps already in your passport are added and labelled “earlier, unverified”.</li>{pow_privacy_html(data)}
+      <li>The first time you use the leaderboard, stamps already in your passport are added to it.</li>{pow_privacy_html(data)}
       <li><strong>IP addresses</strong> are only used for rate limiting. They are stored as a salted, per-day hash and <strong>deleted after 7 days</strong>.</li>
       <li>The server runs on Cloudflare Workers with a Cloudflare D1 database.</li>
     </ul>
