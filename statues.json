@@ -1,6 +1,11 @@
 {
   "_comment": "Single source of truth for satoshistatues.com. Edit here, then run: python3 build.py",
   "config": {
+    "_proof_of_walk_help": "Proof of Walk passport ranks: /proof-of-walk/ and /proof-of-walk/fellow-travelers/, data from the Worker /api/pow/* (POW_ENABLED). preview=true: noindex, not in the sitemap, not linked from other pages. enabled=false: no pages.",
+    "proof_of_walk": {
+      "enabled": true,
+      "preview": true
+    },
     "_lodging_help": "Stay nearby (BTC Map lodging, tools/fetch_merchants.py → lodging.json): up to max_items stays within radius_mi miles; if none, the nearest within fallback_km (labelled); else a one-line none. Re-run the fetch after changing. The fetch drops dead stay websites automatically (404/410, no such domain, parked/placeholder page); hide_websites lists extra dead links confirmed by hand (shown with their BTC Map link instead).",
     "lodging": {"radius_mi": 5, "fallback_km": 25, "max_items": 5, "hide_websites": ["http://www.ecoapartment.at/"]},
     "_newsletter_help": "Paste your Buttondown embed-subscribe URL to switch on email alerts, e.g. https://buttondown.com/api/emails/embed-subscribe/YOUR_USERNAME . Empty = coming-soon note with feed link. Then run: python3 build.py",
