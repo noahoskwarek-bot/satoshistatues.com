@@ -281,7 +281,6 @@ def fountain_box(s, data):
         return ''
     f = data['fountain']
     api = f.get('api') or LB_API
-    tips = ''.join(f'<button class="btn" type="button" data-f-tip="{int(n)}">{int(n):,} sats</button>' for n in f.get('tip_presets', []))
     return (f'\n    <style>{FOUNTAIN_CSS}</style><section class="fountain" id="giveaway" data-ss-fountain data-slug="{e(s["slug"])}" data-name="{e(s["name"])}" data-share-name="{e(share_name(s))}" data-url="{e(page_url(s))}" data-api="{e(api)}" hidden>'
             f'<h2>⛲ Satoshi Fountain</h2>'
             f'<p>A small Lightning giveaway for visitors who check in at this statue, while the giveaway budget lasts.</p>'
@@ -291,10 +290,6 @@ def fountain_box(s, data):
             f'One per Lightning address per statue. 18+ only. No tip needed, and tipping never changes the giveaway. '
             f'The giveaway can stop at any time. {rules_links(data)}</p>'
             f'<div data-f-claim></div>{WALLETS_LINE}'
-            f'<div data-f-support><h3>🧡 Support the map</h3>'
-            f'<p class="f-fine">Tips go to SatoshiStatues.com to help keep the map running. They are separate from the giveaway, '
-            f'are not tax-deductible and are not refundable.</p>'
-            f'<div class="f-row">{tips}</div><div data-f-tipout></div></div>'
             f'<h3>Recent activity</h3><div class="f-recent" data-f-recent></div>'
             f'</section>')
 
@@ -421,8 +416,8 @@ def fountain_privacy_html(data):
       <li>If you claim the giveaway we store the <strong>Lightning address</strong> you enter, the statue, the amount, the payout status and the time. The full address is kept for {int(f.get('address_retention_days', 90))} days for our payout records, then deleted. After that we only keep a masked form (like “sa…@w….com”) and a salted hash so each address can only be used once per statue.</li>
       <li>Only the masked form is ever shown publicly, in the statue’s recent activity list.</li>
       <li>Your <strong>IP address</strong> is used for daily limits as a salted, per-day hash and deleted after 7 days.</li>
-      <li>For tips we store the amount, the statue, the time and the payment reference. We don’t ask for your name.</li>
-      <li>To send a payout, our server asks the wallet service behind your Lightning address for an invoice, and our Lightning payment provider pays it. Tip invoices are created by the same provider.</li>
+      <li>Tips are sent from your own wallet straight to our Bitcoin tip address (the same one as on the map’s home page). We don’t store anything about tips.</li>
+      <li>To send a payout, our server asks the wallet service behind your Lightning address for an invoice, and our Lightning payment provider pays it.</li>
     </ul>
     <p class="note">See the <a href="/terms/">terms</a>.</p>
 '''
@@ -1291,6 +1286,7 @@ def statue_page(s, data):
     <p class="note" style="font-size:.85rem;color:#8b949e;margin-bottom:8px">Visit reports, tips and photo links. Powered by giscus (needs a GitHub account). Same thread as on the map.</p>
     <div id="comments"><script src="https://giscus.app/client.js" {gattrs} crossorigin="anonymous" async></script></div>
     {signup_html(data, 'page')}
+    {HOME_TIP['html']}
     {footer(data)}
   </main>
 '''
@@ -2432,9 +2428,47 @@ def passport_redirect_page():
 '''
 
 
+# ---------- "Tip the map" box on statue pages ----------
+# Statue pages reuse the home page's tip box verbatim (same Bitcoin address, QR image and buttons), taken from the
+# <section class="tip-box"> in index.html, so both always point at the same tip wallet. Tips are never offered inside
+# the giveaway widget (legal: keep tipping out of the claim flow); the box sits at the bottom of the page, by the signup box.
+HOME_TIP = {'html': ''}
+TIP_CSS = ('.tip-box{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;'
+           'margin:16px 0;font-size:.82rem;color:#8b949e;line-height:1.45;scroll-margin-top:12px;transition:box-shadow .3s}'
+           '.tip-box .tip-title{font-weight:700;color:#e6edf3;font-size:.95rem;margin:0 0 6px}'
+           '.tip-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}'
+           '.tip-btn{background:#21262d;border:1px solid #30363d;color:#e6edf3;padding:5px 10px;border-radius:6px;font-size:.78rem;'
+           'cursor:pointer;text-decoration:none;font-family:inherit;min-height:44px;display:inline-flex;align-items:center;justify-content:center}'
+           '.tip-btn:hover{border-color:#f7931a}.tip-primary{background:#f7931a;border-color:#f7931a;color:#0d1117;font-weight:600}'
+           '.tip-qr{display:none;margin-top:8px;border-radius:6px;background:#fff}.tip-qr.show{display:block}'
+           '.btc-address{display:inline-block;margin-top:6px;background:#0d1117;border:1px solid #30363d;color:#f7931a;padding:6px 10px;'
+           'border-radius:6px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:.78rem;word-break:break-all;'
+           'cursor:pointer;user-select:all}.btc-address:hover{border-color:#f7931a}')
+
+
+def load_home_tip(idx):
+    m = re.search(r'<section class="tip-box" id="tip-box".*?</section>', idx, re.S)
+    if not m:
+        raise SystemExit('tip-box section not found in index.html')
+    sec = m.group(0)
+    addr = re.search(r'<div class="btc-address"[^>]*>\s*([a-zA-Z0-9]+)\s*</div>', sec)
+    if not addr or f'bitcoin:{addr.group(1)}' not in sec:
+        raise SystemExit('tip-box address not found in index.html')
+    sec = sec.replace('src="btc-tip-qr.png"', 'src="/btc-tip-qr.png"')  # statue pages live one folder down
+    a = json.dumps(addr.group(1))
+    js = ('<script>function copyTipAddress(){var a=' + a + ',b=document.getElementById("tip-copy");'
+          'var done=function(){b.textContent="Copied ✓";setTimeout(function(){b.textContent="Copy"},2000)};'
+          'if(navigator.clipboard)navigator.clipboard.writeText(a).then(done,function(){prompt("Copy this address:",a)});'
+          'else prompt("Copy this address:",a)}'
+          '(function(){var el=document.querySelector(".tip-box .btc-address");if(el)el.addEventListener("click",function(){'
+          'var r=document.createRange();r.selectNodeContents(this);var s=window.getSelection();s.removeAllRanges();s.addRange(r)})})();</script>')
+    HOME_TIP['html'] = f'<style>{TIP_CSS}</style>\n    {sec}\n    {js}'
+
+
 def outputs(data):
     with open(os.path.join(ROOT, 'index.html'), encoding='utf-8') as f:
         idx = f.read()
+    load_home_tip(idx)
     files = {'index.html': build_index(data, idx), 'sitemap.xml': sitemap(data), 'robots.txt': ROBOTS,
              'feed.xml': feed_xml(data),
              '.nojekyll': '',
