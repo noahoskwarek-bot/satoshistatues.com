@@ -151,7 +151,10 @@ async function lbSubmit(s, c) {
       if (!j.already) s.checkins = Math.max((s.checkins || 0) + 1, 1);
       const me = j.me;
       let html = `<div class="lb-note">🏆 ${me && me.rank ? `You're <strong>#${me.rank}</strong> on the <a href="/leaderboard/">leaderboard</a> with ${me.stamps} stamp${me.stamps === 1 ? '' : 's'}.` : 'Saved to the <a href="/leaderboard/">leaderboard</a>.'}</div>`;
+      if (j.pow && j.pow.me && j.pow.me.rank && j.pow.me.rank.label && !j.pow.ranked_up)
+        html += `<div class="lb-note">👣 ${escHtml(j.pow.me.rank.label)} on <a href="/proof-of-walk/">Proof of Walk</a></div>`;
       if (!(me && me.nickname) && !lsGet(LB_NICK_SKIP)) html += lbNickForm('Show a name or X handle on the leaderboard? (optional)');
+      html += powRankUpHtml(j.pow);
       return { html };
     }
     if (status >= 400 && status < 500) return { rejected: true, html: `🏆 ${escHtml(j.message || "The check-in wasn't accepted.")}` };
@@ -159,6 +162,18 @@ async function lbSubmit(s, c) {
   } catch (e) {
     return { html: '<div class="lb-note">Couldn\'t reach the leaderboard, so this stamp is only in your passport.</div>' };
   }
+}
+// Proof of Walk: the Worker adds `pow` to the check-in reply only when POW_ENABLED is on. A rank-up (or the Genesis
+// Block) gets a short note plus the usual Share buttons (share.js) with the rank line, e.g. "I'm 4 Confirmations deep…".
+function powRankUpHtml(p) {
+  if (!p || !p.ranked_up || !p.me || !p.me.share) return '';
+  const url = location.origin + '/proof-of-walk/';
+  const head = p.genesis_new
+    ? `🧱 <strong>Genesis Block!</strong> Every statue on the map is stamped. Welcome to The Grand High Order of Fellow Travelers (<a href="/proof-of-walk/fellow-travelers/">the roll</a>).`
+    : `👣 Rank up: <strong>${escHtml(p.to)}</strong> on <a href="/proof-of-walk/">Proof of Walk</a>.`;
+  const share = window.SSShare ? window.SSShare.row(p.me.share, url, 'Share your rank')
+    : `<div class="ci-share"><a class="btn" href="https://x.com/intent/post?text=${encodeURIComponent(p.me.share)}&url=${encodeURIComponent(url)}" target="_blank" rel="noopener noreferrer">𝕏 Share on X</a></div>`;
+  return `<div class="lb-note pow-up">${head}</div>${share}`;
 }
 function lbNickPrompt() {
   const out = document.getElementById('geo-test-result');
