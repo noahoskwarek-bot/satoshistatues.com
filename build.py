@@ -9,7 +9,7 @@ statues.json is the single source of truth. This script:
   * renders 'Upcoming Bitcoin events nearby' on statue pages from events.json (see EVENTS.md)
   * renders 'The story' (statue.story) and the BTC Map 'Nearby places' list from merchants.json (see GUIDES.md)
   * renders 'Stay nearby (accepts bitcoin)' from lodging.json (statue pages + toggleable map layer; see GUIDES.md)
-  * renders the 'next statue' alert box from config.newsletter_action_url (Buttondown embed URL)
+  * renders the 'Follow us on X' line (signup_html) on the home page, statue pages and 21 Nodes
 
 Run `python3 build.py` after editing statues.json and commit the output.
 `python3 build.py --check` exits non-zero if the committed output is stale.
@@ -858,30 +858,13 @@ def site_ld(data):
     return ld(org) + '\n  ' + ld(web)
 
 
+FOLLOW_X_URL = 'https://x.com/satoshistatue21'
+
+
 def signup_html(data, where):
-    # 'Next statue' alert box: live Buttondown form when config.newsletter_action_url is set, else a coming-soon note.
-    nxt = len(data['statues']) + 1
-    url = (data.get('config') or {}).get('newsletter_action_url', '').strip()
-    follow = ('<span class="alert-follow"><a class="feed-link" href="/feed.xml" type="application/atom+xml">📡 RSS/Atom feed</a>'
-              + (f'<a class="feed-link" href="{e(nostr_url(data))}" target="_blank" rel="noopener noreferrer me">🟣 Follow on Nostr</a>' if nostr_url(data) else '')
-              + '</span>')
-    title = '<p class="alert-title">🔔 Get an alert when the next statue is unveiled</p>'
-    if url:
-        if not url.startswith('https://'):
-            raise SystemExit('config.newsletter_action_url must start with https://')
-        # Buttondown embed: POST opens in a named popup/tab that first shows the public subscribe page.
-        m = re.match(r'https://buttondown\.com/api/emails/embed-subscribe/([^/?#]+)', url)
-        public = f'https://buttondown.com/{m.group(1)}' if m else url
-        body = (f'<form class="alert-form" action="{e(url)}" method="post" target="popupwindow" '
-                f'onsubmit="window.open(\'{e(public)}\', \'popupwindow\')">'
-                f'<input type="hidden" name="embed" value="1" />'
-                f'<label class="sr-only" for="alert-email-{where}">Email address</label>'
-                f'<input id="alert-email-{where}" type="email" name="email" required autocomplete="email" inputmode="email" placeholder="you@example.com" />'
-                f'<button type="submit">Notify me</button></form>'
-                f'<p class="alert-fine">One email per new statue. Unsubscribe anytime.</p>{follow}')
-    else:
-        body = f'<p class="alert-fine">Email alerts are coming soon. Meanwhile, follow along:</p>{follow}'
-    return f'<section class="alert-box" aria-label="New statue alerts">{title}{body}</section>'
+    # No email sign-up: one line pointing people to X for new statues and events.
+    return (f'<section class="alert-box follow-x" aria-label="Follow us on X"><p class="alert-fine" style="margin:0">'
+            f'<a href="{FOLLOW_X_URL}" target="_blank" rel="noopener">Follow us on X</a> to stay up to date on new statues and events.</p></section>')
 
 
 # Visitor photos: we don't collect them by email. One short line asks people to post their own photo and tag us.
@@ -911,24 +894,16 @@ def credit_html(s):
 
 ALERT_CSS = (
     '.alert-box{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}'
-    '.alert-title{font-weight:700;color:#e6edf3;font-size:.95rem;margin:0 0 6px}'
-    '.alert-form{display:flex;gap:8px;flex-wrap:wrap;max-width:520px}'
-    '.alert-form input[type=email]{flex:1 1 180px;min-width:0;min-height:44px;padding:10px 12px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:16px;font-family:inherit}'
-    '.alert-form input[type=email]:focus{outline:2px solid #f7931a;border-color:#f7931a}'
-    '.alert-form button{min-height:44px;padding:10px 16px;border-radius:8px;border:none;background:#f7931a;color:#0d1117;font-weight:700;font-size:.92rem;cursor:pointer;font-family:inherit}'
     '.alert-fine{font-size:.8rem;color:#8b949e;margin:6px 0 0;line-height:1.45}'
-    '.feed-link{color:#f7931a;font-weight:600;display:inline-block;padding:13px 0;margin:-13px 0;text-decoration:none}'
-    '.feed-link:hover{text-decoration:underline}'
     '.photo-cta{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}'
     '.photo-actions{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 4px}'
     '.photo-actions .btn{max-width:100%}'
     '.photo-cta .alert-fine a,.photo-credit a{padding:15px 0;margin:-15px 0}'
     '.photo-cta .alert-fine a{color:#f7931a}'
+    '.follow-x .alert-fine a{color:#f7931a;font-weight:600}'
     '.photo-credit{display:block;margin-top:2px}'
     '.checkin-count{font-size:.85rem;color:#3fb950;margin:6px 0 0}'
     '.photo-credit a{color:#8b949e}'
-    '.alert-follow{display:flex;flex-wrap:wrap;gap:0 18px;margin-top:2px}'
-    '.alert-follow .feed-link{padding:0;margin:0;min-height:44px;display:inline-flex;align-items:center;font-size:.85rem}'
     '.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}'
 )
 
@@ -2207,7 +2182,7 @@ def social_meta(url, title, desc, alt='Satoshi statues world map'):
 
 # ---------- Embeddable map (/embed/) ----------
 # Map-only page for iframes on blogs and meetup sites. Kept deliberately light: Leaflet + markercluster,
-# no passport/check-in/giscus/Buttondown/share-card/font code. noindex, canonical → home, not in the sitemap.
+# no passport/check-in/giscus/share-card/font code. noindex, canonical → home, not in the sitemap.
 # Optional ?statue=<page> focuses one statue and opens its popup.
 EMBED_URL = SITE + '/embed/'
 EMBED_TITLE = 'Map of Satoshi Nakamoto statues around the world'
