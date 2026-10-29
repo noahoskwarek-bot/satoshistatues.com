@@ -1418,8 +1418,8 @@ LB_JS = r"""<script>
       if (!j.entries.length) { el.innerHTML = '<li class="lb-empty">No check-ins yet. Visit a statue and be the first!</li>'; return; }
       el.innerHTML = j.entries.map(function (e) {
         return '<li' + (e.id === meId ? ' class="me"' : '') + '><span class="lb-rank">' + e.rank + '</span><span class="lb-who"><span class="lb-name">' + nameHtml(e) + pill(e.pow) +
-          (e.id === meId ? ' <span class="lb-meta">(you)</span>' : '') + '</span><span class="lb-meta">' + stampsMeta(e) + '</span></span><span class="lb-stamps">' + e.stamps +
-          '<small>of ' + j.statues + '</small></span></li>';
+          (e.id === meId ? ' <span class="lb-meta">(you)</span>' : '') + '</span><span class="lb-meta">' + stampsMeta(e) + '</span></span><span class="lb-stamps">' + e.gps +
+          '<small>GPS of ' + j.statues + '</small></span></li>';
       }).join('');
     }).catch(function () { document.getElementById('lb-list').innerHTML = '<li class="lb-empty">The leaderboard could not be loaded. Please try again later.</li>'; });
   }
@@ -1438,7 +1438,8 @@ LB_JS = r"""<script>
     return fetch(A + '/api/me', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ device_id: dev }) })
       .then(function (r) { return r.json(); }).then(function (j) {
         if (!j.ok) return; var m = j.me; meId = m.id;
-        box.innerHTML = (m.rank ? 'You are <strong>#' + m.rank + '</strong> with <strong>' + m.stamps + '</strong> stamp' + (m.stamps === 1 ? '' : 's') + '. ' : 'No stamps on the leaderboard yet. ') +
+        box.innerHTML = (m.rank ? 'You are <strong>#' + m.rank + '</strong> with <strong>' + m.gps + '</strong> GPS-verified stamp' + (m.gps === 1 ? '' : 's') +
+          (m.legacy ? ' (+' + m.legacy + ' earlier, unverified)' : '') + pill(m.pow) + '. ' : 'No stamps on the leaderboard yet. ') +
           'Your name: <strong>' + nameHtml(m) + '</strong>' +
           '<form class="lb-nick" id="lb-nick"><input name="nick" maxlength="20" aria-label="Nickname or X handle" placeholder="Nickname or @handle" value="' + esc(m.nickname || '') + '"><button type="submit">Save name</button></form><div class="lb-msg" id="lb-msg" aria-live="polite"></div>';
         document.getElementById('lb-nick').addEventListener('submit', function (ev) {
@@ -1478,7 +1479,7 @@ def leaderboard_page(data):
     <h2>Recent check-ins</h2>
     <ul class="lb-feed" id="lb-feed"><li class="lb-empty">Loading…</li></ul>
     <h2>How it works</h2>
-    <p class="note">Open a statue on the <a href="/">map</a> and tap <strong>Check in</strong> when you are within 150 m. The server checks the distance and records the stamp; your location itself is not stored. Each device can stamp each statue once, up to 5 new stamps a day. People are ranked by unique stamps; on a tie, whoever got there first ranks higher.</p>
+    <p class="note">Open a statue on the <a href="/">map</a> and tap <strong>Check in</strong> when you are within 150 m. The server checks the distance and records the stamp; your location itself is not stored. Each device can stamp each statue once, up to 5 new stamps a day. People are ranked by unique GPS-verified stamps; on a tie, whoever got there first ranks higher. Earlier, unverified stamps only order people who have no GPS stamps yet.</p>
     <p class="note" style="margin-top:8px">Stamps collected before the leaderboard started were added from the passport saved in your browser. Their location wasn’t checked by the server, so they are labelled <em>earlier, unverified</em>. A <span class="lb-ver" style="margin-left:0">✓ verified</span> badge means we confirmed that person ourselves. GPS can be faked, so treat this as a friendly game.</p>
     <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">What we store and how to delete it: <a href="/privacy/">Privacy</a>.</p>
     {footer(data)}
