@@ -70,7 +70,7 @@
       '<p class="f-out" aria-live="polite"></p></form>';
   }
   function renderRecent() {
-    var el = $('[data-f-recent]'), items = state.recent || [];
+    var el = $('[data-f-recent]'), items = (state.recent || []).filter(function (x) { return x.kind === 'payout'; });
     if (!items.length) { el.innerHTML = '<p class="f-fine">No activity here yet.</p>'; return; }
     el.innerHTML = '<ul>' + items.map(function (x) {
       return '<li>' + (x.kind === 'payout'
@@ -81,7 +81,6 @@
   function render() {
     if (!state) return;
     $('[data-f-left]').textContent = num(state.giveaway_sats_left);
-    $('[data-f-tipped]').textContent = num(state.sats_tipped);
     box.querySelectorAll('[data-f-amount]').forEach(function (n) { n.textContent = num(state.payout_sats); });
     renderClaim();
     renderRecent();
@@ -133,7 +132,7 @@
         out.innerHTML = '<p class="f-q">Pay ' + num(j.sats) + ' sats with any Lightning wallet:' + (j.mock ? ' <span class="f-fine">(test mode: no real payment)</span>' : '') + '</p>' +
           '<textarea readonly rows="3" aria-label="Lightning invoice">' + esc(j.invoice) + '</textarea>' +
           '<div class="f-row"><a class="btn primary" href="lightning:' + esc(j.invoice) + '">⚡ Open in wallet</a><button class="btn" type="button" data-f-copy>Copy</button></div>' +
-          '<p class="f-fine" data-f-tipstate>' + (j.verifiable === false ? 'Thank you! This tip can’t be confirmed automatically, so it won’t show in the sats tipped count.' : 'Waiting for payment…') + '</p>';
+          '<p class="f-fine" data-f-tipstate>' + (j.verifiable === false ? 'Thank you! This tip can’t be confirmed automatically.' : 'Waiting for payment…') + '</p>';
         clearInterval(poll);
         if (j.verifiable === false) return;
         var n = 0;

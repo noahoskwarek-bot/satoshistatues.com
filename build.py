@@ -202,7 +202,7 @@ def fountain_on(data, s=None):
 
 FOUNTAIN_CSS = ('.fountain{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:14px 0}'
                 '.fountain h2{margin:0 0 4px;font-size:1.05rem;color:#f7931a}.fountain p{font-size:.9rem;line-height:1.45}'
-                '.f-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}'
+                '.f-stats{display:grid;grid-template-columns:1fr;max-width:220px;gap:8px;margin:10px 0}'
                 '.f-stat{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:8px 10px;font-size:.8rem;color:#8b949e}'
                 '.f-stat b{display:block;font-size:1.25rem;color:#e6edf3}'
                 '.f-msg{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:9px 11px;margin-top:8px}.f-msg.ok{border-color:#3fb950;color:#3fb950}'
@@ -228,8 +228,7 @@ def fountain_box(s, data):
     return (f'\n    <style>{FOUNTAIN_CSS}</style><section class="fountain" id="giveaway" data-ss-fountain data-slug="{e(s["slug"])}" data-name="{e(s["name"])}" data-api="{e(api)}" hidden>'
             f'<h2>⛲ Satoshi Fountain</h2>'
             f'<p>A small Lightning giveaway for visitors who check in at this statue, while the giveaway budget lasts.</p>'
-            f'<div class="f-stats"><div class="f-stat"><b data-f-left>–</b>giveaway sats left</div>'
-            f'<div class="f-stat"><b data-f-tipped>–</b>sats tipped here</div></div>'
+            f'<div class="f-stats"><div class="f-stat"><b data-f-left>–</b>giveaway sats left</div></div>'
             f'<p class="f-fine">Check in here to get a fixed <span data-f-amount></span> sats sent to a Lightning address. '
             f'One per Lightning address per statue. 18+ only. No tip needed, and tipping never changes the giveaway. '
             f'The giveaway can stop at any time. <a href="/terms/">Giveaway terms</a></p>'
