@@ -50,7 +50,6 @@ Edit `events.json`, then run `python3 build.py` and `python3 build.py --check`, 
 - **Bitcoin 2027 (BTC Inc)**: Nashville, Jul 15–17, 2027 (conference.b.tc). Not Miami; nearest statue (New York) is ~1,220 km away.
 - **Bitcoin Amsterdam 2026**: Nov 5–6, 2026 (bitcoin.amsterdam). ~770 km from the nearest statue (Lugano).
 - **Adopting Bitcoin**: official site shows no upcoming El Salvador edition (archive lists El Salvador through 2025).
-- **Bitcoin Histórico (San Salvador)**: official site bitcoinhistorico.com was unavailable (503), so dates not confirmed.
 - **Budapest Bitcoin**: official site shows no dates for an upcoming edition.
 - **Consensus Miami 2027 / WebX 2027 (Tokyo)**: broad crypto/Web3 conferences, not Bitcoin events.
 - **BTC Balkans (Sofia)**: ~640 km from Budapest.
@@ -67,3 +66,10 @@ Note (2026-10-22): the asia.b.tc header still reads "Aug 27–28", but its 2027 
 
 Added 2026-10-22: **Miami Bitcoin Summit 2027** (Fri Feb 5, 2027, Fontainebleau Miami Beach, 4441 Collins Ave; Bitcoin-only; confirmed on miamibitcoinsummit.com), ~8 km from the Miami Bitcoin Bull.
 
+## Checked 2026-10-29
+
+Added 2026-10-29: **Bitcoin Histórico 2026** (Nov 11–12, 2026, Centro Histórico, San Salvador: National Palace main stage, live-streamed on Plaza Gerardo Barrios; a conference by the National Bitcoin Office of El Salvador; confirmed on bitcoinhistorico.com, which was down on 2026-10-21), ~40 km from the El Zonte statue.
+
+Added 2026-10-29: **Le Paradigme Bitcoin 2027** (Jun 25–26, 2027, Coworking Blockchain Neuchâtel, rue St-Maurice 9, 2000 Neuchâtel; Bitcoin community event for French-speaking Switzerland; confirmed on leparadigmebitcoin.ch), ~190 km from the Lugano statue.
+
+- **Budapest Bitcoin**: still not added. The official site (budapestbitcoin.com) now shows a formal postponement notice with no new dates: "We've made the tough decision to postpone the Budapest Bitcoin Conference originally planned for 8-9, August. Please stay connected with us by following our social channels — we'll be sharing all updates there, including our next steps and future plans."

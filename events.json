@@ -28,6 +28,19 @@
       "verified": "2026-10-21"
     },
     {
+      "name": "Bitcoin Histórico 2026",
+      "start_date": "2026-11-11",
+      "end_date": "2026-11-12",
+      "city": "San Salvador",
+      "country": "El Salvador",
+      "lat": 13.6977,
+      "lng": -89.1918,
+      "url": "https://bitcoinhistorico.com/",
+      "statue": "el-zonte",
+      "source_url": "https://bitcoinhistorico.com/",
+      "verified": "2026-10-29"
+    },
+    {
       "name": "Bitcoin Japan 2026",
       "start_date": "2026-11-27",
       "end_date": "2026-11-28",
@@ -102,6 +115,19 @@
       "statue": "vienna",
       "source_url": "https://btcprague.com/",
       "verified": "2026-10-21"
+    },
+    {
+      "name": "Le Paradigme Bitcoin 2027",
+      "start_date": "2027-06-25",
+      "end_date": "2027-06-26",
+      "city": "Neuchâtel",
+      "country": "Switzerland",
+      "lat": 46.9908,
+      "lng": 6.9306,
+      "url": "https://leparadigmebitcoin.ch/",
+      "statue": "lugano",
+      "source_url": "https://leparadigmebitcoin.ch/",
+      "verified": "2026-10-29"
     },
     {
       "name": "Bitcoin Asia 2027",
