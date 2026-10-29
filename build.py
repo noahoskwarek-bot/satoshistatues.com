@@ -261,6 +261,11 @@ FOUNTAIN_CSS = ('.fountain{background:#161b22;border:1px solid #30363d;border-le
                 '.fountain[hidden],.fountain [hidden]{display:none!important}')
 
 
+# Shown under the claim box (and so under the address form after the reveal) on every giveaway page.
+WALLETS_LINE = ('<p class="f-fine f-wallets">Works with Wallet of Satoshi, Strike, Phoenix, Primal and most Lightning wallets. '
+                'Cash App can’t receive these payouts.</p>')
+
+
 def fountain_box(s, data):
     if not fountain_on(data, s):
         return ''
@@ -274,7 +279,7 @@ def fountain_box(s, data):
             f'<p class="f-fine">Check in here to get <span data-f-howmuch>{e(payout_phrase(data))}</span> sent to a Lightning address. '
             f'One per Lightning address per statue. 18+ only. No tip needed, and tipping never changes the giveaway. '
             f'The giveaway can stop at any time. {rules_links(data)}</p>'
-            f'<div data-f-claim></div>'
+            f'<div data-f-claim></div>{WALLETS_LINE}'
             f'<div data-f-support><h3>🧡 Support the map</h3>'
             f'<p class="f-fine">Tips go to SatoshiStatues.com to help keep the map running. They are separate from the giveaway, '
             f'are not tax-deductible and are not refundable.</p>'
@@ -2346,7 +2351,7 @@ def test_fountain_box(t, data):
             f'<div class="f-stats"><div class="f-stat"><b data-f-left>–</b>test sats left</div></div>'
             f'<p class="f-fine">Check in at the test spot to get <span data-f-howmuch>{e(payout_phrase(data))}</span> sent to a Lightning address. '
             f'One per Lightning address. 18+ only. The test can stop at any time. {rules_links(data)}</p>'
-            f'<div data-f-claim></div>'
+            f'<div data-f-claim></div>{WALLETS_LINE}'
             f'<h3>Recent activity</h3><div class="f-recent" data-f-recent></div>'
             f'</section>')
 
