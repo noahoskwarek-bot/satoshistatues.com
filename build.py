@@ -2333,14 +2333,17 @@ TEST_PAGE_JS = """<script>(function () {
 
 
 def test_fountain_box(t, data):
-    """The normal giveaway box for the test spot, without the tip section (tips aren't offered here)."""
+    """The same giveaway box as the real statues (amount copy, rules link, odometer/Lucky 210 success screen and share
+    prompt from fountain.js), without the tip section (tips aren't offered here). The share prompt links to the home
+    page, not to this hidden page."""
     api = data['fountain'].get('api') or LB_API
-    return (f'<style>{FOUNTAIN_CSS}</style><section class="fountain" id="giveaway" data-ss-fountain data-slug="{e(t["slug"])}" data-name="{e(t["name"])}" data-api="{e(api)}" data-radius="{int(t["radius_m"])}" hidden>'
+    return (f'<style>{FOUNTAIN_CSS}{SHARE_CSS}</style><section class="fountain" id="giveaway" data-ss-fountain data-slug="{e(t["slug"])}" data-name="{e(t["name"])}" '
+            f'data-share-name="the Satoshi Statues test spot" data-url="{SITE}/" data-api="{e(api)}" data-radius="{int(t["radius_m"])}" hidden>'
             f'<h2>⛲ Satoshi Fountain (test)</h2>'
             f'<p>A private test of the Lightning giveaway, while the test budget lasts.</p>'
             f'<div class="f-stats"><div class="f-stat"><b data-f-left>–</b>test sats left</div></div>'
-            f'<p class="f-fine">Check in at the test spot to get <span data-f-howmuch>a fixed 21 sats</span> sent to a Lightning address. '
-            f'One per Lightning address. 18+ only. <a href="/terms/">Giveaway terms</a></p>'
+            f'<p class="f-fine">Check in at the test spot to get <span data-f-howmuch>{e(payout_phrase(data))}</span> sent to a Lightning address. '
+            f'One per Lightning address. 18+ only. The test can stop at any time. {rules_links(data)}</p>'
             f'<div data-f-claim></div>'
             f'<h3>Recent activity</h3><div class="f-recent" data-f-recent></div>'
             f'</section>')
@@ -2377,6 +2380,7 @@ def test_statue_page(t, data):
     </div>
     {test_fountain_box(t, data)}
   </main>
+  {share_script()}
   {checkin_script()}
   <script src="/fountain.js?v={fv}"></script>
   {TEST_PAGE_JS}
