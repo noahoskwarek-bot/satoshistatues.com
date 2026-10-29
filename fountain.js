@@ -111,8 +111,9 @@
           renderClaim();
           load();
         } else {
-          btn.disabled = false;
           out.textContent = j.message || 'Something went wrong. Please try again.';
+          if (j.error === 'payout_unconfirmed') { sessionStorage.removeItem(CLAIM_KEY); return; }
+          btn.disabled = false;
           if (['claim_used', 'checkin_stale', 'checkin_required', 'address_used', 'device_used'].indexOf(j.error) >= 0 && j.error !== 'address_used') sessionStorage.removeItem(CLAIM_KEY);
         }
       }).catch(function () { btn.disabled = false; out.textContent = 'Couldn’t reach the server. Please try again.'; });
@@ -129,15 +130,16 @@
         out.innerHTML = '<p class="f-q">Pay ' + num(j.sats) + ' sats with any Lightning wallet:' + (j.mock ? ' <span class="f-fine">(test mode: no real payment)</span>' : '') + '</p>' +
           '<textarea readonly rows="3" aria-label="Lightning invoice">' + esc(j.invoice) + '</textarea>' +
           '<div class="f-row"><a class="btn primary" href="lightning:' + esc(j.invoice) + '">⚡ Open in wallet</a><button class="btn" type="button" data-f-copy>Copy</button></div>' +
-          '<p class="f-fine" data-f-tipstate>Waiting for payment…</p>';
+          '<p class="f-fine" data-f-tipstate>' + (j.verifiable === false ? 'Thank you! This tip can’t be confirmed automatically, so it won’t show in the sats tipped count.' : 'Waiting for payment…') + '</p>';
         clearInterval(poll);
+        if (j.verifiable === false) return;
         var n = 0;
         poll = setInterval(function () {
-          if (++n > 120) { clearInterval(poll); return; }
+          if (++n > 72) { clearInterval(poll); return; }
           getJSON('/api/fountain/tip?id=' + j.tip_id).then(function (t) {
             if (t.ok && t.status === 'paid') { clearInterval(poll); out.innerHTML = '<p class="f-msg ok">Thanks for the tip! 🧡</p>'; load(); }
           }).catch(function () {});
-        }, 3000);
+        }, 5000);
       });
       return;
     }
