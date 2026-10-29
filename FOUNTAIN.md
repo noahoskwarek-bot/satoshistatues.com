@@ -25,7 +25,7 @@ when paused; hidden when the giveaway is disabled or the budget is below one pay
 statue-page fountain sections.
 
 ## Random amounts (branch `fountain-random`)
-Live since 2026-10-29 (approved 9:47 AM ET): random 1–121 sats with a rare **Lucky 1,021** at 1 in 121, average exactly 42 sats, a 9,500 giveaway budget and 1,300 sats per UTC day. The Rizful NWC connection limit is 50,000 sats per 30 days. (First version, 2026-10-28: 1–100 sats, Lucky 210 at 1 in 200, average 21, 240 per day.) Odds line on the statue box and in /rules/ section 4: "Each verified check-in reveals 1–121 sats or, about 1 in 121 times, a Lucky 1,021 sats, while the giveaway budget and daily limits last."
+Live since 2026-10-29 (approved 9:47 AM ET): random 1–121 sats with a rare **Lucky 1,021** at 1 in 121, average exactly 42 sats, a 9,500 giveaway budget and 1,300 sats per UTC day. Limits: 10 payouts per statue per day and 1,300 sats a day overall, and each drawn amount is held for a 21-minute claim window. The Rizful NWC connection limit is 50,000 sats per 30 days. Odds line on the statue box and in /rules/ section 4: "Each verified check-in reveals 1–121 sats or, about 1 in 121 times, a Lucky 1,021 sats, while the giveaway budget and daily limits last."
 - `fountain.json` → `payout` mirrors the Worker's payout vars and **must match them**: `mode` (`fixed`|`random`), `fixed_sats`,
   `tiers` (`[lo, hi, weight]`), `bonus_sats`, `bonus_weight`, `cap_sats_day`. build.py computes the exact odds and mean
   from it (`payout_info`, with `Fraction`) for the static copy and the **Official Rules** page at `/rules/` (generated only
