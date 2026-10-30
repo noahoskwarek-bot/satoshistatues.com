@@ -164,12 +164,14 @@ async function lbSubmit(s, c) {
   }
 }
 // Proof of Walk: the Worker adds `pow` to the check-in reply only when POW_ENABLED is on. A rank-up (or the Genesis
-// Block) gets a short note plus the usual Share buttons (share.js) with the rank line, e.g. "I'm 4 Confirmations deep…".
+// Block: Original 10, or The Grand High Order) gets a short note plus the usual Share buttons (share.js) with the rank line, e.g. "I'm 4 Confirmations deep…".
 function powRankUpHtml(p) {
   if (!p || !p.ranked_up || !p.me || !p.me.share) return '';
   const url = location.origin + '/proof-of-walk/';
-  const head = p.genesis_new
-    ? `🧱 <strong>Genesis Block!</strong> Every statue on the map is stamped. Welcome to The Grand High Order of Fellow Travelers (<a href="/proof-of-walk/fellow-travelers/">the roll</a>).`
+  const head = p.order_new
+    ? `🏛️ <strong>The Grand High Order of Fellow Travelers!</strong> Every statue on the map is stamped${p.genesis_new ? ', and you mined the Genesis Block: Original 10' : ''} (<a href="/proof-of-walk/fellow-travelers/">the roll</a>).`
+    : p.genesis_new
+    ? `🧱 <strong>Genesis Block: Original 10!</strong> All 10 original statues are stamped (<a href="/proof-of-walk/fellow-travelers/#genesis">the roll</a>). Stamp every statue on the map to join The Grand High Order of Fellow Travelers.`
     : `👣 Rank up: <strong>${escHtml(p.to)}</strong> on <a href="/proof-of-walk/">Proof of Walk</a>.`;
   const share = window.SSShare ? window.SSShare.row(p.me.share, url, 'Share your rank')
     : `<div class="ci-share"><a class="btn" href="https://x.com/intent/post?text=${encodeURIComponent(p.me.share)}&url=${encodeURIComponent(url)}" target="_blank" rel="noopener noreferrer">𝕏 Share on X</a></div>`;

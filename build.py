@@ -52,8 +52,11 @@ def load():
     POW_ON = bool(pow_cfg(data))
     for s in data['statues']:
         s['slug'] = slug_of(s)
-    for s in pow_genesis_exclude(data):
-        assert any(x['slug'] == s and x['status'] in CHECKABLE for x in data['statues']), f'proof_of_walk.genesis_exclude: unknown statue {s}'
+    if POW_ON:
+        gs = pow_genesis_set(data)
+        assert len(gs) == 10 and len(set(gs)) == 10, 'proof_of_walk.genesis_set must be the fixed Original 10'
+        for s in gs:
+            assert any(x['slug'] == s and x['status'] in CHECKABLE for x in data['statues']), f'proof_of_walk.genesis_set: unknown or unstampable statue {s}'
     cpath = os.path.join(ROOT, 'checkins.json')
     counts = {}
     if os.path.exists(cpath):
@@ -1357,8 +1360,9 @@ LB_JS = r"""<script>
   // Proof of Walk rank pill from the Worker (entry.pow; null = no GPS stamps = no pill).
   function pill(p) {
     if (!p || !p.label) return '';
+    if (p.order) return '<a class="lb-pill gen" href="/proof-of-walk/fellow-travelers/" title="Proof of Walk: The Grand High Order of Fellow Travelers · ' + esc(p.label) + '">🏛️ <strong>Grand High Order</strong></a>';
     return p.genesis
-      ? '<a class="lb-pill gen" href="/proof-of-walk/" title="Proof of Walk: Genesis Block · ' + esc(p.label) + '">🧱 <strong>Genesis Block</strong></a>'
+      ? '<a class="lb-pill gen" href="/proof-of-walk/" title="Proof of Walk: Genesis Block: Original 10 · ' + esc(p.label) + '">🧱 <strong>Genesis Block</strong></a>'
       : '<a class="lb-pill" href="/proof-of-walk/" title="Proof of Walk rank">👣 <strong>' + esc(p.label) + '</strong></a>';
   }
   function stampsMeta(e) {
@@ -1446,13 +1450,15 @@ def leaderboard_page(data):
 # ladder, leaderboard) and /proof-of-walk/fellow-travelers/ (The Grand High Order of Fellow Travelers roll). Data comes
 # from the Worker's /api/pow/* (POW_ENABLED). preview = noindex, not in the sitemap, not linked from other pages.
 # Ranks mirror the Worker's src/pow.js rankFor(): rank = stamp count, 1-5 Confirmations, 6+ Six Confirmations (Final), 0 = no rank.
+# Above that (approved 2026-10-30): Genesis Block: Original 10 (fixed list, config.proof_of_walk.genesis_set = Worker
+# GENESIS_SET, permanent) and, on top, The Grand High Order of Fellow Travelers (rolling: every stampable statue now).
 POW_FINAL_AT = 6
-GENESIS_TITLE = 'Genesis Block'
+GENESIS_TITLE = 'Genesis Block: Original 10'
 ORDER_NAME = 'The Grand High Order of Fellow Travelers'
 
 
 SUPPORT_EMAIL = 'support@satoshistatues.com'  # Zoho Mail support mailbox
-POW_LB_LINK = '\n    <p class="note">👣 Pills show each walker’s Proof of Walk rank (GPS-verified stamps only). <a href="/proof-of-walk/">How ranks work →</a></p>'
+POW_LB_LINK = '\n    <p class="note">👣 Pills show each walker’s Proof of Walk rank (GPS-verified stamps only): 🧱 Genesis Block for the original 10, 🏛️ Grand High Order for every stampable statue. <a href="/proof-of-walk/">How ranks work →</a></p>'
 
 
 def pow_cfg(data):
@@ -1460,17 +1466,29 @@ def pow_cfg(data):
     return c if c.get('enabled') else None
 
 
-def pow_genesis_exclude(data):
-    # Statues the Genesis Block doesn't require yet (gold bonus stamps instead). Must match the Worker's POW_GENESIS_EXCLUDE.
+def pow_genesis_set(data):
+    # Genesis Block: Original 10, a fixed list. Must match GENESIS_SET in the Worker's src/pow.js.
     c = pow_cfg(data) or {}
-    return list(c.get('genesis_exclude') or [])
+    return list(c.get('genesis_set') or [])
+
+
+def pow_order_count(data):
+    # The Grand High Order's rolling set: every stampable statue now (same as the Worker's STATUES).
+    return sum(1 for s in data['statues'] if s['status'] in CHECKABLE)
+
+
+def pow_names(slugs, data):
+    names = [x['city'] if x['label'].startswith('Satoshi Statue') else x['label'] for x in data['statues'] if x['slug'] in slugs]
+    return ', '.join(names[:-1]) + ' and ' + names[-1] if len(names) > 1 else ''.join(names)
 
 
 def pow_genesis_note(data):
-    names = [x['city'] for x in data['statues'] if x['slug'] in pow_genesis_exclude(data)]
-    if not names:
-        return ''
-    return f' {" and ".join(names)} {"is a gold bonus stamp" if len(names) == 1 else "are gold bonus stamps"} for now, until the spot is confirmed: it still counts toward your rank.'
+    gs = pow_genesis_set(data)
+    bonus = [x['slug'] for x in data['statues'] if x['status'] in CHECKABLE and x['slug'] not in gs]
+    t = f' The original 10: {pow_names(gs, data)}. It’s a fixed set that never changes.'
+    if bonus:
+        t += f' {pow_names(bonus, data)} {"is a gold bonus stamp" if len(bonus) == 1 else "are gold bonus stamps"}: {"it counts" if len(bonus) == 1 else "they count"} toward your rank and the Order, not the Genesis Block.'
+    return t
 
 
 def pow_rank(n):
@@ -1528,8 +1546,10 @@ POW_CSS = (
 def pow_ladder_html(data):
     rows = [('1', pow_rank(1), 'Your first GPS-verified stamp.')]
     rows += [(str(n), pow_rank(n), '') for n in range(2, POW_FINAL_AT)]
-    rows += [(f'{POW_FINAL_AT}+', pow_rank(POW_FINAL_AT), 'The top rank.')]
-    rows += [('Every statue', GENESIS_TITLE, f'Stamp every statue on the map and join {ORDER_NAME}.{pow_genesis_note(data)} Statues added later earn gold bonus stamps; the title stays yours.')]
+    rows += [(f'{POW_FINAL_AT}+', pow_rank(POW_FINAL_AT), 'The final confirmation.')]
+    rows += [('Original 10', GENESIS_TITLE, 'Stamp all 10 original statues to mine the Genesis Block. A fixed set that never changes; the title stays yours.')]
+    n = pow_order_count(data)
+    rows += [(f'All {n}', ORDER_NAME, f'The top rank. Stamp every statue you can stamp on the map: {n} today. The number grows when a new statue can be stamped; stamp it to stay in the Order.')]
     body = ''.join(f'<tr><td>{e(a)}</td><td><strong>{e(b)}</strong>{(" <span class=pow-fine>" + e(c) + "</span>") if c else ""}</td></tr>' for a, b, c in rows)
     return f'<table class="pow-ladder"><thead><tr><th>Stamps</th><th>Rank</th></tr></thead><tbody>{body}</tbody></table>'
 
@@ -1561,11 +1581,13 @@ POW_JS = r"""<script src="/share.js"></script>
     var h = '<div class="pow-sub">Your Satoshi Passport rank' + (me.nickname ? ' · <strong>' + esc(me.nickname) + '</strong>' : '') + '</div>' +
       '<div class="pow-rank">' + esc(me.rank.label || 'No rank yet') + '</div>' +
       '<div class="pow-sub">' + me.stamps + ' of ' + me.map_statues + ' statues stamped' + (me.next ? ' · next: <strong>' + esc(me.next.label) + '</strong> with one more stamp' : '') + '</div>' + pips(me);
-    if (me.genesis) h += '<div class="pow-genesis">🧱 <strong>Genesis Block</strong> · member of The Grand High Order of Fellow Travelers since ' +
-      esc((me.joined_at || '').slice(0, 10)) + (me.bonus_stamps && me.bonus_stamps.length ? ' · ' + me.bonus_stamps.length + ' gold bonus stamp' + (me.bonus_stamps.length === 1 ? '' : 's') : '') +
-      (me.missing_new && me.missing_new.length ? '<br><span class="pow-fine">New on the map since you joined: ' + me.missing_new.length + ' statue' + (me.missing_new.length === 1 ? '' : 's') + ' to collect as gold bonus stamps.</span>' : '') + '</div>';
-    else if (me.stamps > 0) h += '<p class="pow-fine">Stamp all ' + (me.genesis_statues || me.map_statues) + ' Genesis statues to mine the Genesis Block' +
-      (me.genesis_excluded && me.genesis_excluded.length ? ' (dashed circles are gold bonus stamps: they count toward your rank, not the Genesis Block).' : '.') + '</p>';
+    var oN = me.order_statues || me.map_statues, gN = me.genesis_statues || 10, gold = (me.bonus_stamps || []).length, gHave = me.stamps - gold;
+    if (me.order) h += '<div class="pow-genesis">🏛️ <strong>The Grand High Order of Fellow Travelers</strong> · all ' + oN + ' of ' + oN + ' stampable statues, complete since ' + esc((me.order_since || '').slice(0, 10)) + '</div>';
+    if (me.genesis) h += '<div class="pow-genesis">🧱 <strong>Genesis Block: Original 10</strong> · mined ' + esc((me.joined_at || '').slice(0, 10)) +
+      (gold ? ' · ' + gold + ' gold bonus stamp' + (gold === 1 ? '' : 's') : '') +
+      (!me.order && me.order_missing && me.order_missing.length ? '<br><span class="pow-fine">The Grand High Order: ' + (oN - me.order_missing.length) + ' of ' + oN + ' statues. ' + me.order_missing.length + ' to go.</span>' : '') + '</div>';
+    else if (me.stamps > 0) h += '<p class="pow-fine">Genesis Block: Original 10: <strong>' + gHave + ' of ' + gN + '</strong> · The Grand High Order: <strong>' + me.stamps + ' of ' + oN + '</strong>' +
+      (me.genesis_excluded && me.genesis_excluded.length ? ' (dashed circles are gold bonus stamps: they count toward your rank and the Order, not the Genesis Block).' : '.') + '</p>';
     if (me.share && window.SSShare) h += window.SSShare.row(me.share, URL_POW, 'Share your rank');
     h += '<form class="pow-form" id="pow-form"><label for="pow-nick">Passport nickname (shown on the leaderboard)</label>' +
       '<input id="pow-nick" name="nick" maxlength="20" autocomplete="nickname" placeholder="Nickname or @handle" value="' + esc(me.nickname || get(NICK) || '') + '">' +
@@ -1639,21 +1661,25 @@ POW_JS = r"""<script src="/share.js"></script>
       if (!j.ok) return off(el);
       if ($('pow-total')) $('pow-total').textContent = j.total_walkers + (j.total_walkers === 1 ? ' walker' : ' walkers') + ' so far.';
       el.innerHTML = j.entries.length ? j.entries.map(function (x) {
-        return '<li><span class="lb-rank">' + x.position + '</span><span class="lb-who"><span class="lb-name">' + esc(x.name) + (x.genesis ? '<span class="pow-badge">🧱 Genesis</span>' : '') +
+        return '<li><span class="lb-rank">' + x.position + '</span><span class="lb-who"><span class="lb-name">' + esc(x.name) + (x.order ? '<span class="pow-badge">🏛️ Order</span>' : '') + (x.genesis ? '<span class="pow-badge">🧱 Genesis</span>' : '') +
           '</span><span class="lb-meta">' + esc(x.rank) + '</span></span><span class="lb-stamps">' + x.stamps + '<small>stamp' + (x.stamps === 1 ? '' : 's') + '</small></span></li>';
       }).join('') : '<li class="lb-empty">No walkers yet. Be the first.</li>';
     }).catch(function () { off(el); });
   }
   function loadRoll() {
-    var el = $('pow-roll'); if (!el) return;
+    var el = $('pow-roll'), ge = $('pow-genesis-roll'); if (!el) return;
+    var day = function (d) { return esc(new Date(d + 'T12:00:00Z').toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })); };
     getj('/api/pow/order').then(function (j) {
-      if (!j.ok) return off(el);
+      if (!j.ok) { off(el); off(ge); return; }
       el.innerHTML = j.members.length ? j.members.map(function (m) {
-        return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + esc(m.name) + '</span><span class="lb-meta">Joined ' +
-          esc(new Date(m.joined + 'T12:00:00Z').toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })) + '</span></span>' +
-          (m.bonus_stamps ? '<span class="lb-stamps">' + m.bonus_stamps + '<small>gold bonus</small></span>' : '') + '</li>';
-      }).join('') : '<li class="lb-empty">No members yet. The first walker to stamp every statue on the map mines the Genesis Block.</li>';
-    }).catch(function () { off(el); });
+        return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + esc(m.name) + '</span><span class="lb-meta">All ' + j.order_statues + ' since ' +
+          day(m.since) + '</span></span></li>';
+      }).join('') : '<li class="lb-empty">No members yet. The first walker to stamp all ' + j.order_statues + ' stampable statues joins the Order.</li>';
+      if (ge) ge.innerHTML = (j.genesis || []).length ? j.genesis.map(function (m) {
+        return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + esc(m.name) + '</span><span class="lb-meta">Mined ' +
+          day(m.joined) + '</span></span>' + (m.bonus_stamps ? '<span class="lb-stamps">' + m.bonus_stamps + '<small>gold bonus</small></span>' : '') + '</li>';
+      }).join('') : '<li class="lb-empty">No miners yet. The first walker to stamp all 10 original statues mines the Genesis Block.</li>';
+    }).catch(function () { off(el); off(ge); });
   }
   loadMe(); renderRecover(); loadList(); loadRoll();
 })();
@@ -1662,8 +1688,8 @@ POW_JS = r"""<script src="/share.js"></script>
 POW_JS = POW_JS.replace('__SUPPORT__', SUPPORT_EMAIL)
 
 def pow_map_attr(data):
-    ex = pow_genesis_exclude(data)
-    m = [dict({'slug': s['slug'], 'name': s['name']}, **({'bonus': 1} if s['slug'] in ex else {})) for s in data['statues'] if s['status'] in CHECKABLE]
+    gs = pow_genesis_set(data)
+    m = [dict({'slug': s['slug'], 'name': s['name']}, **({'bonus': 1} if s['slug'] not in gs else {})) for s in data['statues'] if s['status'] in CHECKABLE]
     return e(json.dumps(m, ensure_ascii=False))
 
 
@@ -1672,11 +1698,11 @@ def pow_body_tag(out, data, page):
 
 
 def pow_page(data):
-    n = sum(1 for s in data['statues'] if s['status'] in CHECKABLE)
+    n = pow_order_count(data)
     canonical = SITE + '/proof-of-walk/'
     title = 'Proof of Walk – Satoshi Passport Ranks'
-    n -= len(pow_genesis_exclude(data))
-    desc = f'Passport ranks for walking to Satoshi statues: every GPS-verified stamp is a confirmation. Stamp all {n} Genesis statues to mine the Genesis Block.'
+    desc = (f'Passport ranks for walking to Satoshi statues: every GPS-verified stamp is a confirmation. Stamp the original 10 to mine the '
+            f'Genesis Block, and all {n} stampable statues to join {ORDER_NAME}.')
     lds = ld(breadcrumb_ld([('Map', SITE + '/'), ('Proof of Walk', canonical)]))
     out = pow_body_tag(pow_head(data, title, desc, canonical, lds), data, 'main')
     pv = '<span class="pow-preview">Preview</span>' if pow_cfg(data).get('preview') else ''
@@ -1694,10 +1720,12 @@ def pow_page(data):
     <p class="sub" id="pow-total"></p>
     <ol class="lb-list" id="pow-list"><li class="lb-empty">Loading…</li></ol>
     <p class="note" style="margin-top:8px"><a href="/leaderboard/">See full leaderboard →</a></p>
-    <h2>🧱 {e(ORDER_NAME)}</h2>
-    <p class="note">Everyone who has stamped every statue on the map.{pow_genesis_note(data)} <a href="/proof-of-walk/fellow-travelers/">See the members’ roll →</a></p>
+    <h2>🏛️ {e(ORDER_NAME)}</h2>
+    <p class="note">The top rank: everyone who has stamped every statue you can stamp on the map, {n} today. When a new statue can be stamped, the Order grows with it. <a href="/proof-of-walk/fellow-travelers/">See the members’ roll →</a></p>
+    <h2>🧱 {e(GENESIS_TITLE)}</h2>
+    <p class="note">Everyone who has stamped all 10 original statues.{pow_genesis_note(data)} Miners are listed on the <a href="/proof-of-walk/fellow-travelers/#genesis">Fellow Travelers page</a>.</p>
     <h2>How it works</h2>
-    <p class="note">Open a statue page or the <a href="/">map</a> and tap <strong>Check in here</strong> when you are within 150 m. Your rank is the number of different statues you have stamped with a GPS-verified check-in. Ranks are just for fun: they cost nothing and aren’t linked to tips or the giveaway.</p>
+    <p class="note">Open a statue page or the <a href="/">map</a> and tap <strong>Check in here</strong> when you are within 150 m. Your rank is the number of different statues you have stamped with a GPS-verified check-in, plus the Genesis Block (the original 10) and The Grand High Order (every stampable statue). Ranks are just for fun: they cost nothing and aren’t linked to tips or the giveaway.</p>
     <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">What we store and how to delete it: <a href="/privacy/">Privacy</a>.</p>
     {footer(data)}
   </main>
@@ -1708,14 +1736,18 @@ def pow_page(data):
 def pow_roll_page(data):
     canonical = SITE + '/proof-of-walk/fellow-travelers/'
     title = f'{ORDER_NAME} – Proof of Walk'
-    desc = 'Members’ roll: walkers who stamped every Satoshi statue on the map and mined the Genesis Block.'
+    n = pow_order_count(data)
+    desc = f'Members’ roll: walkers who stamped all {n} stampable Satoshi statues, plus the Genesis Block: Original 10 miners.'
     lds = ld(breadcrumb_ld([('Map', SITE + '/'), ('Proof of Walk', SITE + '/proof-of-walk/'), ('Fellow Travelers', canonical)]))
     out = pow_body_tag(pow_head(data, title, desc, canonical, lds), data, 'roll')
     out += f"""  <main>
     <div class="crumbs"><a href="/">Map</a> › <a href="/proof-of-walk/">Proof of Walk</a> › Fellow Travelers</div>
-    <h1>🧱 {e(ORDER_NAME)}</h1>
-    <p class="sub">The members’ roll. Each member stamped every statue on the map at the time and mined the Genesis Block. Statues added later earn gold bonus stamps; membership is for good.</p>
+    <h1>🏛️ {e(ORDER_NAME)}</h1>
+    <p class="sub">The members’ roll: walkers who hold a GPS-verified stamp at every statue you can stamp on the map, {n} today, listed by when they completed it. When a new statue can be stamped, members stamp it to stay in the Order.</p>
     <ol class="lb-list pow-roll" id="pow-roll"><li class="lb-empty">Loading…</li></ol>
+    <h2 id="genesis">🧱 {e(GENESIS_TITLE)}</h2>
+    <p class="note">Walkers who stamped all 10 original statues.{pow_genesis_note(data)}</p>
+    <ol class="lb-list pow-roll" id="pow-genesis-roll"><li class="lb-empty">Loading…</li></ol>
     <p class="note" style="margin-top:10px"><a href="/proof-of-walk/">← Proof of Walk ranks and leaderboard</a></p>
     {footer(data)}
   </main>
@@ -1726,8 +1758,8 @@ def pow_roll_page(data):
 def pow_privacy_html(data):
     if not pow_cfg(data):
         return ''
-    return ('\n      <li><strong>Proof of Walk</strong> ranks are worked out from your GPS-verified stamps. If you stamp every statue on the map, '
-            'your nickname (or “Anonymous #…”) and the date are listed on the Fellow Travelers roll.</li>'
+    return ('\n      <li><strong>Proof of Walk</strong> ranks are worked out from your GPS-verified stamps. If you stamp the original 10 statues or every statue on the map, '
+            'your nickname (or “Anonymous #…”) and the date are listed on the Fellow Travelers page.</li>'
             '\n      <li>If you add a <strong>Lightning address</strong> to your passport, it is used only to recover your passport on a new device, together with a one-time recovery code we show you once. '
             'We keep a hashed copy of the address and of the code plus a masked form for you to see, never the address itself. It is never shown publicly, never paid and never contacted. '
             'Recovery attempts are counted per network (as a salted hash, kept 1 day). Clear the field and save to delete it and switch recovery off.</li>')

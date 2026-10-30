@@ -5,13 +5,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>The Grand High Order of Fellow Travelers – Proof of Walk</title>
-  <meta name="description" content="Members’ roll: walkers who stamped every Satoshi statue on the map and mined the Genesis Block." />
+  <meta name="description" content="Members’ roll: walkers who stamped all 11 stampable Satoshi statues, plus the Genesis Block: Original 10 miners." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://www.satoshistatues.com/proof-of-walk/fellow-travelers/" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.satoshistatues.com/proof-of-walk/fellow-travelers/" />
   <meta property="og:title" content="The Grand High Order of Fellow Travelers – Proof of Walk" />
-  <meta property="og:description" content="Members’ roll: walkers who stamped every Satoshi statue on the map and mined the Genesis Block." />
+  <meta property="og:description" content="Members’ roll: walkers who stamped all 11 stampable Satoshi statues, plus the Genesis Block: Original 10 miners." />
   <meta property="og:image" content="https://www.satoshistatues.com/og-image.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -19,7 +19,7 @@
   <meta property="og:site_name" content="Satoshi Statues" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="The Grand High Order of Fellow Travelers – Proof of Walk" />
-  <meta name="twitter:description" content="Members’ roll: walkers who stamped every Satoshi statue on the map and mined the Genesis Block." />
+  <meta name="twitter:description" content="Members’ roll: walkers who stamped all 11 stampable Satoshi statues, plus the Genesis Block: Original 10 miners." />
   <meta name="twitter:image" content="https://www.satoshistatues.com/og-image.jpg" />
   <meta name="twitter:image:alt" content="Satoshi statues world map" />
   <meta name="theme-color" content="#0d1117" />
@@ -106,9 +106,12 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
   </header>
   <main>
     <div class="crumbs"><a href="/">Map</a> › <a href="/proof-of-walk/">Proof of Walk</a> › Fellow Travelers</div>
-    <h1>🧱 The Grand High Order of Fellow Travelers</h1>
-    <p class="sub">The members’ roll. Each member stamped every statue on the map at the time and mined the Genesis Block. Statues added later earn gold bonus stamps; membership is for good.</p>
+    <h1>🏛️ The Grand High Order of Fellow Travelers</h1>
+    <p class="sub">The members’ roll: walkers who hold a GPS-verified stamp at every statue you can stamp on the map, 11 today, listed by when they completed it. When a new statue can be stamped, members stamp it to stay in the Order.</p>
     <ol class="lb-list pow-roll" id="pow-roll"><li class="lb-empty">Loading…</li></ol>
+    <h2 id="genesis">🧱 Genesis Block: Original 10</h2>
+    <p class="note">Walkers who stamped all 10 original statues. The original 10: Budapest, Lugano, El Zonte, Tokyo, Hanoi, New York, Fornelli, Kranj Bitcoin Monument, Miami Bitcoin Bull and Vienna. It’s a fixed set that never changes. Hong Kong is a gold bonus stamp: it counts toward your rank and the Order, not the Genesis Block.</p>
+    <ol class="lb-list pow-roll" id="pow-genesis-roll"><li class="lb-empty">Loading…</li></ol>
     <p class="note" style="margin-top:10px"><a href="/proof-of-walk/">← Proof of Walk ranks and leaderboard</a></p>
     <footer class="site"><a href="/">satoshistatues.com</a> · <a href="/21-nodes/">21 Nodes tracker</a> · <a href="/leaderboard/">Leaderboard</a> · <a href="/feed.xml">Feed</a> · <a href="https://njump.me/npub1dx7qh8fpp9l45lzrv9ff95f0f3gkrlvjhhptqjrxyhemze68kuhs72vv8h" rel="me">Nostr</a> · <a href="/terms/">Terms</a> · <a href="/privacy/">Privacy</a></footer>
   </main>
@@ -139,11 +142,13 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
     var h = '<div class="pow-sub">Your Satoshi Passport rank' + (me.nickname ? ' · <strong>' + esc(me.nickname) + '</strong>' : '') + '</div>' +
       '<div class="pow-rank">' + esc(me.rank.label || 'No rank yet') + '</div>' +
       '<div class="pow-sub">' + me.stamps + ' of ' + me.map_statues + ' statues stamped' + (me.next ? ' · next: <strong>' + esc(me.next.label) + '</strong> with one more stamp' : '') + '</div>' + pips(me);
-    if (me.genesis) h += '<div class="pow-genesis">🧱 <strong>Genesis Block</strong> · member of The Grand High Order of Fellow Travelers since ' +
-      esc((me.joined_at || '').slice(0, 10)) + (me.bonus_stamps && me.bonus_stamps.length ? ' · ' + me.bonus_stamps.length + ' gold bonus stamp' + (me.bonus_stamps.length === 1 ? '' : 's') : '') +
-      (me.missing_new && me.missing_new.length ? '<br><span class="pow-fine">New on the map since you joined: ' + me.missing_new.length + ' statue' + (me.missing_new.length === 1 ? '' : 's') + ' to collect as gold bonus stamps.</span>' : '') + '</div>';
-    else if (me.stamps > 0) h += '<p class="pow-fine">Stamp all ' + (me.genesis_statues || me.map_statues) + ' Genesis statues to mine the Genesis Block' +
-      (me.genesis_excluded && me.genesis_excluded.length ? ' (dashed circles are gold bonus stamps: they count toward your rank, not the Genesis Block).' : '.') + '</p>';
+    var oN = me.order_statues || me.map_statues, gN = me.genesis_statues || 10, gold = (me.bonus_stamps || []).length, gHave = me.stamps - gold;
+    if (me.order) h += '<div class="pow-genesis">🏛️ <strong>The Grand High Order of Fellow Travelers</strong> · all ' + oN + ' of ' + oN + ' stampable statues, complete since ' + esc((me.order_since || '').slice(0, 10)) + '</div>';
+    if (me.genesis) h += '<div class="pow-genesis">🧱 <strong>Genesis Block: Original 10</strong> · mined ' + esc((me.joined_at || '').slice(0, 10)) +
+      (gold ? ' · ' + gold + ' gold bonus stamp' + (gold === 1 ? '' : 's') : '') +
+      (!me.order && me.order_missing && me.order_missing.length ? '<br><span class="pow-fine">The Grand High Order: ' + (oN - me.order_missing.length) + ' of ' + oN + ' statues. ' + me.order_missing.length + ' to go.</span>' : '') + '</div>';
+    else if (me.stamps > 0) h += '<p class="pow-fine">Genesis Block: Original 10: <strong>' + gHave + ' of ' + gN + '</strong> · The Grand High Order: <strong>' + me.stamps + ' of ' + oN + '</strong>' +
+      (me.genesis_excluded && me.genesis_excluded.length ? ' (dashed circles are gold bonus stamps: they count toward your rank and the Order, not the Genesis Block).' : '.') + '</p>';
     if (me.share && window.SSShare) h += window.SSShare.row(me.share, URL_POW, 'Share your rank');
     h += '<form class="pow-form" id="pow-form"><label for="pow-nick">Passport nickname (shown on the leaderboard)</label>' +
       '<input id="pow-nick" name="nick" maxlength="20" autocomplete="nickname" placeholder="Nickname or @handle" value="' + esc(me.nickname || get(NICK) || '') + '">' +
@@ -217,21 +222,25 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
       if (!j.ok) return off(el);
       if ($('pow-total')) $('pow-total').textContent = j.total_walkers + (j.total_walkers === 1 ? ' walker' : ' walkers') + ' so far.';
       el.innerHTML = j.entries.length ? j.entries.map(function (x) {
-        return '<li><span class="lb-rank">' + x.position + '</span><span class="lb-who"><span class="lb-name">' + esc(x.name) + (x.genesis ? '<span class="pow-badge">🧱 Genesis</span>' : '') +
+        return '<li><span class="lb-rank">' + x.position + '</span><span class="lb-who"><span class="lb-name">' + esc(x.name) + (x.order ? '<span class="pow-badge">🏛️ Order</span>' : '') + (x.genesis ? '<span class="pow-badge">🧱 Genesis</span>' : '') +
           '</span><span class="lb-meta">' + esc(x.rank) + '</span></span><span class="lb-stamps">' + x.stamps + '<small>stamp' + (x.stamps === 1 ? '' : 's') + '</small></span></li>';
       }).join('') : '<li class="lb-empty">No walkers yet. Be the first.</li>';
     }).catch(function () { off(el); });
   }
   function loadRoll() {
-    var el = $('pow-roll'); if (!el) return;
+    var el = $('pow-roll'), ge = $('pow-genesis-roll'); if (!el) return;
+    var day = function (d) { return esc(new Date(d + 'T12:00:00Z').toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })); };
     getj('/api/pow/order').then(function (j) {
-      if (!j.ok) return off(el);
+      if (!j.ok) { off(el); off(ge); return; }
       el.innerHTML = j.members.length ? j.members.map(function (m) {
-        return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + esc(m.name) + '</span><span class="lb-meta">Joined ' +
-          esc(new Date(m.joined + 'T12:00:00Z').toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })) + '</span></span>' +
-          (m.bonus_stamps ? '<span class="lb-stamps">' + m.bonus_stamps + '<small>gold bonus</small></span>' : '') + '</li>';
-      }).join('') : '<li class="lb-empty">No members yet. The first walker to stamp every statue on the map mines the Genesis Block.</li>';
-    }).catch(function () { off(el); });
+        return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + esc(m.name) + '</span><span class="lb-meta">All ' + j.order_statues + ' since ' +
+          day(m.since) + '</span></span></li>';
+      }).join('') : '<li class="lb-empty">No members yet. The first walker to stamp all ' + j.order_statues + ' stampable statues joins the Order.</li>';
+      if (ge) ge.innerHTML = (j.genesis || []).length ? j.genesis.map(function (m) {
+        return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + esc(m.name) + '</span><span class="lb-meta">Mined ' +
+          day(m.joined) + '</span></span>' + (m.bonus_stamps ? '<span class="lb-stamps">' + m.bonus_stamps + '<small>gold bonus</small></span>' : '') + '</li>';
+      }).join('') : '<li class="lb-empty">No miners yet. The first walker to stamp all 10 original statues mines the Genesis Block.</li>';
+    }).catch(function () { off(el); off(ge); });
   }
   loadMe(); renderRecover(); loadList(); loadRoll();
 })();
