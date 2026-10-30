@@ -102,7 +102,7 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
     <div class="crumbs"><a href="/">Map</a> › Leaderboard</div>
     <h1>🏆 Satoshi Passport Leaderboard</h1>
     <p class="sub">Who has stamped the most of the 11 installed Satoshi statues? <span id="lb-total"></span></p>
-    <p class="note">👣 Pills show each walker’s Proof of Walk rank (GPS-verified stamps only): 🧱 Genesis Block for the original 10, 🏛️ Grand High Order for every stampable statue. <a href="/proof-of-walk/">How ranks work →</a></p>
+    <p class="note">👣 Pills show each walker’s Proof of Walk rank (GPS-verified stamps only): 🧱 Genesis Block for any 10 statues, 🏛️ Grand High Order for 11 or more. <a href="/proof-of-walk/">How ranks work →</a></p>
     <div class="lb-me" id="lb-me" aria-live="polite">Loading…</div>
     <noscript><p class="note">The leaderboard needs JavaScript.</p></noscript>
     <h2>Top visitors</h2>
@@ -138,7 +138,7 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
     if (!p || !p.label) return '';
     if (p.order) return '<a class="lb-pill gen" href="/proof-of-walk/fellow-travelers/" title="Proof of Walk: The Grand High Order of Fellow Travelers · ' + esc(p.label) + '">🏛️ <strong>Grand High Order</strong></a>';
     return p.genesis
-      ? '<a class="lb-pill gen" href="/proof-of-walk/" title="Proof of Walk: Genesis Block: Original 10 · ' + esc(p.label) + '">🧱 <strong>Genesis Block</strong></a>'
+      ? '<a class="lb-pill gen" href="/proof-of-walk/" title="Proof of Walk: Genesis Block (any 10 statues) · ' + esc(p.label) + '">🧱 <strong>Genesis Block</strong></a>'
       : '<a class="lb-pill" href="/proof-of-walk/" title="Proof of Walk rank">👣 <strong>' + esc(p.label) + '</strong></a>';
   }
   function stampsMeta(e) {
