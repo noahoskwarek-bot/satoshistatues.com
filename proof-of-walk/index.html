@@ -120,6 +120,8 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
 (function () {
   var A = window.SS_API, DEV = 'satoshiDevice.v1', NICK = 'satoshiNick.v1', PAGE = document.body.getAttribute('data-pow') || 'main';
   var URL_POW = location.origin + '/proof-of-walk/';
+  var SHARE_SLUG = { confirmed: 'confirmed', genesis: 'genesis-block', order: 'grand-high-order' };
+  var shareUrl = function (me) { var k = me && me.rank && SHARE_SLUG[me.rank.key]; return k ? URL_POW + 'share/' + k + '/' : URL_POW; };
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
   var get = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
   var set = function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} };
@@ -146,7 +148,7 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
       '<br><span class="pow-fine">' + me.distinct_stamps + ' statues stamped</span></div>';
     if (me.genesis) h += '<div class="pow-genesis">🧱 <strong>Genesis Block</strong> · mined ' + esc((me.joined_at || '').slice(0, 10)) +
       (!me.order ? '<br><span class="pow-fine">Stamp ' + (me.order_needed || 1) + ' more statue' + ((me.order_needed || 1) === 1 ? '' : 's') + ', anywhere on the map, to join the Grand High Order.</span>' : '') + '</div>';
-    if (me.share && window.SSShare) h += window.SSShare.row(me.share, URL_POW, 'Share your rank');
+    if (me.share && window.SSShare) h += window.SSShare.row(me.share, shareUrl(me), 'Share your rank');
     h += '<form class="pow-form" id="pow-form"><label for="pow-nick">Passport nickname (shown on the leaderboard)</label>' +
       '<input id="pow-nick" name="nick" maxlength="20" autocomplete="nickname" placeholder="Nickname or @handle" value="' + esc(me.nickname || get(NICK) || '') + '">' +
       '<label for="pow-ln">Lightning address (optional, for passport recovery)</label>' +

@@ -1562,6 +1562,8 @@ POW_JS = r"""<script src="/share.js"></script>
 (function () {
   var A = window.SS_API, DEV = 'satoshiDevice.v1', NICK = 'satoshiNick.v1', PAGE = document.body.getAttribute('data-pow') || 'main';
   var URL_POW = location.origin + '/proof-of-walk/';
+  var SHARE_SLUG = { confirmed: 'confirmed', genesis: 'genesis-block', order: 'grand-high-order' };
+  var shareUrl = function (me) { var k = me && me.rank && SHARE_SLUG[me.rank.key]; return k ? URL_POW + 'share/' + k + '/' : URL_POW; };
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
   var get = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
   var set = function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} };
@@ -1588,7 +1590,7 @@ POW_JS = r"""<script src="/share.js"></script>
       '<br><span class="pow-fine">' + me.distinct_stamps + ' statues stamped</span></div>';
     if (me.genesis) h += '<div class="pow-genesis">🧱 <strong>Genesis Block</strong> · mined ' + esc((me.joined_at || '').slice(0, 10)) +
       (!me.order ? '<br><span class="pow-fine">Stamp ' + (me.order_needed || 1) + ' more statue' + ((me.order_needed || 1) === 1 ? '' : 's') + ', anywhere on the map, to join the Grand High Order.</span>' : '') + '</div>';
-    if (me.share && window.SSShare) h += window.SSShare.row(me.share, URL_POW, 'Share your rank');
+    if (me.share && window.SSShare) h += window.SSShare.row(me.share, shareUrl(me), 'Share your rank');
     h += '<form class="pow-form" id="pow-form"><label for="pow-nick">Passport nickname (shown on the leaderboard)</label>' +
       '<input id="pow-nick" name="nick" maxlength="20" autocomplete="nickname" placeholder="Nickname or @handle" value="' + esc(me.nickname || get(NICK) || '') + '">' +
       '<label for="pow-ln">Lightning address (optional, for passport recovery)</label>' +
@@ -1745,6 +1747,51 @@ def pow_roll_page(data):
   </main>
 """
     return out + api_script() + POW_JS + '\n' + TAIL
+
+
+# Per-rank share pages (/proof-of-walk/share/<slug>/): static HTML whose og:image / twitter:image is that rank's card
+# (img/pow-share/<slug>.jpg, 1200x675), so X, iMessage, Slack and Facebook show the rank card without running JS.
+# noindex, not in the sitemap (robots.txt still allows fetching), canonical -> /proof-of-walk/; humans are sent on to
+# /proof-of-walk/ by JS (crawlers don't run it, so they keep this page's tags). "Share your rank" (POW_JS and checkin.js)
+# picks the URL from me.rank.key. No nickname or other user data ever goes in these URLs or images.
+POW_SHARE = {  # rank.key from the Worker -> (slug, emoji, title, description, image alt)
+    'confirmed': ('confirmed', '👣', 'Confirmed on Proof of Walk',
+                  'I stamped my first Satoshi statue. Walk to a Satoshi statue, tap “Check in here” and get your passport stamped. No signup, no cost.',
+                  'Proof of Walk: Confirmed. I stamped my first Satoshi statue.'),
+    'genesis': ('genesis-block', '🧱', 'I mined the Genesis Block on Proof of Walk',
+                'GENESIS_RULE. Walk to Satoshi statues around the world and get your passport stamped. No signup, no cost.',
+                'Proof of Walk: Genesis Block card.'),
+    'order': ('grand-high-order', '🏛️', 'I joined the Grand High Order of Fellow Travelers',
+              'ORDER_RULE. Walk to Satoshi statues around the world and get your passport stamped. No signup, no cost.',
+              'Proof of Walk: Grand High Order of Fellow Travelers card. I joined the Grand High Order.'),
+}
+
+
+def pow_share_url(key):
+    return f'{SITE}/proof-of-walk/share/{POW_SHARE[key][0]}/'
+
+
+def pow_share_page(data, key):
+    slug, emoji, title, desc, alt = POW_SHARE[key]
+    rule = {'genesis': f'Stamped any {pow_genesis_required(data)} of the original 10 Satoshi statues',
+            'order': f'The Genesis Block plus {pow_order_extra(data)} more Satoshi statue{"" if pow_order_extra(data) == 1 else "s"}'}.get(key, '')
+    desc = desc.replace('GENESIS_RULE', rule).replace('ORDER_RULE', rule)
+    url, img = pow_share_url(key), f'{SITE}/img/pow-share/{slug}.jpg'
+    out = head(title, desc, SITE + '/proof-of-walk/', img, 1200, 675, alt, '')
+    out = out.replace('<meta name="robots" content="index, follow" />', '<meta name="robots" content="noindex, follow" />', 1)
+    out = out.replace(f'<meta property="og:url" content="{SITE}/proof-of-walk/" />', f'<meta property="og:url" content="{url}" />', 1)
+    out = out.replace('<meta property="og:image:width"', f'<meta property="og:image:type" content="image/jpeg" />\n  <meta property="og:image:width"', 1)
+    out = out.replace('<head>', '<head>\n  <script>if (!/bot|crawl|spider|preview|facebookexternalhit|slack|twitter|whatsapp|telegram|discord/i.test(navigator.userAgent)) location.replace("/proof-of-walk/");</script>', 1)
+    out += f"""  <main>
+    <div class="crumbs"><a href="/">Map</a> › <a href="/proof-of-walk/">Proof of Walk</a></div>
+    <h1>{emoji} {e(title)}</h1>
+    <p class="sub">{e(desc)}</p>
+    <p><img src="/img/pow-share/{slug}.jpg" width="1200" height="675" alt="{e(alt)}" style="width:100%;height:auto;border-radius:10px" /></p>
+    <p class="note"><a href="/proof-of-walk/">See Proof of Walk ranks and start your passport →</a></p>
+    {footer(data)}
+  </main>
+"""
+    return out + TAIL
 
 
 def pow_privacy_html(data):
@@ -2788,6 +2835,8 @@ def outputs(data):
     if pow_cfg(data):
         files['proof-of-walk/index.html'] = pow_page(data)
         files['proof-of-walk/fellow-travelers/index.html'] = pow_roll_page(data)
+        for k in POW_SHARE:
+            files[f'proof-of-walk/share/{POW_SHARE[k][0]}/index.html'] = pow_share_page(data, k)
     for s in data['statues']:
         files[f"{s['page']}/index.html"] = statue_page(s, data)
     return files

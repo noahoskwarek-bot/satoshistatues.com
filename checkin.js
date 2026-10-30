@@ -174,7 +174,9 @@ function powStatus(me) {
 }
 function powRankUpHtml(p) {
   if (!p || !p.ranked_up || !p.me || !p.me.share) return '';
-  const url = location.origin + '/proof-of-walk/';
+  // Per-rank share page (static og:image card for crawlers; humans land on /proof-of-walk/).
+  const slug = { confirmed: 'confirmed', genesis: 'genesis-block', order: 'grand-high-order' }[p.me.rank && p.me.rank.key];
+  const url = location.origin + '/proof-of-walk/' + (slug ? `share/${slug}/` : '');
   const head = p.order_new
     ? `🏛️ <strong>The Grand High Order of Fellow Travelers!</strong> The Genesis Block plus 1 more statue${p.genesis_new ? ', and you mined the Genesis Block too' : ''}. It’s yours for good (<a href="/proof-of-walk/fellow-travelers/">the roll</a>).`
     : p.genesis_new
