@@ -152,7 +152,7 @@ async function lbSubmit(s, c) {
       const me = j.me;
       let html = `<div class="lb-note">🏆 ${me && me.rank ? `You're <strong>#${me.rank}</strong> on the <a href="/leaderboard/">leaderboard</a> with ${me.stamps} stamp${me.stamps === 1 ? '' : 's'}.` : 'Saved to the <a href="/leaderboard/">leaderboard</a>.'}</div>`;
       if (j.pow && j.pow.me && j.pow.me.rank && j.pow.me.rank.label && !j.pow.ranked_up)
-        html += `<div class="lb-note">👣 ${escHtml(j.pow.me.rank.label)} on <a href="/proof-of-walk/">Proof of Walk</a></div>`;
+        html += `<div class="lb-note">👣 ${powStatus(j.pow.me)} on <a href="/proof-of-walk/">Proof of Walk</a></div>`;
       if (!(me && me.nickname) && !lsGet(LB_NICK_SKIP)) html += lbNickForm('Show a name or X handle on the leaderboard? (optional)');
       html += powRankUpHtml(j.pow);
       return { html };
@@ -163,16 +163,22 @@ async function lbSubmit(s, c) {
     return { html: '<div class="lb-note">Couldn\'t reach the leaderboard, so this stamp is only in your passport.</div>' };
   }
 }
-// Proof of Walk: the Worker adds `pow` to the check-in reply only when POW_ENABLED is on. A rank-up (or the Genesis
-// Block: Original 10, or The Grand High Order) gets a short note plus the usual Share buttons (share.js) with the rank line, e.g. "I'm 4 Confirmations deep…".
+// Proof of Walk: the Worker adds `pow` to the check-in reply only when POW_ENABLED is on. Three ranks: Confirmed (first
+// stamp), Genesis Block (10 statues), The Grand High Order (Genesis + 1 more). Progress: "N of 10 to Genesis".
+// A new rank gets a short note plus the usual Share buttons (share.js) with the rank line.
+function powStatus(me) {
+  if (me.order) return '🏛️ <strong>Grand High Order</strong>';
+  if (me.genesis) return '🧱 <strong>Genesis Block</strong> · stamp 1 more to join the Grand High Order';
+  return `<strong>${me.genesis_progress} of ${me.genesis_at || 10} to Genesis</strong>`;
+}
 function powRankUpHtml(p) {
   if (!p || !p.ranked_up || !p.me || !p.me.share) return '';
   const url = location.origin + '/proof-of-walk/';
   const head = p.order_new
-    ? `🏛️ <strong>The Grand High Order of Fellow Travelers!</strong> Every statue on the map is stamped${p.genesis_new ? ', and you mined the Genesis Block: Original 10' : ''} (<a href="/proof-of-walk/fellow-travelers/">the roll</a>).`
+    ? `🏛️ <strong>The Grand High Order of Fellow Travelers!</strong> The Genesis Block plus 1 more statue${p.genesis_new ? ', and you mined the Genesis Block too' : ''}. It’s yours for good (<a href="/proof-of-walk/fellow-travelers/">the roll</a>).`
     : p.genesis_new
-    ? `🧱 <strong>Genesis Block: Original 10!</strong> All 10 original statues are stamped (<a href="/proof-of-walk/fellow-travelers/#genesis">the roll</a>). Stamp every statue on the map to join The Grand High Order of Fellow Travelers.`
-    : `👣 Rank up: <strong>${escHtml(p.to)}</strong> on <a href="/proof-of-walk/">Proof of Walk</a>.`;
+    ? `🧱 <strong>Genesis Block!</strong> ${p.me.genesis_mode === 'any' ? '10 statues stamped' : 'All 10 original statues stamped'} (<a href="/proof-of-walk/fellow-travelers/#genesis">the roll</a>). Stamp 1 more to join the Grand High Order of Fellow Travelers.`
+    : `👣 <strong>Confirmed</strong> on <a href="/proof-of-walk/">Proof of Walk</a>: ${p.me.genesis_progress} of ${p.me.genesis_at || 10} to Genesis.`;
   const share = window.SSShare ? window.SSShare.row(p.me.share, url, 'Share your rank')
     : `<div class="ci-share"><a class="btn" href="https://x.com/intent/post?text=${encodeURIComponent(p.me.share)}&url=${encodeURIComponent(url)}" target="_blank" rel="noopener noreferrer">𝕏 Share on X</a></div>`;
   return `<div class="lb-note pow-up">${head}</div>${share}`;
