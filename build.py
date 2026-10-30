@@ -593,7 +593,13 @@ if(n>0){el.textContent="\\uD83D\\uDC63 "+n+(n===1?" person has":" people have")+
 def footer(data, extra=''):
     nostr = f' · <a href="{e(nostr_url(data))}" rel="me">Nostr</a>' if nostr_url(data) else ''
     return (f'<footer class="site"><a href="/">satoshistatues.com</a> · <a href="/21-nodes/">21 Nodes tracker</a> · '
-            f'<a href="/leaderboard/">Leaderboard</a> · <a href="/feed.xml">Feed</a>{nostr}{extra}{fountain_footer_link(data)} · <a href="/privacy/">Privacy</a></footer>')
+            f'<a href="/leaderboard/">Leaderboard</a> · <a href="/feed.xml">Feed</a>{nostr}{extra}{fountain_footer_link(data)} · <a href="/privacy/">Privacy</a>'
+            f'{support_line()}</footer>')
+
+
+def support_line():
+    # 'Questions? support@…' on its own small line at the bottom of every page's footer (home: BUILD:SUPPORT block).
+    return f'<span class="support-line">Questions? <a href="mailto:{SUPPORT_EMAIL}">{SUPPORT_EMAIL}</a></span>'
 
 
 def slug_of(s):
@@ -778,7 +784,7 @@ th{color:#8b949e;font-weight:600;font-size:.8rem}
 .tbl{overflow-x:auto;border:1px solid #30363d;border-radius:10px;background:#161b22}
 .big{font-size:3rem;font-weight:800;line-height:1}.big small{font-size:1.4rem;color:#8b949e}
 .bar{height:10px;background:#21262d;border-radius:5px;overflow:hidden;margin:10px 0 4px;max-width:420px}.bar span{display:block;height:100%;background:linear-gradient(90deg,#f7931a,#ffb347)}
-footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-size:.8rem;color:#8b949e}
+footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-size:.8rem;color:#8b949e}.support-line{display:block;margin-top:6px;font-size:.8rem;color:#8b949e}
 #comments{min-height:120px}
 @media (max-width:600px){.brand-logo{height:36px}.top .tagline{font-size:.72rem;padding-left:10px}.top nav{width:100%}h1{font-size:1.4rem}.facts{grid-template-columns:1fr;gap:0}.facts dt{margin-top:8px}.facts dt:first-child{margin-top:0}td,th{padding:8px 6px}}
 '''.strip()
@@ -2548,6 +2554,7 @@ def passport_print_page(data):
     </div>
     <div class="foot"><span>satoshistatues.com · Every Satoshi statue on Earth</span><span>Printed passport · statue list as of {BUILD_DATE}</span></div>
   </main>
+  <p class="help no-print" style="margin-bottom:24px">{support_line()}</p>
 {PRINT_JS}
   <script data-goatcounter="https://satoshistatues.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
@@ -2627,6 +2634,7 @@ def build_index(data, text):
     text = replace_block(text, 'LINKS', links)
     text = replace_block(text, 'SIGNUP', '        ' + signup_html(data, 'home'))
     text = replace_block(text, 'EMBED', embed_box_html())
+    text = replace_block(text, 'SUPPORT', '        <p class="support-p">' + support_line() + '</p>')
     text = replace_block(text, 'HEADLINKS', '  ' + FEED_LINK + '\n  <style>' + ALERT_CSS + '</style>' + ('\n  ' + api_script() if api_script() else '') + '\n  ' + checkin_script() + giveaway_home_head(data))
     return text
 
