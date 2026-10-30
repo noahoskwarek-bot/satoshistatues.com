@@ -721,6 +721,16 @@
     .pp-rank strong { color: #f7931a; }
     .pp-rank:hover { border-color: #f7931a; }
     .pp-rank[hidden] { display: none; }
+    .pp-pow { background: #0d1117; border: 1px solid #30363d; border-left: 3px solid #f7931a; border-radius: 10px; padding: 12px 14px; margin: 12px 0 10px; font-size: 0.9rem; line-height: 1.45; color: #c9d1d9; }
+    .pp-pow-title { margin: 0 0 2px; font-size: 1.05rem; font-weight: 800; }
+    .pp-pow-title a { color: #f7931a; text-decoration: none; }
+    .pp-pow-title a:hover { text-decoration: underline; }
+    .pp-pow-tag { margin: 0 0 8px; color: #e6edf3; font-weight: 600; }
+    .pp-pow p { margin: 0 0 8px; }
+    .pp-pow-ranks { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 4px; }
+    .pp-pow-ranks strong { color: #e6edf3; }
+    .pp-pow .pp-pow-last { margin: 0; }
+    .pp-pow-last a { color: #58a6ff; white-space: nowrap; }
     .pp-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0 6px; }
     .pp-primary { min-height: 48px; border-radius: 10px; border: none; background: #f7931a; color: #0d1117; font-weight: 700; font-size: 0.95rem; font-family: inherit; cursor: pointer; padding: 10px 12px; }
     .pp-primary:hover { background: #ffb347; }
@@ -959,6 +969,17 @@
         <button class="pp-primary" type="button" id="share-main" onclick="sharePassport()">📤 Share my passport</button>
       </div>
       <div class="checkin-msg" id="geo-test-result" aria-live="polite"></div>
+      <section class="pp-pow" aria-labelledby="pp-pow-title">
+        <h3 class="pp-pow-title" id="pp-pow-title"><a href="/proof-of-walk/">👣 Proof of Walk</a></h3>
+        <p class="pp-pow-tag">Bitcoin has “proof of work.” We have proof of walk.</p>
+        <p>Visit a Satoshi statue anywhere in the world, tap “Check in here,” and get your passport stamped. No signup, no cost.</p>
+        <ul class="pp-pow-ranks">
+          <li>✅ <strong>Confirmed:</strong> your first stamp</li>
+          <li>🧱 <strong>Genesis Block:</strong> stamp any 3 of the original 10 statues</li>
+          <li>🏛️ <strong>Grand High Order:</strong> go beyond Genesis</li>
+        </ul>
+        <p class="pp-pow-last">Some statues even pay you free sats (tiny bits of bitcoin) for checking in. New to Bitcoin? <a href="https://www.walletofsatoshi.com/" target="_blank" rel="noopener">Get a free wallet in 2 minutes →</a></p>
+      </section>
       <a class="pp-print" href="/passport/print/">🖨️ Printable passport<span class="pp-print-sub">Print it, then add dates and signatures</span></a>
       <h3 class="pp-section">Stamps <span class="pp-section-sub">Tap a city to see it on the map</span></h3>
       <ul class="stamp-grid" id="passport-list"></ul>
