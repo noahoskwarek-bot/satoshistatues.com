@@ -1720,6 +1720,140 @@
       "last_confirmed_source": "report",
       "last_confirmed_url": "https://bitcoin-austria.at/beitraege/satoshi-statue-enthuellung-wien/",
       "alert": null
+    },
+    {
+      "name": "Buenos Aires",
+      "country": "Argentina",
+      "city": "Buenos Aires",
+      "place": "Polo DOT, Saavedra",
+      "lat": -34.547,
+      "lng": -58.4893,
+      "year": 2026,
+      "artist": "Ricardo Alonso & Celeste Difabio Videla",
+      "artistUrl": null,
+      "type": "Stainless-steel and glass cube (2.4 m per side)",
+      "status": "Unveiled",
+      "statusLabel": "Unveiled Oct 2026 · visiting hours not published",
+      "note": "“El Génesis de Satoshi Nakamoto”: a 2.4 m stainless-steel and glass cube inspired by Bitcoin’s genesis block. Unveiled on 29 Oct 2026 at Polo DOT in Buenos Aires, at the opening of LABITCONF 2026. Public visiting hours haven’t been published yet.",
+      "stamp_note": "Not on the Satoshi Passport yet, so it can’t be stamped (not counted in the total). Public visiting hours haven’t been published yet.",
+      "stamp_short": "No stamp yet (visiting hours not published)",
+      "img": "https://pbs.twimg.com/amplify_video_thumb/2115950989060501504/img/lrX3lM1ZxObBQ5VR.jpg",
+      "imgW": 675,
+      "imgH": 1200,
+      "photo_credit": "@labitconf",
+      "page": "buenos-aires",
+      "unveiled": "29 Oct 2026",
+      "series21": false,
+      "access": "Public visiting hours haven’t been published yet. Check with the organisers before you go.",
+      "accessSource": {
+        "label": "Criptoinforme",
+        "url": "https://criptoinforme.com/eventos/monumento-satoshi-nakamoto-buenos-aires/"
+      },
+      "sources": [
+        {
+          "label": "LABITCONF on X (29 Oct 2026)",
+          "url": "https://x.com/labitconf/status/2115951055775424622"
+        },
+        {
+          "label": "Bitcoin Argentina (ONG) on X (30 Oct 2026)",
+          "url": "https://x.com/BitcoinAR/status/2116131286360187206"
+        },
+        {
+          "label": "Criptoinforme (22 Oct 2026)",
+          "url": "https://criptoinforme.com/eventos/monumento-satoshi-nakamoto-buenos-aires/"
+        }
+      ],
+      "label": "Satoshi Monument Buenos Aires",
+      "pin_note": "Pin: Polo DOT office park; exact spot not published",
+      "story": [
+        {
+          "label": "Title",
+          "text": "“El Génesis de Satoshi Nakamoto”.",
+          "sources": [
+            {
+              "label": "LABITCONF on X (29 Oct 2026)",
+              "url": "https://x.com/labitconf/status/2115951055775424622"
+            },
+            {
+              "label": "Bitcoin Argentina (ONG) on X (30 Oct 2026)",
+              "url": "https://x.com/BitcoinAR/status/2116131286360187206"
+            }
+          ]
+        },
+        {
+          "label": "Artists",
+          "text": "Ricardo Alonso and Celeste Difabio Videla.",
+          "sources": [
+            {
+              "label": "Bitcoin Argentina (ONG) on X (30 Oct 2026)",
+              "url": "https://x.com/BitcoinAR/status/2116131286360187206"
+            },
+            {
+              "label": "Criptoinforme (22 Oct 2026)",
+              "url": "https://criptoinforme.com/eventos/monumento-satoshi-nakamoto-buenos-aires/"
+            }
+          ]
+        },
+        {
+          "label": "Unveiled",
+          "text": "Thursday 29 Oct 2026, in the evening, at Polo DOT in Buenos Aires, at the opening cocktail of LABITCONF 2026.",
+          "sources": [
+            {
+              "label": "LABITCONF on X (29 Oct 2026)",
+              "url": "https://x.com/labitconf/status/2115951055775424622"
+            },
+            {
+              "label": "Bitcoin Argentina (ONG) on X (30 Oct 2026)",
+              "url": "https://x.com/BitcoinAR/status/2116131286360187206"
+            }
+          ]
+        },
+        {
+          "label": "What it is",
+          "text": "A stainless-steel and glass structure measuring 2.40 × 2.40 × 2.40 m, inspired by Bitcoin’s genesis block, the first block of the chain. Per the organisers, it combines architecture, light and reflections so visitors can walk around it and see it from different angles.",
+          "reported": true,
+          "sources": [
+            {
+              "label": "Criptoinforme (22 Oct 2026)",
+              "url": "https://criptoinforme.com/eventos/monumento-satoshi-nakamoto-buenos-aires/"
+            }
+          ]
+        },
+        {
+          "label": "How it came about",
+          "text": "Selected in the monument category of the Premio B·Arte 2025 art competition. A project of the NGO Bitcoin Argentina, funded by the Fundación Bitcoin Iberoamérica, with Polo DOT as the venue.",
+          "reported": true,
+          "sources": [
+            {
+              "label": "Bitcoin Argentina (ONG) on X (30 Oct 2026)",
+              "url": "https://x.com/BitcoinAR/status/2116131286360187206"
+            },
+            {
+              "label": "Criptoinforme (22 Oct 2026)",
+              "url": "https://criptoinforme.com/eventos/monumento-satoshi-nakamoto-buenos-aires/"
+            }
+          ]
+        }
+      ],
+      "visit": {
+        "updated": "2026-10-30",
+        "exact_spot": "At Polo DOT, the office complex next to the DOT Baires shopping centre (Vedia 3600, Saavedra, Buenos Aires). The organisers’ press release places it in the complex’s Workplace area; the exact spot hasn’t been published.\n\nPin: the Polo DOT office park in OpenStreetMap (-34.5470, -58.4893), about 135 m from the DOT Baires shopping centre.",
+        "hours_access": "Public visiting hours haven’t been published yet. The organisers say anyone who wants to will be able to visit, but no hours or conditions have been announced. Check with Bitcoin Argentina or LABITCONF before you go.",
+        "sources": [
+          {
+            "label": "Bitcoin Argentina (ONG) on X (30 Oct 2026)",
+            "url": "https://x.com/BitcoinAR/status/2116131286360187206"
+          },
+          {
+            "label": "Criptoinforme (22 Oct 2026)",
+            "url": "https://criptoinforme.com/eventos/monumento-satoshi-nakamoto-buenos-aires/"
+          }
+        ]
+      },
+      "last_confirmed": "2026-10",
+      "last_confirmed_source": "report",
+      "last_confirmed_url": "https://x.com/BitcoinAR/status/2116131286360187206",
+      "last_confirmed_kind": "reported"
     }
   ],
   "upcoming21": [

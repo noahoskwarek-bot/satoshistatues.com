@@ -418,6 +418,49 @@
      "verified_at": "2023-01-31"
     }
    ]
+  },
+  "buenos-aires": {
+   "lat": -34.547,
+   "lng": -58.4893,
+   "within_1km": 1,
+   "within_5km": 13,
+   "nearest": [
+    {
+     "id": 17380,
+     "name": "MSTravel",
+     "icon": "luggage",
+     "km": 0.545,
+     "verified_at": "2024-01-12"
+    },
+    {
+     "id": 24501,
+     "name": "MC Carnes Premium",
+     "icon": "local_grocery_store",
+     "km": 2.364,
+     "verified_at": "2026-03-24"
+    },
+    {
+     "id": 18572,
+     "name": "L´Aperó",
+     "icon": "restaurant",
+     "km": 2.9,
+     "verified_at": "2024-03-24"
+    },
+    {
+     "id": 22726,
+     "name": "Coffee Bar Rosa",
+     "icon": "local_cafe",
+     "km": 2.96,
+     "verified_at": "2024-12-19"
+    },
+    {
+     "id": 16527,
+     "name": "Oslo",
+     "icon": "liquor",
+     "km": 3.026,
+     "verified_at": "2023-11-25"
+    }
+   ]
   }
  }
 }

@@ -261,6 +261,11 @@
      "lng": 16.374261
     }
    ]
+  },
+  "buenos-aires": {
+   "within_radius": 0,
+   "within_fallback": 0,
+   "nearest": []
   }
  }
 }

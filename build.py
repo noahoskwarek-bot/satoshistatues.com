@@ -31,9 +31,11 @@ SITE = 'https://www.satoshistatues.com'
 REPO = 'noahoskwarek-bot/satoshistatues.com'
 GISCUS = dict(repoId='R_kgDOT4kDjw', category='Announcements', categoryId='DIC_kwDOT4kDj84DJD3w')
 COUNTRY_ISO = {'Hungary': 'HU', 'Switzerland': 'CH', 'El Salvador': 'SV', 'Japan': 'JP', 'Vietnam': 'VN',
-               'USA': 'US', 'Italy': 'IT', 'China': 'HK', 'Slovenia': 'SI', 'Austria': 'AT'}
+               'USA': 'US', 'Italy': 'IT', 'China': 'HK', 'Slovenia': 'SI', 'Austria': 'AT', 'Argentina': 'AR'}
 CHECKABLE = ('Installed', 'Restored', 'Damaged', 'Donated')  # Damaged = still in place; Donated = unveiled + donated, pin at the
 # unveiling venue (Hong Kong). All of these count in the passport total and can be stamped.
+# Any other status (Planned, Unveiled, ...) is listed with a page and pin but can't be stamped and isn't counted.
+# 'Unveiled' = unveiled at a known spot but public visiting isn't confirmed yet; statue.stamp_note / stamp_short explain why.
 BUILD_DATE = os.environ.get('BUILD_DATE') or datetime.date.today().isoformat()
 LB_API = ''  # set from statues.json config.leaderboard_api in load()
 POW_ON = False  # config.proof_of_walk.enabled, set in load()
@@ -682,7 +684,8 @@ def nodes21(data):
 def home_ld(data):
     st = data['statues']
     installed = [s for s in st if s['status'] in CHECKABLE]
-    planned = [s for s in st if s['status'] not in CHECKABLE]
+    planned = [s for s in st if s['status'] not in CHECKABLE and s['status'] == 'Planned']
+    unlisted = [s for s in st if s['status'] not in CHECKABLE and s['status'] != 'Planned']
     newest = max(installed, key=unveil_key)
     series, s21 = nodes21(data)
     others = [s for s in st if not s.get('series21')]
@@ -706,7 +709,8 @@ def home_ld(data):
             {'@type': 'Question', 'name': 'How many Satoshi statues are there?',
              'acceptedAnswer': {'@type': 'Answer', 'text':
                  f"satoshistatues.com tracks {len(st)} Satoshi Nakamoto statues and Bitcoin monuments: {len(installed)} on the Satoshi Passport and "
-                 f"{len(planned)} planned: " + ', '.join(f"Valentina Picozzi’s {s['city']} statue, unveiled {s['unveiled']} and awaiting a permanent public site" for s in planned) + ". "
+                 f"{len(planned)} planned: " + ', '.join(f"Valentina Picozzi’s {s['city']} statue, unveiled {s['unveiled']} and awaiting a permanent public site" for s in planned) +
+                 (f", plus {len(unlisted)} unveiled but not on the passport yet: " + ', '.join(f"the {s['label']}, unveiled {s['unveiled']} (public visiting hours not published yet)" for s in unlisted) if unlisted else '') + ". "
                  f"{len(s21)} of the 21 statues in Valentina Picozzi’s “21 Nodes” series are on the passport so far."}},
             {'@type': 'Question', 'name': 'Where is the newest Satoshi statue?',
              'acceptedAnswer': {'@type': 'Answer', 'text':
@@ -746,7 +750,7 @@ figcaption{font-size:.75rem;color:#8b949e;margin-top:4px}
 .facts{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px 16px;font-size:.92rem}
 .facts dt{color:#8b949e}
 .badge{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:4px;font-weight:600}
-.b-installed{background:#1a3a2a;color:#3fb950}.b-restored{background:#3a2e1a;color:#f7931a}.b-planned{background:#1a2a3a;color:#58a6ff}.b-damaged{background:#3a2a1a;color:#f0883e}.b-donated{background:#2a1f3a;color:#bc8cff}
+.b-installed{background:#1a3a2a;color:#3fb950}.b-restored{background:#3a2e1a;color:#f7931a}.b-planned,.b-unveiled{background:#1a2a3a;color:#58a6ff}.b-damaged{background:#3a2a1a;color:#f0883e}.b-donated{background:#2a1f3a;color:#bc8cff}
 .actions{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
 .btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;border-radius:8px;font-weight:700;text-decoration:none;font-size:.92rem;border:1px solid #30363d;color:#e6edf3;background:#21262d}
 .btn.primary{background:#f7931a;border-color:#f7931a;color:#0d1117}
@@ -1196,7 +1200,7 @@ def statue_page(s, data):
     # stampable statues get the check-in box (with its own "Open on the map" link) near the top instead
     map_btn = '' if s['status'] in CHECKABLE else f'\n      <a class="btn" href="/?s={s["page"]}">🗺️ Open on the map</a>'
     stamp = ('' if s['status'] in CHECKABLE else
-             '\n    <p class="note" style="margin-top:6px;color:#8b949e">Not yet installed, so it can’t be stamped in the Satoshi Passport (not counted in the total).</p>')
+             f'\n    <p class="note" style="margin-top:6px;color:#8b949e">{e(s.get("stamp_note") or "Not yet installed, so it can’t be stamped in the Satoshi Passport (not counted in the total).")}</p>')
     giscus_attrs = {
         'data-repo': REPO, 'data-repo-id': GISCUS['repoId'], 'data-category': GISCUS['category'],
         'data-category-id': GISCUS['categoryId'], 'data-mapping': 'specific', 'data-term': f"statue-{s['slug']}",
@@ -1845,7 +1849,7 @@ def og_image(s):
     for l in place:
         d.text((70, y), l, font=fr(28), fill=(139, 148, 158)); y += 36
     st = s.get('statusLabel') or s['status']
-    col = {'Installed': (63, 185, 80), 'Restored': (247, 147, 26), 'Damaged': (240, 136, 62), 'Donated': (188, 140, 255), 'Planned': (88, 166, 255)}.get(s['status'], (139, 148, 158))
+    col = {'Installed': (63, 185, 80), 'Restored': (247, 147, 26), 'Damaged': (240, 136, 62), 'Donated': (188, 140, 255), 'Planned': (88, 166, 255), 'Unveiled': (88, 166, 255)}.get(s['status'], (139, 148, 158))
     st = st if d.textlength(st, font=fb(24)) <= text_w - 40 else s['status']
     bw = d.textlength(st, font=fb(24)) + 32
     d.rounded_rectangle((70, OG_H - 150, 70 + bw, OG_H - 108), radius=8, outline=col, width=3)
@@ -2209,7 +2213,7 @@ html,body{margin:0;height:100%;background:#0d1117;font-family:-apple-system,Blin
 .leaflet-container a.leaflet-popup-close-button{color:#8b949e}
 .loc{color:#8b949e;margin-bottom:8px}
 .st{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.75rem;font-weight:600;background:#1a3a2a;color:#3fb950}
-.st.Restored{background:#3a2e1a;color:#f7931a}.st.Planned{background:#1a2a3a;color:#58a6ff}
+.st.Restored{background:#3a2e1a;color:#f7931a}.st.Planned,.st.Unveiled{background:#1a2a3a;color:#58a6ff}
 .st.Removed{background:#3a1a1a;color:#f85149}.st.Damaged{background:#3a2a1a;color:#f0883e}.st.Donated{background:#2a1f3a;color:#bc8cff}
 .go{display:inline-block;margin-top:10px;background:#f7931a;color:#0d1117!important;padding:6px 12px;border-radius:6px;font-weight:600;text-decoration:none}
 .credit{position:absolute;top:10px;right:10px;z-index:1000;display:flex;align-items:center;gap:6px;background:rgba(13,17,23,.88);border:1px solid #30363d;color:#e6edf3;text-decoration:none;font-size:12px;font-weight:600;padding:5px 9px 5px 7px;border-radius:999px}

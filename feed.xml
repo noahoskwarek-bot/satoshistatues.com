@@ -5,9 +5,19 @@
   <link rel="self" type="application/atom+xml" href="https://www.satoshistatues.com/feed.xml" />
   <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/" />
   <id>https://www.satoshistatues.com/</id>
-  <updated>2026-10-14T00:00:00Z</updated>
+  <updated>2026-10-29T00:00:00Z</updated>
   <author><name>satoshistatues.com</name><uri>https://www.satoshistatues.com/</uri></author>
   <icon>https://www.satoshistatues.com/brand/icon-512.png</icon>
+  <entry>
+    <title>Satoshi Monument Buenos Aires (Buenos Aires, Argentina)</title>
+    <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/buenos-aires/" />
+    <id>https://www.satoshistatues.com/buenos-aires/</id>
+    <published>2026-10-29T00:00:00Z</published>
+    <updated>2026-10-29T00:00:00Z</updated>
+    <author><name>Ricardo Alonso &amp; Celeste Difabio Videla</name></author>
+    <category term="Unveiled" />
+    <summary>Buenos Aires, Argentina · Polo DOT, Saavedra. Artist: Ricardo Alonso &amp; Celeste Difabio Videla. Status: Unveiled Oct 2026 · visiting hours not published. Unveiled 29 Oct 2026.</summary>
+  </entry>
   <entry>
     <title>Satoshi Statue Vienna (Vienna, Austria)</title>
     <link rel="alternate" type="text/html" href="https://www.satoshistatues.com/vienna/" />
