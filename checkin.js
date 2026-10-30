@@ -164,22 +164,22 @@ async function lbSubmit(s, c) {
   }
 }
 // Proof of Walk: the Worker adds `pow` to the check-in reply only when POW_ENABLED is on. Three ranks: Confirmed (first
-// stamp), Genesis Block (10 statues), The Grand High Order (Genesis + every live statue of the disappearing series).
-// Progress: "N of 10 to Genesis", then "disappearing series N of 7 live".
+// stamp), Genesis Block (any 3 of the original 10), The Grand High Order (Genesis + 1 more statue anywhere).
+// Progress: "N of 3 to Genesis".
 // A new rank gets a short note plus the usual Share buttons (share.js) with the rank line.
 function powStatus(me) {
-  if (me.order) return `🏛️ <strong>Grand High Order</strong> · disappearing series ${me.series_count} of ${me.series_total}`;
-  if (me.genesis) return `🧱 <strong>Genesis Block</strong> · disappearing series ${me.series_count} of ${me.series_live} live`;
-  return `<strong>${me.genesis_progress} of ${me.genesis_at || 10} to Genesis</strong>`;
+  if (me.order) return `🏛️ <strong>Grand High Order</strong> · ${me.distinct_stamps} statues`;
+  if (me.genesis) return '🧱 <strong>Genesis Block</strong> · stamp 1 more statue to join the Grand High Order';
+  return `<strong>${me.genesis_progress} of ${me.genesis_at || 3} to Genesis</strong>`;
 }
 function powRankUpHtml(p) {
   if (!p || !p.ranked_up || !p.me || !p.me.share) return '';
   const url = location.origin + '/proof-of-walk/';
   const head = p.order_new
-    ? `🏛️ <strong>The Grand High Order of Fellow Travelers!</strong> Every live statue of the disappearing series is stamped${p.genesis_new ? ', and you mined the Genesis Block too' : ''}: ${p.me.series_count} of ${p.me.series_total}. It’s yours for good (<a href="/proof-of-walk/fellow-travelers/">the roll</a>).`
+    ? `🏛️ <strong>The Grand High Order of Fellow Travelers!</strong> The Genesis Block plus 1 more statue${p.genesis_new ? ', and you mined the Genesis Block too' : ''}. It’s yours for good (<a href="/proof-of-walk/fellow-travelers/">the roll</a>).`
     : p.genesis_new
-    ? `🧱 <strong>Genesis Block!</strong> ${p.me.genesis_mode === 'any' ? '10 statues stamped' : 'All 10 original statues stamped'} (<a href="/proof-of-walk/fellow-travelers/#genesis">the roll</a>). Disappearing series: ${p.me.series_count} of ${p.me.series_live} live. Stamp them all to join the Grand High Order of Fellow Travelers.`
-    : `👣 <strong>Confirmed</strong> on <a href="/proof-of-walk/">Proof of Walk</a>: ${p.me.genesis_progress} of ${p.me.genesis_at || 10} to Genesis.`;
+    ? `🧱 <strong>Genesis Block!</strong> ${p.me.genesis_at || 3} of the original 10 stamped (<a href="/proof-of-walk/fellow-travelers/#genesis">the roll</a>). Stamp 1 more statue, anywhere, to join the Grand High Order of Fellow Travelers.`
+    : `👣 <strong>Confirmed</strong> on <a href="/proof-of-walk/">Proof of Walk</a>: ${p.me.genesis_progress} of ${p.me.genesis_at || 3} to Genesis.`;
   const share = window.SSShare ? window.SSShare.row(p.me.share, url, 'Share your rank')
     : `<div class="ci-share"><a class="btn" href="https://x.com/intent/post?text=${encodeURIComponent(p.me.share)}&url=${encodeURIComponent(url)}" target="_blank" rel="noopener noreferrer">𝕏 Share on X</a></div>`;
   return `<div class="lb-note pow-up">${head}</div>${share}`;

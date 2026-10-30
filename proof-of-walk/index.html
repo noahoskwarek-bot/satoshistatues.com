@@ -5,13 +5,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Proof of Walk – Satoshi Passport Ranks</title>
-  <meta name="description" content="Walk to Satoshi statues. Stamp all 10 to mine the Genesis Block. Three ranks: Confirmed, Genesis Block and The Grand High Order of Fellow Travelers." />
+  <meta name="description" content="Walk to Satoshi statues. Stamp any 3 of the original 10 to mine the Genesis Block. Three ranks: Confirmed, Genesis Block and The Grand High Order of Fellow Travelers." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://www.satoshistatues.com/proof-of-walk/" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.satoshistatues.com/proof-of-walk/" />
   <meta property="og:title" content="Proof of Walk – Satoshi Passport Ranks" />
-  <meta property="og:description" content="Walk to Satoshi statues. Stamp all 10 to mine the Genesis Block. Three ranks: Confirmed, Genesis Block and The Grand High Order of Fellow Travelers." />
+  <meta property="og:description" content="Walk to Satoshi statues. Stamp any 3 of the original 10 to mine the Genesis Block. Three ranks: Confirmed, Genesis Block and The Grand High Order of Fellow Travelers." />
   <meta property="og:image" content="https://www.satoshistatues.com/og-image.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -19,7 +19,7 @@
   <meta property="og:site_name" content="Satoshi Statues" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Proof of Walk – Satoshi Passport Ranks" />
-  <meta name="twitter:description" content="Walk to Satoshi statues. Stamp all 10 to mine the Genesis Block. Three ranks: Confirmed, Genesis Block and The Grand High Order of Fellow Travelers." />
+  <meta name="twitter:description" content="Walk to Satoshi statues. Stamp any 3 of the original 10 to mine the Genesis Block. Three ranks: Confirmed, Genesis Block and The Grand High Order of Fellow Travelers." />
   <meta name="twitter:image" content="https://www.satoshistatues.com/og-image.jpg" />
   <meta name="twitter:image:alt" content="Satoshi statues world map" />
   <meta name="theme-color" content="#0d1117" />
@@ -101,12 +101,12 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
   <main>
     <div class="crumbs"><a href="/">Map</a> › Proof of Walk</div>
     <h1>👣 Proof of Walk</h1>
-    <p class="sub">Walk to Satoshi statues. Stamp all 10 to mine the Genesis Block.</p>
+    <p class="sub">Walk to Satoshi statues. Stamp any 3 of the original 10 to mine the Genesis Block.</p>
     <div class="pow-card" id="pow-me" aria-live="polite">Loading…</div>
     <div id="pow-recover"></div>
     <noscript><p class="note">Proof of Walk needs JavaScript.</p></noscript>
     <h2>Ranks</h2>
-    <ol class="pow-ranks"><li><span>👣</span><div><strong>Confirmed</strong><br><span class="pow-fine">Your first GPS-verified stamp.</span></div></li><li><span>🧱</span><div><strong>Genesis Block</strong><br><span class="pow-fine">Stamp all 10 original statues: Budapest, Lugano, El Zonte, Tokyo, Hanoi, New York, Fornelli, Kranj Bitcoin Monument, Miami Bitcoin Bull and Vienna.</span></div></li><li><span>🏛️</span><div><strong>The Grand High Order of Fellow Travelers</strong><br><span class="pow-fine">The Genesis Block plus every live statue of Valentina Picozzi’s disappearing series (7 of 21 live so far). Today that means the Genesis Block plus Hong Kong. Once earned, it’s yours for good, even when new ones go live. Members are ranked by total statues stamped. <a href="/proof-of-walk/fellow-travelers/">The roll →</a></span></div></li></ol>
+    <ol class="pow-ranks"><li><span>👣</span><div><strong>Confirmed</strong><br><span class="pow-fine">Your first GPS-verified stamp.</span></div></li><li><span>🧱</span><div><strong>Genesis Block</strong><br><span class="pow-fine">Stamp any 3 of the original 10 statues: Budapest, Lugano, El Zonte, Tokyo, Hanoi, New York, Fornelli, Kranj Bitcoin Monument, Miami Bitcoin Bull and Vienna.</span></div></li><li><span>🏛️</span><div><strong>The Grand High Order of Fellow Travelers</strong><br><span class="pow-fine">The Genesis Block plus 1 more statue, anywhere on the map (4 or more in all). Once earned, it’s yours for good. Members are ranked by total statues stamped. <a href="/proof-of-walk/fellow-travelers/">The roll →</a></span></div></li></ol>
     <h2>Proof of Walk leaderboard</h2>
     <p class="sub" id="pow-total"></p>
     <ol class="lb-list" id="pow-list"><li class="lb-empty">Loading…</li></ol>
@@ -136,21 +136,16 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
       return '<span class="' + (have[m.slug] ? 'pow-pip on' : 'pow-pip') + '" title="' + esc(m.name) + (have[m.slug] ? ' ✓' : '') + '">' + (have[m.slug] ? '✓' : '') + '</span>';
     }).join('') + '</div>';
   }
-  function names(slugs) {
-    var n = slugs.map(function (s) { var m = MAP.filter(function (x) { return x.slug === s; })[0]; return esc(m ? m.short : s); });
-    return n.length > 1 ? n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1] : n.join('');
-  }
   function renderMe(me) {
     var el = $('pow-me'); if (!el) return;
-    var gN = me.genesis_at || 10, orig = me.genesis_mode === 'original';
+    var gN = me.genesis_at || 3;
     var h = '<div class="pow-sub">Your Satoshi Passport rank' + (me.nickname ? ' · <strong>' + esc(me.nickname) + '</strong>' : '') + '</div>' +
       '<div class="pow-rank">' + esc(me.rank.label || 'No rank yet') + '</div>';
-    if (!me.genesis) h += '<div class="pow-sub"><strong>' + me.genesis_progress + ' of ' + gN + ' to Genesis</strong>' + (orig ? ' (the original 10)' : '') + '</div>' + pips(me);
+    if (!me.genesis) h += '<div class="pow-sub"><strong>' + me.genesis_progress + ' of ' + gN + ' to Genesis</strong> (any ' + gN + ' of the original 10)</div>' + pips(me);
     if (me.order) h += '<div class="pow-genesis">🏛️ <strong>The Grand High Order of Fellow Travelers</strong> · since ' + esc((me.order_since || '').slice(0, 10)) +
-      '<br><span class="pow-fine">' + me.distinct_stamps + ' statues stamped · disappearing series ' + me.series_count + ' of ' + me.series_total + '</span></div>';
+      '<br><span class="pow-fine">' + me.distinct_stamps + ' statues stamped</span></div>';
     if (me.genesis) h += '<div class="pow-genesis">🧱 <strong>Genesis Block</strong> · mined ' + esc((me.joined_at || '').slice(0, 10)) +
-      (!me.order ? '<br><span class="pow-fine">Disappearing series: <strong>' + me.series_count + ' of ' + me.series_live + ' live</strong> (of ' + me.series_total + '). ' +
-        (me.series_missing && me.series_missing.length ? 'Stamp ' + names(me.series_missing) + ' to join the Grand High Order.' : '') + '</span>' : '') + '</div>';
+      (!me.order ? '<br><span class="pow-fine">Stamp ' + (me.order_needed || 1) + ' more statue' + ((me.order_needed || 1) === 1 ? '' : 's') + ', anywhere on the map, to join the Grand High Order.</span>' : '') + '</div>';
     if (me.share && window.SSShare) h += window.SSShare.row(me.share, URL_POW, 'Share your rank');
     h += '<form class="pow-form" id="pow-form"><label for="pow-nick">Passport nickname (shown on the leaderboard)</label>' +
       '<input id="pow-nick" name="nick" maxlength="20" autocomplete="nickname" placeholder="Nickname or @handle" value="' + esc(me.nickname || get(NICK) || '') + '">' +
@@ -225,7 +220,7 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
       if ($('pow-total')) $('pow-total').textContent = j.total_walkers + (j.total_walkers === 1 ? ' walker' : ' walkers') + ' so far.';
       el.innerHTML = j.entries.length ? j.entries.map(function (x) {
         return '<li><span class="lb-rank">' + x.position + '</span><span class="lb-who"><span class="lb-name">' + esc(x.name) + 
-          '</span><span class="lb-meta">' + (x.order ? '🏛️ Grand High Order' : x.genesis ? '🧱 Genesis Block' : x.progress + ' of ' + (j.genesis_at || 10) + ' to Genesis') + '</span></span><span class="lb-stamps">' + x.stamps + '<small>stamp' + (x.stamps === 1 ? '' : 's') + '</small></span></li>';
+          '</span><span class="lb-meta">' + (x.order ? '🏛️ Grand High Order' : x.genesis ? '🧱 Genesis Block' : x.progress + ' of ' + (j.genesis_at || 3) + ' to Genesis') + '</span></span><span class="lb-stamps">' + x.stamps + '<small>stamp' + (x.stamps === 1 ? '' : 's') + '</small></span></li>';
       }).join('') : '<li class="lb-empty">No walkers yet. Be the first.</li>';
     }).catch(function () { off(el); });
   }
@@ -236,12 +231,12 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
       if (!j.ok) { off(el); off(ge); return; }
       el.innerHTML = j.members.length ? j.members.map(function (m) {
         return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + esc(m.name) + '</span><span class="lb-meta">Since ' +
-          day(m.since) + ' · disappearing series ' + m.series + ' of ' + j.series_total + '</span></span><span class="lb-stamps">' + m.stamps + '<small>statues</small></span></li>';
-      }).join('') : '<li class="lb-empty">No members yet. Mine the Genesis Block, then stamp every live statue of the disappearing series to join.</li>';
+          day(m.since) + '</span></span><span class="lb-stamps">' + m.stamps + '<small>statues</small></span></li>';
+      }).join('') : '<li class="lb-empty">No members yet. Mine the Genesis Block, then stamp 1 more statue to join.</li>';
       if (ge) ge.innerHTML = (j.genesis || []).length ? j.genesis.map(function (m) {
         return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + esc(m.name) + '</span><span class="lb-meta">Mined ' +
           day(m.joined) + '</span></span><span class="lb-stamps">' + m.stamps + '<small>statues</small></span></li>';
-      }).join('') : '<li class="lb-empty">No miners yet. ' + (j.genesis_mode === 'any' ? 'Stamp 10' : 'Stamp all 10') + ' to mine the Genesis Block.</li>';
+      }).join('') : '<li class="lb-empty">No miners yet. Stamp any ' + (j.genesis_at || 3) + ' of the original 10 to mine the Genesis Block.</li>';
     }).catch(function () { off(el); off(ge); });
   }
   loadMe(); renderRecover(); loadList(); loadRoll();
