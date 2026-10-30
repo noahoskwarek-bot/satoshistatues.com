@@ -32,7 +32,7 @@
   <link rel="alternate" type="application/atom+xml" title="Satoshi Statues – new statues" href="https://www.satoshistatues.com/feed.xml" />
   <style>.alert-box{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.alert-fine{font-size:.8rem;color:#8b949e;margin:6px 0 0;line-height:1.45}.photo-cta{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.photo-actions{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 4px}.photo-actions .btn{max-width:100%}.photo-cta .alert-fine a,.photo-credit a{padding:15px 0;margin:-15px 0}.photo-cta .alert-fine a{color:#f7931a}.follow-x .alert-fine a{color:#f7931a;font-weight:600}.photo-credit{display:block;margin-top:2px}.checkin-count{font-size:.85rem;color:#3fb950;margin:6px 0 0}.photo-credit a{color:#8b949e}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}</style>
   <script>window.SS_API = "https://api.satoshistatues.workers.dev";window.SS_POW = true;</script>
-  <script src="/checkin.js?v=ec513e295c"></script>
+  <script src="/checkin.js?v=1058a0b48b"></script>
   <style>.gw-badge{display:inline-block;font-size:.7rem;padding:2px 7px;border-radius:4px;margin-top:7px;font-weight:600;background:rgba(247,147,26,.12);border:1px solid rgba(247,147,26,.45);color:#f7931a;line-height:1.35}.gw-badge.gw-paused{background:#21262d;border-color:#30363d;color:#8b949e}.gw-badge[hidden],.gw-pop[hidden]{display:none!important}.gw-pop{background:#0d1117;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:8px;padding:8px 10px;margin:8px 0 10px;font-size:.82rem;line-height:1.45;color:#e6edf3}.gw-pop b{color:#f7931a}.gw-pop.gw-paused{border-left-color:#8b949e}.gw-pop.gw-paused b{color:#8b949e}.gw-pop .gw-links{margin-top:4px;font-size:.78rem}.gw-pop a{color:#f7931a;font-weight:600;text-decoration:none}.gw-pop a:hover{text-decoration:underline}.gw-pop .gw-links .gw-terms{color:#8b949e;font-weight:400}@media (max-width:768px){.gw-pop{font-size:.88rem;padding:10px 12px 0}.gw-pop .gw-links{margin-top:0}.gw-pop a{display:inline-flex;align-items:center;min-height:44px}}</style>
   <script>(function () {
   var API = window.SS_API || '', SLUGS = ["budapest", "lugano", "el-zonte", "vienna"], state = {};
@@ -1909,8 +1909,9 @@
         .then(r => r.json()).then(j => {
           if (!j || !j.ok) { el.hidden = true; return; }
           if (!j.me.rank || !j.me.rank.label) return idle();
-          el.innerHTML = (j.me.order ? '🏛️ <strong>Grand High Order</strong>' : j.me.genesis ? '🧱 <strong>Genesis Block</strong> · stamp 1 more to join the Grand High Order'
-            : '👣 <strong>' + j.me.genesis_progress + ' of ' + (j.me.genesis_at || 10) + ' to Genesis</strong>') + ' on Proof of Walk →';
+          el.innerHTML = (j.me.order ? '🏛️ <strong>Grand High Order</strong> on Proof of Walk · disappearing series ' + j.me.series_count + ' of ' + j.me.series_total
+            : j.me.genesis ? '🧱 <strong>Genesis Block</strong> on Proof of Walk · disappearing series ' + j.me.series_count + ' of ' + j.me.series_live + ' live'
+            : '👣 <strong>' + j.me.genesis_progress + ' of ' + (j.me.genesis_at || 10) + ' to Genesis</strong> on Proof of Walk') + ' →';
           el.hidden = false;
         }).catch(() => { el.hidden = true; });
     }
