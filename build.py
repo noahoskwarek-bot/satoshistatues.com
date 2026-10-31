@@ -1895,7 +1895,7 @@ def pow_cards_odds_html():
         span = f'Card {ns[0]:02d}' if len(ns) == 1 else f'Cards {ns[0]:02d}–{ns[-1]:02d}'
         tot = u * len(ns)
         each = '' if len(ns) == 1 else f' Each card: {u} in 121.'
-        pct = 'Extremely rare' if tot == 1 else f'{tot / 121 * 100:.1f}%<small>{tot} in 121</small>'
+        pct = f'{tot / 121 * 100:.1f}%<small>{tot} in 121</small>'
         rows.append(f'<li class="{POW_CARD_CLASS[t]}"><span class="sw"></span><span><strong>{e(t)}</strong><span class="desc">{span}. {desc[t]}{each}</span></span><span class="pct">{pct}</span></li>')
     return '<ul class="tiers">' + ''.join(rows) + '</ul>'
 
