@@ -15,6 +15,9 @@
   var W = 1000, H = 1400, ORANGE = '#f7931a';
   var RANKS = { confirmed: 'confirmed', 'genesis-block': 'genesis', genesis: 'genesis', order: 'order', 'grand-high-order': 'order' };
   var V = (document.currentScript && (document.currentScript.src.split('?')[1] || '')) || '';
+  // BASE: where the card's data, fonts, art and QR script live. '' on satoshistatues.com; the per-card share page on the
+  // API host (/c/PW-XXXX-XXXX) sets window.POW_CARD_BASE = 'https://www.satoshistatues.com' before loading this file.
+  var BASE = String(window.POW_CARD_BASE || '').replace(/\/+$/, '');
   var loaded = null, artCache = {};
   function D() { return window.POW_CARD_DATA; }
   function script(src) {
@@ -26,11 +29,11 @@
     if (loaded) return loaded;
     if (!document.getElementById('pc-css')) { var st = document.createElement('style'); st.id = 'pc-css'; st.textContent = CSS; document.head.appendChild(st); }
     loaded = Promise.all([
-      window.POW_CARD_DATA ? 0 : script('/proof-of-walk/card-data.js' + (V ? '?' + V : '')),
-      window.qrcode ? 0 : script('/vendor/qrcode.js'),
-      font('PCInter', '/fonts/inter-500.woff', { weight: '500' }), font('PCInter', '/fonts/inter-800.woff', { weight: '800' }),
-      font('PCSerif', '/fonts/plex-serif-500i.woff2', { style: 'italic', weight: '500' }),
-      font('PCMono', '/fonts/plex-mono-500.woff2', { weight: '500' }), font('PCMono', '/fonts/plex-mono-600.woff2', { weight: '600' }),
+      window.POW_CARD_DATA ? 0 : script(BASE + '/proof-of-walk/card-data.js' + (V ? '?' + V : '')),
+      window.qrcode ? 0 : script(BASE + '/vendor/qrcode.js'),
+      font('PCInter', BASE + '/fonts/inter-500.woff', { weight: '500' }), font('PCInter', BASE + '/fonts/inter-800.woff', { weight: '800' }),
+      font('PCSerif', BASE + '/fonts/plex-serif-500i.woff2', { style: 'italic', weight: '500' }),
+      font('PCMono', BASE + '/fonts/plex-mono-500.woff2', { weight: '500' }), font('PCMono', BASE + '/fonts/plex-mono-600.woff2', { weight: '600' }),
     ]);
     return loaded;
   }
@@ -39,22 +42,26 @@
   function art(page, print) {
     var key = (print ? 'print/' : '') + page;
     if (!artCache[key]) artCache[key] = new Promise(function (ok) {
-      var im = new Image(); im.decoding = 'async'; im.onload = function () { ok(im); };
+      var im = new Image(); im.decoding = 'async'; if (BASE) im.crossOrigin = 'anonymous'; im.onload = function () { ok(im); };
       im.onerror = function () { if (print) art(page).then(ok); else ok(null); };
-      im.src = '/img/cards/art/' + key + '.jpg';
+      im.src = BASE + '/img/cards/art/' + key + '.jpg';
     });
     return artCache[key];
   }
   // ---------- data helpers ----------
   function rankKey(r) { return RANKS[r] || 'confirmed'; }
-  function siteOrigin() { return /(^|\.)satoshistatues\.com$/.test(location.hostname) || location.protocol === 'file:' ? D().site : location.origin; }
+  function siteOrigin() { return BASE || /(^|\.)satoshistatues\.(com|workers\.dev)$/.test(location.hostname) || location.protocol === 'file:' ? D().site : location.origin; }
   function verifyUrl(code) { return siteOrigin() + '/v/?c=' + encodeURIComponent(code); }
-  function shareUrl(card) { var st = D().statues[card.slug]; return siteOrigin() + '/proof-of-walk/share/' + D().ranks[rankKey(card.rank)].share + '/' + st.page + '/'; }
+  // Per-card share page (Noah 2026-10-31 4:49 PM ET): every card with a verify code links to its own page on the API host,
+  // /c/PW-XXXX-XXXX, whose og:/twitter: tags show that exact card (statue, rank at the check-in, quote and tier). Cards
+  // without a code keep the old static page /proof-of-walk/share/<rank>/<statue>/ (those URLs stay unchanged).
+  function cardPage(code) { return D().card_page && code ? D().card_page + encodeURIComponent(code) : ''; }
+  function shareUrl(card) { var st = D().statues[card.slug]; return cardPage(card.code) || siteOrigin() + '/proof-of-walk/share/' + D().ranks[rankKey(card.rank)].share + '/' + st.page + '/'; }
   function shareText(card) {
     var st = D().statues[card.slug], k = rankKey(card.rank);
-    if (card.earns === false) return 'I walked to ' + st.phrase + ' and collected its Proof of Walk card (' + D().ranks[k].label + ') 🟧 #ProofOfWalk #Bitcoin satoshistatues.com';
+    if (card.earns === false) return 'I walked to ' + st.phrase + ' and collected its Proof of Walk card (rank at check-in: ' + D().ranks[k].label + ') 🟧 #ProofOfWalk #Bitcoin';
     var verb = { confirmed: 'got my first Proof of Walk card', genesis: 'earned Genesis Block', order: 'reached Grand High Order' }[k];
-    return 'I walked to ' + st.phrase + ' and ' + verb + ' 🟧 #ProofOfWalk #Bitcoin satoshistatues.com';
+    return 'I walked to ' + st.phrase + ' and ' + verb + ' 🟧 #ProofOfWalk #Bitcoin' + (card.code ? '' : ' satoshistatues.com');
   }
   function fileName(card) { return 'proof-of-walk-' + D().statues[card.slug].page + '-' + D().ranks[rankKey(card.rank)].share + (card.earns === false ? '-' + (card.n < 10 ? '0' : '') + card.n : '') + '.png'; }
   var TZ_ABBR = { 'Europe/': { 'GMT+1': 'CET', 'GMT+2': 'CEST' }, 'Asia/Tokyo': { 'GMT+9': 'JST' }, 'Asia/Ho_Chi_Minh': { 'GMT+7': 'ICT' },
@@ -226,7 +233,7 @@
     c.fillStyle = ORANGE; f(c, 800, 26, 'PCInter'); spaced(c, 'GPS-VERIFIED CHECK-IN', W / 2, 694, 4, 'center');
     c.fillStyle = '#f5f1e6'; fit(c, st.label, 640, 32, 500, 'PCMono', 20); c.fillText(st.label, W / 2, 744);
     var p = card.at ? localParts(card.at, st.tz) : null;
-    f(c, 500, 30, 'PCMono'); c.fillText(p ? p.day + ' ' + p.mon + ' ' + p.year + ' · ' + p.hm + ' ' + p.tz : 'Date shown on your card', W / 2, 790);
+    f(c, 500, 30, 'PCMono'); c.fillText(p ? p.day + ' ' + p.mon + ' ' + p.year + (card.dateOnly ? '' : ' · ' + p.hm + ' ' + p.tz) : 'Date shown on your card', W / 2, 790);   // dateOnly: public share page (date, no time)
     fit(c, 'Verify code: ' + (card.code || 'PW-XXXX-XXXX'), 640, 30, 500, 'PCMono', 18); c.fillText('Verify code: ' + (card.code || 'PW-XXXX-XXXX'), W / 2, 834);
     // QR (EC level M, 4-module quiet zone) on a light tile: 300 units = 450 px on the print file
     var qx = 350, qy = 878, qs = 300; c.fillStyle = '#f5f1e6'; rr(c, qx, qy, qs, qs, 14); c.fill();
@@ -265,6 +272,33 @@
     c.fillStyle = '#e6edf3'; f(c, 500, 30, 'PCInter'); wrap(c, 'A real walk to a real statue, verified by GPS.', 590).forEach(function (l, i) { c.fillText(l, 548, 352 + i * 40); });
     c.fillStyle = '#c9d1d9'; f(c, 500, 26, 'PCInter'); wrap(c, 'Start your Proof of Walk passport. Free, no sign-up.', 590).forEach(function (l, i) { c.fillText(l, 548, 446 + i * 36); });
     c.fillStyle = ORANGE; f(c, 800, 34, 'PCInter'); c.fillText('satoshistatues.com', 548, 570);
+    return canvas;
+  }
+  // Per-card share image (1200x630) for /c/CODE: that card's front (its tier finish, no date or code) beside its quote,
+  // card number + tier and the rank at the check-in. One image per statue x rank x card number, rendered by
+  // tools/render_combined_cards.mjs to img/cards/og/card/<rank>/<statue>/NN.<ver>.jpg; the date stays in the page text.
+  async function ogCard(canvas, card) {
+    await load(); var d = D(), st = d.statues[card.slug], k = rankKey(card.rank), n = card.n, q = d.quotes[n - 1], t = tierOf(n), im = await art(st.page);
+    canvas.width = 1200; canvas.height = 630; var c = canvas.getContext('2d');
+    c.fillStyle = '#0d1117'; c.fillRect(0, 0, 1200, 630);
+    if (im) { c.save(); c.filter = 'blur(26px) brightness(.4)'; c.drawImage(im, -60, -400, 1320, 1760); c.restore(); }
+    var fc = await render(document.createElement('canvas'), 'front', { slug: card.slug, rank: card.rank, n: n }, { size: 430, generic: true });
+    c.save(); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 30; c.drawImage(fc, 56, 14, 430, 602); c.restore();
+    var X = 532, MW = 620; c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+    c.fillStyle = ORANGE; f(c, 800, 22, 'PCInter'); spaced(c, 'PROOF OF WALK · GPS-VERIFIED CHECK-IN', X, 78, 3);
+    var city = st.subtitle.split(',')[0], t1 = city + ' card'; c.fillStyle = '#fff'; fit(c, t1, MW, 60, 800, 'PCInter', 34); c.fillText(t1, X, 146);
+    var t2 = 'Rank at check-in: ' + d.ranks[k].label; c.fillStyle = '#f2cc60'; fit(c, t2, MW, 32, 800, 'PCInter', 22); c.fillText(t2, X, 194);
+    var mono = n === 21, fam = mono ? 'PCMono' : 'PCSerif', wgt = mono ? 600 : 500, size = mono ? 30 : 40, lines, lh;
+    for (; size >= 20; size -= 2) { f(c, wgt, size, fam); lines = wrap(c, mono ? q.q : '“' + q.q + '”', MW); lh = size * 1.25; if (lines.length * lh <= 200 && lines.length <= 5) break; }
+    c.fillStyle = mono ? '#ffdf80' : '#f2ead8'; lines.forEach(function (l, i) { c.fillText(l, X, 252 + size * .9 + i * lh); });
+    var by = '— ' + q.by; c.fillStyle = ORANGE; fit(c, by, MW, 22, 500, 'PCInter', 14); c.fillText(by, X, 252 + lines.length * lh + 30);
+    var nn = (n < 10 ? '0' : '') + n, dia = { Common: 1, Uncommon: 2, Rare: 3, 'Ultra rare': 4, Legendary: 5 }[t];
+    f(c, 600, 24, 'PCMono'); var label = 'No. ' + nn + ' / 21 · ' + t.toUpperCase(), lw = c.measureText(label).width, bw = lw + 36 + dia * 24 + 18, by0 = 500;
+    c.strokeStyle = 'rgba(247,147,26,.75)'; c.lineWidth = 2; rr(c, X, by0, bw, 48, 24); c.fillStyle = 'rgba(0,0,0,.35)'; c.fill(); c.stroke();
+    c.fillStyle = '#f5f1e6'; c.fillText(label, X + 20, by0 + 32);
+    c.fillStyle = t === 'Common' ? hsl(q.hue, 55, 62) : rainbow(c, X, 0, X + bw, 0);
+    for (var i = 0; i < dia; i++) { var dx = X + 20 + lw + 22 + i * 24, dy = by0 + 24; c.beginPath(); c.moveTo(dx, dy - 9); c.lineTo(dx + 8, dy); c.lineTo(dx, dy + 9); c.lineTo(dx - 8, dy); c.closePath(); c.fill(); }
+    c.fillStyle = ORANGE; f(c, 800, 30, 'PCInter'); c.fillText('satoshistatues.com', X, 596);
     return canvas;
   }
   // ---------- UI: card view with flip, Share (Web Share API Level 2 + fallbacks) and Get a print ----------
@@ -327,5 +361,5 @@
     });
     return el;
   }
-  window.PowCard = { load: load, render: render, png: png, og: og, mount: mount, shareUrl: shareUrl, shareText: shareText, localParts: localParts, rankKey: rankKey };
+  window.PowCard = { load: load, render: render, png: png, og: og, ogCard: ogCard, mount: mount, cardPage: cardPage, shareUrl: shareUrl, shareText: shareText, localParts: localParts, rankKey: rankKey };
 })();
