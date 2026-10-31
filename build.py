@@ -1179,7 +1179,7 @@ def checkin_box(s, data):
             f'<div class="ci-row"><button class="btn ci-btn" type="button" data-ss-checkin-btn>📍 Check in here</button>'
             f'<span class="ci-stamp" hidden></span>'
             f'<a class="ci-map" href="/?s={s["page"]}">🗺️ Open on the map</a></div>'
-            f'<p class="ci-note">At the statue? Tap to stamp your Satoshi Passport (within 150 m). '
+            f'<p class="ci-note">At the statue? Tap to collect its card in your Satoshi Passport (within 150 m). '
             f'Your location is only checked, never stored. <a href="/leaderboard/">Leaderboard</a>'
             + (' · <a href="/proof-of-walk/">Proof of Walk</a>' if POW_ON else '') + '</p>'
             f'<div class="checkin-msg" aria-live="polite" hidden></div></div>')
@@ -1383,7 +1383,7 @@ LB_JS = r"""<script>
     if (p.order) return '<a class="lb-pill gen" href="/proof-of-walk/fellow-travelers/" title="Proof of Walk: The Grand High Order of Fellow Travelers">🏛️ <strong>Grand High Order</strong></a>';
     return p.genesis
       ? '<a class="lb-pill gen" href="/proof-of-walk/" title="Proof of Walk: Genesis Block">🧱 <strong>Genesis Block</strong></a>'
-      : '<a class="lb-pill" href="/proof-of-walk/" title="Proof of Walk: Confirmed">👣 <strong>' + (p.progress == null ? esc(p.label) : p.progress + ' of ' + (p.genesis_at || 3) + ' to Genesis') + '</strong></a>';
+      : '<a class="lb-pill" href="/proof-of-walk/" title="Proof of Walk: Confirmed">👣 <strong>' + (p.progress == null ? esc(p.label) : p.progress + ' of ' + (p.genesis_at || 3) + ' cards to Genesis') + '</strong></a>';
   }
   function stampsMeta(e) {
     return e.legacy ? '' : 'all GPS-checked';
@@ -1396,7 +1396,7 @@ LB_JS = r"""<script>
       el.innerHTML = j.entries.map(function (e) {
         return '<li' + (e.id === meId ? ' class="me"' : '') + '><span class="lb-rank">' + e.rank + '</span><span class="lb-who"><span class="lb-name">' + nameHtml(e) + pill(e.pow) +
           (e.id === meId ? ' <span class="lb-meta">(you)</span>' : '') + '</span><span class="lb-meta">' + stampsMeta(e) + '</span></span><span class="lb-stamps">' + e.gps +
-          '<small>GPS of ' + j.statues + '</small></span></li>';
+          '<small>card' + (e.gps === 1 ? '' : 's') + ' of ' + j.statues + '</small></span></li>';
       }).join('');
     }).catch(function () { document.getElementById('lb-list').innerHTML = '<li class="lb-empty">The leaderboard could not be loaded. Please try again later.</li>'; });
   }
@@ -1411,12 +1411,12 @@ LB_JS = r"""<script>
   }
   function me() {
     var box = document.getElementById('lb-me');
-    if (!dev) { box.innerHTML = 'Check in at a statue from the <a href="/">map</a> to join. Stamps are only accepted within 150 m of the statue.'; return Promise.resolve(); }
+    if (!dev) { box.innerHTML = 'Check in at a statue from the <a href="/">map</a> to join. Cards are only collected within 150 m of the statue.'; return Promise.resolve(); }
     return fetch(A + '/api/me', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ device_id: dev }) })
       .then(function (r) { return r.json(); }).then(function (j) {
         if (!j.ok) return; var m = j.me; meId = m.id;
-        box.innerHTML = (m.rank ? 'You are <strong>#' + m.rank + '</strong> with <strong>' + m.gps + '</strong> GPS-verified stamp' + (m.gps === 1 ? '' : 's') +
-          pill(m.pow) + '. ' + (m.pow && m.pow.genesis && !m.pow.order ? 'Stamp 1 more statue to join the Grand High Order. ' : '') : 'No stamps on the leaderboard yet. ') +
+        box.innerHTML = (m.rank ? 'You are <strong>#' + m.rank + '</strong> with <strong>' + m.gps + '</strong> GPS-verified card' + (m.gps === 1 ? '' : 's') +
+          pill(m.pow) + '. ' + (m.pow && m.pow.genesis && !m.pow.order ? 'Collect 1 more card to join the Grand High Order. ' : '') : 'No cards on the leaderboard yet. ') +
           'Your name: <strong>' + nameHtml(m) + '</strong>' +
           '<form class="lb-nick" id="lb-nick"><input name="nick" maxlength="20" aria-label="Nickname or X handle" placeholder="Nickname or @handle" value="' + esc(m.nickname || '') + '"><button type="submit">Save name</button></form><div class="lb-msg" id="lb-msg" aria-live="polite"></div>';
         document.getElementById('lb-nick').addEventListener('submit', function (ev) {
@@ -1448,7 +1448,7 @@ def leaderboard_page(data):
     out += f"""  <main>
     <div class="crumbs"><a href="/">Map</a> › Leaderboard</div>
     <h1>🏆 Satoshi Passport Leaderboard</h1>
-    <p class="sub">Who has stamped the most of the {n} installed Satoshi statues? <span id="lb-total"></span></p>{pow_lb_link(data) if POW_ON else ''}
+    <p class="sub">Who has collected the most cards from the {n} installed Satoshi statues? <span id="lb-total"></span></p>{pow_lb_link(data) if POW_ON else ''}
     <div class="lb-me" id="lb-me" aria-live="polite">Loading…</div>
     <noscript><p class="note">The leaderboard needs JavaScript.</p></noscript>
     <h2>Top visitors</h2>
@@ -1456,7 +1456,7 @@ def leaderboard_page(data):
     <h2>Recent check-ins</h2>
     <ul class="lb-feed" id="lb-feed"><li class="lb-empty">Loading…</li></ul>
     <h2>How it works</h2>
-    <p class="note">Open a statue on the <a href="/">map</a> and tap <strong>Check in here</strong> when you are within 150 m. The server checks the distance and records the stamp; your location itself is not stored. Each device can stamp each statue once, up to 5 new stamps in 24 hours. People are ranked by unique GPS-verified stamps; on a tie, whoever got there first ranks higher.</p>
+    <p class="note">Open a statue on the <a href="/">map</a> and tap <strong>Check in here</strong> when you are within 150 m. The server checks the distance and records your card; your location itself is not stored. Each device can collect each statue’s card once, up to 5 new cards in 24 hours. People are ranked by GPS-verified cards; on a tie, whoever got there first ranks higher.</p>
     <p class="note" style="margin-top:8px">GPS can be faked, so treat this as a friendly game.</p>
     <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">What we store and how to delete it: <a href="/privacy/">Privacy</a>.</p>
     {footer(data)}
@@ -1535,7 +1535,34 @@ def pow_head(data, title, desc, canonical, lds):
     return out.replace('</style>', LB_CSS + SHARE_CSS + POW_CSS + '</style>', 1)
 
 
-POW_CSS = (
+# Passport card grid (passport-cards preview): one card per counted statue, shared by the home passport modal and
+# /proof-of-walk/. Collected = face-up art thumbnail (img/cards/art/thumb/, tools/make_card_thumbs.py); not yet = dimmed + 🔒.
+CARD_GRID_CSS = (
+    '.cg-line{margin:0 0 10px;font-size:.92rem;color:#e6edf3;text-align:center}.cg-line strong{color:#f7931a}'
+    '.cg-grid{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0;padding:0}'
+    '@media(min-width:560px){.cg-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}'
+    '.cg-tile{position:relative;display:block;width:100%;aspect-ratio:5/7;padding:0;border-radius:10px;overflow:hidden;cursor:pointer;font-family:inherit;'
+    'background:#0d1117;border:2px solid #30363d;color:#e6edf3;text-align:center}'
+    '.cg-tile:active{transform:scale(.97)}'
+    '.cg-art{position:absolute;inset:0;background-size:cover;background-position:center bottom}'
+    '.cg-tile.got{border-color:#f2a541;box-shadow:0 4px 14px rgba(0,0,0,.45),0 0 0 1px rgba(247,147,26,.35)}'
+    '.cg-tile.locked{border-style:dashed;border-color:#3d444d}'
+    '.cg-tile.locked .cg-art{filter:grayscale(1) brightness(.32) blur(1.5px)}'
+    '.cg-tile.soon{border-color:#1f3a5f}.cg-tile.soon .cg-art{filter:grayscale(.6) brightness(.4)}'
+    '.cg-cap{position:absolute;left:0;right:0;bottom:0;padding:16px 4px 6px;background:linear-gradient(rgba(10,12,16,0),rgba(10,12,16,.92) 45%)}'
+    '.cg-name{display:block;font-size:.8rem;font-weight:800;line-height:1.15;overflow-wrap:anywhere}'
+    '.cg-date{display:block;font-size:.66rem;color:#f2cc60;font-weight:600;margin-top:2px}'
+    '.cg-tile.locked .cg-name{color:#8b949e}.cg-tile.locked .cg-date,.cg-tile.soon .cg-date{color:#6e7681}'
+    '.cg-lock{position:absolute;top:34%;left:0;right:0;font-size:1.5rem;opacity:.8}'
+    '.cg-badge{position:absolute;top:5px;right:5px;min-width:26px;height:26px;border-radius:13px;background:rgba(13,17,23,.85);border:1px solid #f2a541;font-size:.8rem;line-height:24px;padding:0 4px}'
+    '.cg-tile.just{animation:cgIn .6s cubic-bezier(.2,1.6,.4,1)}@keyframes cgIn{0%{transform:scale(1.25) rotate(-6deg);opacity:0}100%{transform:none;opacity:1}}'
+    '.cg-view{margin:14px 0 4px;padding:10px 0 0;border-top:1px solid #21262d}.cg-view[hidden]{display:none}'
+    '.cg-view-bar{display:flex;justify-content:space-between;gap:8px;max-width:420px;margin:0 auto 4px}'
+    '.cg-view-bar button,.cg-view-bar a{min-height:40px;padding:6px 12px;border-radius:999px;border:1px solid #30363d;background:#21262d;color:#e6edf3;font:600 .84rem inherit;font-family:inherit;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}'
+    '.cg-hint{font-size:.78rem;color:#8b949e;text-align:center;margin:8px 0 0}'
+)
+
+POW_CSS = CARD_GRID_CSS + (
     '.pow-card{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:14px;margin:14px 0}'
     '.pow-rank{font-size:1.35rem;font-weight:800;color:#f7931a;margin:2px 0 4px}'
     '.pow-sub{font-size:.88rem;color:#8b949e;margin:0 0 8px}'
@@ -1568,9 +1595,9 @@ POW_CSS = (
 
 
 def pow_ranks_html(data):
-    rows = [('👣', 'Confirmed', 'Your first GPS-verified stamp.'),
-            ('🧱', GENESIS_TITLE, f'Stamp {pow_genesis_rule(data)}.'),
-            ('🏛️', ORDER_NAME, f'{pow_order_rule(data)[0].upper() + pow_order_rule(data)[1:]}. {pow_keep_text(data)} Members are ranked by total statues stamped. <a href="/proof-of-walk/fellow-travelers/">The roll →</a>')]
+    rows = [('👣', 'Confirmed', 'Your first GPS-verified card.'),
+            ('🧱', GENESIS_TITLE, f'Collect cards from {pow_genesis_rule(data)}.'),
+            ('🏛️', ORDER_NAME, f'{pow_order_rule(data)[0].upper() + pow_order_rule(data)[1:]}. {pow_keep_text(data)} Members are ranked by total cards collected. <a href="/proof-of-walk/fellow-travelers/">The roll →</a>')]
     return '<ol class="pow-ranks">' + ''.join(f'<li><span>{i}</span><div><strong>{e(t)}</strong><br><span class="pow-fine">{d}</span></div></li>' for i, t, d in rows) + '</ol>'
 
 
@@ -1613,28 +1640,57 @@ POW_JS = r"""<script src="/share.js"></script>
       return '<span class="' + (have[m.slug] ? 'pow-pip on' : 'pow-pip') + '" title="' + esc(m.name) + (have[m.slug] ? ' ✓' : '') + '">' + (have[m.slug] ? '✓' : '') + '</span>';
     }).join('') + '</div>';
   }
+  // Passport card grid: one card per counted statue. Collected (a GPS-verified check-in on the Worker) = face-up;
+  // a check-in that earned a rank shows that rank's combined card, any other check-in shows the city card.
+  var RANK_EMOJI = { confirmed: '👣', genesis: '🧱', order: '🏛️' };
+  var cardFor = function (me, slug) {
+    var rk = comboCards(me).filter(function (c) { return c.slug === slug; })[0];
+    if (rk) return rk;
+    var st = (me && me.stamped || []).filter(function (x) { return x.slug === slug; })[0];
+    return st ? { city: true, verified: true, slug: slug, at: st.at } : null;
+  };
+  var fmtDay = function (iso) { try { return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }); } catch (e) { return ''; } };
+  function cardsLine(me) {
+    var gN = (me && me.genesis_at) || 3, n = (me && me.distinct_stamps) || 0;
+    if (me && me.order) return '🃏 <strong>Cards collected: ' + n + '</strong> · 🏛️ Grand High Order ✓';
+    if (me && me.genesis) return '🃏 <strong>Cards collected: ' + n + '</strong> · 🧱 Genesis Block ✓ · ' + (me.order_needed || 1) + ' more card' + ((me.order_needed || 1) === 1 ? '' : 's') + ' for the Grand High Order';
+    var p = (me && me.genesis_progress) || 0;
+    return '🃏 <strong>Cards collected: ' + p + ' of ' + gN + ' to Genesis</strong>' + (n > p ? ' · ' + n + ' cards in all' : '') + '<br><span class="pow-fine">Any ' + gN + ' of the original 10 statues</span>';
+  }
+  function gridHtml(me) {
+    return '<ul class="cg-grid" aria-label="Your Satoshi Passport cards">' + MAP.map(function (m) {
+      var c = me ? cardFor(me, m.slug) : null, page = m.page || m.slug, nm = esc(m.short || m.name);
+      var art = '<span class="cg-art" style="background-image:url(/img/cards/art/thumb/' + esc(page) + '.jpg)"></span>';
+      if (!c) return '<li><button class="cg-tile locked" type="button" data-cg-locked="' + esc(page) + '" aria-label="' + esc(m.name) + ': not collected yet">' + art +
+        '<span class="cg-lock" aria-hidden="true">🔒</span><span class="cg-cap"><span class="cg-name">' + nm + '</span><span class="cg-date">Not yet</span></span></button></li>';
+      return '<li><button class="cg-tile got" type="button" data-cg="' + esc(m.slug) + '" aria-label="' + esc(m.name) + ': card collected ' + esc(fmtDay(c.at)) + (c.rank ? ', ' + esc(RANK_UI[c.rank].slice(3)) + ' card' : '') + '. Tap to open">' + art +
+        (c.rank ? '<span class="cg-badge" aria-hidden="true">' + RANK_EMOJI[c.rank] + '</span>' : '') +
+        '<span class="cg-cap"><span class="cg-name">' + nm + '</span><span class="cg-date">' + esc(fmtDay(c.at)) + '</span></span></button></li>';
+    }).join('') + '</ul><div id="pow-combo" class="cg-view" aria-live="polite" hidden></div>' +
+      '<p class="cg-hint">Tap a card to flip it, share it or print it. <a href="/proof-of-walk/cards/">About the cards</a></p>';
+  }
+  function wireGrid(el, me) {
+    el.querySelectorAll('[data-cg]').forEach(function (b) { b.addEventListener('click', function () {
+      var c = cardFor(me, b.getAttribute('data-cg')), box = $('pow-combo'); if (!c || !box) return;
+      box.hidden = false; box.innerHTML = '<p class="pow-sub">Loading your card…</p>';
+      withPowCard(function (P) { var holder = document.createElement('div'); box.innerHTML = '<div class="cg-view-bar"><button type="button" data-cg-close>✕ Close card</button><a href="/' + esc((MAP.filter(function (m) { return m.slug === c.slug; })[0] || {}).page || '') + '/">Statue page →</a></div>'; box.appendChild(holder);
+        box.querySelector('[data-cg-close]').addEventListener('click', function () { box.hidden = true; box.innerHTML = ''; b.focus(); });
+        P.mount(holder, c).then(function () { box.scrollIntoView({ block: 'start', behavior: 'smooth' }); }); });
+    }); });
+    el.querySelectorAll('[data-cg-locked]').forEach(function (b) { b.addEventListener('click', function () { location.href = '/' + b.getAttribute('data-cg-locked') + '/'; }); });
+  }
   function renderMe(me) {
     var el = $('pow-me'); if (!el) return;
     var gN = me.genesis_at || 3;
     var h = '<div class="pow-sub">Your Satoshi Passport rank' + (me.nickname ? ' · <strong>' + esc(me.nickname) + '</strong>' : '') + '</div>' +
       '<div class="pow-rank">' + esc(me.rank.label || 'No rank yet') + '</div>';
-    if (!me.genesis) h += '<div class="pow-sub"><strong>' + me.genesis_progress + ' of ' + gN + ' to Genesis</strong> (any ' + gN + ' of the original 10)</div>' + pips(me);
     if (me.order) h += '<div class="pow-genesis">🏛️ <strong>The Grand High Order of Fellow Travelers</strong> · since ' + esc((me.order_since || '').slice(0, 10)) +
-      '<br><span class="pow-fine">' + me.distinct_stamps + ' statues stamped</span></div>';
+      '<br><span class="pow-fine">' + me.distinct_stamps + ' cards collected</span></div>';
     if (me.genesis) h += '<div class="pow-genesis">🧱 <strong>Genesis Block</strong> · mined ' + esc((me.joined_at || '').slice(0, 10)) +
-      (!me.order ? '<br><span class="pow-fine">Stamp ' + (me.order_needed || 1) + ' more statue' + ((me.order_needed || 1) === 1 ? '' : 's') + ', anywhere on the map, to join the Grand High Order.</span>' : '') + '</div>';
+      (!me.order ? '<br><span class="pow-fine">Collect ' + (me.order_needed || 1) + ' more card' + ((me.order_needed || 1) === 1 ? '' : 's') + ', at any statue on the map, to join the Grand High Order.</span>' : '') + '</div>';
     var card = cardOf(me), combo = comboCards(me);
-    if (combo.length) {
-      // Combined statue + rank cards (design 2): one per rank held, each showing the statue whose stamp earned it.
-      h += '<h3 class="pow-cards-h">Your cards</h3>' + (combo.length > 1 ? '<div class="pow-tabs" role="tablist">' + combo.map(function (c) {
-        return '<button type="button" role="tab" data-card="' + c.rank + '" aria-selected="' + (c.rank === combo.current) + '">' + RANK_UI[c.rank] + ' ✓</button>'; }).join('') + '</div>' : '') +
-        '<div id="pow-combo" class="pc" aria-live="polite"><p class="pow-sub">Loading your card…</p></div>' +
-        '<p class="pow-fine" style="text-align:center"><a href="/proof-of-walk/cards/">About the cards</a></p>';
-    } else {
-      if (card) h += '<figure class="pow-card" style="margin:12px 0 4px"><img src="/img/pow-share/' + card.slug + '/' + card.nn + '.jpg" width="1280" height="720" loading="lazy" alt="Your Proof of Walk card, No. ' + card.nn + ' of 21" style="width:100%;max-width:480px;height:auto;border-radius:10px;display:block">' +
-        '<figcaption class="pow-fine">Your card: No. ' + card.nn + '/21' + (card.tier ? ' · ' + esc(card.tier) : '') + '. It’s yours to keep. <a href="/proof-of-walk/cards/">About the cards</a></figcaption></figure>';
-      if (me.share && window.SSShare) h += window.SSShare.row(me.share, shareUrl(me), 'Share your rank');
-    }
+    // passport-cards preview: the card grid replaces the Genesis pips and the per-rank "Your cards" tabs.
+    h += '<h3 class="pow-cards-h">Your passport cards</h3><p class="cg-line">' + cardsLine(me) + '</p>' + gridHtml(me);
     h += '<form class="pow-form" id="pow-form"><label for="pow-nick">Passport nickname (shown on the leaderboard)</label>' +
       '<input id="pow-nick" name="nick" maxlength="20" autocomplete="nickname" placeholder="Nickname or @handle" value="' + esc(me.nickname || get(NICK) || '') + '">' +
       '<label for="pow-ln">Lightning address (optional, for passport recovery)</label>' +
@@ -1646,13 +1702,7 @@ POW_JS = r"""<script src="/share.js"></script>
       '. <button class="pow-ghost" type="button" id="pow-newcode">New recovery code</button></div>';
     h += '<div id="pow-codeslot"></div>';
     el.innerHTML = h;
-    if (combo.length) {
-      var show = function (k) { var c = combo.filter(function (x) { return x.rank === k; })[0] || combo[0];
-        el.querySelectorAll('[data-card]').forEach(function (b) { b.setAttribute('aria-selected', String(b.getAttribute('data-card') === c.rank)); });
-        withPowCard(function (P) { P.mount($('pow-combo'), c); }); };
-      el.querySelectorAll('[data-card]').forEach(function (b) { b.addEventListener('click', function () { show(b.getAttribute('data-card')); }); });
-      show(combo.current);
-    }
+    wireGrid(el, me);
     if ($('pow-newcode')) $('pow-newcode').addEventListener('click', function () {
       if (!confirm('Make a new recovery code? Your old code stops working.')) return;
       post('/api/pow/recovery-code', { device_id: dev }).then(function (j) { if (j.ok) { renderMe(j.me); showCode(j.recovery_code); } });
@@ -1684,7 +1734,7 @@ POW_JS = r"""<script src="/share.js"></script>
       '<form class="pow-form" id="pow-rform"><label for="pow-rln">Lightning address you saved</label>' +
       '<input id="pow-rln" maxlength="120" inputmode="email" autocomplete="off" placeholder="name@wallet.com" required>' +
       '<label for="pow-rcode">Recovery code</label><input id="pow-rcode" maxlength="40" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX" required>' +
-      '<p class="pow-fine">Moves your stamps, rank and nickname to this device; the old device loses them. Nothing is paid and your wallet isn’t contacted. ' +
+      '<p class="pow-fine">Moves your cards, rank and nickname to this device; the old device loses them. Nothing is paid and your wallet isn’t contacted. ' +
       'You get a fresh recovery code afterwards. 5 tries per day from each network.</p>' +
       '<button type="submit">Recover passport</button><div class="lb-msg" id="pow-rmsg" aria-live="polite"></div>' +
       '<p class="pow-fine">Trouble recovering? Email <a href="mailto:__SUPPORT__">__SUPPORT__</a></p></form></details>';
@@ -1699,13 +1749,14 @@ POW_JS = r"""<script src="/share.js"></script>
         set('satoshiPassport.v1', JSON.stringify(p)); set('satoshiClaimed.v1', '1'); if (j.me.nickname) set(NICK, j.me.nickname);
         $('pow-rmsg').textContent = ''; el.querySelector('details').open = false;
         renderMe(j.me); showCode(j.recovery_code); loadList();
-        $('pow-msg').textContent = '✅ Passport recovered: ' + j.me.stamps + ' stamp' + (j.me.stamps === 1 ? '' : 's') + ' moved to this device.';
+        $('pow-msg').textContent = '✅ Passport recovered: ' + j.me.stamps + ' card' + (j.me.stamps === 1 ? '' : 's') + ' moved to this device.';
       }).catch(function () { $('pow-rmsg').textContent = 'Couldn’t reach the server.'; });
     });
   }
   function loadMe() {
     var el = $('pow-me'); if (!el) return;
-    if (!dev) { el.innerHTML = '<div class="pow-rank">No rank yet</div><p class="pow-sub">Check in at a statue (within 150 m) to earn your first stamp. Open a statue on the <a href="/">map</a> or its page and tap <strong>Check in here</strong>.</p>'; return; }
+    if (!dev) { el.innerHTML = '<div class="pow-rank">No rank yet</div><p class="pow-sub">Check in at a statue (within 150 m) to collect your first card. Open a statue on the <a href="/">map</a> or its page and tap <strong>Check in here</strong>.</p>' +
+      '<h3 class="pow-cards-h">Your passport cards</h3><p class="cg-line">' + cardsLine(null) + '</p>' + gridHtml(null); wireGrid(el, null); return; }
     post('/api/pow/me', { device_id: dev }).then(function (j) { if (j.ok) renderMe(j.me); else off(el); }).catch(function () { off(el); });
   }
   function loadList() {
@@ -1715,7 +1766,7 @@ POW_JS = r"""<script src="/share.js"></script>
       if ($('pow-total')) $('pow-total').textContent = j.total_walkers + (j.total_walkers === 1 ? ' walker' : ' walkers') + ' so far.';
       el.innerHTML = j.entries.length ? j.entries.map(function (x) {
         return '<li><span class="lb-rank">' + x.position + '</span><span class="lb-who"><span class="lb-name">' + esc(x.name) + 
-          '</span><span class="lb-meta">' + (x.order ? '🏛️ Grand High Order' : x.genesis ? '🧱 Genesis Block' : x.progress + ' of ' + (j.genesis_at || 3) + ' to Genesis') + '</span></span><span class="lb-stamps">' + x.stamps + '<small>stamp' + (x.stamps === 1 ? '' : 's') + '</small></span></li>';
+          '</span><span class="lb-meta">' + (x.order ? '🏛️ Grand High Order' : x.genesis ? '🧱 Genesis Block' : x.progress + ' of ' + (j.genesis_at || 3) + ' cards to Genesis') + '</span></span><span class="lb-stamps">' + x.stamps + '<small>card' + (x.stamps === 1 ? '' : 's') + '</small></span></li>';
       }).join('') : '<li class="lb-empty">No walkers yet. Be the first.</li>';
     }).catch(function () { off(el); });
   }
@@ -1741,7 +1792,7 @@ POW_JS = r"""<script src="/share.js"></script>
 POW_JS = POW_JS.replace('__SUPPORT__', SUPPORT_EMAIL)
 
 def pow_map_attr(data):
-    m = [{'slug': s['slug'], 'name': s['name'], 'short': pow_names([s['slug']], data)} for s in data['statues'] if s['status'] in CHECKABLE]
+    m = [{'slug': s['slug'], 'name': s['name'], 'short': pow_names([s['slug']], data), 'page': s['page']} for s in data['statues'] if s['status'] in CHECKABLE]
     return e(json.dumps(m, ensure_ascii=False))
 
 
@@ -1752,7 +1803,7 @@ def pow_body_tag(out, data, page):
 def pow_page(data):
     canonical = SITE + '/proof-of-walk/'
     title = 'Proof of Walk – Satoshi Passport Ranks'
-    pitch = f'Walk to Satoshi statues. Stamp any {pow_genesis_required(data)} of the original 10 to mine the Genesis Block.'
+    pitch = f'Walk to Satoshi statues and collect each city’s card. Collect any {pow_genesis_required(data)} of the original 10 to mine the Genesis Block.'
     desc = f'{pitch} Three ranks: Confirmed, Genesis Block and {ORDER_NAME}.'
     lds = ld(breadcrumb_ld([('Map', SITE + '/'), ('Proof of Walk', canonical)]))
     out = pow_body_tag(pow_head(data, title, desc, canonical, lds), data, 'main')
@@ -1762,7 +1813,7 @@ def pow_page(data):
     <h1>👣 Proof of Walk{pv}</h1>
     <p class="sub">{e(pitch)}</p>
     <div class="pow-card" id="pow-me" aria-live="polite">Loading…</div>
-    <p class="note pow-cards-link" style="font-size:.9rem">🃏 Every rank comes with a card: your statue, your rank, and one of 21 Bitcoin quotes. <a href="/proof-of-walk/cards/">See the cards →</a></p>
+    <p class="note pow-cards-link" style="font-size:.9rem">🃏 Every statue you walk to is a card in your passport. The check-ins that earn a rank get the full rank card: your statue, your rank, and one of 21 Bitcoin quotes. <a href="/proof-of-walk/cards/">See the cards →</a></p>
     <div id="pow-recover"></div>
     <noscript><p class="note">Proof of Walk needs JavaScript.</p></noscript>
     <h2>Ranks</h2>
@@ -1772,7 +1823,7 @@ def pow_page(data):
     <ol class="lb-list" id="pow-list"><li class="lb-empty">Loading…</li></ol>
     <p class="note" style="margin-top:8px"><a href="/leaderboard/">See full leaderboard →</a></p>
     <h2>How it works</h2>
-    <p class="note">Tap <strong>Check in here</strong> on a statue page or the <a href="/">map</a> within 150 m. Only GPS-verified stamps count, one per statue. Ranks are just for fun: free, and not linked to tips or the giveaway. <a href="/privacy/">Privacy</a>.</p>
+    <p class="note">Tap <strong>Check in here</strong> on a statue page or the <a href="/">map</a> within 150 m. Each GPS-verified check-in is that statue’s card in your passport, one per statue. Ranks are just for fun: free, and not linked to tips or the giveaway. <a href="/privacy/">Privacy</a>.</p>
     {footer(data)}
   </main>
 """
@@ -3095,7 +3146,7 @@ def build_index(data, text):
     text = replace_block(text, 'SIGNUP', '        ' + signup_html(data, 'home'))
     text = replace_block(text, 'EMBED', embed_box_html())
     text = replace_block(text, 'SUPPORT', '        <p class="support-p">' + support_line() + '</p>')
-    text = replace_block(text, 'HEADLINKS', '  ' + FEED_LINK + '\n  <style>' + ALERT_CSS + '</style>' + ('\n  ' + api_script() if api_script() else '') + '\n  ' + checkin_script() + giveaway_home_head(data))
+    text = replace_block(text, 'HEADLINKS', '  ' + FEED_LINK + '\n  <style>' + ALERT_CSS + CARD_GRID_CSS + '</style>' + ('\n  ' + api_script() if api_script() else '') + '\n  ' + checkin_script() + giveaway_home_head(data))
     return text
 
 # ---------- Temporary hidden test statue (fountain.json "test_page") ----------

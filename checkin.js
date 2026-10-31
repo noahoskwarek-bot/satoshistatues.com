@@ -150,7 +150,7 @@ async function lbSubmit(s, c) {
     if (j.ok) {
       if (!j.already) s.checkins = Math.max((s.checkins || 0) + 1, 1);
       const me = j.me;
-      let html = `<div class="lb-note">🏆 ${me && me.rank ? `You're <strong>#${me.rank}</strong> on the <a href="/leaderboard/">leaderboard</a> with ${me.stamps} stamp${me.stamps === 1 ? '' : 's'}.` : 'Saved to the <a href="/leaderboard/">leaderboard</a>.'}</div>`;
+      let html = `<div class="lb-note">🏆 ${me && me.rank ? `You're <strong>#${me.rank}</strong> on the <a href="/leaderboard/">leaderboard</a> with ${me.stamps} card${me.stamps === 1 ? '' : 's'}.` : 'Saved to the <a href="/leaderboard/">leaderboard</a>.'}</div>`;
       if (j.pow && j.pow.me && j.pow.me.rank && j.pow.me.rank.label && !j.pow.ranked_up)
         html += `<div class="lb-note">👣 ${powStatus(j.pow.me)} on <a href="/proof-of-walk/">Proof of Walk</a></div>`;
       if (!(me && me.nickname) && !lsGet(LB_NICK_SKIP)) html += lbNickForm('Show a name or X handle on the leaderboard? (optional)');
@@ -158,9 +158,9 @@ async function lbSubmit(s, c) {
       return { html };
     }
     if (status >= 400 && status < 500) return { rejected: true, html: `🏆 ${escHtml(j.message || "The check-in wasn't accepted.")}` };
-    return { html: '<div class="lb-note">The leaderboard is unavailable right now, so this stamp is only in your passport.</div>' };
+    return { html: '<div class="lb-note">The leaderboard is unavailable right now, so this card is only in your passport on this device.</div>' };
   } catch (e) {
-    return { html: '<div class="lb-note">Couldn\'t reach the leaderboard, so this stamp is only in your passport.</div>' };
+    return { html: '<div class="lb-note">Couldn\'t reach the leaderboard, so this card is only in your passport on this device.</div>' };
   }
 }
 // Proof of Walk: the Worker adds `pow` to the check-in reply only when POW_ENABLED is on. Three ranks: Confirmed (first
@@ -168,9 +168,9 @@ async function lbSubmit(s, c) {
 // Progress: "N of 3 to Genesis".
 // A new rank gets a short note plus the usual Share buttons (share.js) with the rank line.
 function powStatus(me) {
-  if (me.order) return `🏛️ <strong>Grand High Order</strong> · ${me.distinct_stamps} statues`;
-  if (me.genesis) return '🧱 <strong>Genesis Block</strong> · stamp 1 more statue to join the Grand High Order';
-  return `<strong>${me.genesis_progress} of ${me.genesis_at || 3} to Genesis</strong>`;
+  if (me.order) return `🏛️ <strong>Grand High Order</strong> · ${me.distinct_stamps} cards`;
+  if (me.genesis) return '🧱 <strong>Genesis Block</strong> · collect 1 more card to join the Grand High Order';
+  return `<strong>${me.genesis_progress} of ${me.genesis_at || 3} cards to Genesis</strong>`;
 }
 function powRankUpHtml(p) {
   if (!p || !p.ranked_up || !p.me || !p.me.share) return '';
@@ -184,8 +184,8 @@ function powRankUpHtml(p) {
   const head = p.order_new
     ? `🏛️ <strong>Grand High Order ✓</strong> The Grand High Order of Fellow Travelers${p.genesis_new ? ', and Genesis Block ✓ too' : ''}. It’s yours for good (<a href="/proof-of-walk/fellow-travelers/">the roll</a>).`
     : p.genesis_new
-    ? `🧱 <strong>Genesis Block ✓</strong> (<a href="/proof-of-walk/fellow-travelers/#genesis">the roll</a>). Stamp 1 more statue, anywhere, to join the Grand High Order of Fellow Travelers.`
-    : `👣 <strong>Confirmed ✓</strong> on <a href="/proof-of-walk/">Proof of Walk</a>: ${p.me.genesis_progress} of ${p.me.genesis_at || 3} to Genesis.`;
+    ? `🧱 <strong>Genesis Block ✓</strong> (<a href="/proof-of-walk/fellow-travelers/#genesis">the roll</a>). Collect 1 more card, at any statue, to join the Grand High Order of Fellow Travelers.`
+    : `👣 <strong>Confirmed ✓</strong> on <a href="/proof-of-walk/">Proof of Walk</a>: ${p.me.genesis_progress} of ${p.me.genesis_at || 3} cards to Genesis.`;
   // Combined statue + rank card (design 2): the card reveal with one-tap Share right after the check-in (pow-card.js,
   // loaded only now). Falls back to the older share row when the Worker has no verify code/earning stamp for the card.
   const k = p.me.rank && p.me.rank.key, cc = k && p.me.cards && p.me.cards[k];
@@ -233,12 +233,12 @@ document.addEventListener('click', ev => {
 const CHECKIN_NO_GEO = "Your browser can't share its location, so check-in isn't available here.";
 function checkinOkHtml(s, saved, n, total) {
   return saved
-    ? `🟠 Stamped! ${s.name} is in your passport. That's ${n} of ${total}.`
-    : `🟠 You're here, but this browser won't let us save the stamp (private mode?).`;
+    ? `🃏 Card collected! The ${s.city || s.name} card is in your passport. That's ${n} of ${total}.`
+    : `🟠 You're here, but this browser won't let us save the card (private mode?).`;
 }
 function checkinTooFarHtml(s, d, accuracy) {
   const acc = accuracy && accuracy > CHECKIN_RADIUS_M ? ` (your location fix is only accurate to about ${fmtDist(accuracy)})` : '';
-  return `So close… well, sort of! You're about <strong>${roundedDist(d, CHECKIN_RADIUS_M)}</strong> from ${s.name}${acc}. Get within ${CHECKIN_RADIUS_M} m to collect the stamp.`;
+  return `So close… well, sort of! You're about <strong>${roundedDist(d, CHECKIN_RADIUS_M)}</strong> from ${s.name}${acc}. Get within ${CHECKIN_RADIUS_M} m to collect its card.`;
 }
 // ----- Statue page "📍 Check in here" box (build.py renders <div data-ss-checkin …>; the home page has none) -----
 (function () {
@@ -256,7 +256,7 @@ function checkinTooFarHtml(s, d, accuracy) {
     const show = (cls, html) => { out.className = `checkin-msg ${cls}`; out.innerHTML = html; out.hidden = false; };
     function shareText(p) {
       const what = /^Satoshi Statue /.test(s.label || '') ? `Satoshi in ${s.city}` : `the ${s.name} in ${s.city}`;
-      return `I found ${what} 🟠 ${visitedCount(p)}/${checkable.length} stamps on the Satoshi Passport @satoshistatue21`;
+      return `I found ${what} 🟠 ${visitedCount(p)}/${checkable.length} cards in my Satoshi Passport @satoshistatue21`;
     }
     function shareRow(p) {
       const url = d.url;
@@ -269,7 +269,7 @@ function checkinTooFarHtml(s, d, accuracy) {
     function collected(p) {
       btn.hidden = true;
       const st = box.querySelector('.ci-stamp');
-      st.innerHTML = `✅ Stamp collected · ${fmtDate(p[s.slug].date)}`;
+      st.innerHTML = `✅ Card collected · ${fmtDate(p[s.slug].date)}`;
       st.hidden = false;
       const note = box.querySelector('.ci-note');
       if (note) note.innerHTML = 'Saved in your Satoshi Passport. <a href="/#passport">My passport</a> · <a href="/leaderboard/">Leaderboard</a>';
