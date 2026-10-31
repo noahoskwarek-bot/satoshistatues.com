@@ -155,7 +155,7 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
       (!me.order ? '<br><span class="pow-fine">Stamp ' + (me.order_needed || 1) + ' more statue' + ((me.order_needed || 1) === 1 ? '' : 's') + ', anywhere on the map, to join the Grand High Order.</span>' : '') + '</div>';
     var card = cardOf(me);
     if (card) h += '<figure class="pow-card" style="margin:12px 0 4px"><img src="/img/pow-share/' + card.slug + '/' + card.nn + '.jpg" width="1280" height="720" loading="lazy" alt="Your Proof of Walk card, No. ' + card.nn + ' of 21" style="width:100%;max-width:480px;height:auto;border-radius:10px;display:block">' +
-      '<figcaption class="pow-fine">Your card: No. ' + card.nn + '/21' + (card.tier ? ' · ' + esc(card.tier) : '') + '. It’s yours to keep.</figcaption></figure>';
+      '<figcaption class="pow-fine">Your card: No. ' + card.nn + '/21' + (card.tier ? ' · ' + esc(card.tier) : '') + '. It’s yours to keep. <a href="/proof-of-walk/cards/">About the cards</a></figcaption></figure>';
     if (me.share && window.SSShare) h += window.SSShare.row(me.share, shareUrl(me), 'Share your rank');
     h += '<form class="pow-form" id="pow-form"><label for="pow-nick">Passport nickname (shown on the leaderboard)</label>' +
       '<input id="pow-nick" name="nick" maxlength="20" autocomplete="nickname" placeholder="Nickname or @handle" value="' + esc(me.nickname || get(NICK) || '') + '">' +

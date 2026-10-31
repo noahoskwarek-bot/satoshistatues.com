@@ -1602,7 +1602,7 @@ POW_JS = r"""<script src="/share.js"></script>
       (!me.order ? '<br><span class="pow-fine">Stamp ' + (me.order_needed || 1) + ' more statue' + ((me.order_needed || 1) === 1 ? '' : 's') + ', anywhere on the map, to join the Grand High Order.</span>' : '') + '</div>';
     var card = cardOf(me);
     if (card) h += '<figure class="pow-card" style="margin:12px 0 4px"><img src="/img/pow-share/' + card.slug + '/' + card.nn + '.jpg" width="1280" height="720" loading="lazy" alt="Your Proof of Walk card, No. ' + card.nn + ' of 21" style="width:100%;max-width:480px;height:auto;border-radius:10px;display:block">' +
-      '<figcaption class="pow-fine">Your card: No. ' + card.nn + '/21' + (card.tier ? ' · ' + esc(card.tier) : '') + '. It’s yours to keep.</figcaption></figure>';
+      '<figcaption class="pow-fine">Your card: No. ' + card.nn + '/21' + (card.tier ? ' · ' + esc(card.tier) : '') + '. It’s yours to keep. <a href="/proof-of-walk/cards/">About the cards</a></figcaption></figure>';
     if (me.share && window.SSShare) h += window.SSShare.row(me.share, shareUrl(me), 'Share your rank');
     h += '<form class="pow-form" id="pow-form"><label for="pow-nick">Passport nickname (shown on the leaderboard)</label>' +
       '<input id="pow-nick" name="nick" maxlength="20" autocomplete="nickname" placeholder="Nickname or @handle" value="' + esc(me.nickname || get(NICK) || '') + '">' +
@@ -1724,6 +1724,7 @@ def pow_page(data):
     <h1>👣 Proof of Walk{pv}</h1>
     <p class="sub">{e(pitch)}</p>
     <div class="pow-card" id="pow-me" aria-live="polite">Loading…</div>
+    <p class="note pow-cards-link" style="font-size:.9rem">🃏 Every rank comes with one of 21 collectible cards. <a href="/proof-of-walk/cards/">See the cards →</a></p>
     <div id="pow-recover"></div>
     <noscript><p class="note">Proof of Walk needs JavaScript.</p></noscript>
     <h2>Ranks</h2>
@@ -1801,6 +1802,7 @@ def pow_share_page(data, key):
     <p class="sub">{e(desc)}</p>
     <p><img src="/img/pow-share/{slug}.jpg" width="1200" height="675" alt="{e(alt)}" style="width:100%;height:auto;border-radius:10px" /></p>
     <p class="note"><a href="/proof-of-walk/">See Proof of Walk ranks and start your passport →</a></p>
+    <p class="note"><a href="/proof-of-walk/cards/">About the cards: all 21 designs and how rare each one is →</a></p>
     {footer(data)}
   </main>
 """
@@ -1841,6 +1843,180 @@ def pow_card_page(data, key, n):
 def pow_card_pages(data):
     return {f'proof-of-walk/share/{POW_SHARE[k][0]}/{n:02d}/index.html': pow_card_page(data, k, n)
             for k in POW_SHARE for n in range(1, 22) if os.path.exists(os.path.join(ROOT, pow_card_img(POW_SHARE[k][0], n)))}
+
+
+# Card text for /proof-of-walk/cards/ (from the card set's sayings.json; notes from the cards-page draft).
+# n: (quote or None, attribution, plain-English note, source link or None). Card 13's quote is held back from the HTML
+# pending Noah's decision (its wording trips the fountain banned-word list); the page shows it only in the card image.
+POW_CARD_TEXT = {
+    1: ('Not your keys, not your coins.', 'Bitcoin saying', 'A popular Bitcoin saying. If someone else holds the keys to your bitcoin, they control it.', None),
+    2: ("Don't trust, verify.", 'Bitcoin saying', 'A Bitcoin motto. Bitcoin lets anyone check the rules for themselves instead of trusting someone.', None),
+    3: ('Stay humble, stack sats.', 'Bitcoin saying', 'A friendly Bitcoin saying: stay modest and keep saving a few sats (small pieces of a bitcoin).', None),
+    4: ('Tick tock, next block.', 'Bitcoin saying', 'A Bitcoin saying. A new block is added to Bitcoin about every 10 minutes, like a clock.', None),
+    5: ('I AM HODLING', 'GameKyuubi, BitcoinTalk, Dec 18 2013', '“HODL” began as a typo in a BitcoinTalk forum post titled “I AM HODLING” on Dec 18, 2013. It now means holding on.', 'https://bitcointalk.org/index.php?topic=375643.0'),
+    6: ('Vires in numeris. (Strength in numbers.)', 'Bitcoin motto', 'Latin for “strength in numbers”, an early Bitcoin motto.', None),
+    7: ('Fix the money, fix the world.', 'Bitcoin saying', 'A Bitcoin saying: the idea that better money makes a better world.', None),
+    8: ('Writing a description for this thing for general audiences is bloody hard.', 'Satoshi Nakamoto, BitcoinTalk, Jul 5 2010', 'Satoshi Nakamoto on the BitcoinTalk forum, July 5, 2010, on how hard Bitcoin is to explain.', 'https://satoshi.nakamotoinstitute.org/posts/bitcointalk/167/'),
+    9: ('…an electronic payment system based on cryptographic proof instead of trust…', 'Bitcoin whitepaper, 2008', 'From section 1 of the Bitcoin whitepaper (2008).', 'https://bitcoin.org/bitcoin.pdf'),
+    10: ('We have proposed a system for electronic transactions without relying on trust.', 'Bitcoin whitepaper, 2008', 'The first line of the Bitcoin whitepaper’s conclusion (2008).', 'https://bitcoin.org/bitcoin.pdf'),
+    11: ('Proof-of-work is essentially one-CPU-one-vote.', 'Bitcoin whitepaper, 2008', 'From section 4 of the Bitcoin whitepaper (2008). Proof of Walk is our walking version of proof-of-work.', 'https://bitcoin.org/bitcoin.pdf'),
+    12: ('It might make sense just to get some in case it catches on.', 'Satoshi Nakamoto, Cryptography list, Jan 16 2009', 'Satoshi Nakamoto on the Cryptography mailing list, January 16, 2009, a week after Bitcoin launched.', 'https://satoshi.nakamotoinstitute.org/emails/cryptography/17/'),
+    13: (None, 'Satoshi Nakamoto, BitcoinTalk, Jun 21 2010', 'Satoshi Nakamoto on the BitcoinTalk forum, June 21, 2010, answering what happens to lost coins.', 'https://bitcointalk.org/index.php?topic=198.msg1647#msg1647'),
+    14: ("If you don't believe me or don't get it, I don't have time to try to convince you, sorry.", 'Satoshi Nakamoto, BitcoinTalk, Jul 29 2010', 'Satoshi Nakamoto on the BitcoinTalk forum, July 29, 2010.', 'https://bitcointalk.org/index.php?topic=532.msg6306#msg6306'),
+    15: ("The root problem with conventional currency is all the trust that's required to make it work.", 'Satoshi Nakamoto, P2P Foundation, Feb 11 2009', 'Satoshi Nakamoto introducing Bitcoin on the P2P Foundation forum, February 11, 2009.', 'https://satoshi.nakamotoinstitute.org/posts/p2pfoundation/1/'),
+    16: ('…gain a new territory of freedom for several years.', 'Satoshi Nakamoto, Cryptography list, Nov 6 2008', 'Satoshi Nakamoto on the Cryptography mailing list, November 6, 2008.', 'https://satoshi.nakamotoinstitute.org/emails/cryptography/4/'),
+    17: ('Total circulation will be 21,000,000 coins.', 'Satoshi Nakamoto, Bitcoin v0.1 release, Jan 8 2009', 'Satoshi Nakamoto announcing Bitcoin v0.1, January 8, 2009: the 21 million limit, in Satoshi’s words.', 'https://satoshi.nakamotoinstitute.org/emails/cryptography/16/'),
+    18: ('Bitcoin: A Peer-to-Peer Electronic Cash System', 'Satoshi Nakamoto, whitepaper title, Oct 31 2008', 'The title of the Bitcoin whitepaper, published October 31, 2008.', 'https://bitcoin.org/bitcoin.pdf'),
+    19: ('Running bitcoin', 'Hal Finney (@halfin), Jan 10 2009', 'Hal Finney’s tweet on January 10, 2009, the first known tweet about Bitcoin. Hal was one of the first people to run it.', 'https://x.com/halfin/status/1110302988'),
+    20: ("I've been working on a new electronic cash system that's fully peer-to-peer, with no trusted third party.", 'Satoshi Nakamoto, Cryptography list, Oct 31 2008', 'The first words Satoshi Nakamoto used to introduce Bitcoin, on the Cryptography mailing list, October 31, 2008.', 'https://satoshi.nakamotoinstitute.org/emails/cryptography/1/'),
+    21: ('The Times 03/Jan/2009 Chancellor on brink of second bailout for banks', 'Genesis block coinbase, Block 0, Jan 3 2009', 'The newspaper headline Satoshi put inside the very first Bitcoin block (block 0) on January 3, 2009. It is still there today.', 'https://mempool.space/block/000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f'),
+}
+
+POW_CARD_UNITS = {'Common': 7, 'Uncommon': 6, 'Rare': 4, 'Ultra rare': 2, '1 of 121': 1}   # per card, out of 121 (= the Worker's cards.js)
+POW_CARD_CLASS = {'Common': 't-common', 'Uncommon': 't-uncommon', 'Rare': 't-rare', 'Ultra rare': 't-ultra', '1 of 121': 't-genesis'}
+POW_CARDS_RANK = 'confirmed'   # the gallery shows the Confirmed set (same 21 sayings and frames on every rank)
+POW_CARDS_CSS = '.strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 16px}\n.strip img,.rank img,.gen img{display:block;width:100%;height:auto;border-radius:8px;border:1px solid #30363d;background:#161b22}\n.strip figcaption{font-size:.75rem;color:#8b949e;margin-top:4px;text-align:center}\n.ranks{list-style:none;display:grid;gap:12px}\n.rank{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:14px;align-items:center;background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px}\n.rank h3{font-size:1.05rem;color:#f7931a;margin-bottom:2px}.rank p{font-size:.92rem;color:#c9d1d9}\n.rank .step{display:inline-block;font-size:.72rem;font-weight:700;color:#8b949e;letter-spacing:.04em;text-transform:uppercase}\n.tiers{list-style:none;border:1px solid #30363d;border-radius:10px;background:#161b22;overflow:hidden}\n.tiers li{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px;border-bottom:1px solid #30363d}\n.tiers li:last-child{border-bottom:0}\n.sw{width:52px;height:34px;border-radius:6px;border:1px solid #30363d}\n.tiers strong{display:block}.tiers .desc{font-size:.85rem;color:#8b949e}\n.tiers .pct{font-weight:800;font-size:1.05rem;text-align:right;white-space:nowrap}.tiers .pct small{display:block;font-size:.7rem;font-weight:400;color:#8b949e}\n.tier{display:inline-block;font-size:.72rem;font-weight:700;border-radius:4px;padding:1px 7px;color:#0d1117}\n.t-common{--f:linear-gradient(135deg,#8a5a2b,#e8b07a 45%,#7a4a1f)}\n.t-uncommon{--f:linear-gradient(135deg,#1f6f8b,#7fe3f0 40%,#2a9d8f 70%,#9be7c4)}\n.t-rare{--f:linear-gradient(135deg,#ff6b6b,#ffd93d,#6bff95,#4dd2ff)}\n.t-ultra{--f:linear-gradient(135deg,#ff4d4d,#ffb84d,#f9ff4d,#4dff88,#4dc3ff,#a64dff,#ff4dd2)}\n.t-genesis{--f:conic-gradient(from 0deg,#ff4d4d,#ffb84d,#f9ff4d,#4dff88,#4dc3ff,#a64dff,#ff4dd2,#ff4d4d)}\n.sw,.tier{background:var(--f)}\n.gen{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px;align-items:center;background:#1f1a0d;border:1px solid #6e5a1e;border-radius:10px;padding:14px;margin:10px 0}\n.gen h3{color:#ffdf80;font-size:1.05rem;margin-bottom:6px}.gen p{font-size:.92rem;color:#e6edf3}.gen p+p{margin-top:8px}\n.gen code{display:block;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.88rem;color:#ffdf80;background:#0d1117;border:1px dashed #6e5a1e;border-radius:8px;padding:8px 10px;margin:8px 0;overflow-wrap:anywhere}\n.grid{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}\n.cc{all:unset;text-decoration:none;color:inherit;box-sizing:border-box;display:flex;flex-direction:column;width:100%;height:100%;cursor:pointer;background:#161b22;border:1px solid #30363d;border-radius:10px;overflow:hidden}\n.cc:hover,.cc:focus-visible{border-color:#f7931a;outline:none}\n.cc img{display:block;width:100%;height:auto;aspect-ratio:16/9}\n.cc-meta{display:flex;justify-content:space-between;align-items:center;padding:8px 10px 2px}\n.cc-no{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;font-size:.85rem;color:#e6edf3}\n.cc-q{display:block;padding:2px 10px 10px;font-size:.85rem;color:#c9d1d9;font-style:italic}\n#cd{border:1px solid #30363d;border-radius:12px;padding:0;background:#161b22;color:#e6edf3;width:min(720px,94vw);max-height:92vh;margin:auto}\n#cd::backdrop{background:rgba(0,0,0,.85)}\n#cd img{display:block;width:100%;height:auto}\n#cd .body{padding:12px 16px 16px}\n#cd .q{font-size:1.05rem;font-style:italic;margin:8px 0 4px}\n#cd .by{font-size:.85rem;color:#8b949e}\n#cd .n{font-size:.92rem;margin-top:10px}\n#cd .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}\n#cd .bar{display:flex;justify-content:space-between;align-items:center;padding:4px 6px 4px 16px;font-size:.85rem;color:#8b949e;border-bottom:1px solid #30363d}\n#cd .close{width:44px;height:44px;border-radius:50%;border:1px solid #30363d;background:#21262d;color:#e6edf3;font-size:1.1rem;cursor:pointer}\n.share-list{list-style:none;display:grid;gap:8px;margin:10px 0}\n.share-list a{display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 12px;border:1px solid #30363d;border-radius:8px;background:#161b22;color:#e6edf3;text-decoration:none;font-size:.92rem}\n.share-list a:hover{border-color:#f7931a;color:#f7931a}\n@media (max-width:600px){.brand-logo{height:36px}.top .tagline{font-size:.72rem;padding-left:10px}.top nav{width:100%}h1{font-size:1.4rem}\n.rank,.gen{grid-template-columns:1fr}.strip{gap:6px}.tiers li{grid-template-columns:40px minmax(0,1fr) auto;gap:10px}.sw{width:40px;height:28px}.grid{grid-template-columns:1fr 1fr;gap:8px}.cc-q{font-size:.8rem}}\n@media (max-width:360px){.grid{grid-template-columns:1fr}}'
+
+
+def pow_card_thumb(slug, n):
+    return f'img/pow-share/thumbs/{slug}/{n:02d}.jpg'
+
+
+def pow_cards_odds_html():
+    assert sum(POW_CARD_UNITS[POW_CARD_TIERS[n]] for n in range(1, 22)) == 121
+    desc = {'Common': 'Brushed-metal foil frame, a different color on every card.',
+            'Uncommon': 'Two-tone foil with a soft streak of light across the art.',
+            'Rare': 'Prism foil frame and holographic bands over the art.',
+            'Ultra rare': 'Full rainbow foil with ripples and sparkles.',
+            '1 of 121': 'Double rainbow frame, full holographic shine, sparkles.'}
+    rows = []
+    for t, u in POW_CARD_UNITS.items():
+        ns = [n for n in range(1, 22) if POW_CARD_TIERS[n] == t]
+        span = f'Card {ns[0]:02d}' if len(ns) == 1 else f'Cards {ns[0]:02d}–{ns[-1]:02d}'
+        tot = u * len(ns)
+        each = '' if len(ns) == 1 else f' Each card: {u} in 121.'
+        pct = '1 in 121<small>of cards</small>' if tot == 1 else f'{tot / 121 * 100:.1f}%<small>{tot} in 121</small>'
+        rows.append(f'<li class="{POW_CARD_CLASS[t]}"><span class="sw"></span><span><strong>{e(t)}</strong><span class="desc">{span}. {desc[t]}{each}</span></span><span class="pct">{pct}</span></li>')
+    return '<ul class="tiers">' + ''.join(rows) + '</ul>'
+
+
+def pow_cards_gallery_html():
+    out = []
+    for n in range(1, 22):
+        q, by, note, link = POW_CARD_TEXT[n]
+        t = POW_CARD_TIERS[n]
+        qtxt = q if q else 'The saying is shown on the card.'
+        alt = f'Card {n:02d} of 21, {t}' + (f': {q}' if q else '')
+        out.append(f'<li><a class="cc {POW_CARD_CLASS[t]}" href="/{pow_card_img(POW_CARDS_RANK, n)}" data-n="{n:02d}" data-tier="{e(t)}" '
+                   f'data-quote="{e(q or "")}" data-by="{e(by)}" data-note="{e(note)}" data-link="{e(link or "")}">'
+                   f'<img src="/{pow_card_thumb(POW_CARDS_RANK, n)}" width="640" height="360" loading="lazy" decoding="async" alt="{e(alt)}">'
+                   f'<span class="cc-meta"><span class="cc-no">No. {n:02d}</span><span class="tier {POW_CARD_CLASS[t]}">{e(t)}</span></span>'
+                   f'<span class="cc-q">{e(qtxt)}</span></a></li>')
+    return '\n'.join(out)
+
+
+POW_CARDS_JS = r"""<script>
+(function(){
+  var d=document.getElementById('cd'),$=function(i){return document.getElementById(i)};
+  if(!d||!d.showModal)return;   // no <dialog>: the card links open the full image
+  document.querySelectorAll('.cc').forEach(function(b){
+    b.addEventListener('click',function(ev){
+      ev.preventDefault();
+      var n=b.dataset.n,t=b.className.replace('cc ','');
+      $('cd-img').src=b.getAttribute('href');$('cd-img').alt=b.querySelector('img').alt;
+      $('cd-no').textContent='No. '+n+' / 21';$('cd-tier').textContent=b.dataset.tier;$('cd-tier').className='tier '+t;
+      $('cd-q').textContent=b.dataset.quote;$('cd-q').hidden=!b.dataset.quote;
+      $('cd-by').textContent='— '+b.dataset.by;$('cd-note').textContent=b.dataset.note;
+      var l=$('cd-link');if(b.dataset.link){l.href=b.dataset.link;l.parentNode.hidden=false}else{l.parentNode.hidden=true}
+      d.showModal();
+    });
+  });
+  d.querySelector('.close').addEventListener('click',function(){d.close()});
+  d.addEventListener('click',function(e){if(e.target===d)d.close()});
+})();
+</script>"""
+
+
+def pow_cards_page(data):
+    canonical = SITE + '/proof-of-walk/cards/'
+    title = 'Proof of Walk cards – 21 designs to collect'
+    desc = 'Every Proof of Walk rank comes with a collectible card: one of 21 designs, each with a famous Bitcoin saying. See all 21 and how rare each one is.'
+    lds = ld(breadcrumb_ld([('Map', SITE + '/'), ('Proof of Walk', SITE + '/proof-of-walk/'), ('Cards', canonical)]))
+    out = head(title, desc, canonical, f'{SITE}/{pow_card_img("genesis-block", 21)}', 1280, 720,
+               'Proof of Walk card No. 21 of 21, the 1 of 121 Genesis card', lds)
+    if pow_cfg(data).get('preview'):
+        out = out.replace('<meta name="robots" content="index, follow" />', '<meta name="robots" content="noindex, nofollow" />', 1)
+    out = out.replace('</style>', POW_CARDS_CSS + '</style>', 1)
+    th = lambda slug, n: f'/{pow_card_thumb(slug, n)}'
+    rank = lambda slug: f'/img/pow-share/thumbs/{slug}.jpg'
+    g, o = pow_genesis_required(data), pow_order_extra(data)
+    out += f"""  <main>
+    <div class="crumbs"><a href="/">Map</a> › <a href="/proof-of-walk/">Proof of Walk</a> › Cards</div>
+    <h1>🃏 Proof of Walk cards</h1>
+    <p class="sub">Walk to Satoshi statues, earn ranks, collect cards.</p>
+    <p class="note">Every rank you earn comes with a collectible card. There are <strong>21 designs</strong>, and each one carries a famous Bitcoin saying. Which design you get is drawn when you earn the rank. Once you have a card, it’s yours and it never changes.</p>
+    <div class="strip">
+      <figure><img src="{th(POW_CARDS_RANK, 1)}" width="640" height="360" alt="Common card No. 01"><figcaption>Common</figcaption></figure>
+      <figure><img src="{th(POW_CARDS_RANK, 17)}" width="640" height="360" alt="Rare card No. 17"><figcaption>Rare</figcaption></figure>
+      <figure><img src="{th(POW_CARDS_RANK, 21)}" width="640" height="360" alt="1 of 121 card No. 21"><figcaption>1 of 121</figcaption></figure>
+    </div>
+
+    <h2>Earn a rank, get a card</h2>
+    <p class="note" style="margin-bottom:10px">Check in at a statue (within 150 m) to collect a GPS-verified stamp. There are 3 ranks, and each gives you a card.</p>
+    <ol class="ranks">
+      <li class="rank"><img src="{rank('confirmed')}" width="640" height="360" loading="lazy" alt="Confirmed rank card"><div><span class="step">Rank 1</span><h3>👣 Confirmed</h3><p>Your first GPS-verified stamp at any Satoshi statue.</p></div></li>
+      <li class="rank"><img src="{rank('genesis-block')}" width="640" height="360" loading="lazy" alt="Genesis Block rank card"><div><span class="step">Rank 2</span><h3>🧱 Genesis Block</h3><p>Stamp any {g} of the original 10 statues.</p></div></li>
+      <li class="rank"><img src="{rank('grand-high-order')}" width="640" height="360" loading="lazy" alt="Grand High Order rank card"><div><span class="step">Rank 3</span><h3>🏛️ Grand High Order of Fellow Travelers</h3><p>The Genesis Block plus {o} more statue{'' if o == 1 else 's'}, anywhere on the map.</p></div></li>
+    </ol>
+    <p class="note" style="margin-top:10px">Your card keeps the look of your rank, then adds its own foil frame, serial number (like <strong>07 / 21</strong>) and saying.</p>
+
+    <h2>How rare is each card?</h2>
+    {pow_cards_odds_html()}
+    <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">Odds are per card drawn, out of 121. The diamonds under the serial number show the tier: one for Common, up to five for 1 of 121.</p>
+
+    <h2>The 1 of 121 Genesis card</h2>
+    <div class="gen">
+      <img src="{th(POW_CARDS_RANK, 21)}" width="640" height="360" loading="lazy" alt="Card 21, 1 of 121: the genesis block headline">
+      <div>
+        <h3>Card No. 21 · the rarest design</h3>
+        <p>Each time you earn a rank, at any statue, your card gets its own draw, with a 1 in 121 chance of being the Genesis card.</p>
+        <p>That draw is separate from everything else: like the ranks, cards are just for fun, free, and not linked to tips or the giveaway.</p>
+      </div>
+    </div>
+    <p class="note">Its saying is the newspaper headline Satoshi Nakamoto wrote into Bitcoin’s very first block, block 0, on January 3, 2009:</p>
+    <div class="gen" style="display:block;padding:10px 14px"><code>The Times 03/Jan/2009 Chancellor on brink of second bailout for banks</code></div>
+    <p class="note">It shows when Bitcoin started and why: a new kind of money, launched while banks were being bailed out. Those words are still in block 0 today, and every Bitcoin block since builds on it.</p>
+
+    <h2>All 21 designs</h2>
+    <p class="note" style="margin-bottom:10px">Tap a card to see where its saying comes from.</p>
+    <ul class="grid">
+{pow_cards_gallery_html()}
+    </ul>
+
+    <h2>Show yours off</h2>
+    <p class="note">When you earn a rank, tap <strong>Share your rank</strong> on the <a href="/proof-of-walk/">Proof of Walk</a> page. Your link shows your own card. Each rank also has its own share link:</p>
+    <ul class="share-list">
+      <li><a href="/proof-of-walk/share/confirmed/">👣 Confirmed</a></li>
+      <li><a href="/proof-of-walk/share/genesis-block/">🧱 Genesis Block</a></li>
+      <li><a href="/proof-of-walk/share/grand-high-order/">🏛️ Grand High Order</a></li>
+    </ul>
+    <div class="actions"><a class="btn primary" href="/proof-of-walk/">👣 Proof of Walk</a><a class="btn" href="/leaderboard/">🏆 Leaderboard</a><a class="btn" href="/">🗺️ Find a statue</a></div>
+    {footer(data)}
+  </main>
+
+  <dialog id="cd" aria-labelledby="cd-no">
+    <div class="bar"><span>Card details</span><button class="close" type="button" aria-label="Close">✕</button></div>
+    <img id="cd-img" src="" alt="">
+    <div class="body">
+      <span class="cc-no" id="cd-no"></span> <span class="tier" id="cd-tier"></span>
+      <p class="q" id="cd-q"></p>
+      <p class="by" id="cd-by"></p>
+      <p class="n" id="cd-note"></p>
+      <div class="row"><a class="btn" id="cd-link" href="#" target="_blank" rel="noopener">Read the source ↗</a></div>
+    </div>
+  </dialog>
+"""
+    return out + POW_CARDS_JS + '\n' + TAIL
 
 
 def pow_privacy_html(data):
@@ -2611,7 +2787,7 @@ def page_lastmod(s):
 
 
 def sitemap(data):
-    urls = [(SITE + p, BUILD_DATE) for p in ('/', '/21-nodes/', '/leaderboard/', '/privacy/') + (('/terms/',) if fountain_on(data) else ()) + (('/rules/',) if rules_on(data) else ()) + (('/proof-of-walk/', '/proof-of-walk/fellow-travelers/') if pow_cfg(data) and not pow_cfg(data).get('preview') else ())] + [(page_url(s), page_lastmod(s)) for s in data['statues']]
+    urls = [(SITE + p, BUILD_DATE) for p in ('/', '/21-nodes/', '/leaderboard/', '/privacy/') + (('/terms/',) if fountain_on(data) else ()) + (('/rules/',) if rules_on(data) else ()) + (('/proof-of-walk/', '/proof-of-walk/fellow-travelers/', '/proof-of-walk/cards/') if pow_cfg(data) and not pow_cfg(data).get('preview') else ())] + [(page_url(s), page_lastmod(s)) for s in data['statues']]
     body = ''.join(f'  <url><loc>{u}</loc><lastmod>{m}</lastmod></url>\n' for u, m in urls)
     return f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{body}</urlset>\n'
 
@@ -2915,6 +3091,7 @@ def outputs(data):
         for k in POW_SHARE:
             files[f'proof-of-walk/share/{POW_SHARE[k][0]}/index.html'] = pow_share_page(data, k)
         files.update(pow_card_pages(data))
+        files['proof-of-walk/cards/index.html'] = pow_cards_page(data)
     for s in data['statues']:
         files[f"{s['page']}/index.html"] = statue_page(s, data)
     return files
