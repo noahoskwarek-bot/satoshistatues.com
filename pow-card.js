@@ -31,12 +31,16 @@
     ]);
     return loaded;
   }
-  function art(page) {
-    if (!artCache[page]) artCache[page] = new Promise(function (ok) {
-      var im = new Image(); im.decoding = 'async'; im.onload = function () { ok(im); }; im.onerror = function () { ok(null); };
-      im.src = '/img/cards/art/' + page + '.jpg';
+  // print: the 1650x2250 print files use the upscaled art (img/cards/art/print/<page>.jpg, 1290x1720 = the print art
+  // window at 1.5x); every on-screen card, share and OG image keeps the lighter 1200x1600 art.
+  function art(page, print) {
+    var key = (print ? 'print/' : '') + page;
+    if (!artCache[key]) artCache[key] = new Promise(function (ok) {
+      var im = new Image(); im.decoding = 'async'; im.onload = function () { ok(im); };
+      im.onerror = function () { if (print) art(page).then(ok); else ok(null); };
+      im.src = '/img/cards/art/' + key + '.jpg';
     });
-    return artCache[page];
+    return artCache[key];
   }
   // ---------- data helpers ----------
   function rankKey(r) { return RANKS[r] || 'confirmed'; }
@@ -173,7 +177,7 @@
   }
   // ---------- the two sides ----------
   async function front(c, card, o) {
-    var d = D(), st = d.statues[card.slug], k = rankKey(card.rank), im = await art(st.page);
+    var d = D(), st = d.statues[card.slug], k = rankKey(card.rank), im = await art(st.page, o.print);
     frame(c, card, o.print);
     pinGlyph(c, W / 2, 86, 22);
     c.fillStyle = ORANGE; f(c, 800, 28, 'PCInter'); c.textBaseline = 'alphabetic'; spaced(c, 'SATOSHI STATUES', W / 2, 160, 7, 'center');
