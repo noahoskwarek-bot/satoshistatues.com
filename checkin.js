@@ -154,8 +154,8 @@ async function lbSubmit(s, c) {
       if (j.pow && j.pow.me && j.pow.me.rank && j.pow.me.rank.label && !j.pow.ranked_up)
         html += `<div class="lb-note">👣 ${powStatus(j.pow.me)} on <a href="/proof-of-walk/">Proof of Walk</a></div>`;
       if (!(me && me.nickname) && !lsGet(LB_NICK_SKIP)) html += lbNickForm('Show a name or X handle on the leaderboard? (optional)');
-      html += powRankUpHtml(j.pow);
-      return { html };
+      html += powRankUpHtml(j.pow, s);
+      return { html, pow: j.pow || null };
     }
     if (status >= 400 && status < 500) return { rejected: true, html: `🏆 ${escHtml(j.message || "The check-in wasn't accepted.")}` };
     return { html: '<div class="lb-note">The leaderboard is unavailable right now, so this card is only in your passport on this device.</div>' };
@@ -172,7 +172,15 @@ function powStatus(me) {
   if (me.genesis) return '🧱 <strong>Genesis Block</strong> · collect 1 more card to join the Grand High Order';
   return `<strong>${me.genesis_progress} of ${me.genesis_at || 3} cards to Genesis</strong>`;
 }
-function powRankUpHtml(p) {
+// Per-check-in cards (passport-cards): every successful GPS check-in shows its card (p.me.stamp_cards[slug]: rank as of
+// this check-in, quote, verify code), not only rank-ups.
+function powCardRevealHtml(sc, slug, head) {
+  const card = { rank: sc.rank, slug, n: Number(sc.n), at: sc.at, code: sc.code, earns: !!sc.earns };
+  return `${head ? `<div class="lb-note pow-up">${head}</div>` : ''}<div class="pc-reveal" data-pc="${escHtml(JSON.stringify(card))}"><p class="lb-note">🗺️ Your new card is on its way…</p></div>`;
+}
+function powRankUpHtml(p, s) {
+  const sc = s && p && p.me && p.me.stamp_cards && p.me.stamp_cards[s.slug];
+  if (p && p.me && !p.ranked_up && sc && sc.code) return powCardRevealHtml(sc, s.slug, '');
   if (!p || !p.ranked_up || !p.me || !p.me.share) return '';
   // Per-rank share page (static og:image card for crawlers; humans land on /proof-of-walk/).
   const slug = { confirmed: 'confirmed', genesis: 'genesis-block', order: 'grand-high-order' }[p.me.rank && p.me.rank.key];
@@ -189,9 +197,10 @@ function powRankUpHtml(p) {
   // Combined statue + rank card (design 2): the card reveal with one-tap Share right after the check-in (pow-card.js,
   // loaded only now). Falls back to the older share row when the Worker has no verify code/earning stamp for the card.
   const k = p.me.rank && p.me.rank.key, cc = k && p.me.cards && p.me.cards[k];
+  if (sc && sc.code) return powCardRevealHtml(sc, s.slug, head);
   if (cc && cc.code && cc.earned && cc.earned.slug) {
     const card = { rank: k, slug: cc.earned.slug, n: Number(cc.n), at: cc.earned.at, code: cc.code };
-    return `<div class="lb-note pow-up">${head}</div><div class="pc-reveal" data-pc="${escHtml(JSON.stringify(card))}"><p class="lb-note">🃏 Your new card is on its way…</p></div>`;
+    return `<div class="lb-note pow-up">${head}</div><div class="pc-reveal" data-pc="${escHtml(JSON.stringify(card))}"><p class="lb-note">🗺️ Your new card is on its way…</p></div>`;
   }
   const share = window.SSShare ? window.SSShare.row(p.me.share, url, 'Share your rank')
     : `<div class="ci-share"><a class="btn" href="https://x.com/intent/post?text=${encodeURIComponent(p.me.share)}&url=${encodeURIComponent(url)}" target="_blank" rel="noopener noreferrer">𝕏 Share on X</a></div>`;
@@ -233,7 +242,7 @@ document.addEventListener('click', ev => {
 const CHECKIN_NO_GEO = "Your browser can't share its location, so check-in isn't available here.";
 function checkinOkHtml(s, saved, n, total) {
   return saved
-    ? `🃏 Card collected! The ${s.city || s.name} card is in your passport. That's ${n} of ${total}.`
+    ? `🗺️ Card collected! The ${s.city || s.name} card is in your passport. That's ${n} of ${total}.`
     : `🟠 You're here, but this browser won't let us save the card (private mode?).`;
 }
 function checkinTooFarHtml(s, d, accuracy) {

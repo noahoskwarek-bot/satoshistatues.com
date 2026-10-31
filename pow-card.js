@@ -5,10 +5,9 @@
 // (MIT, Kazuhiko Arase). Fonts: Inter (site), IBM Plex Serif Medium Italic + IBM Plex Mono (OFL), all self-hosted.
 // Layout: 1000 x 1400 units (5:7 = the 2.5 x 3.5 in trim). Print: 1650 x 2250 px = trim 1500 x 2100 at 600 dpi plus
 // 1/8 in (75 px) bleed per side; all text and the QR stay inside the 1/8 in safe zone (50 units in from the trim).
-// City cards (passport-cards preview): every statue in the passport is a card. A card object with city: true (and no rank,
-// quote number or verify code) renders the same front without the rank shield and a simpler back (statue + check-in
-// date); verified: true (the stamp is on the Worker) adds the GPS seal. A check-in that earned a rank keeps its full
-// combined card (rank shield, quote, verify code).
+// Per-check-in cards (passport-cards; Noah 2026-10-31 4:05 PM ET): every GPS-verified check-in is a full card with the
+// same front and back. card.rank = the walker's rank as of that check-in; card.earns = false when the check-in didn't
+// earn the rank itself (then the reveal header names the city and the share text says "collected its card").
 // Card copy rules (spec §3.3 / Grant): no odds, luck, win, bet, worth, value, prize, "limited edition"; the card and
 // the share text never mention the giveaway, tips or sats.
 (function () {
@@ -50,14 +49,14 @@
   function rankKey(r) { return RANKS[r] || 'confirmed'; }
   function siteOrigin() { return /(^|\.)satoshistatues\.com$/.test(location.hostname) || location.protocol === 'file:' ? D().site : location.origin; }
   function verifyUrl(code) { return siteOrigin() + '/v/?c=' + encodeURIComponent(code); }
-  function shareUrl(card) { if (card.city) return siteOrigin() + '/' + D().statues[card.slug].page + '/'; var st = D().statues[card.slug]; return siteOrigin() + '/proof-of-walk/share/' + D().ranks[rankKey(card.rank)].share + '/' + st.page + '/'; }
+  function shareUrl(card) { var st = D().statues[card.slug]; return siteOrigin() + '/proof-of-walk/share/' + D().ranks[rankKey(card.rank)].share + '/' + st.page + '/'; }
   function shareText(card) {
     var st = D().statues[card.slug], k = rankKey(card.rank);
-    if (card.city) return 'I walked to ' + st.phrase + ' and collected its card in my Satoshi Passport 🟧 #ProofOfWalk #Bitcoin satoshistatues.com';
-    var verb = { confirmed: 'got my first Proof of Walk stamp', genesis: 'earned Genesis Block', order: 'reached Grand High Order' }[k];
+    if (card.earns === false) return 'I walked to ' + st.phrase + ' and collected its Proof of Walk card (' + D().ranks[k].label + ') 🟧 #ProofOfWalk #Bitcoin satoshistatues.com';
+    var verb = { confirmed: 'got my first Proof of Walk card', genesis: 'earned Genesis Block', order: 'reached Grand High Order' }[k];
     return 'I walked to ' + st.phrase + ' and ' + verb + ' 🟧 #ProofOfWalk #Bitcoin satoshistatues.com';
   }
-  function fileName(card) { if (card.city) return 'satoshi-passport-' + D().statues[card.slug].page + '-card.png'; return 'proof-of-walk-' + D().statues[card.slug].page + '-' + D().ranks[rankKey(card.rank)].share + '.png'; }
+  function fileName(card) { return 'proof-of-walk-' + D().statues[card.slug].page + '-' + D().ranks[rankKey(card.rank)].share + (card.earns === false ? '-' + (card.n < 10 ? '0' : '') + card.n : '') + '.png'; }
   var TZ_ABBR = { 'Europe/': { 'GMT+1': 'CET', 'GMT+2': 'CEST' }, 'Asia/Tokyo': { 'GMT+9': 'JST' }, 'Asia/Ho_Chi_Minh': { 'GMT+7': 'ICT' },
     'Asia/Hong_Kong': { 'GMT+8': 'HKT' }, 'America/New_York': { 'GMT-5': 'EST', 'GMT-4': 'EDT' }, 'America/El_Salvador': { 'GMT-6': 'CST' },
     'America/Argentina/Buenos_Aires': { 'GMT-3': 'ART' } };
@@ -197,40 +196,14 @@
     var sh = c.createLinearGradient(0, ay + ah * .62, 0, ay + ah); sh.addColorStop(0, 'rgba(10,12,16,0)'); sh.addColorStop(1, 'rgba(10,12,16,.55)'); c.fillStyle = sh; c.fillRect(ax, ay, aw, ah);
     c.restore();
     c.strokeStyle = 'rgba(247,147,26,.9)'; c.lineWidth = 3; rr(c, ax, ay, aw, ah, 18); c.stroke();
-    if (card.city) {   // passport city card: no rank shield; a small passport tag instead
-      c.save(); f(c, 800, 24, 'PCInter'); var tag = 'SATOSHI PASSPORT', tw = c.measureText(tag).width + 7 * 15 + 40;
-      c.fillStyle = 'rgba(13,17,23,.78)'; rr(c, 92, 1168, tw, 52, 26); c.fill(); c.strokeStyle = 'rgba(247,147,26,.9)'; c.lineWidth = 2; c.stroke();
-      c.fillStyle = ORANGE; c.textBaseline = 'alphabetic'; spaced(c, tag, 92 + 20, 1203, 7, 'left'); c.restore();
-      if (card.verified) seal(c, 812, 1128, 112);
-    } else { shield(c, k, 92, 1004, 196, 248); seal(c, 812, 1128, 112); }
+    shield(c, k, 92, 1004, 196, 248);
+    seal(c, 812, 1128, 112);
     c.textAlign = 'center'; c.fillStyle = '#e6edf3'; f(c, 500, 28, 'PCInter');
     if (card.at && !o.generic) { var p = localParts(card.at, st.tz); spaced(c, 'CHECKED IN ' + p.day + ' ' + p.mon.toUpperCase() + ' ' + p.year, W / 2, 1290, 3, 'center'); }
     else spaced(c, 'A REAL WALK TO A REAL STATUE', W / 2, 1290, 3, 'center');
     c.fillStyle = ORANGE; f(c, 800, 32, 'PCInter'); c.fillText('satoshistatues.com', W / 2, 1338);
   }
-  async function cityBack(c, card, o) {
-    var d = D(), st = d.statues[card.slug];
-    frame(c, card, o.print);
-    c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.fillStyle = ORANGE; f(c, 800, 30, 'PCInter'); var hw = spaced(c, 'SATOSHI PASSPORT', W / 2, 118, 6, 'center');
-    c.strokeStyle = 'rgba(247,147,26,.8)'; c.lineWidth = 2; [-1, 1].forEach(function (s) { c.beginPath(); c.moveTo(W / 2 + s * (hw / 2 + 24), 108); c.lineTo(W / 2 + s * (hw / 2 + 120), 108); c.stroke(); });
-    var size = 72, lines, lh, txt = 'A real walk to a real statue.';
-    for (; size >= 30; size -= 2) { f(c, 500, size, 'PCSerif'); lines = wrap(c, txt, 790); lh = size * 1.22; if (lines.length * lh <= 250) break; }
-    c.fillStyle = '#f2ead8'; var y0 = 190 + (250 - lines.length * lh) / 2 + size * .9; lines.forEach(function (l, i) { c.fillText(l, W / 2, y0 + i * lh); });
-    c.fillStyle = ORANGE; fit(c, st.subtitle, 800, 34, 500, 'PCInter', 20); c.fillText(st.subtitle, W / 2, 500);
-    f(c, 600, 26, 'PCMono'); var label = 'CITY CARD · ' + st.title, lw = c.measureText(label).width, bw = lw + 48;
-    c.strokeStyle = 'rgba(247,147,26,.7)'; c.lineWidth = 2; rr(c, W / 2 - bw / 2, 566, bw, 54, 27); c.stroke(); c.fillStyle = '#f5f1e6'; c.fillText(label, W / 2, 602);
-    c.strokeStyle = 'rgba(247,147,26,.9)'; c.lineWidth = 2.5; rr(c, 150, 648, 700, 206, 18); c.fillStyle = 'rgba(0,0,0,.35)'; c.fill(); c.stroke();
-    c.fillStyle = ORANGE; f(c, 800, 26, 'PCInter'); spaced(c, card.verified ? 'GPS-VERIFIED CHECK-IN' : 'CHECK-IN', W / 2, 694, 4, 'center');
-    c.fillStyle = '#f5f1e6'; fit(c, st.label, 640, 32, 500, 'PCMono', 20); c.fillText(st.label, W / 2, 744);
-    var p = card.at ? localParts(card.at, st.tz) : null;
-    f(c, 500, 30, 'PCMono'); c.fillText(p ? p.day + ' ' + p.mon + ' ' + p.year + ' · ' + p.hm + ' ' + p.tz : 'Date shown on your card', W / 2, 790);
-    f(c, 500, 24, 'PCInter'); c.fillStyle = '#c9d1d9'; c.fillText(card.verified ? 'Checked within 150 m of the statue' : 'Saved in this browser', W / 2, 834);
-    if (card.verified) seal(c, W / 2, 1030, 130); else pinGlyph(c, W / 2, 1000, 70);
-    c.fillStyle = '#e6edf3'; f(c, 500, 26, 'PCInter'); c.fillText('Walk to a Satoshi statue, collect its card', W / 2, 1214);
-    c.fillStyle = '#9aa3ad'; f(c, 500, 19, 'PCInter'); wrap(c, d.credit, 820).forEach(function (l, i) { c.fillText(l, W / 2, 1258 + i * 26); });
-  }
   async function back(c, card, o) {
-    if (card.city) return cityBack(c, card, o);
     var d = D(), st = d.statues[card.slug], q = d.quotes[(card.n || 1) - 1], t = tierOf(card.n || 1);
     frame(c, card, o.print);
     c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.fillStyle = ORANGE; f(c, 800, 30, 'PCInter'); var hw = spaced(c, 'PROOF OF WALK', W / 2, 118, 6, 'center');
@@ -262,7 +235,7 @@
       var n = qr.getModuleCount(), m = qs / (n + 8); c.fillStyle = '#101217';
       for (var r = 0; r < n; r++) for (var col = 0; col < n; col++) if (qr.isDark(r, col)) c.fillRect(qx + (col + 4) * m, qy + (r + 4) * m, m + .3, m + .3);
     }
-    c.fillStyle = '#e6edf3'; f(c, 500, 26, 'PCInter'); c.fillText('Scan to verify this stamp', W / 2, 1214);
+    c.fillStyle = '#e6edf3'; f(c, 500, 26, 'PCInter'); c.fillText('Scan to verify this card', W / 2, 1214);
     c.fillStyle = '#9aa3ad'; f(c, 500, 19, 'PCInter'); wrap(c, d.credit, 820).forEach(function (l, i) { c.fillText(l, W / 2, 1258 + i * 26); });
     if (o.sample) { c.save(); c.translate(W / 2, H / 2); c.rotate(-.5); c.fillStyle = 'rgba(247,147,26,.18)'; f(c, 800, 150, 'PCInter'); c.fillText('SAMPLE', 0, 50); c.restore(); }
   }
@@ -308,15 +281,16 @@
     opt = opt || {}; await load(); var d = D(); if (!d.statues[card.slug]) { el.hidden = true; return; }
     var k = rankKey(card.rank), url = shareUrl(card), text = shareText(card), name = fileName(card);
     el.classList.add('pc');
-    var city = !!card.city, stl = esc(d.statues[card.slug].label), ttl = esc(d.statues[card.slug].subtitle.split(',')[0]);
-    el.innerHTML = '<p class="pc-rank">' + (city ? '🃏 <strong>' + ttl + ' card ✓</strong> · ' + stl : d.ranks[k].emoji + ' <strong>' + esc(d.ranks[k].label) + ' ✓</strong> · ' + stl) + '</p><div class="pc-stage"><canvas class="pc-face" data-side="front" role="img" aria-label="' + (city ? 'Your ' + ttl + ' card' : 'Your ' + esc(d.ranks[k].label) + ' card') + ', front: ' + stl + '"></canvas>' +
-      '<canvas class="pc-face" data-side="back" hidden role="img" aria-label="' + (city ? 'Your card, back: check-in date' : 'Your card, back: card ' + card.n + ' of 21, verify code ' + esc(card.code || '')) + '"></canvas></div>' +
+    var city = esc(d.statues[card.slug].subtitle.split(',')[0]);
+    el.innerHTML = '<p class="pc-rank">' + (card.earns === false ? '🗺️ <strong>' + city + ' card ✓</strong> · ' + d.ranks[k].emoji + ' ' + esc(d.ranks[k].label)
+      : d.ranks[k].emoji + ' <strong>' + esc(d.ranks[k].label) + ' ✓</strong> · ' + esc(d.statues[card.slug].label)) + '</p><div class="pc-stage"><canvas class="pc-face" data-side="front" role="img" aria-label="Your ' + esc(d.ranks[k].label) + ' card, front: ' + esc(d.statues[card.slug].label) + '"></canvas>' +
+      '<canvas class="pc-face" data-side="back" hidden role="img" aria-label="Your card, back: card ' + card.n + ' of 21, verify code ' + esc(card.code || '') + '"></canvas></div>' +
       '<div class="pc-flip" role="group" aria-label="Card side"><button type="button" data-flip="front" aria-pressed="true">Front</button><button type="button" data-flip="back" aria-pressed="false">Back</button></div>' +
       '<div class="pc-share"><button class="btn primary pc-main" type="button" data-pc="share">📤 Share</button>' +
       '<div class="pc-fb"><a class="btn" data-pc="x" href="' + esc('https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url)) + '" target="_blank" rel="noopener noreferrer">𝕏 Post on X</a>' +
       '<a class="btn" data-pc="save" href="#" download="' + esc(name) + '">⬇️ Save image</a><button class="btn" type="button" data-pc="copy">🔗 Copy link</button></div>' +
-      '<p class="pc-hint">' + (city ? 'Your card shows your check-in date.' : 'Your card shows your check-in date and verify code.') + ' <span class="pc-toast" role="status" aria-live="polite"></span></p></div>' +
-      '<section class="pc-print" aria-labelledby="pc-print-h-' + (city ? card.slug : k) + '"><h3 id="pc-print-h-' + (city ? card.slug : k) + '">🖨️ Get a print</h3>' +
+      '<p class="pc-hint">Your card shows your check-in date and verify code. <span class="pc-toast" role="status" aria-live="polite"></span></p></div>' +
+      '<section class="pc-print" aria-labelledby="pc-print-h-' + k + '"><h3 id="pc-print-h-' + k + '">🖨️ Get a print</h3>' +
       '<p class="pc-sub">Print it yourself: print-ready files for the front and back, 1650 × 2250 px each (2.5 × 3.5 in card at 600 dpi, with 1/8 in bleed on every side). Trim to 2.5 × 3.5 in.</p>' +
       '<div class="pc-row"><button class="btn" type="button" data-print="front">⬇️ Front (print PNG)</button><button class="btn" type="button" data-print="back">⬇️ Back (print PNG)</button></div>' +
       '<div class="pc-row"><button class="btn pc-soon" type="button" disabled aria-disabled="true">Order a printed card, coming soon</button></div>' +

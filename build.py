@@ -1560,6 +1560,14 @@ CARD_GRID_CSS = (
     '.cg-view-bar{display:flex;justify-content:space-between;gap:8px;max-width:420px;margin:0 auto 4px}'
     '.cg-view-bar button,.cg-view-bar a{min-height:40px;padding:6px 12px;border-radius:999px;border:1px solid #30363d;background:#21262d;color:#e6edf3;font:600 .84rem inherit;font-family:inherit;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}'
     '.cg-hint{font-size:.78rem;color:#8b949e;text-align:center;margin:8px 0 0}'
+    # tier finish on the thumbnail (same tiers as pow-card.js): number + tier chip, border by tier
+    '.cg-no{position:absolute;top:5px;left:5px;height:22px;border-radius:11px;background:rgba(13,17,23,.85);border:1px solid #f2a541;font:700 .66rem/20px ui-monospace,Menlo,monospace;padding:0 6px;color:#f5f1e6}'
+    '.cg-tier{display:block;font-size:.6rem;font-weight:700;letter-spacing:.02em;color:#c9d1d9;margin-top:1px}'
+    '.cg-tile.t1{border:3px solid #b98a3e}'
+    '.cg-tile.t2{border:3px solid transparent;background:linear-gradient(#0d1117,#0d1117) padding-box,linear-gradient(135deg,#2f6b55,#9ff0c8 45%,#2f6b55 70%,#9fd8f0) border-box}'
+    '.cg-tile.t3,.cg-tile.t4,.cg-tile.t5{border:3px solid transparent;background:linear-gradient(#0d1117,#0d1117) padding-box,linear-gradient(135deg,#ff4d4d,#ffb84d,#f9ff4d,#4dff88,#4dc3ff,#a64dff,#ff4dd2) border-box}'
+    '.cg-tile.t3 .cg-art::after,.cg-tile.t4 .cg-art::after,.cg-tile.t5 .cg-art::after{content:"";position:absolute;inset:0;mix-blend-mode:screen;opacity:.22;background:linear-gradient(115deg,transparent 30%,#ff4dd2 42%,#4dc3ff 50%,#f9ff4d 58%,transparent 70%)}'
+    '.cg-tile.t5{box-shadow:0 0 0 2px #e8c35a,0 4px 16px rgba(232,195,90,.45)}'
 )
 
 POW_CSS = CARD_GRID_CSS + (
@@ -1640,22 +1648,26 @@ POW_JS = r"""<script src="/share.js"></script>
       return '<span class="' + (have[m.slug] ? 'pow-pip on' : 'pow-pip') + '" title="' + esc(m.name) + (have[m.slug] ? ' ✓' : '') + '">' + (have[m.slug] ? '✓' : '') + '</span>';
     }).join('') + '</div>';
   }
-  // Passport card grid: one card per counted statue. Collected (a GPS-verified check-in on the Worker) = face-up;
-  // a check-in that earned a rank shows that rank's combined card, any other check-in shows the city card.
+  // Passport card grid: one card per counted statue. Collected (a GPS-verified check-in on the Worker) = face-up.
+  // Every check-in is a full card (me.stamp_cards: rank as of that check-in, quote, verify code); the check-in that
+  // earned a rank is that rank's card. Without stamp_cards (table not there yet) only the rank cards open.
   var RANK_EMOJI = { confirmed: '👣', genesis: '🧱', order: '🏛️' };
   var cardFor = function (me, slug) {
+    var sc = me && me.stamp_cards && me.stamp_cards[slug];
+    if (sc && sc.code) return { rank: sc.rank, slug: slug, n: Number(sc.n), at: sc.at, code: sc.code, earns: !!sc.earns };
     var rk = comboCards(me).filter(function (c) { return c.slug === slug; })[0];
     if (rk) return rk;
     var st = (me && me.stamped || []).filter(function (x) { return x.slug === slug; })[0];
-    return st ? { city: true, verified: true, slug: slug, at: st.at } : null;
+    return st ? { pending: true, slug: slug, at: st.at } : null;
   };
+  var TIER = function (n) { return n === 21 ? ['Legendary', 5] : n === 20 ? ['Ultra rare', 4] : n >= 17 ? ['Rare', 3] : n >= 11 ? ['Uncommon', 2] : ['Common', 1]; };
   var fmtDay = function (iso) { try { return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }); } catch (e) { return ''; } };
   function cardsLine(me) {
     var gN = (me && me.genesis_at) || 3, n = (me && me.distinct_stamps) || 0;
-    if (me && me.order) return '🃏 <strong>Cards collected: ' + n + '</strong> · 🏛️ Grand High Order ✓';
-    if (me && me.genesis) return '🃏 <strong>Cards collected: ' + n + '</strong> · 🧱 Genesis Block ✓ · ' + (me.order_needed || 1) + ' more card' + ((me.order_needed || 1) === 1 ? '' : 's') + ' for the Grand High Order';
+    if (me && me.order) return '🗺️ <strong>Cards collected: ' + n + '</strong> · 🏛️ Grand High Order ✓';
+    if (me && me.genesis) return '🗺️ <strong>Cards collected: ' + n + '</strong> · 🧱 Genesis Block ✓ · ' + (me.order_needed || 1) + ' more card' + ((me.order_needed || 1) === 1 ? '' : 's') + ' for the Grand High Order';
     var p = (me && me.genesis_progress) || 0;
-    return '🃏 <strong>Cards collected: ' + p + ' of ' + gN + ' to Genesis</strong>' + (n > p ? ' · ' + n + ' cards in all' : '') + '<br><span class="pow-fine">Any ' + gN + ' of the original 10 statues</span>';
+    return '🗺️ <strong>Cards collected: ' + p + ' of ' + gN + ' to Genesis</strong>' + (n > p ? ' · ' + n + ' cards in all' : '') + '<br><span class="pow-fine">Any ' + gN + ' of the original 10 statues</span>';
   }
   function gridHtml(me) {
     return '<ul class="cg-grid" aria-label="Your Satoshi Passport cards">' + MAP.map(function (m) {
@@ -1663,9 +1675,10 @@ POW_JS = r"""<script src="/share.js"></script>
       var art = '<span class="cg-art" style="background-image:url(/img/cards/art/thumb/' + esc(page) + '.jpg)"></span>';
       if (!c) return '<li><button class="cg-tile locked" type="button" data-cg-locked="' + esc(page) + '" aria-label="' + esc(m.name) + ': not collected yet">' + art +
         '<span class="cg-lock" aria-hidden="true">🔒</span><span class="cg-cap"><span class="cg-name">' + nm + '</span><span class="cg-date">Not yet</span></span></button></li>';
-      return '<li><button class="cg-tile got" type="button" data-cg="' + esc(m.slug) + '" aria-label="' + esc(m.name) + ': card collected ' + esc(fmtDay(c.at)) + (c.rank ? ', ' + esc(RANK_UI[c.rank].slice(3)) + ' card' : '') + '. Tap to open">' + art +
-        (c.rank ? '<span class="cg-badge" aria-hidden="true">' + RANK_EMOJI[c.rank] + '</span>' : '') +
-        '<span class="cg-cap"><span class="cg-name">' + nm + '</span><span class="cg-date">' + esc(fmtDay(c.at)) + '</span></span></button></li>';
+      var n = Number(c.n) || 0, t = n ? TIER(n) : null, nn = n ? (n < 10 ? '0' : '') + n : '';
+      return '<li><button class="cg-tile got' + (t ? ' t' + t[1] : '') + '" type="button" data-cg="' + esc(m.slug) + '" aria-label="' + esc(m.name) + ': card ' + (n ? nn + ' of 21, ' + t[0] + ', ' : '') + 'collected ' + esc(fmtDay(c.at)) + (c.rank ? ', ' + esc(RANK_UI[c.rank].replace(/^\S+\s/, '')) : '') + '. Tap to open">' + art +
+        (n ? '<span class="cg-no" aria-hidden="true">' + nn + '/21</span>' : '') + (c.rank ? '<span class="cg-badge" aria-hidden="true">' + RANK_EMOJI[c.rank] + '</span>' : '') +
+        '<span class="cg-cap"><span class="cg-name">' + nm + '</span>' + (t ? '<span class="cg-tier">' + '◆'.repeat(t[1]) + ' ' + t[0] + '</span>' : '') + '<span class="cg-date">' + esc(fmtDay(c.at)) + '</span></span></button></li>';
     }).join('') + '</ul><div id="pow-combo" class="cg-view" aria-live="polite" hidden></div>' +
       '<p class="cg-hint">Tap a card to flip it, share it or print it. <a href="/proof-of-walk/cards/">About the cards</a></p>';
   }
@@ -1673,6 +1686,7 @@ POW_JS = r"""<script src="/share.js"></script>
     el.querySelectorAll('[data-cg]').forEach(function (b) { b.addEventListener('click', function () {
       var c = cardFor(me, b.getAttribute('data-cg')), box = $('pow-combo'); if (!c || !box) return;
       box.hidden = false; box.innerHTML = '<p class="pow-sub">Loading your card…</p>';
+      if (c.pending) { box.innerHTML = '<p class="pow-sub">This card is still being made. Reload the page in a moment.</p>'; return; }
       withPowCard(function (P) { var holder = document.createElement('div'); box.innerHTML = '<div class="cg-view-bar"><button type="button" data-cg-close>✕ Close card</button><a href="/' + esc((MAP.filter(function (m) { return m.slug === c.slug; })[0] || {}).page || '') + '/">Statue page →</a></div>'; box.appendChild(holder);
         box.querySelector('[data-cg-close]').addEventListener('click', function () { box.hidden = true; box.innerHTML = ''; b.focus(); });
         P.mount(holder, c).then(function () { box.scrollIntoView({ block: 'start', behavior: 'smooth' }); }); });
@@ -1813,7 +1827,7 @@ def pow_page(data):
     <h1>👣 Proof of Walk{pv}</h1>
     <p class="sub">{e(pitch)}</p>
     <div class="pow-card" id="pow-me" aria-live="polite">Loading…</div>
-    <p class="note pow-cards-link" style="font-size:.9rem">🃏 Every statue you walk to is a card in your passport. The check-ins that earn a rank get the full rank card: your statue, your rank, and one of 21 Bitcoin quotes. <a href="/proof-of-walk/cards/">See the cards →</a></p>
+    <p class="note pow-cards-link" style="font-size:.9rem">🗺️ Every statue you walk to is a card in your passport: that statue, your rank at the time, one of 21 Bitcoin quotes and a verify code. <a href="/proof-of-walk/cards/">See the cards →</a></p>
     <div id="pow-recover"></div>
     <noscript><p class="note">Proof of Walk needs JavaScript.</p></noscript>
     <h2>Ranks</h2>
@@ -2163,7 +2177,7 @@ VERIFY_JS = r"""<script>
   fetch(A + '/api/pow/verify?code=' + encodeURIComponent(code)).then(function (r) { return r.json(); }).then(function (j) {
     if (!j || !j.ok) { show('<p class="v-no">❌ We couldn’t find that code. Check the letters and numbers on the back of the card and try again.</p>', 'bad'); return; }
     var rk = RS[j.rank_key] || RS.confirmed;
-    show('<p class="v-ok">✅ GPS-verified stamp</p><p class="v-line"><strong>' + esc(j.statue.label) + '</strong> · ' + esc(j.date) + ' · ' + rk[1] + ' ' + esc(j.rank) + '</p>' +
+    show('<p class="v-ok">✅ GPS-verified check-in</p><p class="v-line"><strong>' + esc(j.statue.label) + '</strong> · ' + esc(j.date) + ' · ' + rk[1] + ' ' + esc(j.rank) + '</p>' +
       '<img class="v-img" src="/img/cards/og/' + rk[0] + '/' + encodeURIComponent(j.statue.page) + '.__OGV__.jpg" width="1200" height="630" alt="' + esc(j.rank) + ' card for ' + esc(j.statue.label) + '">' +
       '<p class="note">This card was issued by satoshistatues.com for a real check-in within 150 m of the statue.</p>' +
       '<p class="note"><a href="/' + encodeURIComponent(j.statue.page) + '/">About ' + esc(j.statue.label) + ' →</a></p>', 'good');
@@ -2175,7 +2189,7 @@ VERIFY_JS = r"""<script>
 def verify_page(data):
     canonical = SITE + '/v/'
     title = 'Verify a Proof of Walk card – satoshistatues.com'
-    desc = 'Check that a Proof of Walk card is a real, GPS-verified stamp at a Satoshi statue.'
+    desc = 'Check that a Proof of Walk card is a real, GPS-verified check-in at a Satoshi statue.'
     out = head(title, desc, canonical, SITE + '/og-image.jpg', 1200, 630, 'Satoshi statues world map', '')
     out = out.replace('<meta name="robots" content="index, follow" />', '<meta name="robots" content="noindex, nofollow" />', 1)
     out = out.replace('</style>', '.v-out{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px;margin:12px 0}'
@@ -2253,7 +2267,7 @@ def pow_cards_page(data):
     ex = [s for s in card_statues(data) if s['page'] in ('lugano', 'tokyo', 'el-zonte')]
     out += f"""  <main>
     <div class="crumbs"><a href="/">Map</a> › <a href="/proof-of-walk/">Proof of Walk</a> › Cards</div>
-    <h1>🃏 Proof of Walk cards</h1>
+    <h1>🗺️ Proof of Walk cards</h1>
     <p class="sub">Your statue, your rank, your quote.</p>
     <p class="note">Every rank you earn comes with a card. The front shows the Satoshi statue you walked to, your rank and a GPS-verified seal with the date. The back carries one of <strong>21 Bitcoin quotes</strong>, the details of your check-in and a code anyone can scan to verify it.</p>
     <div class="duo">
@@ -2267,10 +2281,10 @@ def pow_cards_page(data):
       <li class="rank" style="grid-template-columns:1fr"><div><span class="step">Rank 2</span><h3>🧱 Genesis Block ✓</h3><p>Stamp any {g} of the original 10 statues. Your card shows the statue that completed it.</p></div></li>
       <li class="rank" style="grid-template-columns:1fr"><div><span class="step">Rank 3</span><h3>🏛️ Grand High Order ✓</h3><p>The Genesis Block plus {o} more statue{'' if o == 1 else 's'}, anywhere on the map. Your card shows the statue that got you there.</p></div></li>
     </ol>
-    <p class="note" style="margin-top:10px">Each rank is earned with a different stamp, and there’s one stamp per statue, so your three cards always show <strong>three different statues</strong>. Once you have a card, it’s yours and it never changes.</p>
+    <p class="note" style="margin-top:10px">Every GPS-verified check-in is a card in your passport, one per statue: that statue, your rank at the time, a quote and its own verify code. The check-in that earns a rank is that rank’s card, and each rank is earned at a different statue. Once you have a card, it’s yours and it never changes.</p>
 
     <h2>21 quotes and how rare they are</h2>
-    <p class="note" style="margin-bottom:10px">Your quote is picked when you earn the rank. The frame and shine show its tier.</p>
+    <p class="note" style="margin-bottom:10px">Your quote is picked when you collect the card. The frame and shine show its tier.</p>
     {pow_cards_tiers_html()}
     <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">Percentages are out of 121 cards. The diamonds next to the card number show the tier: one for Common, up to five for Legendary.</p>
 
@@ -2316,7 +2330,7 @@ def pow_privacy_html(data):
             '\n      <li>If you add a <strong>Lightning address</strong> to your passport, it is used only to recover your passport on a new device, together with a one-time recovery code we show you once. '
             'We keep a hashed copy of the address and of the code plus a masked form for you to see, never the address itself. It is never shown publicly, never paid and never contacted. '
             'Recovery attempts are counted per network (as a salted hash, kept 1 day). Clear the field and save to delete it and switch recovery off.</li>'
-            '\n      <li>Each <strong>Proof of Walk card</strong> carries a random verify code (it isn’t linked to your device ID) and a QR code. Anyone who scans or types it sees only the statue, the date and the rank: '
+            '\n      <li>Each <strong>Proof of Walk card</strong> (one per GPS-verified check-in) carries a random verify code (it isn’t linked to your device ID) and a QR code. Anyone who scans or types it sees only the statue, the date and the rank: '
             'no nickname, no exact time, no location and no other stamps. Shared and printed cards show your check-in date, time and verify code, because they’re on the card. '
             'Cards are drawn on your device’s screen; print files are made in your browser and aren’t sent to anyone. Verify lookups are counted per network (as a salted hash, kept 1 day).</li>')
 
