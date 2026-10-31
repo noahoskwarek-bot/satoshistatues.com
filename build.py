@@ -2770,6 +2770,31 @@ def passport_redirect_page():
 '''
 
 
+# ---------- /fellow-travelers/ → /proof-of-walk/fellow-travelers/ (redirect page) ----------
+# Short link for the Grand High Order roll. Same static pattern as /passport/: meta refresh + location.replace,
+# canonical → target, noindex, not in the sitemap. Built only when Proof of Walk is on (same as the roll page).
+FELLOW_TARGET = SITE + '/proof-of-walk/fellow-travelers/'
+
+
+def fellow_travelers_redirect_page():
+    return f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fellow Travelers · Satoshi Statues</title>
+  <meta name="robots" content="noindex, follow" />
+  <link rel="canonical" href="{FELLOW_TARGET}" />
+  <meta http-equiv="refresh" content="0; url={FELLOW_TARGET}" />
+  <script>location.replace("{FELLOW_TARGET}");</script>
+</head>
+<body>
+  <p>The Fellow Travelers roll has moved to <a href="{FELLOW_TARGET}">Proof of Walk</a>.</p>
+</body>
+</html>
+'''
+
+
 # ---------- "Tip the map" box on statue pages ----------
 # Statue pages reuse the home page's tip box verbatim (same Bitcoin address, QR image and buttons), taken from the
 # <section class="tip-box"> in index.html, so both always point at the same tip wallet. Tips are never offered inside
@@ -2843,6 +2868,7 @@ def outputs(data):
     if pow_cfg(data):
         files['proof-of-walk/index.html'] = pow_page(data)
         files['proof-of-walk/fellow-travelers/index.html'] = pow_roll_page(data)
+        files['fellow-travelers/index.html'] = fellow_travelers_redirect_page()
         for k in POW_SHARE:
             files[f'proof-of-walk/share/{POW_SHARE[k][0]}/index.html'] = pow_share_page(data, k)
     for s in data['statues']:

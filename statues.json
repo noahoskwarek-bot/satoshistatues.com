@@ -4,7 +4,7 @@
     "_proof_of_walk_help": "Proof of Walk passport ranks: /proof-of-walk/ and /proof-of-walk/fellow-travelers/, data from the Worker /api/pow/* (POW_ENABLED). enabled=true: pages built, plus small links in the check-in note, the leaderboard and the home passport. preview=true: pages are noindex and left out of the sitemap. Ranks (Noah 2026-10-30 12:35 ET): Confirmed (first GPS stamp); Genesis Block = GPS stamps at any genesis_required (3) of genesis_set (the FIXED original 10, never add to it); The Grand High Order of Fellow Travelers = Genesis + order_extra (1) more statue anywhere on the map. order_keep: true = the Order is kept for good once earned. Order members are ranked by total statues stamped, ties to whoever got there first. All of these reach the Worker via build.py --worker. enabled=false: no pages, no links.",
     "proof_of_walk": {"enabled": true, "preview": false, "genesis_required": 3, "order_extra": 1, "order_keep": true, "genesis_set": ["budapest", "el-zonte", "fornelli", "hanoi", "kranj-bitcoin-monument", "lugano", "miami-bitcoin-bull", "new-york", "tokyo", "vienna"]},
     "_lodging_help": "Stay nearby (BTC Map lodging, tools/fetch_merchants.py → lodging.json): up to max_items stays within radius_mi miles; if none, the nearest within fallback_km (labelled); else a one-line none. Re-run the fetch after changing. The fetch drops dead stay websites automatically (404/410, no such domain, parked/placeholder page); hide_websites lists extra dead links confirmed by hand (shown with their BTC Map link instead).",
-    "lodging": {"radius_mi": 5, "fallback_km": 25, "max_items": 5, "hide_websites": ["http://www.ecoapartment.at/", "http://www.vienna-apartment.co.at/stubenbastei-10-1010-wien/", "http://www.vienna-apartment.co.at/eslinggasse-9-1010-wien/"]},
+    "lodging": {"radius_mi": 5, "fallback_km": 25, "max_items": 5, "hide_websites": ["https://www.lacasadiduilia.it", "http://www.ecoapartment.at/", "http://www.vienna-apartment.co.at/stubenbastei-10-1010-wien/", "http://www.vienna-apartment.co.at/eslinggasse-9-1010-wien/"]},
     "_nostr_help": "Nostr profile for the site. nostr_hex is served as NIP-05 _@satoshistatues.com via /.well-known/nostr.json. Then run: python3 build.py",
     "nostr_npub": "npub1dx7qh8fpp9l45lzrv9ff95f0f3gkrlvjhhptqjrxyhemze68kuhs72vv8h",
     "nostr_hex": "69bc0b9d21097f5a7c43615292d12f4c5161fd92bdc2b0486625f3b16747b72f",
@@ -35,8 +35,8 @@
       "series21": false,
       "access": "Outdoors in Graphisoft Park. Can be visited 24/7, free of charge (per the statue’s official site).",
       "accessSource": {
-        "label": "Statue of Satoshi (official site)",
-        "url": "https://www.statueofsatoshi.com/"
+        "label": "Statue of Satoshi (official site, archived)",
+        "url": "https://web.archive.org/web/20261008082829/https://www.statueofsatoshi.com/"
       },
       "sources": [
         {
@@ -44,8 +44,8 @@
           "url": "https://apnews.com/article/technology-business-arts-and-entertainment-hungary-blockchain-96a6b57589b73fd4e376fe5f91b022e3"
         },
         {
-          "label": "Statue of Satoshi",
-          "url": "https://www.statueofsatoshi.com/"
+          "label": "Statue of Satoshi (archived)",
+          "url": "https://web.archive.org/web/20261008082829/https://www.statueofsatoshi.com/"
         }
       ],
       "label": "Satoshi Statue Budapest",
@@ -57,8 +57,8 @@
         "hours_access": "Outdoors. The official site says it can be visited 24/7, free of charge.",
         "sources": [
           {
-            "label": "Statue of Satoshi (official site)",
-            "url": "https://www.statueofsatoshi.com/"
+            "label": "Statue of Satoshi (official site, archived)",
+            "url": "https://web.archive.org/web/20261008082829/https://www.statueofsatoshi.com/"
           },
           {
             "label": "Köztérkép entry 43898",
@@ -86,8 +86,8 @@
           "text": "Réka Gergely and Tamás Gilly, Hungarian sculptors.",
           "sources": [
             {
-              "label": "Statue of Satoshi (official site)",
-              "url": "https://www.statueofsatoshi.com/"
+              "label": "Statue of Satoshi (official site, archived)",
+              "url": "https://web.archive.org/web/20261008082829/https://www.statueofsatoshi.com/"
             }
           ]
         },
@@ -96,8 +96,8 @@
           "text": "16 Sep 2021, in Graphisoft Park, Budapest.",
           "sources": [
             {
-              "label": "Statue of Satoshi (official site)",
-              "url": "https://www.statueofsatoshi.com/"
+              "label": "Statue of Satoshi (official site, archived)",
+              "url": "https://web.archive.org/web/20261008082829/https://www.statueofsatoshi.com/"
             }
           ]
         },
@@ -106,8 +106,8 @@
           "text": "Founders from the Hungarian crypto community: András Györfi (Kripto Akadémia, who came up with the idea), Gabi Debreczeni-Raskó and Barnabás Debreczeni (MrCoin), Imre Szilágyi (Blockchain Budapest) and Kornél Kalocsai (Blockchain Hungary Association). It was community-funded.",
           "sources": [
             {
-              "label": "Statue of Satoshi (official site)",
-              "url": "https://www.statueofsatoshi.com/"
+              "label": "Statue of Satoshi (official site, archived)",
+              "url": "https://web.archive.org/web/20261008082829/https://www.statueofsatoshi.com/"
             }
           ]
         },
@@ -116,8 +116,8 @@
           "text": "A generic human figure in a hoodie with the Bitcoin logo on the chest, because Satoshi's gender, race, age and height are unknown. The face is reflective, so every visitor sees themselves in it: \"We are all Satoshi\".",
           "sources": [
             {
-              "label": "Statue of Satoshi (official site)",
-              "url": "https://www.statueofsatoshi.com/"
+              "label": "Statue of Satoshi (official site, archived)",
+              "url": "https://web.archive.org/web/20261008082829/https://www.statueofsatoshi.com/"
             }
           ]
         },
@@ -126,8 +126,8 @@
           "text": "Bronze, with a face of bronze-aluminium composite.",
           "sources": [
             {
-              "label": "Statue of Satoshi (official site)",
-              "url": "https://www.statueofsatoshi.com/"
+              "label": "Statue of Satoshi (official site, archived)",
+              "url": "https://web.archive.org/web/20261008082829/https://www.statueofsatoshi.com/"
             }
           ]
         },
@@ -136,8 +136,8 @@
           "text": "Widely described as the world's first statue of Satoshi Nakamoto.",
           "sources": [
             {
-              "label": "Statue of Satoshi (official site)",
-              "url": "https://www.statueofsatoshi.com/"
+              "label": "Statue of Satoshi (official site, archived)",
+              "url": "https://web.archive.org/web/20261008082829/https://www.statueofsatoshi.com/"
             },
             {
               "label": "Trending Topics",
@@ -1479,8 +1479,8 @@
           "url": "https://mdcthereporter.com/miami-dade-college-hits-the-bull-s-eye-with-futuristic-robotic-statue/"
         },
         {
-          "label": "Miami Bull – location",
-          "url": "https://www.miamibull.com/location/"
+          "label": "Local 10 News (19 Apr 2025)",
+          "url": "https://www.local10.com/news/local/2025/04/19/miami-bull-crypto-statue-vandalized/"
         }
       ],
       "label": "Miami Bitcoin Bull",
@@ -1489,15 +1489,15 @@
         "getting_there": "Per OpenStreetMap, the Metromover's College North station is about 90 m away, and College Bayside about 200 m. A Miami-Dade Transit bus stop at NE 1st Avenue and NE 4th Street is about 55 m away. Metrorail Government Center (about 490 m) and Brightline MiamiCentral (about 400 m) are also close. Routes and schedules are unverified.\n\nParking: OpenStreetMap shows Miami Parking Authority Garage 3, paid, about 200 m away, plus Miami Dade College garages nearby whose public access is unverified.",
         "exact_spot": "At the edge of Miami Dade College's Wolfson Campus in front of Building 1000, with its eyes facing NE 1st Avenue (MDC The Reporter). The site data puts it at NE 1st Ave and NE 4th St. Pin: 25.77820, -80.19186 (OpenStreetMap node 10677295005).",
         "photo_tip": "This isn't a see-through design. It's an 11-foot chrome-and-fiberglass bull with blue \"laser\" eyes.\n\nGeneric tips (not from a source): shoot low and slightly to one side so the horns and eyes stand out against the sky, and try dusk if the eyes are lit (unverified).",
-        "hours_access": "Outdoors on an open campus. MDC The Reporter described visitors walking up for selfies, and TradeStation calls MDC the bull's permanent home. We found no posted hours, so viewing hours are unverified.",
+        "hours_access": "Outdoors on an open campus. MDC The Reporter described visitors walking up for selfies, and Local 10 News calls MDC the bull's permanent home. We found no posted hours, so viewing hours are unverified.",
         "sources": [
           {
             "label": "MDC The Reporter (22 Apr 2022)",
             "url": "https://mdcthereporter.com/miami-dade-college-hits-the-bull-s-eye-with-futuristic-robotic-statue/"
           },
           {
-            "label": "TradeStation: Miami Bull",
-            "url": "https://www.miamibull.com/location/"
+            "label": "Local 10 News (19 Apr 2025)",
+            "url": "https://www.local10.com/news/local/2025/04/19/miami-bull-crypto-statue-vandalized/"
           },
           {
             "label": "OpenStreetMap node 10677295005",
@@ -1540,8 +1540,8 @@
               "url": "https://mdcthereporter.com/miami-dade-college-hits-the-bull-s-eye-with-futuristic-robotic-statue/"
             },
             {
-              "label": "TradeStation: Miami Bull",
-              "url": "https://www.miamibull.com/location/"
+              "label": "TradeStation press release (6 Apr 2022)",
+              "url": "https://www.tradestation.com/press-and-news/miami-bull-statue-to-be-unveiled-by-mayor-suarez/"
             }
           ]
         },
@@ -1550,8 +1550,8 @@
           "text": "A futuristic take on Wall Street's Charging Bull, \"a prominent community symbol of modern finance\". It was placed at Miami Dade College to tie in with TradeStation's financial-literacy partnership. The college's president said: \"The bull represents the future and we represent the future.\"",
           "sources": [
             {
-              "label": "TradeStation: Miami Bull",
-              "url": "https://www.miamibull.com/location/"
+              "label": "TradeStation press release (6 Apr 2022)",
+              "url": "https://www.tradestation.com/press-and-news/miami-bull-statue-to-be-unveiled-by-mayor-suarez/"
             },
             {
               "label": "MDC The Reporter (22 Apr 2022)",
