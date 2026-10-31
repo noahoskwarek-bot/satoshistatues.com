@@ -214,10 +214,6 @@
           "url": "https://www.cdt.ch/news/lugano-ha-di-nuovo-la-sua-statua-di-satoshi-nakamoto-409350"
         },
         {
-          "label": "Il Giornale del Ticino (Apr 2026)",
-          "url": "https://ilgiornaledelticino.ch/lugano-area-parco-ciani-ci-risiamo-vandali-sullicona-di-satoshi-nakamoto/"
-        },
-        {
           "label": "Satoshigallery on X: back on display (22 Oct 2026)",
           "url": "https://x.com/satoshigallery/status/2113362834549567992"
         },
@@ -231,7 +227,7 @@
       "visit": {
         "updated": "2026-10-29",
         "getting_there": "From OpenStreetMap (straight-line distances from the 2024 statue position; routes unverified): the Palazzo Congressi bus stop is about 130 m away, and the Lugano Centro bus hub (TPL) about 360 m.\n\nParking: the paid underground Autosilo Piazza Castello is about 135 m away (OpenStreetMap).",
-        "exact_spot": "In Parco Ciani, Lugano's lakefront park. The statue was first installed there in Oct 2024 (pin 46.00441, 8.95659, OpenStreetMap node 12288711744), then moved to the Foce (Cassarate river mouth), where it was thrown into the lake on 1–2 Aug 2025. On 24 Oct 2025 it was re-inaugurated in the central area of Parco Ciani, near the \"Dying Socrates\" sculpture (Corriere del Ticino; Il Giornale del Ticino). It was damaged there again on 19 Apr 2026 and was back on display in Parco Ciani on 22 Oct 2026, on its plinth on the lakeside lawn (Satoshigallery and visitor photos on X). That exact spot may differ from the 2024 pin and is unverified.",
+        "exact_spot": "In Parco Ciani, Lugano's lakefront park. The statue was first installed there in Oct 2024 (pin 46.00441, 8.95659, OpenStreetMap node 12288711744), then moved to the Foce (Cassarate river mouth), where it was thrown into the lake on 1–2 Aug 2025. On 24 Oct 2025 it was re-inaugurated in the central area of Parco Ciani, near the \"Dying Socrates\" sculpture (Corriere del Ticino). It was damaged there again on 19 Apr 2026 and was back on display in Parco Ciani on 22 Oct 2026, on its plinth on the lakeside lawn (Satoshigallery and visitor photos on X). That exact spot may differ from the 2024 pin and is unverified.",
         "photo_tip": "It's a Satoshigallery design, so the figure reads from the side and nearly vanishes from the front.\n\nGeneric tip (not from a source): the lake makes a clean background for a head-on shot.",
         "hours_access": "Back on display since 22 Oct 2026 (Satoshigallery on X; visitor photos from the Plan ₿ Forum, 23–26 Oct 2026), after it was found seriously damaged on 19 Apr 2026 (RSI; Ticinonline). It is outdoors in the park, with no admission fee mentioned. Parco Ciani itself is open daily from 6:30 to 23:30 (March–October) and 6:30 to 21:00 (November–February), per the City of Lugano.",
         "sources": [
@@ -246,10 +242,6 @@
           {
             "label": "Ticinonline (19 Apr 2026)",
             "url": "https://www.tio.ch/ticino/cronaca/1919347/vandalizzata-per-la-seconda-volta-la-statua-del-creatore-di-bitcoin"
-          },
-          {
-            "label": "Il Giornale del Ticino (Apr 2026)",
-            "url": "https://ilgiornaledelticino.ch/lugano-area-parco-ciani-ci-risiamo-vandali-sullicona-di-satoshi-nakamoto/"
           },
           {
             "label": "Corriere del Ticino (24 Oct 2025)",
@@ -1547,11 +1539,11 @@
         },
         {
           "label": "What the design means",
-          "text": "A futuristic take on Wall Street's Charging Bull, \"a prominent community symbol of modern finance\". It was placed at Miami Dade College to tie in with TradeStation's financial-literacy partnership. The college's president said: \"The bull represents the future and we represent the future.\"",
+          "text": "Modeled after Wall Street's Charging Bull, it was billed by TradeStation as \"a futuristic symbol of modern finance\". The college's president said: \"The bull represents the future and we represent the future.\"",
           "sources": [
             {
-              "label": "TradeStation press release (6 Apr 2022)",
-              "url": "https://www.tradestation.com/press-and-news/miami-bull-statue-to-be-unveiled-by-mayor-suarez/"
+              "label": "Miami Bull site by TradeStation (archived Jun 2022)",
+              "url": "https://web.archive.org/web/20220605031238/https://www.miamibull.com/"
             },
             {
               "label": "MDC The Reporter (22 Apr 2022)",
