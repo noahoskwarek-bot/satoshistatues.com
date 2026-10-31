@@ -176,7 +176,10 @@ function powRankUpHtml(p) {
   if (!p || !p.ranked_up || !p.me || !p.me.share) return '';
   // Per-rank share page (static og:image card for crawlers; humans land on /proof-of-walk/).
   const slug = { confirmed: 'confirmed', genesis: 'genesis-block', order: 'grand-high-order' }[p.me.rank && p.me.rank.key];
-  const url = location.origin + '/proof-of-walk/' + (slug ? `share/${slug}/` : '');
+  // The walker's own prism card for this rank (me.card from the Worker), else the rank's base card page.
+  const c = p.me.card, n = c ? Number(c.n) : 0;
+  const nn = slug && c && c.rank === slug && Number.isInteger(n) && n >= 1 && n <= 21 ? String(n).padStart(2, '0') + '/' : '';
+  const url = location.origin + '/proof-of-walk/' + (slug ? `share/${slug}/${nn}` : '');
   const head = p.order_new
     ? `🏛️ <strong>The Grand High Order of Fellow Travelers!</strong> The Genesis Block plus 1 more statue${p.genesis_new ? ', and you mined the Genesis Block too' : ''}. It’s yours for good (<a href="/proof-of-walk/fellow-travelers/">the roll</a>).`
     : p.genesis_new

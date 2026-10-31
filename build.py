@@ -1569,7 +1569,11 @@ POW_JS = r"""<script src="/share.js"></script>
   var A = window.SS_API, DEV = 'satoshiDevice.v1', NICK = 'satoshiNick.v1', PAGE = document.body.getAttribute('data-pow') || 'main';
   var URL_POW = location.origin + '/proof-of-walk/';
   var SHARE_SLUG = { confirmed: 'confirmed', genesis: 'genesis-block', order: 'grand-high-order' };
-  var shareUrl = function (me) { var k = me && me.rank && SHARE_SLUG[me.rank.key]; return k ? URL_POW + 'share/' + k + '/' : URL_POW; };
+  // me.card = this walker's prism card for the current rank ({ rank: slug, n: 1-21 }, from the Worker); else the base card.
+  var cardOf = function (me) { var k = me && me.rank && SHARE_SLUG[me.rank.key], c = me && me.card, n = c ? Number(c.n) : 0;
+    return k && c && c.rank === k && n >= 1 && n <= 21 && n === Math.floor(n) ? { slug: k, nn: (n < 10 ? '0' : '') + n, tier: String(c.tier || '') } : null; };
+  var shareUrl = function (me) { var k = me && me.rank && SHARE_SLUG[me.rank.key], c = cardOf(me);
+    return c ? URL_POW + 'share/' + c.slug + '/' + c.nn + '/' : k ? URL_POW + 'share/' + k + '/' : URL_POW; };
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
   var get = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
   var set = function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} };
@@ -1596,6 +1600,9 @@ POW_JS = r"""<script src="/share.js"></script>
       '<br><span class="pow-fine">' + me.distinct_stamps + ' statues stamped</span></div>';
     if (me.genesis) h += '<div class="pow-genesis">🧱 <strong>Genesis Block</strong> · mined ' + esc((me.joined_at || '').slice(0, 10)) +
       (!me.order ? '<br><span class="pow-fine">Stamp ' + (me.order_needed || 1) + ' more statue' + ((me.order_needed || 1) === 1 ? '' : 's') + ', anywhere on the map, to join the Grand High Order.</span>' : '') + '</div>';
+    var card = cardOf(me);
+    if (card) h += '<figure class="pow-card" style="margin:12px 0 4px"><img src="/img/pow-share/' + card.slug + '/' + card.nn + '.jpg" width="1280" height="720" loading="lazy" alt="Your Proof of Walk card, No. ' + card.nn + ' of 21" style="width:100%;max-width:480px;height:auto;border-radius:10px;display:block">' +
+      '<figcaption class="pow-fine">Your card: No. ' + card.nn + '/21' + (card.tier ? ' · ' + esc(card.tier) : '') + '. It’s yours to keep.</figcaption></figure>';
     if (me.share && window.SSShare) h += window.SSShare.row(me.share, shareUrl(me), 'Share your rank');
     h += '<form class="pow-form" id="pow-form"><label for="pow-nick">Passport nickname (shown on the leaderboard)</label>' +
       '<input id="pow-nick" name="nick" maxlength="20" autocomplete="nickname" placeholder="Nickname or @handle" value="' + esc(me.nickname || get(NICK) || '') + '">' +
@@ -1798,6 +1805,42 @@ def pow_share_page(data, key):
   </main>
 """
     return out + TAIL
+
+
+# Prism cards (variants of the three rank cards): 21 cards per rank, img/pow-share/<slug>/NN.jpg (1280x720, imported by
+# tools/import_prism_cards.py). The Worker draws one per walker per rank the first time the rank is earned (crypto RNG,
+# weights 7/6/4/2/1 of 121; card 21 is a plain 1-in-121 draw, not linked to the giveaway) and returns it as me.card {rank, n}. Social crawlers don't run JS, so each card
+# gets its own static page /proof-of-walk/share/<slug>/NN/ with that card as og:image / twitter:image: same rules as the
+# base share pages (noindex, not in the sitemap, canonical /proof-of-walk/, humans redirected). Quotes stay in the
+# images, not in page copy. Pages are only made for cards whose image exists, so a missing image keeps the base page.
+POW_CARD_TIERS = {**{n: 'Common' for n in range(1, 11)}, **{n: 'Uncommon' for n in range(11, 17)},
+                  **{n: 'Rare' for n in range(17, 20)}, 20: 'Ultra rare', 21: '1 of 121'}
+
+
+def pow_card_img(slug, n):
+    return f'img/pow-share/{slug}/{n:02d}.jpg'
+
+
+def pow_card_page(data, key, n):
+    slug, emoji, title, desc, alt = POW_SHARE[key]
+    base = pow_share_page(data, key)
+    tier = POW_CARD_TIERS[n]
+    card = f'card No. {n:02d} of 21 ({tier})'
+    t2 = f'{title} · No. {n:02d}/21'
+    alt2 = f'{alt} Prism {card}.'
+    url, img = f'{pow_share_url(key)}{n:02d}/', f'{SITE}/{pow_card_img(slug, n)}'
+    out = base.replace(f'<meta property="og:url" content="{pow_share_url(key)}" />', f'<meta property="og:url" content="{url}" />', 1)
+    out = out.replace(f'{SITE}/img/pow-share/{slug}.jpg', img).replace(f'/img/pow-share/{slug}.jpg', '/' + pow_card_img(slug, n))
+    out = out.replace('content="1200"', 'content="1280"').replace('content="675"', 'content="720"').replace('width="1200" height="675"', 'width="1280" height="720"')
+    out = out.replace(e(alt), e(alt2)).replace(e(title), e(t2))
+    for need in (url, img, 'noindex, follow', f'<link rel="canonical" href="{SITE}/proof-of-walk/" />'):
+        assert need in out, (slug, n, need)
+    return out
+
+
+def pow_card_pages(data):
+    return {f'proof-of-walk/share/{POW_SHARE[k][0]}/{n:02d}/index.html': pow_card_page(data, k, n)
+            for k in POW_SHARE for n in range(1, 22) if os.path.exists(os.path.join(ROOT, pow_card_img(POW_SHARE[k][0], n)))}
 
 
 def pow_privacy_html(data):
@@ -2871,6 +2914,7 @@ def outputs(data):
         files['fellow-travelers/index.html'] = fellow_travelers_redirect_page()
         for k in POW_SHARE:
             files[f'proof-of-walk/share/{POW_SHARE[k][0]}/index.html'] = pow_share_page(data, k)
+        files.update(pow_card_pages(data))
     for s in data['statues']:
         files[f"{s['page']}/index.html"] = statue_page(s, data)
     return files
