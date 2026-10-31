@@ -3228,8 +3228,8 @@ TEST_WALK_JS = r"""<script>(function () {
   function expired() { save(null); main.innerHTML = '<h1>🧪 TEST link</h1><p class="tp-note">This private test link has expired or was already used on another device.</p>'; }
   function when(iso) { try { return new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }); } catch (e) { return iso; } }
   function cardData() {
-    return { page: 'test', art: 'vienna', title: 'TEST', subtitle: 'Meadowview Park · Middlebury, CT', label: st.statue.name, tz: 'America/New_York',
-      phrase: 'the TEST spot (Meadowview Park)', og_place: 'the TEST spot', test: true, share_url: location.origin + '/proof-of-walk/' };
+    return { page: 'test', art: 'vienna', title: 'TEST', subtitle: String(st.statue.name).replace(/^TEST\s*[–-]\s*/, ''), label: st.statue.name, tz: 'America/New_York',
+      phrase: 'the TEST spot', og_place: 'the TEST spot', test: true, share_url: location.origin + '/proof-of-walk/' };
   }
   function powCard() {
     if (window.PowCard) return Promise.resolve(window.PowCard);
