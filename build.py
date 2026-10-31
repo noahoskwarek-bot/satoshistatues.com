@@ -3205,6 +3205,155 @@ def test_statue_page(t, data):
 '''
 
 
+# ---------- Hidden TEST statue walk (/t/, Worker src/testwalk.js) ----------
+# Noah 2026-10-31 15:11 ET: a private, single-use TEST of the full flow (check-in, card reveal, share, print, leaderboard,
+# a 21-sat payout). The page holds no statue name or location: everything comes from the Worker after a valid token
+# (in the URL fragment, never sent to any server or in a Referer) is redeemed once and bound to this device. Without a
+# session it only says the link has expired. noindex/nofollow/noarchive, no-referrer, no analytics script, not in the
+# sitemap and not linked from anywhere. TEST stamps never touch the real passport (separate localStorage key).
+# Remove: TEST_WALK_PAGE = False (or delete this block and the outputs() line), rebuild.
+TEST_WALK_PAGE = True
+
+TEST_WALK_JS = r"""<script>(function () {
+  var KEY = 'satoshiTestWalk.v1', API = window.SS_API || '', main = document.getElementById('tw');
+  var $ = function (s) { return main.querySelector(s); };
+  var esc = function (s) { return escHtml(s == null ? '' : s); };
+  var st = null;
+  function save(v) { try { v ? localStorage.setItem(KEY, JSON.stringify(v)) : localStorage.removeItem(KEY); } catch (e) {} }
+  function saved() { try { var v = JSON.parse(localStorage.getItem(KEY) || 'null'); return v && Date.parse(v.expires_at) > Date.now() ? v : null; } catch (e) { return null; } }
+  function post(path, body) {
+    return fetch(API + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { j._status = r.status; return j; }); });
+  }
+  function expired() { save(null); main.innerHTML = '<h1>🧪 TEST link</h1><p class="tp-note">This private test link has expired or was already used on another device.</p>'; }
+  function when(iso) { try { return new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }); } catch (e) { return iso; } }
+  function cardData() {
+    return { page: 'test', art: 'vienna', title: 'TEST', subtitle: 'Meadowview Park · Middlebury, CT', label: st.statue.name, tz: 'America/New_York',
+      phrase: 'the TEST spot (Meadowview Park)', og_place: 'the TEST spot', test: true, share_url: location.origin + '/proof-of-walk/' };
+  }
+  function powCard() {
+    if (window.PowCard) return Promise.resolve(window.PowCard);
+    return new Promise(function (ok) { var s = document.createElement('script'); s.src = window.SS_POWCARD || '/pow-card.js'; s.onload = function () { ok(window.PowCard); }; document.head.appendChild(s); });
+  }
+  function showCard(pow) {
+    var c = pow && pow.cards && pow.cards.confirmed; if (!c) return;
+    var el = $('[data-tw-card]');
+    powCard().then(function (P) { return P.load().then(function () {
+      window.POW_CARD_DATA.statues[c.earned.slug] = cardData();
+      el.hidden = false; return P.mount(el.querySelector('.pc-host'), { rank: 'confirmed', slug: c.earned.slug, n: Number(c.n), at: c.earned.at, code: c.code });
+    }); });
+  }
+  function payoutHtml(j) {
+    var paid = (j.payouts || []).filter(function (p) { return p.status !== 'failed'; })[0];
+    if (paid) return '<p class="checkin-msg ok">⚡ TEST payout ' + (paid.status === 'paid' ? 'sent' : 'pending') + ': ' + paid.sats + ' sats to ' + esc(paid.to) + (paid.mock ? ' (dry run, no real payment)' : '') + '.</p>';
+    var f = j.fountain;
+    if (j.payout === 'off') return '<p class="checkin-msg">Test payout pending.</p>';
+    if (!f) return j.checked_in ? '<p class="checkin-msg">Check in again to get your TEST payout.</p>' : '<p class="tp-note">Check in above to get the TEST payout (' + j.payout_sats + ' sats, once).</p>';
+    if (f.state !== 'drawn') return '<p class="checkin-msg">' + esc(f.message || 'No TEST payout right now.') + '</p>';
+    return '<form class="tw-pay" data-claim="' + esc(f.claim) + '"><p class="f-q">TEST payout: <strong>' + f.sats + ' sats</strong> (fixed, one time). Lightning address:</p>' +
+      '<input name="addr" type="email" inputmode="email" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="name@wallet.com" aria-label="Lightning address">' +
+      '<label><input type="checkbox" name="adult"> I’m 18 or older</label><label><input type="checkbox" name="terms"> I accept the <a href="/terms/" target="_blank" rel="noopener">giveaway terms</a></label>' +
+      '<button class="btn primary" type="submit">⚡ Send ' + f.sats + ' TEST sats</button><p class="f-out" aria-live="polite"></p></form>';
+  }
+  function render(j, msg) {
+    st = st || {}; st.statue = j.statue;
+    main.innerHTML = '<h1>🧪 ' + esc(j.statue.name) + '</h1>' +
+      '<p class="tp-note">Private TEST, not a real statue. It isn’t on the map and doesn’t stamp your real passport, rank, Genesis Block or the Order. ' +
+      'While this test runs, a row labelled <strong>TEST walker</strong> shows on the <a href="/leaderboard/">leaderboard</a>. Ends at ' + esc(when(j.expires_at)) + '.</p>' +
+      '<div class="tp-ci"><button class="btn primary" type="button" data-tw-go>' + (j.checked_in ? '📍 Check in again (TEST)' : '📍 Check in here (TEST)') + '</button>' +
+      '<div class="checkin-msg" aria-live="polite"' + (msg ? '' : ' hidden') + '>' + (msg || '') + '</div></div>' +
+      '<section data-tw-pay>' + payoutHtml(j) + '</section>' +
+      '<section data-tw-card hidden><h2>🃏 Your TEST card</h2><div class="pc-host"></div></section>' +
+      '<p class="tp-note"><a href="/leaderboard/">See the leaderboard</a> · TEST verify codes don’t verify publicly.</p>';
+    if (j.checked_in && !(msg && /pc-reveal/.test(msg))) showCard(j.pow);
+    powMountRevealTest();
+  }
+  function powMountRevealTest() {
+    var el = main.querySelector('.pc-reveal[data-pc]:not([data-mounted])'); if (!el) return;
+    el.setAttribute('data-mounted', '1');
+    var card = JSON.parse(el.getAttribute('data-pc'));
+    powCard().then(function (P) { return P.load().then(function () { window.POW_CARD_DATA.statues[card.slug] = cardData(); return P.mount(el, card); }); });
+  }
+  main.addEventListener('click', function (ev) {
+    var b = ev.target.closest && ev.target.closest('[data-tw-go]'); if (!b) return;
+    var out = main.querySelector('.tp-ci .checkin-msg'), idle = b.textContent;
+    function show(cls, h) { out.className = 'checkin-msg ' + cls; out.innerHTML = h; out.hidden = false; }
+    if (!navigator.geolocation) { show('warn', CHECKIN_NO_GEO); return; }
+    b.disabled = true; b.textContent = '📡 Locating…';
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      b.textContent = '🏆 Saving…';
+      var c = pos.coords;
+      post('/api/test/checkin', { session: st.session, device_id: lbDevice(), lat: c.latitude, lng: c.longitude, accuracy: c.accuracy }).then(function (j) {
+        b.disabled = false; b.textContent = idle;
+        if (j._status === 404) return expired();
+        if (!j.ok) { show('warn', esc(j.message || 'The check-in wasn’t accepted.')); return; }
+        var m = '🟠 TEST stamp collected at ' + esc(j.statue.name) + '. It’s only on your TEST passport.' +
+          '<div class="lb-note">🏆 You show as <strong>TEST walker</strong> on the <a href="/leaderboard/">leaderboard</a> until the test ends.</div>' +
+          (j.pow && j.pow.ranked_up ? powRankUpHtml(j.pow) : '<div class="lb-note">👣 <strong>Confirmed ✓</strong> (TEST) · 0 of 3 to Genesis</div>');
+        render(j, m);
+      }).catch(function () { b.disabled = false; b.textContent = idle; show('warn', 'Couldn’t reach the check-in server. Try again.'); });
+    }, function (err) { b.disabled = false; b.textContent = idle; geoErrorHtml(err).then(function (h) { show('warn', h); }); }, GEO_OPTS);
+  });
+  main.addEventListener('submit', function (ev) {
+    var f = ev.target.closest && ev.target.closest('.tw-pay'); if (!f) return;
+    ev.preventDefault();
+    var out = f.querySelector('.f-out'), btn = f.querySelector('button');
+    if (!f.adult.checked) { out.textContent = 'Please confirm you are 18 or older.'; return; }
+    if (!f.terms.checked) { out.textContent = 'Please accept the giveaway terms.'; return; }
+    btn.disabled = true; out.textContent = 'Sending…';
+    post('/api/test/claim', { session: st.session, device_id: lbDevice(), claim: f.getAttribute('data-claim'), lightning_address: f.addr.value, adult: true, terms: true }).then(function (j) {
+      if (j._status === 404) return expired();
+      if (j.ok) { main.querySelector('[data-tw-pay]').innerHTML = '<p class="checkin-msg ok">⚡ TEST payout: ' + j.sats + ' sats are on the way to ' + esc(j.to) + '.' + (j.mock ? ' (dry run, no real payment)' : '') + '</p>'; return; }
+      btn.disabled = false; out.textContent = j.message || 'Something went wrong. Please try again.';
+    }).catch(function () { btn.disabled = false; out.textContent = 'Couldn’t reach the server. Please try again.'; });
+  });
+  function start() {
+    if (!API) return expired();
+    var m = /(?:^#|&)k=([A-Za-z0-9_-]{22})(?:&|$)/.exec(location.hash || ''), have = saved();
+    if (m) { try { history.replaceState(null, '', location.pathname); } catch (e) {} }
+    if (m && !have) {
+      return post('/api/test/redeem', { token: m[1], device_id: lbDevice() }).then(function (j) {
+        if (!j.ok) return expired();
+        st = { session: j.session, expires_at: j.expires_at }; save(st); render(j);
+      }).catch(expired);
+    }
+    if (!have) return expired();
+    st = have;
+    post('/api/test/me', { session: st.session, device_id: lbDevice() }).then(function (j) { if (!j.ok) return expired(); render(j); }).catch(function () {
+      main.innerHTML = '<p class="tp-note">Couldn’t reach the server. Reload to try again.</p>'; });
+  }
+  start();
+})();</script>"""
+
+
+def test_walk_page(data):
+    return f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Private test · Satoshi Statues</title>
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <meta name="googlebot" content="noindex, nofollow" />
+  <meta name="referrer" content="no-referrer" />
+  <meta name="theme-color" content="#0d1117" />
+  {ICON_LINKS}
+  <style>{CSS}{TEST_PAGE_CSS}.tw-pay{{display:grid;gap:8px;margin:10px 0}}.tw-pay input[name=addr]{{min-height:44px;padding:10px 12px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font:16px inherit}}.tp .lb-note{{margin-top:6px}}</style>
+  {api_script()}
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="/" title="Satoshi Nakamoto Statues: map home">{LOGO_IMG}<span class="tagline">Every Satoshi statue on Earth</span></a>
+  </header>
+  <main class="tp" id="tw"><p class="tp-note">Loading…</p></main>
+  {share_script()}
+  {checkin_script()}
+  {TEST_WALK_JS}
+</body>
+</html>
+'''
+
+
 # ---------- /passport/ → home page passport (redirect page) ----------
 # Nothing links to /passport/; it used to 404. GitHub Pages has no server redirects, so this is a meta refresh +
 # location.replace page. /#passport opens the passport modal on the home page (see openFromLocation in index.html).
@@ -3334,6 +3483,8 @@ def outputs(data):
         files.update(card_share_pages(data))
         files.update(old_share_redirects(data))
         files['v/index.html'] = verify_page(data)
+        if TEST_WALK_PAGE:
+            files['t/index.html'] = test_walk_page(data)
     for s in data['statues']:
         files[f"{s['page']}/index.html"] = statue_page(s, data)
     return files

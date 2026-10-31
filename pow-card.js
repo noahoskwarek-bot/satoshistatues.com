@@ -46,11 +46,11 @@
   function rankKey(r) { return RANKS[r] || 'confirmed'; }
   function siteOrigin() { return /(^|\.)satoshistatues\.com$/.test(location.hostname) || location.protocol === 'file:' ? D().site : location.origin; }
   function verifyUrl(code) { return siteOrigin() + '/v/?c=' + encodeURIComponent(code); }
-  function shareUrl(card) { var st = D().statues[card.slug]; return siteOrigin() + '/proof-of-walk/share/' + D().ranks[rankKey(card.rank)].share + '/' + st.page + '/'; }
+  function shareUrl(card) { var st = D().statues[card.slug]; if (st.share_url) return st.share_url; return siteOrigin() + '/proof-of-walk/share/' + D().ranks[rankKey(card.rank)].share + '/' + st.page + '/'; }
   function shareText(card) {
     var st = D().statues[card.slug], k = rankKey(card.rank);
     var verb = { confirmed: 'got my first Proof of Walk stamp', genesis: 'earned Genesis Block', order: 'reached Grand High Order' }[k];
-    return 'I walked to ' + st.phrase + ' and ' + verb + ' 🟧 #ProofOfWalk #Bitcoin satoshistatues.com';
+    return (st.test ? '[TEST] ' : '') + 'I walked to ' + st.phrase + ' and ' + verb + ' 🟧 #ProofOfWalk #Bitcoin satoshistatues.com';
   }
   function fileName(card) { return 'proof-of-walk-' + D().statues[card.slug].page + '-' + D().ranks[rankKey(card.rank)].share + '.png'; }
   var TZ_ABBR = { 'Europe/': { 'GMT+1': 'CET', 'GMT+2': 'CEST' }, 'Asia/Tokyo': { 'GMT+9': 'JST' }, 'Asia/Ho_Chi_Minh': { 'GMT+7': 'ICT' },
@@ -177,7 +177,7 @@
   }
   // ---------- the two sides ----------
   async function front(c, card, o) {
-    var d = D(), st = d.statues[card.slug], k = rankKey(card.rank), im = await art(st.page, o.print);
+    var d = D(), st = d.statues[card.slug], k = rankKey(card.rank), im = await art(st.art || st.page, o.print);
     frame(c, card, o.print);
     pinGlyph(c, W / 2, 86, 22);
     c.fillStyle = ORANGE; f(c, 800, 28, 'PCInter'); c.textBaseline = 'alphabetic'; spaced(c, 'SATOSHI STATUES', W / 2, 160, 7, 'center');
@@ -235,6 +235,15 @@
     c.fillStyle = '#9aa3ad'; f(c, 500, 19, 'PCInter'); wrap(c, d.credit, 820).forEach(function (l, i) { c.fillText(l, W / 2, 1258 + i * 26); });
     if (o.sample) { c.save(); c.translate(W / 2, H / 2); c.rotate(-.5); c.fillStyle = 'rgba(247,147,26,.18)'; f(c, 800, 150, 'PCInter'); c.fillText('SAMPLE', 0, 50); c.restore(); }
   }
+  // Hidden TEST walk: a TEST statue entry (test: true, added by the private test page only) gets a TEST watermark and
+  // ribbon on every render (screen, share image, print files), so a TEST card can never pass for a real one.
+  function testMark(c, print) {
+    c.save(); c.translate(W / 2, H / 2); c.rotate(-.62); c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillStyle = 'rgba(248,81,73,.24)'; f(c, 900, 300, 'PCInter'); c.fillText('TEST', 0, 0);
+    c.lineWidth = 4; c.strokeStyle = 'rgba(255,255,255,.35)'; c.strokeText('TEST', 0, 0); c.restore();
+    c.save(); var y = print ? 18 : 20; c.fillStyle = '#f85149'; c.fillRect(0, y, W, 44); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    f(c, 800, 24, 'PCInter'); c.fillText('TEST CARD · NOT A REAL PROOF OF WALK STAMP', W / 2, y + 23); c.restore();
+  }
   // Render one side. size: 'portrait' (1000x1400), 'hd' (2000x2800), 'print' (1650x2250, bleed), or a number (width).
   async function render(canvas, side, card, o) {
     o = o || {}; await load();
@@ -243,13 +252,14 @@
     var c = canvas.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, canvas.width, canvas.height);
     if (print) c.translate(75, 75); c.scale(scale, scale);
     await (side === 'back' ? back : front)(c, card, { print: print, generic: o.generic, sample: o.sample });
+    if (D().statues[card.slug] && D().statues[card.slug].test) testMark(c, print);
     return canvas;
   }
   function blob(canvas) { return new Promise(function (ok) { canvas.toBlob(ok, 'image/png'); }); }
   async function png(side, card, o) { return blob(await render(document.createElement('canvas'), side, card, o)); }
   // Generic share image (1200x630): the card front (no date, no code, no quote) over the blurred art.
   async function og(canvas, card) {
-    await load(); var d = D(), st = d.statues[card.slug], k = rankKey(card.rank), im = await art(st.page);
+    await load(); var d = D(), st = d.statues[card.slug], k = rankKey(card.rank), im = await art(st.art || st.page);
     canvas.width = 1200; canvas.height = 630; var c = canvas.getContext('2d');
     c.fillStyle = '#0d1117'; c.fillRect(0, 0, 1200, 630);
     if (im) { c.save(); c.filter = 'blur(26px) brightness(.45)'; c.drawImage(im, -60, -400, 1320, 1760); c.restore(); }

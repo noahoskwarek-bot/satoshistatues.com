@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Private test · Satoshi Statues</title>
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <meta name="googlebot" content="noindex, nofollow" />
+  <meta name="referrer" content="no-referrer" />
+  <meta name="theme-color" content="#0d1117" />
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <style>*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#0d1117;color:#e6edf3;line-height:1.5}
+a{color:#f7931a}
+.top{background:#161b22;border-bottom:1px solid #30363d;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.top .brand{display:inline-flex;align-items:center;gap:12px;text-decoration:none;border-radius:6px;min-width:0}
+.top .brand:focus-visible{outline:2px solid #f7931a;outline-offset:3px}
+.brand-logo{display:block;height:44px;width:auto}
+.top .tagline{color:#8b949e;font-size:.85rem;padding-left:12px;border-left:1px solid #30363d;line-height:1.3}
+.top nav{display:flex;gap:8px;flex-wrap:wrap}
+.top nav a{color:#e6edf3;text-decoration:none;border:1px solid #30363d;border-radius:6px;padding:8px 12px;font-size:.88rem;min-height:44px;display:inline-flex;align-items:center}
+.top nav a:hover{border-color:#f7931a;color:#f7931a}
+main{max-width:860px;margin:0 auto;padding:18px 16px calc(40px + env(safe-area-inset-bottom,0px))}
+.crumbs{font-size:.8rem;color:#8b949e;margin-bottom:10px}
+.crumbs a{color:#8b949e}
+h1{color:#f7931a;font-size:1.7rem;line-height:1.25;margin-bottom:4px}
+.sub{color:#8b949e;margin-bottom:16px}
+h2{font-size:1.1rem;margin:26px 0 10px;color:#e6edf3}
+figure{margin:0 0 16px}
+figure img{width:100%;height:auto;max-height:70vh;object-fit:contain;background:#161b22;border:1px solid #30363d;border-radius:10px;display:block}
+figcaption{font-size:.75rem;color:#8b949e;margin-top:4px}
+.facts{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px 16px;font-size:.92rem}
+.facts dt{color:#8b949e}
+.badge{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:4px;font-weight:600}
+.b-installed{background:#1a3a2a;color:#3fb950}.b-restored{background:#3a2e1a;color:#f7931a}.b-planned,.b-unveiled{background:#1a2a3a;color:#58a6ff}.b-damaged{background:#3a2a1a;color:#f0883e}.b-donated{background:#2a1f3a;color:#bc8cff}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;border-radius:8px;font-weight:700;text-decoration:none;font-size:.92rem;border:1px solid #30363d;color:#e6edf3;background:#21262d}
+.btn.primary{background:#f7931a;border-color:#f7931a;color:#0d1117}
+.btn:hover{border-color:#f7931a}
+.note{font-size:.95rem}
+.src{font-size:.85rem;color:#8b949e;padding-left:18px}
+.src li{margin:3px 0}
+.others{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px}
+.others a{display:flex;min-height:44px;align-items:center;padding:6px 10px;border:1px solid #30363d;border-radius:8px;text-decoration:none;color:#e6edf3;font-size:.88rem;background:#161b22}
+.others a:hover{border-color:#f7931a;color:#f7931a}
+.callout{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:8px;padding:10px 14px;font-size:.9rem;margin:14px 0}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid #30363d;vertical-align:top}
+th{color:#8b949e;font-weight:600;font-size:.8rem}
+.tbl{overflow-x:auto;border:1px solid #30363d;border-radius:10px;background:#161b22}
+.big{font-size:3rem;font-weight:800;line-height:1}.big small{font-size:1.4rem;color:#8b949e}
+.bar{height:10px;background:#21262d;border-radius:5px;overflow:hidden;margin:10px 0 4px;max-width:420px}.bar span{display:block;height:100%;background:linear-gradient(90deg,#f7931a,#ffb347)}
+footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-size:.8rem;color:#8b949e}.support-line{display:block;margin-top:6px;font-size:.8rem;color:#8b949e}
+#comments{min-height:120px}
+@media (max-width:600px){.brand-logo{height:36px}.top .tagline{font-size:.72rem;padding-left:10px}.top nav{width:100%}h1{font-size:1.4rem}.facts{grid-template-columns:1fr;gap:0}.facts dt{margin-top:8px}.facts dt:first-child{margin-top:0}td,th{padding:8px 6px}}.tp{max-width:640px;margin:0 auto;padding:16px}.tp h1{font-size:1.4rem;margin:8px 0}.tp .tp-note{background:#161b22;border:1px solid #30363d;border-left:3px solid #8b949e;border-radius:10px;padding:10px 12px;font-size:.88rem;color:#c9d1d9;line-height:1.45}.tp .tp-ci{margin:14px 0}.tp .tp-ci button{width:100%;min-height:48px;font:inherit;font-weight:700;cursor:pointer;border:0}.tp .checkin-msg{margin-top:8px;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:9px 11px;font-size:.9rem}.tp .checkin-msg.ok{border-color:#3fb950;color:#3fb950}.tp .checkin-msg.warn{border-color:#f0883e}.tp .checkin-msg[hidden]{display:none}.tp .geo-diag{font-size:.75rem;color:#8b949e;margin-top:6px}.tw-pay{display:grid;gap:8px;margin:10px 0}.tw-pay input[name=addr]{min-height:44px;padding:10px 12px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font:16px inherit}.tp .lb-note{margin-top:6px}</style>
+  <script>window.SS_API = "https://api.satoshistatues.workers.dev";window.SS_POW = true;window.SS_POWCARD = "/pow-card.js?v=2151534f9f";</script>
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="/" title="Satoshi Nakamoto Statues: map home"><img class="brand-logo" src="/brand/logo-lockup.svg" width="310" height="88" alt="Satoshi Nakamoto Statues" /><span class="tagline">Every Satoshi statue on Earth</span></a>
+  </header>
+  <main class="tp" id="tw"><p class="tp-note">Loading…</p></main>
+  <script src="/share.js?v=8f2049d65a"></script>
+  <script src="/checkin.js?v=be2bfe41ad"></script>
+  <script>(function () {
+  var KEY = 'satoshiTestWalk.v1', API = window.SS_API || '', main = document.getElementById('tw');
+  var $ = function (s) { return main.querySelector(s); };
+  var esc = function (s) { return escHtml(s == null ? '' : s); };
+  var st = null;
+  function save(v) { try { v ? localStorage.setItem(KEY, JSON.stringify(v)) : localStorage.removeItem(KEY); } catch (e) {} }
+  function saved() { try { var v = JSON.parse(localStorage.getItem(KEY) || 'null'); return v && Date.parse(v.expires_at) > Date.now() ? v : null; } catch (e) { return null; } }
+  function post(path, body) {
+    return fetch(API + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { j._status = r.status; return j; }); });
+  }
+  function expired() { save(null); main.innerHTML = '<h1>🧪 TEST link</h1><p class="tp-note">This private test link has expired or was already used on another device.</p>'; }
+  function when(iso) { try { return new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }); } catch (e) { return iso; } }
+  function cardData() {
+    return { page: 'test', art: 'vienna', title: 'TEST', subtitle: 'Meadowview Park · Middlebury, CT', label: st.statue.name, tz: 'America/New_York',
+      phrase: 'the TEST spot (Meadowview Park)', og_place: 'the TEST spot', test: true, share_url: location.origin + '/proof-of-walk/' };
+  }
+  function powCard() {
+    if (window.PowCard) return Promise.resolve(window.PowCard);
+    return new Promise(function (ok) { var s = document.createElement('script'); s.src = window.SS_POWCARD || '/pow-card.js'; s.onload = function () { ok(window.PowCard); }; document.head.appendChild(s); });
+  }
+  function showCard(pow) {
+    var c = pow && pow.cards && pow.cards.confirmed; if (!c) return;
+    var el = $('[data-tw-card]');
+    powCard().then(function (P) { return P.load().then(function () {
+      window.POW_CARD_DATA.statues[c.earned.slug] = cardData();
+      el.hidden = false; return P.mount(el.querySelector('.pc-host'), { rank: 'confirmed', slug: c.earned.slug, n: Number(c.n), at: c.earned.at, code: c.code });
+    }); });
+  }
+  function payoutHtml(j) {
+    var paid = (j.payouts || []).filter(function (p) { return p.status !== 'failed'; })[0];
+    if (paid) return '<p class="checkin-msg ok">⚡ TEST payout ' + (paid.status === 'paid' ? 'sent' : 'pending') + ': ' + paid.sats + ' sats to ' + esc(paid.to) + (paid.mock ? ' (dry run, no real payment)' : '') + '.</p>';
+    var f = j.fountain;
+    if (j.payout === 'off') return '<p class="checkin-msg">Test payout pending.</p>';
+    if (!f) return j.checked_in ? '<p class="checkin-msg">Check in again to get your TEST payout.</p>' : '<p class="tp-note">Check in above to get the TEST payout (' + j.payout_sats + ' sats, once).</p>';
+    if (f.state !== 'drawn') return '<p class="checkin-msg">' + esc(f.message || 'No TEST payout right now.') + '</p>';
+    return '<form class="tw-pay" data-claim="' + esc(f.claim) + '"><p class="f-q">TEST payout: <strong>' + f.sats + ' sats</strong> (fixed, one time). Lightning address:</p>' +
+      '<input name="addr" type="email" inputmode="email" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="name@wallet.com" aria-label="Lightning address">' +
+      '<label><input type="checkbox" name="adult"> I’m 18 or older</label><label><input type="checkbox" name="terms"> I accept the <a href="/terms/" target="_blank" rel="noopener">giveaway terms</a></label>' +
+      '<button class="btn primary" type="submit">⚡ Send ' + f.sats + ' TEST sats</button><p class="f-out" aria-live="polite"></p></form>';
+  }
+  function render(j, msg) {
+    st = st || {}; st.statue = j.statue;
+    main.innerHTML = '<h1>🧪 ' + esc(j.statue.name) + '</h1>' +
+      '<p class="tp-note">Private TEST, not a real statue. It isn’t on the map and doesn’t stamp your real passport, rank, Genesis Block or the Order. ' +
+      'While this test runs, a row labelled <strong>TEST walker</strong> shows on the <a href="/leaderboard/">leaderboard</a>. Ends at ' + esc(when(j.expires_at)) + '.</p>' +
+      '<div class="tp-ci"><button class="btn primary" type="button" data-tw-go>' + (j.checked_in ? '📍 Check in again (TEST)' : '📍 Check in here (TEST)') + '</button>' +
+      '<div class="checkin-msg" aria-live="polite"' + (msg ? '' : ' hidden') + '>' + (msg || '') + '</div></div>' +
+      '<section data-tw-pay>' + payoutHtml(j) + '</section>' +
+      '<section data-tw-card hidden><h2>🃏 Your TEST card</h2><div class="pc-host"></div></section>' +
+      '<p class="tp-note"><a href="/leaderboard/">See the leaderboard</a> · TEST verify codes don’t verify publicly.</p>';
+    if (j.checked_in && !(msg && /pc-reveal/.test(msg))) showCard(j.pow);
+    powMountRevealTest();
+  }
+  function powMountRevealTest() {
+    var el = main.querySelector('.pc-reveal[data-pc]:not([data-mounted])'); if (!el) return;
+    el.setAttribute('data-mounted', '1');
+    var card = JSON.parse(el.getAttribute('data-pc'));
+    powCard().then(function (P) { return P.load().then(function () { window.POW_CARD_DATA.statues[card.slug] = cardData(); return P.mount(el, card); }); });
+  }
+  main.addEventListener('click', function (ev) {
+    var b = ev.target.closest && ev.target.closest('[data-tw-go]'); if (!b) return;
+    var out = main.querySelector('.tp-ci .checkin-msg'), idle = b.textContent;
+    function show(cls, h) { out.className = 'checkin-msg ' + cls; out.innerHTML = h; out.hidden = false; }
+    if (!navigator.geolocation) { show('warn', CHECKIN_NO_GEO); return; }
+    b.disabled = true; b.textContent = '📡 Locating…';
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      b.textContent = '🏆 Saving…';
+      var c = pos.coords;
+      post('/api/test/checkin', { session: st.session, device_id: lbDevice(), lat: c.latitude, lng: c.longitude, accuracy: c.accuracy }).then(function (j) {
+        b.disabled = false; b.textContent = idle;
+        if (j._status === 404) return expired();
+        if (!j.ok) { show('warn', esc(j.message || 'The check-in wasn’t accepted.')); return; }
+        var m = '🟠 TEST stamp collected at ' + esc(j.statue.name) + '. It’s only on your TEST passport.' +
+          '<div class="lb-note">🏆 You show as <strong>TEST walker</strong> on the <a href="/leaderboard/">leaderboard</a> until the test ends.</div>' +
+          (j.pow && j.pow.ranked_up ? powRankUpHtml(j.pow) : '<div class="lb-note">👣 <strong>Confirmed ✓</strong> (TEST) · 0 of 3 to Genesis</div>');
+        render(j, m);
+      }).catch(function () { b.disabled = false; b.textContent = idle; show('warn', 'Couldn’t reach the check-in server. Try again.'); });
+    }, function (err) { b.disabled = false; b.textContent = idle; geoErrorHtml(err).then(function (h) { show('warn', h); }); }, GEO_OPTS);
+  });
+  main.addEventListener('submit', function (ev) {
+    var f = ev.target.closest && ev.target.closest('.tw-pay'); if (!f) return;
+    ev.preventDefault();
+    var out = f.querySelector('.f-out'), btn = f.querySelector('button');
+    if (!f.adult.checked) { out.textContent = 'Please confirm you are 18 or older.'; return; }
+    if (!f.terms.checked) { out.textContent = 'Please accept the giveaway terms.'; return; }
+    btn.disabled = true; out.textContent = 'Sending…';
+    post('/api/test/claim', { session: st.session, device_id: lbDevice(), claim: f.getAttribute('data-claim'), lightning_address: f.addr.value, adult: true, terms: true }).then(function (j) {
+      if (j._status === 404) return expired();
+      if (j.ok) { main.querySelector('[data-tw-pay]').innerHTML = '<p class="checkin-msg ok">⚡ TEST payout: ' + j.sats + ' sats are on the way to ' + esc(j.to) + '.' + (j.mock ? ' (dry run, no real payment)' : '') + '</p>'; return; }
+      btn.disabled = false; out.textContent = j.message || 'Something went wrong. Please try again.';
+    }).catch(function () { btn.disabled = false; out.textContent = 'Couldn’t reach the server. Please try again.'; });
+  });
+  function start() {
+    if (!API) return expired();
+    var m = /(?:^#|&)k=([A-Za-z0-9_-]{22})(?:&|$)/.exec(location.hash || ''), have = saved();
+    if (m) { try { history.replaceState(null, '', location.pathname); } catch (e) {} }
+    if (m && !have) {
+      return post('/api/test/redeem', { token: m[1], device_id: lbDevice() }).then(function (j) {
+        if (!j.ok) return expired();
+        st = { session: j.session, expires_at: j.expires_at }; save(st); render(j);
+      }).catch(expired);
+    }
+    if (!have) return expired();
+    st = have;
+    post('/api/test/me', { session: st.session, device_id: lbDevice() }).then(function (j) { if (!j.ok) return expired(); render(j); }).catch(function () {
+      main.innerHTML = '<p class="tp-note">Couldn’t reach the server. Reload to try again.</p>'; });
+  }
+  start();
+})();</script>
+</body>
+</html>
