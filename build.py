@@ -2094,8 +2094,10 @@ def card_statues(data):
 
 
 def card_phrase(s):
-    # Share text / share-page title: true for every statue (Kranj is a Bitcoin "B" monument, Miami's is the Bitcoin Bull).
-    return {'kranj': 'the Bitcoin monument in Kranj', 'miami-bull': 'the Bitcoin Bull in Miami'}.get(s['page'], f"the Satoshi statue in {s['city']}")
+    # Share text / share-page title: true for every statue (Kranj is a Bitcoin "B" monument, Miami's is the Bitcoin Bull,
+    # Buenos Aires is the "Satoshi Monument" glass cube).
+    return {'kranj': 'the Bitcoin monument in Kranj', 'miami-bull': 'the Bitcoin Bull in Miami',
+            'buenos-aires': 'the Satoshi monument in Buenos Aires'}.get(s['page'], f"the Satoshi statue in {s['city']}")
 
 
 def card_quotes():

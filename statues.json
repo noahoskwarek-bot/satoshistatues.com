@@ -1729,18 +1729,17 @@
       "name": "Buenos Aires",
       "country": "Argentina",
       "city": "Buenos Aires",
-      "place": "Polo DOT, Saavedra",
-      "lat": -34.547,
-      "lng": -58.4893,
+      "place": "Workplace by IRSA plaza, Polo DOT, Saavedra",
+      "lat": -34.54655,
+      "lng": -58.48979,
+      "pin_approx": true,
       "year": 2026,
       "artist": "Ricardo Alonso & Celeste Difabio Videla",
       "artistUrl": null,
       "type": "Stainless-steel and glass cube (2.4 m per side)",
-      "status": "Unveiled",
-      "statusLabel": "Unveiled Oct 2026 · visiting hours not published",
-      "note": "“El Génesis de Satoshi Nakamoto”: a 2.4 m stainless-steel and glass cube inspired by Bitcoin’s genesis block. Unveiled on 29 Oct 2026 at Polo DOT in Buenos Aires, at the opening of LABITCONF 2026. Public visiting hours haven’t been published yet.",
-      "stamp_note": "Not on the Satoshi Passport yet, so there’s no card to collect (not counted in the total). Public visiting hours haven’t been published yet.",
-      "stamp_short": "No card yet (visiting hours not published)",
+      "status": "Installed",
+      "statusLabel": "Installed Oct 2026 · outdoors, best on weekdays",
+      "note": "“El Génesis de Satoshi Nakamoto”: a 2.4 m stainless-steel and glass cube inspired by Bitcoin’s genesis block, awarded the Grand Prize of the Premio B·Arte 2025. Unveiled on 29 Oct 2026 in an open-air plaza at Polo DOT in Buenos Aires, at the opening of LABITCONF 2026.",
       "img": "satoshi-buenos-aires.jpg",
       "imgW": 675,
       "imgH": 1200,
@@ -1749,12 +1748,28 @@
       "tz": "America/Argentina/Buenos_Aires",
       "unveiled": "29 Oct 2026",
       "series21": false,
-      "access": "Public visiting hours haven’t been published yet. Check with the organisers before you go.",
+      "access": "Outdoors in an open-air plaza at Polo DOT; the organisers say anyone can visit. It’s on private office-complex grounds, and the Workplace building is listed as open weekdays about 8:00–19:00, so weekday daytime visits are safest.",
       "accessSource": {
-        "label": "Criptoinforme",
-        "url": "https://criptoinforme.com/eventos/monumento-satoshi-nakamoto-buenos-aires/"
+        "label": "Bitcoin Argentina (ONG): El Génesis de Satoshi Nakamoto",
+        "url": "https://bitcoin.ar/premiobarte-monumento/"
       },
       "sources": [
+        {
+          "label": "Bitcoin Argentina (ONG): El Génesis de Satoshi Nakamoto",
+          "url": "https://bitcoin.ar/premiobarte-monumento/"
+        },
+        {
+          "label": "CriptoNoticias (30 Oct 2026)",
+          "url": "https://www.criptonoticias.com/comunidad/buenos-aires-monumento-satoshi-nakamoto/"
+        },
+        {
+          "label": "LABITCONF: Monumento",
+          "url": "https://www.labitconf.com/mas/monumento"
+        },
+        {
+          "label": "Diario Río Negro",
+          "url": "https://www.rionegro.com.ar/sociedad/una-obra-barilochense-para-homenajear-al-creador-de-bitcoin-se-inaugura-en-buenos-aires/"
+        },
         {
           "label": "LABITCONF on X (29 Oct 2026)",
           "url": "https://x.com/labitconf/status/2115951055775424622"
@@ -1769,7 +1784,7 @@
         }
       ],
       "label": "Satoshi Monument Buenos Aires",
-      "pin_note": "Pin: Polo DOT office park; exact spot not published",
+      "pin_note": "Pin: Workplace by IRSA, Vedia 3892 (plaza spot approximate)",
       "story": [
         {
           "label": "Title",
@@ -1787,15 +1802,19 @@
         },
         {
           "label": "Artists",
-          "text": "Ricardo Alonso and Celeste Difabio Videla.",
+          "text": "Ricardo Alonso (engineer) and Celeste Difabio Videla (architect), both based in Bariloche.",
           "sources": [
+            {
+              "label": "Bitcoin Argentina (ONG): El Génesis de Satoshi Nakamoto",
+              "url": "https://bitcoin.ar/premiobarte-monumento/"
+            },
+            {
+              "label": "CriptoNoticias (30 Oct 2026)",
+              "url": "https://www.criptonoticias.com/comunidad/buenos-aires-monumento-satoshi-nakamoto/"
+            },
             {
               "label": "Bitcoin Argentina (ONG) on X (30 Oct 2026)",
               "url": "https://x.com/BitcoinAR/status/2116131286360187206"
-            },
-            {
-              "label": "Criptoinforme (22 Oct 2026)",
-              "url": "https://criptoinforme.com/eventos/monumento-satoshi-nakamoto-buenos-aires/"
             }
           ]
         },
@@ -1806,6 +1825,10 @@
             {
               "label": "LABITCONF on X (29 Oct 2026)",
               "url": "https://x.com/labitconf/status/2115951055775424622"
+            },
+            {
+              "label": "CriptoNoticias (30 Oct 2026)",
+              "url": "https://www.criptonoticias.com/comunidad/buenos-aires-monumento-satoshi-nakamoto/"
             },
             {
               "label": "Bitcoin Argentina (ONG) on X (30 Oct 2026)",
@@ -1826,38 +1849,65 @@
         },
         {
           "label": "How it came about",
-          "text": "Selected in the monument category of the Premio B·Arte 2025 art competition. A project of the NGO Bitcoin Argentina, funded by the Fundación Bitcoin Iberoamérica, with Polo DOT as the venue.",
+          "text": "Awarded the Grand Prize of the Premio B·Arte 2025 (its fifth edition), an art competition run by the NGO Bitcoin Argentina, selected from more than 300 proposals. Funded by the Fundación Bitcoin Iberoamérica, with Polo DOT (Workplace by IRSA) as the venue.",
           "reported": true,
           "sources": [
             {
-              "label": "Bitcoin Argentina (ONG) on X (30 Oct 2026)",
-              "url": "https://x.com/BitcoinAR/status/2116131286360187206"
+              "label": "Bitcoin Argentina (ONG): El Génesis de Satoshi Nakamoto",
+              "url": "https://bitcoin.ar/premiobarte-monumento/"
             },
             {
-              "label": "Criptoinforme (22 Oct 2026)",
-              "url": "https://criptoinforme.com/eventos/monumento-satoshi-nakamoto-buenos-aires/"
+              "label": "LABITCONF: Monumento",
+              "url": "https://www.labitconf.com/mas/monumento"
+            },
+            {
+              "label": "Diario Río Negro",
+              "url": "https://www.rionegro.com.ar/sociedad/una-obra-barilochense-para-homenajear-al-creador-de-bitcoin-se-inaugura-en-buenos-aires/"
+            },
+            {
+              "label": "CriptoNoticias (30 Oct 2026)",
+              "url": "https://www.criptonoticias.com/comunidad/buenos-aires-monumento-satoshi-nakamoto/"
+            }
+          ]
+        },
+        {
+          "label": "Organised by",
+          "text": "Bitcoin Argentina (Bitcoin.ar). Aída Pippo, of the NGO’s board, led and coordinated the project, under the general direction of Rodolfo Andragnes.",
+          "sources": [
+            {
+              "label": "Bitcoin Argentina (ONG): El Génesis de Satoshi Nakamoto",
+              "url": "https://bitcoin.ar/premiobarte-monumento/"
+            },
+            {
+              "label": "CriptoNoticias (30 Oct 2026)",
+              "url": "https://www.criptonoticias.com/comunidad/buenos-aires-monumento-satoshi-nakamoto/"
             }
           ]
         }
       ],
       "visit": {
-        "updated": "2026-10-30",
-        "exact_spot": "At Polo DOT, the office complex next to the DOT Baires shopping centre (Vedia 3600, Saavedra, Buenos Aires). The organisers’ press release places it in the complex’s Workplace area; the exact spot hasn’t been published.\n\nPin: the Polo DOT office park in OpenStreetMap (-34.5470, -58.4893), about 135 m from the DOT Baires shopping centre.",
-        "hours_access": "Public visiting hours haven’t been published yet. The organisers say anyone who wants to will be able to visit, but no hours or conditions have been announced. Check with Bitcoin Argentina or LABITCONF before you go.",
+        "updated": "2026-10-31",
+        "exact_spot": "In an open-air plaza (plazoleta) at Polo DOT, at the Workplace by IRSA building (Vedia 3892, Saavedra), near the DOT Baires shopping centre (Vedia 3600). The organisers haven’t published the exact spot in the plaza.\n\nPin: the Workplace by IRSA building in OpenStreetMap (-34.54655, -58.48979), about 80 m from the DOT Baires shopping centre.",
+        "hours_access": "A permanent outdoor piece; the organisers say anyone can visit. It stands on private office-complex grounds. The Workplace building is listed as open Monday to Friday about 8:00–19:00 and closed at weekends, so a weekday daytime visit is safest. Check before you go.",
         "sources": [
           {
-            "label": "Bitcoin Argentina (ONG) on X (30 Oct 2026)",
-            "url": "https://x.com/BitcoinAR/status/2116131286360187206"
+            "label": "Bitcoin Argentina (ONG): El Génesis de Satoshi Nakamoto",
+            "url": "https://bitcoin.ar/premiobarte-monumento/"
           },
           {
-            "label": "Criptoinforme (22 Oct 2026)",
-            "url": "https://criptoinforme.com/eventos/monumento-satoshi-nakamoto-buenos-aires/"
+            "label": "CriptoNoticias (30 Oct 2026)",
+            "url": "https://www.criptonoticias.com/comunidad/buenos-aires-monumento-satoshi-nakamoto/"
+          },
+          {
+            "label": "Workplace by IRSA hours (Cybo listing)",
+            "url": "https://sl.cybo.com/AR-biz/workplace-by-irsa"
           }
-        ]
+        ],
+        "public_access": true
       },
       "last_confirmed": "2026-10",
       "last_confirmed_source": "report",
-      "last_confirmed_url": "https://x.com/BitcoinAR/status/2116131286360187206",
+      "last_confirmed_url": "https://www.criptonoticias.com/comunidad/buenos-aires-monumento-satoshi-nakamoto/",
       "last_confirmed_kind": "reported"
     }
   ],

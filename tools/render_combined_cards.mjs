@@ -1,10 +1,11 @@
 // Renders the combined-card static images from the same /pow-card.js the site uses (headless Chrome, Canvas 2D):
-//   img/cards/og/<rank>/<page>.<ver>.jpg  1200x630 generic share images (no date, code or quote), 3 ranks x 11 statues
+//   img/cards/og/<rank>/<page>.<ver>.jpg  1200x630 generic share images (no date, code or quote), 3 ranks x 12 statues
 //   img/cards/og/card/<rank>/<page>/NN.<ver>.jpg  1200x630 per-card share images for the Worker's /c/CODE pages:
-//     statue x rank at check-in x card number (3 x 11 x 21); --only-cards renders just these, --no-cards skips them
+//     statue x rank at check-in x card number (3 x 12 x 21); --only-cards renders just these, --no-cards skips them
 //   img/cards/og/rank/<rank>.<ver>.jpg  1200x630 city-free rank images (always; --only-ranks renders just these)
 //   img/cards/sample-front.<ver>.jpg, sample-back.<ver>.jpg, sample-back-21.<ver>.jpg  600x840 explainer samples
-// Usage: node tools/render_combined_cards.mjs [--chrome /usr/bin/google-chrome] [--pw /path/to/node_modules/playwright-core]
+// Usage: node tools/render_combined_cards.mjs [--chrome /usr/bin/google-chrome] [--pw /path/to/node_modules/playwright-core] [--only <slug>]
+//   --only <slug>: render just that statue's statue x rank and per-card images (no rank images or samples), e.g. a newly added statue
 // Needs playwright-core (not a site dependency): npm i playwright-core in any folder and pass --pw. Run after build.py.
 import http from 'node:http';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
@@ -30,6 +31,8 @@ await page.goto(base + '/robots.txt');
 await page.addScriptTag({ url: '/pow-card.js' });
 await page.evaluate(() => window.PowCard.load());
 const data = await page.evaluate(() => ({ statues: window.POW_CARD_DATA.statues, ranks: window.POW_CARD_DATA.ranks }));
+const only = arg('--only', '');
+if (only) { if (!data.statues[only]) throw new Error('--only: unknown statue ' + only); data.statues = { [only]: data.statues[only] }; }
 const save = (rel, b64) => { const f = join(ROOT, rel); mkdirSync(dirname(f), { recursive: true }); writeFileSync(f, Buffer.from(b64, 'base64')); };
 let n = 0, m = 0;
 const onlyCards = process.argv.includes('--only-cards'), noCards = process.argv.includes('--no-cards');
@@ -37,7 +40,7 @@ if (!onlyCards) for (const [slug, st] of Object.entries(data.statues)) for (cons
   const b64 = await page.evaluate(async ([slug, k]) => (await window.PowCard.og(document.createElement('canvas'), { slug, rank: k })).toDataURL('image/jpeg', 0.88).split(',')[1], [slug, k]);
   save(`img/cards/og/${r.share}/${st.page}.${VER}.jpg`, b64); n++;
 }
-for (const [k, r] of Object.entries(data.ranks)) {   // city-free rank images for /proof-of-walk/share/<rank>/
+if (!only) for (const [k, r] of Object.entries(data.ranks)) {   // city-free rank images for /proof-of-walk/share/<rank>/
   const b64 = await page.evaluate(async k => (await window.PowCard.ogRank(document.createElement('canvas'), k)).toDataURL('image/jpeg', 0.88).split(',')[1], k);
   save(`img/cards/og/rank/${r.share}.${VER}.jpg`, b64);
 }
@@ -46,7 +49,7 @@ if (!noCards) for (const [slug, st] of Object.entries(data.statues)) for (const 
   const b64 = await page.evaluate(async ([slug, k, c]) => (await window.PowCard.ogCard(document.createElement('canvas'), { slug, rank: k, n: c })).toDataURL('image/jpeg', 0.8).split(',')[1], [slug, k, c]);
   save(`img/cards/og/card/${r.share}/${st.page}/${String(c).padStart(2, '0')}.${VER}.jpg`, b64); m++;
 }
-if (onlyCards) { console.log(`wrote ${m} per-card share images (${VER})`); await browser.close(); srv.close(); process.exit(0); }
+if (onlyCards || only) { console.log(`wrote ${m} per-card share images (${VER})`); await browser.close(); srv.close(); process.exit(0); }
 const sample = async (side, card, o) => page.evaluate(async ([side, card, o]) => {
   const c = await window.PowCard.render(document.createElement('canvas'), side, card, { size: 'portrait', ...o });
   const s = document.createElement('canvas'); s.width = 600; s.height = 840; s.getContext('2d').drawImage(c, 0, 0, 600, 840);
