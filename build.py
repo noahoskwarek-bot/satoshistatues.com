@@ -1823,28 +1823,58 @@ def pow_share_url(key):
     return f'{SITE}/proof-of-walk/share/{POW_SHARE[key][0]}/'
 
 
-def pow_share_page(data, key):
-    slug, emoji, title, desc, alt = POW_SHARE[key]
-    rule = {'genesis': f'Stamped any {pow_genesis_required(data)} of the original 10 Satoshi statues',
-            'order': f'The Genesis Block plus {pow_order_extra(data)} more Satoshi statue{"" if pow_order_extra(data) == 1 else "s"}'}.get(key, '')
-    desc = desc.replace('GENESIS_RULE', rule).replace('ORDER_RULE', rule)
-    url, img = pow_share_url(key), f'{SITE}/img/pow-share/{slug}.jpg'
-    out = head(title, desc, SITE + '/proof-of-walk/', img, 1200, 675, alt, '')
-    out = out.replace('<meta name="robots" content="index, follow" />', '<meta name="robots" content="noindex, follow" />', 1)
-    out = out.replace(f'<meta property="og:url" content="{SITE}/proof-of-walk/" />', f'<meta property="og:url" content="{url}" />', 1)
-    out = out.replace('<meta property="og:image:width"', f'<meta property="og:image:type" content="image/jpeg" />\n  <meta property="og:image:width"', 1)
-    out = out.replace('<head>', '<head>\n  <script>if (!/bot|crawl|spider|preview|facebookexternalhit|slack|twitter|whatsapp|telegram|discord/i.test(navigator.userAgent)) location.replace("/proof-of-walk/");</script>', 1)
-    out += f"""  <main>
-    <div class="crumbs"><a href="/">Map</a> › <a href="/proof-of-walk/">Proof of Walk</a></div>
-    <h1>{emoji} {e(title)}</h1>
-    <p class="sub">{e(desc)}</p>
-    <p><img src="/img/pow-share/{slug}.jpg" width="1200" height="675" alt="{e(alt)}" style="width:100%;height:auto;border-radius:10px" /></p>
-    <p class="note"><a href="/proof-of-walk/">See Proof of Walk ranks and start your passport →</a></p>
-    <p class="note"><a href="/proof-of-walk/cards/">About the cards: all 21 designs and how rare each one is →</a></p>
-    {footer(data)}
-  </main>
-"""
-    return out + TAIL
+# Old share pages (go-live redirect, Noah 2026-10-31 2:26 PM ET): the 3 rank pages /proof-of-walk/share/<rank>/ and the
+# 63 prism card pages /proof-of-walk/share/<rank>/NN/ now redirect (same method as /fellow-travelers/: meta refresh +
+# location.replace + canonical, noindex) to that rank's combined share page at the default statue (OLD_SHARE_STATUE).
+# The redirect page keeps the target's og:/twitter: tags, so links in old posts still unfurl (crawlers don't follow JS
+# and not all follow meta refresh). Old images under img/pow-share/ stay, so nothing 404s.
+OLD_SHARE_STATUE = 'lugano'   # Lugano: the approved mockup statue, one of the original 10, also the cards page's share image
+
+
+def old_share_redirect_page(data, key):
+    s = next(x for x in card_statues(data) if x['page'] == OLD_SHARE_STATUE)
+    rs, label, _, _ = POW_RANKS[key]
+    target = card_share_url(key, s)
+    title = f'{label} at {card_phrase(s)}'
+    desc = 'A real walk to a real statue, verified by GPS. Start your Proof of Walk passport.'
+    img = f'{SITE}/{card_og_img(rs, s["page"])}'
+    return f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{e(title)} · Satoshi Statues</title>
+  <meta name="robots" content="noindex, follow" />
+  <link rel="canonical" href="{target}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="{target}" />
+  <meta property="og:title" content="{e(title)}" />
+  <meta property="og:description" content="{e(desc)}" />
+  <meta property="og:image" content="{img}" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{e(title)}" />
+  <meta name="twitter:description" content="{e(desc)}" />
+  <meta name="twitter:image" content="{img}" />
+  <meta http-equiv="refresh" content="0; url={target}" />
+  <script>location.replace("{target}");</script>
+</head>
+<body>
+  <p>This Proof of Walk card has a new look. <a href="{target}">See {e(label)} →</a></p>
+</body>
+</html>
+'''
+
+
+def old_share_redirects(data):
+    out = {}
+    for k, v in POW_RANKS.items():
+        out[f'proof-of-walk/share/{v[0]}/index.html'] = old_share_redirect_page(data, k)
+        for n in range(1, 22):
+            out[f'proof-of-walk/share/{v[0]}/{n:02d}/index.html'] = old_share_redirect_page(data, k)
+    return out
 
 
 # Prism cards (variants of the three rank cards): 21 cards per rank, img/pow-share/<slug>/NN.jpg (1280x720, imported by
@@ -1859,28 +1889,6 @@ POW_CARD_TIERS = {**{n: 'Common' for n in range(1, 11)}, **{n: 'Uncommon' for n 
 
 def pow_card_img(slug, n):
     return f'img/pow-share/{slug}/{n:02d}.jpg'
-
-
-def pow_card_page(data, key, n):
-    slug, emoji, title, desc, alt = POW_SHARE[key]
-    base = pow_share_page(data, key)
-    tier = POW_CARD_TIERS[n]
-    card = f'card No. {n:02d} of 21 ({tier})'
-    t2 = f'{title} · No. {n:02d}/21'
-    alt2 = f'{alt} Prism {card}.'
-    url, img = f'{pow_share_url(key)}{n:02d}/', f'{SITE}/{pow_card_img(slug, n)}'
-    out = base.replace(f'<meta property="og:url" content="{pow_share_url(key)}" />', f'<meta property="og:url" content="{url}" />', 1)
-    out = out.replace(f'{SITE}/img/pow-share/{slug}.jpg', img).replace(f'/img/pow-share/{slug}.jpg', '/' + pow_card_img(slug, n))
-    out = out.replace('content="1200"', 'content="1280"').replace('content="675"', 'content="720"').replace('width="1200" height="675"', 'width="1280" height="720"')
-    out = out.replace(e(alt), e(alt2)).replace(e(title), e(t2))
-    for need in (url, img, 'noindex, follow', f'<link rel="canonical" href="{SITE}/proof-of-walk/" />'):
-        assert need in out, (slug, n, need)
-    return out
-
-
-def pow_card_pages(data):
-    return {f'proof-of-walk/share/{POW_SHARE[k][0]}/{n:02d}/index.html': pow_card_page(data, k, n)
-            for k in POW_SHARE for n in range(1, 22) if os.path.exists(os.path.join(ROOT, pow_card_img(POW_SHARE[k][0], n)))}
 
 
 # Card text for /proof-of-walk/cards/ (from the card set's sayings.json; notes from the cards-page draft).
@@ -1991,9 +1999,13 @@ POW_RANKS = {  # rank key -> (share slug, label, badge text, emoji)
 CARD_CREDIT = ('Quotes attributed as shown. Headline from The Times, 3 Jan 2009, as embedded in Bitcoin’s genesis block. '
                'Not affiliated with or endorsed by The Times, any statue artist, owner or city.')   # approved D1
 CARD_NOT_AFFILIATED = 'Not affiliated with or endorsed by The Times, any statue artist, owner or city.'
-# Grant's print wording (spec §5.6), shown next to the (disabled) print-order button.
-CARD_PRINT_NOTE = ('Ordering a printed card is optional and doesn’t affect your rank, your draw, or the Lucky 1,021 giveaway. '
-                   'Printed cards cost the same no matter the rarity and have no cash or investment value.')
+# Print ordering (spec §5.7) is not open yet. Until CARD_PRINT_ORDERING_OPEN is True the price/disclosure line below is
+# not emitted anywhere (not in card-data.js, not in any HTML). Print copy never uses draw, luck/lucky, chance, odds or
+# giveaway wording (Noah 2026-10-31 2:26 PM ET); tools/check_card_words.py checks this constant and the print panel.
+# The wording below is a shortened version of Grant's §5.6 line; have Grant re-check it before switching the flag on.
+CARD_PRINT_ORDERING_OPEN = False
+CARD_PRINT_NOTE = ('Ordering a printed card is optional and doesn’t change your rank or your card. '
+                   'Printed cards cost the same at every tier and are just for fun.')
 CARD_OG_VER = 'v1'   # bump when the share images change, so X/Facebook/LinkedIn re-scrape
 CARD_SAYINGS = os.path.join(ROOT, 'tools', 'pow_sayings.json')   # copy of rank-cards/variants/sayings.json
 
@@ -2027,7 +2039,9 @@ def card_data_js(data):
     d = {'site': SITE, 'statues': st,
          'quotes': [{'n': x['n'], 'q': x['quote'], 'by': x['by'], 'hue': x['hue']} for x in card_quotes()],
          'ranks': {k: {'share': v[0], 'label': v[1], 'badge': v[2], 'emoji': v[3]} for k, v in POW_RANKS.items()},
-         'credit': CARD_CREDIT, 'not_affiliated': CARD_NOT_AFFILIATED, 'print_note': CARD_PRINT_NOTE}
+         'credit': CARD_CREDIT, 'not_affiliated': CARD_NOT_AFFILIATED}
+    if CARD_PRINT_ORDERING_OPEN:
+        d['print_note'] = CARD_PRINT_NOTE
     return ('// Generated by build.py from statues.json + tools/pow_sayings.json. Do not edit. Read by /pow-card.js.\n'
             'window.POW_CARD_DATA = ' + json.dumps(d, ensure_ascii=False, separators=(',', ':')) + ';\n')
 
@@ -3315,12 +3329,10 @@ def outputs(data):
         files['proof-of-walk/index.html'] = pow_page(data)
         files['proof-of-walk/fellow-travelers/index.html'] = pow_roll_page(data)
         files['fellow-travelers/index.html'] = fellow_travelers_redirect_page()
-        for k in POW_SHARE:
-            files[f'proof-of-walk/share/{POW_SHARE[k][0]}/index.html'] = pow_share_page(data, k)
-        files.update(pow_card_pages(data))
         files['proof-of-walk/cards/index.html'] = pow_cards_page(data)
         files['proof-of-walk/card-data.js'] = card_data_js(data)
         files.update(card_share_pages(data))
+        files.update(old_share_redirects(data))
         files['v/index.html'] = verify_page(data)
     for s in data['statues']:
         files[f"{s['page']}/index.html"] = statue_page(s, data)

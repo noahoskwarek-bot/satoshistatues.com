@@ -284,7 +284,7 @@
       '<p class="pc-sub">Print it yourself: print-ready files for the front and back, 1650 × 2250 px each (2.5 × 3.5 in card at 600 dpi, with 1/8 in bleed on every side). Trim to 2.5 × 3.5 in.</p>' +
       '<div class="pc-row"><button class="btn" type="button" data-print="front">⬇️ Front (print PNG)</button><button class="btn" type="button" data-print="back">⬇️ Back (print PNG)</button></div>' +
       '<div class="pc-row"><button class="btn pc-soon" type="button" disabled aria-disabled="true">Order a printed card, coming soon</button></div>' +
-      '<p class="pc-fine">' + esc(d.print_note) + '</p><p class="pc-fine">' + esc(d.not_affiliated) + '</p></section>';
+      (d.print_note ? '<p class="pc-fine">' + esc(d.print_note) + '</p>' : '') + '<p class="pc-fine">' + esc(d.not_affiliated) + '</p></section>';
     var faces = el.querySelectorAll('.pc-face');
     await Promise.all([render(faces[0], 'front', card, { size: 'portrait' }), render(faces[1], 'back', card, { size: 'portrait' })]);
     el.querySelectorAll('[data-flip]').forEach(function (b) {
