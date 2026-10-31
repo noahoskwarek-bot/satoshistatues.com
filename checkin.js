@@ -180,14 +180,30 @@ function powRankUpHtml(p) {
   const c = p.me.card, n = c ? Number(c.n) : 0;
   const nn = slug && c && c.rank === slug && Number.isInteger(n) && n >= 1 && n <= 21 ? String(n).padStart(2, '0') + '/' : '';
   const url = location.origin + '/proof-of-walk/' + (slug ? `share/${slug}/${nn}` : '');
+  // Rank wording matches the live ladder: "Confirmed ✓", "Genesis Block ✓", "Grand High Order ✓", then "N of 3 to Genesis".
   const head = p.order_new
-    ? `🏛️ <strong>The Grand High Order of Fellow Travelers!</strong> The Genesis Block plus 1 more statue${p.genesis_new ? ', and you mined the Genesis Block too' : ''}. It’s yours for good (<a href="/proof-of-walk/fellow-travelers/">the roll</a>).`
+    ? `🏛️ <strong>Grand High Order ✓</strong> The Grand High Order of Fellow Travelers${p.genesis_new ? ', and Genesis Block ✓ too' : ''}. It’s yours for good (<a href="/proof-of-walk/fellow-travelers/">the roll</a>).`
     : p.genesis_new
-    ? `🧱 <strong>Genesis Block!</strong> ${p.me.genesis_at || 3} of the original 10 stamped (<a href="/proof-of-walk/fellow-travelers/#genesis">the roll</a>). Stamp 1 more statue, anywhere, to join the Grand High Order of Fellow Travelers.`
-    : `👣 <strong>Confirmed</strong> on <a href="/proof-of-walk/">Proof of Walk</a>: ${p.me.genesis_progress} of ${p.me.genesis_at || 3} to Genesis.`;
+    ? `🧱 <strong>Genesis Block ✓</strong> (<a href="/proof-of-walk/fellow-travelers/#genesis">the roll</a>). Stamp 1 more statue, anywhere, to join the Grand High Order of Fellow Travelers.`
+    : `👣 <strong>Confirmed ✓</strong> on <a href="/proof-of-walk/">Proof of Walk</a>: ${p.me.genesis_progress} of ${p.me.genesis_at || 3} to Genesis.`;
+  // Combined statue + rank card (design 2): the card reveal with one-tap Share right after the check-in (pow-card.js,
+  // loaded only now). Falls back to the older share row when the Worker has no verify code/earning stamp for the card.
+  const k = p.me.rank && p.me.rank.key, cc = k && p.me.cards && p.me.cards[k];
+  if (cc && cc.code && cc.earned && cc.earned.slug) {
+    const card = { rank: k, slug: cc.earned.slug, n: Number(cc.n), at: cc.earned.at, code: cc.code };
+    return `<div class="lb-note pow-up">${head}</div><div class="pc-reveal" data-pc="${escHtml(JSON.stringify(card))}"><p class="lb-note">🃏 Your new card is on its way…</p></div>`;
+  }
   const share = window.SSShare ? window.SSShare.row(p.me.share, url, 'Share your rank')
     : `<div class="ci-share"><a class="btn" href="https://x.com/intent/post?text=${encodeURIComponent(p.me.share)}&url=${encodeURIComponent(url)}" target="_blank" rel="noopener noreferrer">𝕏 Share on X</a></div>`;
   return `<div class="lb-note pow-up">${head}</div>${share}`;
+}
+// Mount any card reveal that was just shown (pow-card.js renders the card, Share, Save image and Get a print).
+function powMountReveal() {
+  const els = document.querySelectorAll('.pc-reveal[data-pc]:not([data-mounted])');
+  if (!els.length) return;
+  const go = () => els.forEach(el => { el.setAttribute('data-mounted', '1'); try { window.PowCard.mount(el, JSON.parse(el.getAttribute('data-pc'))); } catch (e) {} });
+  if (window.PowCard) return go();
+  const sc = document.createElement('script'); sc.src = window.SS_POWCARD || '/pow-card.js'; sc.onload = () => window.PowCard && go(); document.head.appendChild(sc);
 }
 function lbNickPrompt() {
   const out = document.getElementById('geo-test-result');
@@ -285,7 +301,8 @@ function checkinTooFarHtml(s, d, accuracy) {
             try { localStorage.setItem(PASSPORT_KEY, JSON.stringify(p)); saved = true; } catch (e) { saved = false; }
             if (saved) collected(p);
             bumpCount();
-            show('ok', checkinOkHtml(s, saved, visitedCount(p), checkable.length) + r.html + (saved ? shareRow(p) : ''));
+            show('ok', checkinOkHtml(s, saved, visitedCount(p), checkable.length) + r.html + (saved && !/pc-reveal/.test(r.html) ? shareRow(p) : ''));
+            powMountReveal();
           });
         } else {
           btn.disabled = false; btn.textContent = IDLE;

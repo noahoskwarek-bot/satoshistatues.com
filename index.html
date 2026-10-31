@@ -31,8 +31,8 @@
   <!-- BUILD:HEADLINKS:BEGIN -->
   <link rel="alternate" type="application/atom+xml" title="Satoshi Statues – new statues" href="https://www.satoshistatues.com/feed.xml" />
   <style>.alert-box{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.alert-fine{font-size:.8rem;color:#8b949e;margin:6px 0 0;line-height:1.45}.photo-cta{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:16px 0}.photo-actions{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 4px}.photo-actions .btn{max-width:100%}.photo-cta .alert-fine a,.photo-credit a{padding:15px 0;margin:-15px 0}.photo-cta .alert-fine a{color:#f7931a}.follow-x .alert-fine a{color:#f7931a;font-weight:600}.photo-credit{display:block;margin-top:2px}.checkin-count{font-size:.85rem;color:#3fb950;margin:6px 0 0}.photo-credit a{color:#8b949e}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}</style>
-  <script>window.SS_API = "https://api.satoshistatues.workers.dev";window.SS_POW = true;</script>
-  <script src="/checkin.js?v=b77ef52c74"></script>
+  <script>window.SS_API = "https://api.satoshistatues.workers.dev";window.SS_POW = true;window.SS_POWCARD = "/pow-card.js?v=9b0e13bb30";</script>
+  <script src="/checkin.js?v=be2bfe41ad"></script>
   <style>.gw-badge{display:inline-block;font-size:.7rem;padding:2px 7px;border-radius:4px;margin-top:7px;font-weight:600;background:rgba(247,147,26,.12);border:1px solid rgba(247,147,26,.45);color:#f7931a;line-height:1.35}.gw-badge.gw-paused{background:#21262d;border-color:#30363d;color:#8b949e}.gw-badge[hidden],.gw-pop[hidden]{display:none!important}.gw-pop{background:#0d1117;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:8px;padding:8px 10px;margin:8px 0 10px;font-size:.82rem;line-height:1.45;color:#e6edf3}.gw-pop b{color:#f7931a}.gw-pop.gw-paused{border-left-color:#8b949e}.gw-pop.gw-paused b{color:#8b949e}.gw-pop .gw-links{margin-top:4px;font-size:.78rem}.gw-pop a{color:#f7931a;font-weight:600;text-decoration:none}.gw-pop a:hover{text-decoration:underline}.gw-pop .gw-links .gw-terms{color:#8b949e;font-weight:400}@media (max-width:768px){.gw-pop{font-size:.88rem;padding:10px 12px 0}.gw-pop .gw-links{margin-top:0}.gw-pop a{display:inline-flex;align-items:center;min-height:44px}}</style>
   <script>(function () {
   var API = window.SS_API || '', SLUGS = ["budapest", "lugano", "el-zonte", "vienna"], state = {};
@@ -1059,6 +1059,7 @@
         "imgW": 1200,
         "imgH": 800,
         "page": "budapest",
+        "tz": "Europe/Budapest",
         "unveiled": "16 Sep 2021",
         "series21": false,
         "access": "Outdoors in Graphisoft Park. Can be visited 24/7, free of charge (per the statue’s official site).",
@@ -1090,6 +1091,7 @@
         "imgW": 512,
         "imgH": 640,
         "page": "lugano",
+        "tz": "Europe/Zurich",
         "unveiled": "25 Oct 2024",
         "series21": true,
         "access": "In Parco Ciani, a public park open every day: 6:30–23:30 (March–October) and 6:30–21:00 (November–February).",
@@ -1121,6 +1123,7 @@
         "imgW": 1043,
         "imgH": 1200,
         "page": "el-zonte",
+        "tz": "America/El_Salvador",
         "unveiled": "~1 Feb 2025 (San Salvador); Apr 2025 (El Zonte)",
         "series21": true,
         "last_confirmed": "2025-04",
@@ -1150,6 +1153,7 @@
         "imgW": 1200,
         "imgH": 887,
         "page": "tokyo",
+        "tz": "Asia/Tokyo",
         "unveiled": "25 Apr 2025",
         "series21": true,
         "last_confirmed": "2025-09",
@@ -1179,6 +1183,7 @@
         "imgW": 660,
         "imgH": 990,
         "page": "hanoi",
+        "tz": "Asia/Ho_Chi_Minh",
         "unveiled": "9 Sep 2025",
         "series21": true,
         "access": "Indoors in the Blockchain Gallery at 1Matrix headquarters (Century building, Times City). Reported open to the public every Saturday (Sep 2025); hours unverified.",
@@ -1208,6 +1213,7 @@
         "imgW": 1200,
         "imgH": 900,
         "page": "miami-picozzi",
+        "tz": "America/New_York",
         "unveiled": "11 Nov 2025",
         "series21": true,
         "access": "Not yet installed at a permanent public site. A waterfront park location was announced but has not been confirmed.",
@@ -1246,6 +1252,7 @@
         "imgW": 800,
         "imgH": 1199,
         "page": "new-york",
+        "tz": "America/New_York",
         "unveiled": "10 Dec 2025",
         "series21": true,
         "access": "Indoors at the New York Stock Exchange. NYSE tours are no longer offered to the general public, so the statue is not freely accessible.",
@@ -1275,6 +1282,7 @@
         "imgW": 1200,
         "imgH": 800,
         "page": "fornelli",
+        "tz": "Europe/Rome",
         "unveiled": "1 May 2025",
         "series21": false,
         "last_confirmed": "2025-05",
@@ -1303,6 +1311,7 @@
         "imgW": 1200,
         "imgH": 800,
         "page": "hong-kong",
+        "tz": "Asia/Hong_Kong",
         "unveiled": "20 Apr 2026",
         "series21": true,
         "pin_note": "Pin: unveiling location (20 Apr 2026)",
@@ -1342,6 +1351,7 @@
         "imgW": 680,
         "imgH": 453,
         "page": "kranj",
+        "tz": "Europe/Ljubljana",
         "unveiled": "13 Mar 2018",
         "series21": false,
         "last_confirmed": "2018-03",
@@ -1370,6 +1380,7 @@
         "imgW": 707,
         "imgH": 557,
         "page": "miami-bull",
+        "tz": "America/New_York",
         "unveiled": "6–9 Apr 2022",
         "series21": false,
         "last_confirmed": "2025-04",
@@ -1398,6 +1409,7 @@
         "imgW": 1200,
         "imgH": 783,
         "page": "vienna",
+        "tz": "Europe/Vienna",
         "unveiled": "14 Oct 2026",
         "series21": true,
         "access": "Outdoors at the head of the lake in Viertel Zwei, open to the public around the clock. Nearest U-Bahn: Krieau (U2).",
@@ -1432,6 +1444,7 @@
         "imgH": 1200,
         "photo_credit": "@labitconf",
         "page": "buenos-aires",
+        "tz": "America/Argentina/Buenos_Aires",
         "unveiled": "29 Oct 2026",
         "series21": false,
         "access": "Public visiting hours haven’t been published yet. Check with the organisers before you go.",

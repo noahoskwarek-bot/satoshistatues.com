@@ -1,0 +1,191 @@
+[
+ {
+  "n": 1,
+  "tier": "common",
+  "hue": 0.08,
+  "quote": "Not your keys, not your coins.",
+  "by": "Bitcoin saying",
+  "quoted": false,
+  "source": "Community saying, popularized by Andreas M. Antonopoulos"
+ },
+ {
+  "n": 2,
+  "tier": "common",
+  "hue": 0.55,
+  "quote": "Don't trust, verify.",
+  "by": "Bitcoin saying",
+  "quoted": false,
+  "source": "Community motto (run your own node / check it yourself)"
+ },
+ {
+  "n": 3,
+  "tier": "common",
+  "hue": 0.33,
+  "quote": "Stay humble, stack sats.",
+  "by": "Bitcoin saying",
+  "quoted": false,
+  "source": "Community saying, popularized by Matt Odell"
+ },
+ {
+  "n": 4,
+  "tier": "common",
+  "hue": 0.62,
+  "quote": "Tick tock, next block.",
+  "by": "Bitcoin saying",
+  "quoted": false,
+  "source": "Community saying"
+ },
+ {
+  "n": 5,
+  "tier": "common",
+  "hue": 0.0,
+  "quote": "I AM HODLING",
+  "by": "GameKyuubi, BitcoinTalk, Dec 18 2013",
+  "quoted": false,
+  "source": "https://bitcointalk.org/index.php?topic=375643.0 (origin of HODL)"
+ },
+ {
+  "n": 6,
+  "tier": "common",
+  "hue": 0.75,
+  "quote": "Vires in numeris. (Strength in numbers.)",
+  "by": "Bitcoin motto",
+  "quoted": false,
+  "source": "Latin community motto"
+ },
+ {
+  "n": 7,
+  "tier": "common",
+  "hue": 0.45,
+  "quote": "Fix the money, fix the world.",
+  "by": "Bitcoin saying",
+  "quoted": false,
+  "source": "Community saying"
+ },
+ {
+  "n": 8,
+  "tier": "common",
+  "hue": 0.92,
+  "quote": "Writing a description for this thing for general audiences is bloody hard.",
+  "by": "Satoshi Nakamoto, BitcoinTalk, Jul 5 2010",
+  "quoted": true,
+  "source": "https://bitcointalk.org/index.php?topic=234.0 ; https://satoshi.nakamotoinstitute.org/posts/bitcointalk/167/"
+ },
+ {
+  "n": 9,
+  "tier": "common",
+  "hue": 0.15,
+  "quote": "…an electronic payment system based on cryptographic proof instead of trust…",
+  "by": "Bitcoin whitepaper, 2008",
+  "quoted": true,
+  "source": "https://bitcoin.org/bitcoin.pdf (Section 1, Introduction)"
+ },
+ {
+  "n": 10,
+  "tier": "common",
+  "hue": 0.7,
+  "quote": "We have proposed a system for electronic transactions without relying on trust.",
+  "by": "Bitcoin whitepaper, 2008",
+  "quoted": true,
+  "source": "https://bitcoin.org/bitcoin.pdf (Section 12, Conclusion)"
+ },
+ {
+  "n": 11,
+  "tier": "uncommon",
+  "hue": 0.1,
+  "quote": "Proof-of-work is essentially one-CPU-one-vote.",
+  "by": "Bitcoin whitepaper, 2008",
+  "quoted": true,
+  "source": "https://bitcoin.org/bitcoin.pdf (Section 4, Proof-of-Work)"
+ },
+ {
+  "n": 12,
+  "tier": "uncommon",
+  "hue": 0.38,
+  "quote": "It might make sense just to get some in case it catches on.",
+  "by": "Satoshi Nakamoto, Cryptography list, Jan 16 2009",
+  "quoted": true,
+  "source": "https://satoshi.nakamotoinstitute.org/emails/cryptography/17/"
+ },
+ {
+  "n": 13,
+  "tier": "uncommon",
+  "hue": 0.58,
+  "quote": "I'm better with code than with words though.",
+  "by": "Satoshi Nakamoto, Cryptography mailing list, Nov 14 2008",
+  "quoted": true,
+  "source": "https://satoshi.nakamotoinstitute.org/emails/cryptography/12/"
+ },
+ {
+  "n": 14,
+  "tier": "uncommon",
+  "hue": 0.8,
+  "quote": "If you don't believe me or don't get it, I don't have time to try to convince you, sorry.",
+  "by": "Satoshi Nakamoto, BitcoinTalk, Jul 29 2010",
+  "quoted": true,
+  "source": "https://bitcointalk.org/index.php?topic=532.msg6306#msg6306"
+ },
+ {
+  "n": 15,
+  "tier": "uncommon",
+  "hue": 0.02,
+  "quote": "The root problem with conventional currency is all the trust that's required to make it work.",
+  "by": "Satoshi Nakamoto, P2P Foundation, Feb 11 2009",
+  "quoted": true,
+  "source": "https://satoshi.nakamotoinstitute.org/posts/p2pfoundation/1/"
+ },
+ {
+  "n": 16,
+  "tier": "uncommon",
+  "hue": 0.48,
+  "quote": "…gain a new territory of freedom for several years.",
+  "by": "Satoshi Nakamoto, Cryptography list, Nov 6 2008",
+  "quoted": true,
+  "source": "https://satoshi.nakamotoinstitute.org/emails/cryptography/4/"
+ },
+ {
+  "n": 17,
+  "tier": "rare",
+  "hue": 0.05,
+  "quote": "Total circulation will be 21,000,000 coins.",
+  "by": "Satoshi Nakamoto, Bitcoin v0.1 release, Jan 8 2009",
+  "quoted": true,
+  "source": "https://satoshi.nakamotoinstitute.org/emails/cryptography/16/"
+ },
+ {
+  "n": 18,
+  "tier": "rare",
+  "hue": 0.4,
+  "quote": "Bitcoin: A Peer-to-Peer Electronic Cash System",
+  "by": "Satoshi Nakamoto, whitepaper title, Oct 31 2008",
+  "quoted": false,
+  "source": "https://bitcoin.org/bitcoin.pdf"
+ },
+ {
+  "n": 19,
+  "tier": "rare",
+  "hue": 0.7,
+  "quote": "Running bitcoin",
+  "by": "Hal Finney (@halfin), Jan 10 2009",
+  "quoted": true,
+  "source": "https://x.com/halfin/status/1110302988 (first tweet about Bitcoin)"
+ },
+ {
+  "n": 20,
+  "tier": "ultra",
+  "hue": 0.12,
+  "quote": "I've been working on a new electronic cash system that's fully peer-to-peer, with no trusted third party.",
+  "by": "Satoshi Nakamoto, Cryptography list, Oct 31 2008",
+  "quoted": true,
+  "source": "https://satoshi.nakamotoinstitute.org/emails/cryptography/1/"
+ },
+ {
+  "n": 21,
+  "tier": "genesis",
+  "hue": 0.0,
+  "quote": "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks",
+  "by": "Genesis block coinbase, Block 0, Jan 3 2009",
+  "quoted": false,
+  "source": "Block 0 coinbase tx 4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b (decoded from raw hex via blockstream.info)"
+ }
+]

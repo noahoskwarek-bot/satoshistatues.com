@@ -168,7 +168,10 @@ WORKER_DIR = os.environ.get('LEADERBOARD_DIR', '/workspace/leaderboard')
 
 def write_worker_statues(data):
     """Statue coordinates for the leaderboard Worker's server-side distance check (stampable statues only)."""
-    st = {s['slug']: {'name': s['name'], 'page': s['page'], 'lat': s['lat'], 'lng': s['lng']}
+    # label/city/country/tz: the combined card's verify lookup (/api/pow/verify) shows the statue label and the date in
+    # the statue's own time zone (statues.json "tz", IANA).
+    st = {s['slug']: {'name': s['name'], 'page': s['page'], 'lat': s['lat'], 'lng': s['lng'],
+                      'label': s['label'], 'city': s['city'], 'country': s['country'], 'tz': s.get('tz') or 'UTC'}
           for s in data['statues'] if s['status'] in CHECKABLE}
     path = os.path.join(WORKER_DIR, 'src', 'statues.gen.js')
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -582,7 +585,11 @@ def share_box(s):
 def api_script():
     if not LB_API:
         return ''
-    return f'<script>window.SS_API = {json.dumps(LB_API)};' + ('window.SS_POW = true;' if POW_ON else '') + '</script>'
+    return (f'<script>window.SS_API = {json.dumps(LB_API)};' + ('window.SS_POW = true;' if POW_ON else '')
+            + (f'window.SS_POWCARD = {json.dumps(POW_CARD_JS_URL)};' if POW_ON and POW_CARD_JS_URL else '') + '</script>')
+
+
+POW_CARD_JS_URL = ''   # set in main() once statues.json is loaded (content-hashed /pow-card.js?v=…)
 
 
 LIVE_COUNT_JS = """<script>(function(){var A=window.SS_API;if(!A||!window.fetch)return;fetch(A+"/api/counts").then(function(r){return r.json()}).then(function(j){if(!j||!j.ok)return;
@@ -1553,6 +1560,10 @@ POW_CSS = (
     '.pow-badge{display:inline-block;margin-left:6px;font-size:.7rem;font-weight:800;color:#0d1117;background:#e3b341;border-radius:4px;padding:1px 6px;vertical-align:middle}'
     '.pow-preview{display:inline-block;font-size:.72rem;font-weight:700;color:#58a6ff;border:1px solid #1f3a5f;border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle}'
     '.pow-roll li .lb-rank{color:#e3b341}'
+    '.pow-cards-h{font-size:1rem;color:#e6edf3;margin:14px 0 6px;text-align:center}'
+    '.pow-tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0 0 6px}'
+    '.pow-tabs button{min-height:40px;padding:6px 12px;border-radius:999px;border:1px solid #30363d;background:#21262d;color:#e6edf3;font:600 .84rem inherit;font-family:inherit;cursor:pointer}'
+    '.pow-tabs button[aria-selected=true]{background:#f7931a;color:#0d1117;border-color:#f7931a}'
 )
 
 
@@ -1574,6 +1585,18 @@ POW_JS = r"""<script src="/share.js"></script>
     return k && c && c.rank === k && n >= 1 && n <= 21 && n === Math.floor(n) ? { slug: k, nn: (n < 10 ? '0' : '') + n, tier: (String(c.tier || '') === '1 of 121' ? 'Legendary' : String(c.tier || '')) } : null; };
   var shareUrl = function (me) { var k = me && me.rank && SHARE_SLUG[me.rank.key], c = cardOf(me);
     return c ? URL_POW + 'share/' + c.slug + '/' + c.nn + '/' : k ? URL_POW + 'share/' + k + '/' : URL_POW; };
+  // me.cards[rank] with a verify code + earning stamp = the combined card (design 2); else the older card above.
+  var RANK_UI = { confirmed: '👣 Confirmed', genesis: '🧱 Genesis Block', order: '🏛️ Grand High Order' };
+  var comboCards = function (me) {
+    var out = ['confirmed', 'genesis', 'order'].filter(function (k) { var c = me && me.cards && me.cards[k]; return c && c.code && c.earned && c.earned.slug; })
+      .map(function (k) { var c = me.cards[k]; return { rank: k, slug: c.earned.slug, n: Number(c.n), at: c.earned.at, code: c.code }; });
+    var cur = me && me.rank && me.rank.key; out.current = out.some(function (c) { return c.rank === cur; }) ? cur : (out[0] && out[0].rank);
+    return out;
+  };
+  var withPowCard = function (fn) {
+    if (window.PowCard) return fn(window.PowCard);
+    var s = document.createElement('script'); s.src = window.SS_POWCARD || '/pow-card.js'; s.onload = function () { if (window.PowCard) fn(window.PowCard); }; document.head.appendChild(s);
+  };
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
   var get = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
   var set = function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} };
@@ -1600,10 +1623,18 @@ POW_JS = r"""<script src="/share.js"></script>
       '<br><span class="pow-fine">' + me.distinct_stamps + ' statues stamped</span></div>';
     if (me.genesis) h += '<div class="pow-genesis">🧱 <strong>Genesis Block</strong> · mined ' + esc((me.joined_at || '').slice(0, 10)) +
       (!me.order ? '<br><span class="pow-fine">Stamp ' + (me.order_needed || 1) + ' more statue' + ((me.order_needed || 1) === 1 ? '' : 's') + ', anywhere on the map, to join the Grand High Order.</span>' : '') + '</div>';
-    var card = cardOf(me);
-    if (card) h += '<figure class="pow-card" style="margin:12px 0 4px"><img src="/img/pow-share/' + card.slug + '/' + card.nn + '.jpg" width="1280" height="720" loading="lazy" alt="Your Proof of Walk card, No. ' + card.nn + ' of 21" style="width:100%;max-width:480px;height:auto;border-radius:10px;display:block">' +
-      '<figcaption class="pow-fine">Your card: No. ' + card.nn + '/21' + (card.tier ? ' · ' + esc(card.tier) : '') + '. It’s yours to keep. <a href="/proof-of-walk/cards/">About the cards</a></figcaption></figure>';
-    if (me.share && window.SSShare) h += window.SSShare.row(me.share, shareUrl(me), 'Share your rank');
+    var card = cardOf(me), combo = comboCards(me);
+    if (combo.length) {
+      // Combined statue + rank cards (design 2): one per rank held, each showing the statue whose stamp earned it.
+      h += '<h3 class="pow-cards-h">Your cards</h3>' + (combo.length > 1 ? '<div class="pow-tabs" role="tablist">' + combo.map(function (c) {
+        return '<button type="button" role="tab" data-card="' + c.rank + '" aria-selected="' + (c.rank === combo.current) + '">' + RANK_UI[c.rank] + ' ✓</button>'; }).join('') + '</div>' : '') +
+        '<div id="pow-combo" class="pc" aria-live="polite"><p class="pow-sub">Loading your card…</p></div>' +
+        '<p class="pow-fine" style="text-align:center"><a href="/proof-of-walk/cards/">About the cards</a></p>';
+    } else {
+      if (card) h += '<figure class="pow-card" style="margin:12px 0 4px"><img src="/img/pow-share/' + card.slug + '/' + card.nn + '.jpg" width="1280" height="720" loading="lazy" alt="Your Proof of Walk card, No. ' + card.nn + ' of 21" style="width:100%;max-width:480px;height:auto;border-radius:10px;display:block">' +
+        '<figcaption class="pow-fine">Your card: No. ' + card.nn + '/21' + (card.tier ? ' · ' + esc(card.tier) : '') + '. It’s yours to keep. <a href="/proof-of-walk/cards/">About the cards</a></figcaption></figure>';
+      if (me.share && window.SSShare) h += window.SSShare.row(me.share, shareUrl(me), 'Share your rank');
+    }
     h += '<form class="pow-form" id="pow-form"><label for="pow-nick">Passport nickname (shown on the leaderboard)</label>' +
       '<input id="pow-nick" name="nick" maxlength="20" autocomplete="nickname" placeholder="Nickname or @handle" value="' + esc(me.nickname || get(NICK) || '') + '">' +
       '<label for="pow-ln">Lightning address (optional, for passport recovery)</label>' +
@@ -1615,6 +1646,13 @@ POW_JS = r"""<script src="/share.js"></script>
       '. <button class="pow-ghost" type="button" id="pow-newcode">New recovery code</button></div>';
     h += '<div id="pow-codeslot"></div>';
     el.innerHTML = h;
+    if (combo.length) {
+      var show = function (k) { var c = combo.filter(function (x) { return x.rank === k; })[0] || combo[0];
+        el.querySelectorAll('[data-card]').forEach(function (b) { b.setAttribute('aria-selected', String(b.getAttribute('data-card') === c.rank)); });
+        withPowCard(function (P) { P.mount($('pow-combo'), c); }); };
+      el.querySelectorAll('[data-card]').forEach(function (b) { b.addEventListener('click', function () { show(b.getAttribute('data-card')); }); });
+      show(combo.current);
+    }
     if ($('pow-newcode')) $('pow-newcode').addEventListener('click', function () {
       if (!confirm('Make a new recovery code? Your old code stops working.')) return;
       post('/api/pow/recovery-code', { device_id: dev }).then(function (j) { if (j.ok) { renderMe(j.me); showCode(j.recovery_code); } });
@@ -1724,7 +1762,7 @@ def pow_page(data):
     <h1>👣 Proof of Walk{pv}</h1>
     <p class="sub">{e(pitch)}</p>
     <div class="pow-card" id="pow-me" aria-live="polite">Loading…</div>
-    <p class="note pow-cards-link" style="font-size:.9rem">🃏 Every rank comes with one of 21 collectible cards. <a href="/proof-of-walk/cards/">See the cards →</a></p>
+    <p class="note pow-cards-link" style="font-size:.9rem">🃏 Every rank comes with a card: your statue, your rank, and one of 21 Bitcoin quotes. <a href="/proof-of-walk/cards/">See the cards →</a></p>
     <div id="pow-recover"></div>
     <noscript><p class="note">Proof of Walk needs JavaScript.</p></noscript>
     <h2>Ranks</h2>
@@ -1937,86 +1975,272 @@ POW_CARDS_JS = r"""<script>
 </script>"""
 
 
+# ---------- Combined statue + rank card (design 2; spec combined-cards/spec.md, Noah 2026-10-31 1:31 PM ET) ----------
+# One card per rank: the front shows the statue whose GPS stamp earned the rank (art panel img/cards/art/<page>.jpg,
+# original city scene with a generic hooded figure, no statue likeness), the rank badge and a GPS-verified seal with the
+# statue-local check-in date; the back shows the drawn quote (same 21 sayings, tiers and weights; card 21 Legendary,
+# about 1 in 121, not linked to the giveaway), the check-in box, a verify code PW-XXXX-XXXX and a QR to /v/?c=CODE.
+# Rendering is client-side (pow-card.js, hand-written, Canvas 2D); this block builds its data file, the verify page,
+# the 33 generic share pages (statue x rank, no date/code/quote) and the cards explainer. Share images (1200x630) and
+# the explainer's sample images are rendered by tools/render_combined_cards.mjs from the same pow-card.js.
+POW_RANKS = {  # rank key -> (share slug, label, badge text, emoji)
+    'confirmed': ('confirmed', 'Confirmed', 'CONFIRMED', '👣'),
+    'genesis': ('genesis-block', 'Genesis Block', 'GENESIS BLOCK', '🧱'),
+    'order': ('grand-high-order', 'Grand High Order', 'GRAND HIGH ORDER', '🏛️'),
+}
+CARD_CREDIT = ('Quotes attributed as shown. Headline from The Times, 3 Jan 2009, as embedded in Bitcoin’s genesis block. '
+               'Not affiliated with or endorsed by The Times, any statue artist, owner or city.')   # approved D1
+CARD_NOT_AFFILIATED = 'Not affiliated with or endorsed by The Times, any statue artist, owner or city.'
+# Grant's print wording (spec §5.6), shown next to the (disabled) print-order button.
+CARD_PRINT_NOTE = ('Ordering a printed card is optional and doesn’t affect your rank, your draw, or the Lucky 1,021 giveaway. '
+                   'Printed cards cost the same no matter the rarity and have no cash or investment value.')
+CARD_OG_VER = 'v1'   # bump when the share images change, so X/Facebook/LinkedIn re-scrape
+CARD_SAYINGS = os.path.join(ROOT, 'tools', 'pow_sayings.json')   # copy of rank-cards/variants/sayings.json
+
+
+def card_statues(data):
+    return [s for s in data['statues'] if s['status'] in CHECKABLE and os.path.exists(os.path.join(ROOT, 'img', 'cards', 'art', s['page'] + '.jpg'))]
+
+
+def card_phrase(s):
+    # Share text / share-page title: true for every statue (Kranj is a Bitcoin "B" monument, Miami's is the Bitcoin Bull).
+    return {'kranj': 'the Bitcoin monument in Kranj', 'miami-bull': 'the Bitcoin Bull in Miami'}.get(s['page'], f"the Satoshi statue in {s['city']}")
+
+
+def card_quotes():
+    with open(CARD_SAYINGS, encoding='utf-8') as f:
+        q = json.load(f)
+    assert [x['n'] for x in q] == list(range(1, 22))
+    m = {'common': 'Common', 'uncommon': 'Uncommon', 'rare': 'Rare', 'ultra': 'Ultra rare', 'genesis': 'Legendary'}
+    for x in q:
+        assert m[x['tier']] == POW_CARD_TIERS[x['n']], x   # same tiers as the Worker's cards.js and the cards page
+    return q
+
+
+def card_og_img(rank_slug, page):
+    return f'img/cards/og/{rank_slug}/{page}.{CARD_OG_VER}.jpg'
+
+
+def card_data_js(data):
+    st = {s['slug']: {'page': s['page'], 'title': s['city'].upper(), 'subtitle': f"{s['city']}, {s['country']}", 'label': s['label'],
+                      'tz': s.get('tz') or 'UTC', 'phrase': card_phrase(s), 'og_place': card_phrase(s)} for s in card_statues(data)}
+    d = {'site': SITE, 'statues': st,
+         'quotes': [{'n': x['n'], 'q': x['quote'], 'by': x['by'], 'hue': x['hue']} for x in card_quotes()],
+         'ranks': {k: {'share': v[0], 'label': v[1], 'badge': v[2], 'emoji': v[3]} for k, v in POW_RANKS.items()},
+         'credit': CARD_CREDIT, 'not_affiliated': CARD_NOT_AFFILIATED, 'print_note': CARD_PRINT_NOTE}
+    return ('// Generated by build.py from statues.json + tools/pow_sayings.json. Do not edit. Read by /pow-card.js.\n'
+            'window.POW_CARD_DATA = ' + json.dumps(d, ensure_ascii=False, separators=(',', ':')) + ';\n')
+
+
+def pow_card_js_url(data):
+    import hashlib
+    h = hashlib.sha256(open(os.path.join(ROOT, 'pow-card.js'), 'rb').read() + card_data_js(data).encode()).hexdigest()[:10]
+    return f'/pow-card.js?v={h}'
+
+
+def card_share_url(key, s):
+    return f"{SITE}/proof-of-walk/share/{POW_RANKS[key][0]}/{s['page']}/"
+
+
+def card_share_page(data, key, s):
+    rs, label, _, emoji = POW_RANKS[key]
+    title = f'{label} at {card_phrase(s)}'
+    desc = 'A real walk to a real statue, verified by GPS. Start your Proof of Walk passport.'
+    url, img = card_share_url(key, s), f'{SITE}/{card_og_img(rs, s["page"])}'
+    alt = f'Proof of Walk {label} card for {s["label"]}, {s["city"]}, {s["country"]}: a city scene with the rank badge and a GPS-verified seal.'
+    out = head(title, desc, url, img, 1200, 630, alt, '')
+    out = out.replace('<meta name="robots" content="index, follow" />', '<meta name="robots" content="noindex, follow" />', 1)
+    out = out.replace('<meta property="og:image:width"', '<meta property="og:image:type" content="image/jpeg" />\n  <meta property="og:image:width"', 1)
+    rule = {'confirmed': 'a first GPS-verified stamp at any Satoshi statue',
+            'genesis': f'GPS stamps at any {pow_genesis_required(data)} of the original 10 statues',
+            'order': f'the Genesis Block plus {pow_order_extra(data)} more statue, anywhere on the map'}[key]
+    out = out.replace('</style>', '.cs-hero{display:block;width:100%;height:auto;border-radius:12px;border:1px solid #30363d;margin:6px 0 12px}'
+                      '.cs-go{display:grid;gap:8px;margin:12px 0}.cs-go .btn{min-height:52px;font-size:1rem}'
+                      '.cs-steps{margin:8px 0 0 1.2em;color:#c9d1d9;font-size:.95rem}.cs-steps li{margin:4px 0}'
+                      '.cs-tags{color:#58a6ff;font-size:.9rem;margin-top:10px}</style>', 1)
+    out += f"""  <main>
+    <div class="crumbs"><a href="/">Map</a> › <a href="/proof-of-walk/">Proof of Walk</a> › {e(label)}</div>
+    <h1>{emoji} {e(label)} ✓</h1>
+    <p class="sub">at {e(s['label'])} · {e(s['city'])}, {e(s['country'])}</p>
+    <img class="cs-hero" src="/{card_og_img(rs, s['page'])}" width="1200" height="630" alt="{e(alt)}" />
+    <p class="note">Someone walked to {e(card_phrase(s))} and earned <strong>{e(label)}</strong> on Proof of Walk: {e(rule)}. Every stamp is checked by GPS on the spot.</p>
+    <div class="cs-go"><a class="btn primary" href="/">📍 Find a statue near you</a><a class="btn" href="/proof-of-walk/">👣 Start your passport</a></div>
+    <h2>How it works</h2>
+    <ol class="cs-steps">
+      <li>Walk to any Satoshi statue on the <a href="/">map</a>.</li>
+      <li>Tap <strong>Check in here</strong> within 150 m. Your phone’s GPS confirms you’re there.</li>
+      <li>Earn ranks (Confirmed, Genesis Block, Grand High Order), each with its own card of the statue you walked to.</li>
+    </ol>
+    <p class="note">Free, no sign-up, no app. <a href="/{s['page']}/">About {e(s['label'])} →</a> · <a href="/proof-of-walk/cards/">About the cards →</a></p>
+    <p class="cs-tags">#ProofOfWalk #Bitcoin</p>
+    {footer(data)}
+  </main>
+"""
+    return out + TAIL
+
+
+def card_share_pages(data):
+    return {f"proof-of-walk/share/{POW_RANKS[k][0]}/{s['page']}/index.html": card_share_page(data, k, s)
+            for k in POW_RANKS for s in card_statues(data)}
+
+
+VERIFY_JS = r"""<script>
+(function () {
+  var A = window.SS_API, $ = function (i) { return document.getElementById(i); };
+  var RS = { confirmed: ['confirmed', '👣'], genesis: ['genesis-block', '🧱'], order: ['grand-high-order', '🏛️'] };
+  var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  var code = (new URLSearchParams(location.search).get('c') || '').trim().slice(0, 20);
+  $('v-code').value = code;
+  function show(html, cls) { var el = $('v-out'); el.className = 'v-out ' + (cls || ''); el.innerHTML = html; }
+  if (!code) { show('<p>Type the code from the back of a card (it looks like <strong>PW-7K3Q-9QX2</strong>), or scan the card’s QR code.</p>'); return; }
+  if (!A || !window.fetch) { show('<p>Verification needs JavaScript and a connection.</p>'); return; }
+  show('<p>Checking…</p>');
+  fetch(A + '/api/pow/verify?code=' + encodeURIComponent(code)).then(function (r) { return r.json(); }).then(function (j) {
+    if (!j || !j.ok) { show('<p class="v-no">❌ We couldn’t find that code. Check the letters and numbers on the back of the card and try again.</p>', 'bad'); return; }
+    var rk = RS[j.rank_key] || RS.confirmed;
+    show('<p class="v-ok">✅ GPS-verified stamp</p><p class="v-line"><strong>' + esc(j.statue.label) + '</strong> · ' + esc(j.date) + ' · ' + rk[1] + ' ' + esc(j.rank) + '</p>' +
+      '<img class="v-img" src="/img/cards/og/' + rk[0] + '/' + encodeURIComponent(j.statue.page) + '.__OGV__.jpg" width="1200" height="630" alt="' + esc(j.rank) + ' card for ' + esc(j.statue.label) + '">' +
+      '<p class="note">This card was issued by satoshistatues.com for a real check-in within 150 m of the statue.</p>' +
+      '<p class="note"><a href="/' + encodeURIComponent(j.statue.page) + '/">About ' + esc(j.statue.label) + ' →</a></p>', 'good');
+  }).catch(function () { show('<p>Couldn’t reach the server. Try again in a moment.</p>', 'bad'); });
+})();
+</script>"""
+
+
+def verify_page(data):
+    canonical = SITE + '/v/'
+    title = 'Verify a Proof of Walk card – satoshistatues.com'
+    desc = 'Check that a Proof of Walk card is a real, GPS-verified stamp at a Satoshi statue.'
+    out = head(title, desc, canonical, SITE + '/og-image.jpg', 1200, 630, 'Satoshi statues world map', '')
+    out = out.replace('<meta name="robots" content="index, follow" />', '<meta name="robots" content="noindex, nofollow" />', 1)
+    out = out.replace('</style>', '.v-out{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px;margin:12px 0}'
+                      '.v-out.good{border-left:3px solid #3fb950}.v-out.bad{border-left:3px solid #f85149}.v-ok{font-size:1.25rem;font-weight:800;color:#3fb950;margin:0 0 4px}'
+                      '.v-line{font-size:1.02rem;margin:0 0 10px}.v-img{display:block;width:100%;height:auto;border-radius:10px;margin:8px 0}'
+                      '.v-form{display:flex;gap:8px;margin:10px 0}.v-form input{flex:1;min-height:44px;padding:10px 12px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font:600 16px ui-monospace,Menlo,monospace;text-transform:uppercase}'
+                      '.v-form button{min-height:44px;padding:10px 16px;border-radius:8px;border:none;background:#f7931a;color:#0d1117;font-weight:700;font-family:inherit;cursor:pointer}</style>', 1)
+    out += f"""  <main>
+    <div class="crumbs"><a href="/">Map</a> › <a href="/proof-of-walk/">Proof of Walk</a> › Verify</div>
+    <h1>✅ Verify a Proof of Walk card</h1>
+    <p class="sub">Every card carries a code. It shows only the statue, the date and the rank.</p>
+    <div id="v-out" class="v-out" aria-live="polite"><p>Loading…</p></div>
+    <form class="v-form" method="get" action="/v/"><label class="sr-only" for="v-code" style="position:absolute;left:-9999px">Verify code</label>
+      <input id="v-code" name="c" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="PW-XXXX-XXXX"><button type="submit">Check</button></form>
+    <p class="note">No names, exact times or locations are shown here. <a href="/proof-of-walk/cards/">About the cards</a> · <a href="/privacy/">Privacy</a></p>
+    {footer(data)}
+  </main>
+"""
+    return out + VERIFY_JS.replace('__OGV__', CARD_OG_VER) + '\n' + TAIL
+
+
+def pow_cards_tiers_html():
+    # Tier table: % and "N in 121 cards" (spec §5.6); no odds/chance wording.
+    assert sum(POW_CARD_UNITS[POW_CARD_TIERS[n]] for n in range(1, 22)) == 121
+    desc = {'Common': 'Brushed-metal frame, a different color on every card.',
+            'Uncommon': 'Two-tone foil frame with a soft streak of light across the art.',
+            'Rare': 'Prism frame with holographic bands over the art.',
+            'Ultra rare': 'Full rainbow frame with ripples, stronger shine and sparkles.',
+            'Legendary': 'Double rainbow frame, gold inner frame, full holographic shine, sparkles, and the quote set like raw block data.'}
+    rows = []
+    for t, u in POW_CARD_UNITS.items():
+        ns = [n for n in range(1, 22) if POW_CARD_TIERS[n] == t]
+        span = f'Card {ns[0]:02d}' if len(ns) == 1 else f'Cards {ns[0]:02d}–{ns[-1]:02d}'
+        tot = u * len(ns)
+        each = '' if len(ns) == 1 else f' Each one: {u} in 121 cards.'
+        pct = f'{tot / 121 * 100:.1f}%<small>{tot} in 121</small>'
+        rows.append(f'<li class="{POW_CARD_CLASS[t]}"><span class="sw"></span><span><strong>{e(t)}</strong><span class="desc">{span}. {desc[t]}{each}</span></span><span class="pct">{pct}</span></li>')
+    return '<ul class="tiers">' + ''.join(rows) + '</ul>'
+
+
+def pow_cards_quotes_html():
+    out = []
+    for x in card_quotes():
+        n = x['n']; t = POW_CARD_TIERS[n]
+        _, by, note, link = POW_CARD_TEXT[n]
+        src = f' <a href="{e(link)}" target="_blank" rel="noopener">Source ↗</a>' if link else ''
+        q = f'<code>{e(x["quote"])}</code>' if n == 21 else f'“{e(x["quote"])}”'
+        out.append(f'<li class="qq"><details><summary><span class="cc-no">{n:02d}</span><span class="tier {POW_CARD_CLASS[t]}">{e(t)}</span>'
+                   f'<span class="qq-q">{q}</span><span class="qq-by">— {e(x["by"])}</span></summary><p class="qq-n">{e(note)}{src}</p></details></li>')
+    return '\n'.join(out)
+
+
+COMBO_CARDS_CSS = ('.duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 6px}.duo figure{margin:0}.duo img{display:block;width:100%;height:auto;border-radius:12px;border:1px solid #30363d}'
+                   '.duo figcaption{font-size:.8rem;color:#8b949e;margin-top:6px}.duo figcaption strong{color:#e6edf3}'
+                   '.qlist{list-style:none;display:grid;gap:6px}.qq details{background:#161b22;border:1px solid #30363d;border-radius:8px}'
+                   '.qq summary{cursor:pointer;display:grid;grid-template-columns:auto auto 1fr;gap:4px 8px;align-items:center;padding:10px 12px;list-style:none}'
+                   '.qq summary::-webkit-details-marker{display:none}.qq-q{grid-column:1/-1;font-style:italic;color:#e6edf3;font-size:.95rem}'
+                   '.qq-q code{font-style:normal;font-family:ui-monospace,Menlo,monospace;color:#ffdf80;font-size:.85rem;overflow-wrap:anywhere}'
+                   '.qq-by{grid-column:1/-1;font-size:.8rem;color:#f7931a}.qq-n{padding:0 12px 10px;font-size:.85rem;color:#c9d1d9}'
+                   '.credit{font-size:.8rem;color:#8b949e;border-top:1px solid #30363d;padding-top:10px;margin-top:14px}')
+
+
 def pow_cards_page(data):
     canonical = SITE + '/proof-of-walk/cards/'
-    title = 'Proof of Walk cards – 21 designs to collect'
-    desc = 'Every Proof of Walk rank comes with a collectible card: one of 21 designs, each with a famous Bitcoin saying. See all 21 and how rare each one is.'
+    title = 'Proof of Walk cards: your statue, your rank, your quote'
+    desc = ('Every Proof of Walk rank comes with a card: the Satoshi statue you walked to, your rank, a GPS-verified seal and one of '
+            '21 Bitcoin quotes. See how the cards work.')
     lds = ld(breadcrumb_ld([('Map', SITE + '/'), ('Proof of Walk', SITE + '/proof-of-walk/'), ('Cards', canonical)]))
-    out = head(title, desc, canonical, f'{SITE}/{pow_card_img("genesis-block", 21)}', 1280, 720,
-               'Proof of Walk card No. 21 of 21, the Legendary Genesis card', lds)
+    out = head(title, desc, canonical, f'{SITE}/{card_og_img("genesis-block", "lugano")}', 1200, 630,
+               'Proof of Walk Genesis Block card for Satoshi Statue Lugano', lds)
     if pow_cfg(data).get('preview'):
         out = out.replace('<meta name="robots" content="index, follow" />', '<meta name="robots" content="noindex, nofollow" />', 1)
-    out = out.replace('</style>', POW_CARDS_CSS + '</style>', 1)
-    th = lambda slug, n: f'/{pow_card_thumb(slug, n)}'
-    rank = lambda slug: f'/img/pow-share/thumbs/{slug}.jpg'
+    out = out.replace('</style>', POW_CARDS_CSS + COMBO_CARDS_CSS + '</style>', 1)
     g, o = pow_genesis_required(data), pow_order_extra(data)
+    ex = [s for s in card_statues(data) if s['page'] in ('lugano', 'tokyo', 'el-zonte')]
     out += f"""  <main>
     <div class="crumbs"><a href="/">Map</a> › <a href="/proof-of-walk/">Proof of Walk</a> › Cards</div>
     <h1>🃏 Proof of Walk cards</h1>
-    <p class="sub">Walk to Satoshi statues, earn ranks, collect cards.</p>
-    <p class="note">Every rank you earn comes with a collectible card. There are <strong>21 designs</strong>, and each one carries a famous Bitcoin saying. Which design you get is drawn when you earn the rank. Once you have a card, it’s yours and it never changes.</p>
-    <div class="strip">
-      <figure><img src="{th(POW_CARDS_RANK, 1)}" width="640" height="360" alt="Common card No. 01"><figcaption>Common</figcaption></figure>
-      <figure><img src="{th(POW_CARDS_RANK, 17)}" width="640" height="360" alt="Rare card No. 17"><figcaption>Rare</figcaption></figure>
-      <figure><img src="{th(POW_CARDS_RANK, 21)}" width="640" height="360" alt="Legendary card No. 21"><figcaption>Legendary</figcaption></figure>
+    <p class="sub">Your statue, your rank, your quote.</p>
+    <p class="note">Every rank you earn comes with a card. The front shows the Satoshi statue you walked to, your rank and a GPS-verified seal with the date. The back carries one of <strong>21 Bitcoin quotes</strong>, the details of your check-in and a code anyone can scan to verify it.</p>
+    <div class="duo">
+      <figure><img src="/img/cards/sample-front.{CARD_OG_VER}.jpg" width="600" height="840" alt="Sample card front: LUGANO, Lugano, Switzerland, a lakeside scene with a hooded walker, the Genesis Block badge and the GPS verified seal, checked in 31 Oct 2026"><figcaption><strong>Front.</strong> The statue whose check-in earned the rank, the rank badge, the GPS-verified seal and the check-in date.</figcaption></figure>
+      <figure><img src="/img/cards/sample-back.{CARD_OG_VER}.jpg" width="600" height="840" alt="Sample card back: the quote Not your keys, not your coins, card 01 of 21 Common, the GPS-verified check-in box with a verify code, and a QR code"><figcaption><strong>Back.</strong> Your quote and its card number, the GPS-verified check-in (statue, local date and time) and the verify code with its QR.</figcaption></figure>
     </div>
 
-    <h2>Earn a rank, get a card</h2>
-    <p class="note" style="margin-bottom:10px">Check in at a statue (within 150 m) to collect a GPS-verified stamp. There are 3 ranks, and each gives you a card.</p>
+    <h2>How it works</h2>
     <ol class="ranks">
-      <li class="rank"><img src="{rank('confirmed')}" width="640" height="360" loading="lazy" alt="Confirmed rank card"><div><span class="step">Rank 1</span><h3>👣 Confirmed</h3><p>Your first GPS-verified stamp at any Satoshi statue.</p></div></li>
-      <li class="rank"><img src="{rank('genesis-block')}" width="640" height="360" loading="lazy" alt="Genesis Block rank card"><div><span class="step">Rank 2</span><h3>🧱 Genesis Block</h3><p>Stamp any {g} of the original 10 statues.</p></div></li>
-      <li class="rank"><img src="{rank('grand-high-order')}" width="640" height="360" loading="lazy" alt="Grand High Order rank card"><div><span class="step">Rank 3</span><h3>🏛️ Grand High Order of Fellow Travelers</h3><p>The Genesis Block plus {o} more statue{'' if o == 1 else 's'}, anywhere on the map.</p></div></li>
+      <li class="rank" style="grid-template-columns:1fr"><div><span class="step">Rank 1</span><h3>👣 Confirmed ✓</h3><p>Your first GPS-verified stamp at any Satoshi statue. Your card shows that statue.</p></div></li>
+      <li class="rank" style="grid-template-columns:1fr"><div><span class="step">Rank 2</span><h3>🧱 Genesis Block ✓</h3><p>Stamp any {g} of the original 10 statues. Your card shows the statue that completed it.</p></div></li>
+      <li class="rank" style="grid-template-columns:1fr"><div><span class="step">Rank 3</span><h3>🏛️ Grand High Order ✓</h3><p>The Genesis Block plus {o} more statue{'' if o == 1 else 's'}, anywhere on the map. Your card shows the statue that got you there.</p></div></li>
     </ol>
-    <p class="note" style="margin-top:10px">Your card keeps the look of your rank, then adds its own foil frame, serial number (like <strong>07 / 21</strong>) and saying.</p>
+    <p class="note" style="margin-top:10px">Each rank is earned with a different stamp, and there’s one stamp per statue, so your three cards always show <strong>three different statues</strong>. Once you have a card, it’s yours and it never changes.</p>
 
-    <h2>How rare is each card?</h2>
-    {pow_cards_odds_html()}
-    <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">Odds are per card drawn, out of 121. The diamonds under the serial number show the tier: one for Common, up to five for Legendary.</p>
+    <h2>21 quotes and how rare they are</h2>
+    <p class="note" style="margin-bottom:10px">Your quote is picked when you earn the rank. The frame and shine show its tier.</p>
+    {pow_cards_tiers_html()}
+    <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">Percentages are out of 121 cards. The diamonds next to the card number show the tier: one for Common, up to five for Legendary.</p>
 
     <h2>The Legendary Genesis card</h2>
     <div class="gen">
-      <img src="{th(POW_CARDS_RANK, 21)}" width="640" height="360" loading="lazy" alt="Card 21, Legendary: the genesis block headline">
+      <img src="/img/cards/sample-back-21.{CARD_OG_VER}.jpg" width="600" height="840" loading="lazy" alt="Sample card back 21 of 21, Legendary: The Times 03/Jan/2009 Chancellor on brink of second bailout for banks">
       <div>
-        <h3>Card No. 21 · the rarest design</h3>
-        <p>Every time you earn a rank, there’s an extremely rare chance your card is the Legendary Genesis card, at any statue.</p>
-        <p>That draw is separate from everything else: like the ranks, cards are just for fun, free, and not linked to tips or the giveaway.</p>
+        <h3>Card No. 21 · Legendary</h3>
+        <p>About 1 in 121 cards is the Legendary Genesis card, at any statue and any rank.</p>
+        <p>Cards are just for fun: free, and not linked to tips or the giveaway.</p>
       </div>
     </div>
-    <p class="note">Its saying is the newspaper headline Satoshi Nakamoto wrote into Bitcoin’s very first block, block 0, on January 3, 2009:</p>
+    <p class="note">Its quote is the newspaper headline Satoshi Nakamoto wrote into Bitcoin’s very first block, block 0, on January 3, 2009:</p>
     <div class="gen" style="display:block;padding:10px 14px"><code>The Times 03/Jan/2009 Chancellor on brink of second bailout for banks</code></div>
     <p class="note">It shows when Bitcoin started and why: a new kind of money, launched while banks were being bailed out. Those words are still in block 0 today, and every Bitcoin block since builds on it.</p>
 
-    <h2>All 21 designs</h2>
-    <p class="note" style="margin-bottom:10px">Tap a card to see where its saying comes from.</p>
-    <ul class="grid">
-{pow_cards_gallery_html()}
+    <h2>All 21 quotes</h2>
+    <p class="note" style="margin-bottom:10px">Tap a quote to see where it comes from.</p>
+    <ul class="qlist">
+{pow_cards_quotes_html()}
     </ul>
+
+    <h2>Verify a card</h2>
+    <p class="note">Every card has a verify code like <strong>PW-7K3Q-9QX2</strong> and a QR code. Scan it, or type it on the <a href="/v/">verify page</a>: it shows only the statue, the date and the rank. No name, no exact time, no location.</p>
 
     <h2>Show yours off</h2>
-    <p class="note">When you earn a rank, tap <strong>Share your rank</strong> on the <a href="/proof-of-walk/">Proof of Walk</a> page. Your link shows your own card. Each rank also has its own share link:</p>
-    <ul class="share-list">
-      <li><a href="/proof-of-walk/share/confirmed/">👣 Confirmed</a></li>
-      <li><a href="/proof-of-walk/share/genesis-block/">🧱 Genesis Block</a></li>
-      <li><a href="/proof-of-walk/share/grand-high-order/">🏛️ Grand High Order</a></li>
-    </ul>
+    <p class="note">Right after a check-in that earns a rank, tap <strong>Share</strong> under your card to post it, or save the image. The link you share goes to a page for that statue and rank, for example
+      {', '.join(f'<a href="/proof-of-walk/share/genesis-block/{s["page"]}/">Genesis Block at {e(s["city"])}</a>' for s in ex)}.</p>
+    <p class="note">You can also download print-ready files of your card (front and back) from your card on the <a href="/proof-of-walk/">Proof of Walk</a> page. Ordering a printed card is coming soon.</p>
     <div class="actions"><a class="btn primary" href="/proof-of-walk/">👣 Proof of Walk</a><a class="btn" href="/leaderboard/">🏆 Leaderboard</a><a class="btn" href="/">🗺️ Find a statue</a></div>
+    <p class="credit">{e(CARD_CREDIT)} Card art is original illustration; the hooded walker is a generic figure, not any statue or person.</p>
     {footer(data)}
   </main>
-
-  <dialog id="cd" aria-labelledby="cd-no">
-    <div class="cd-bar"><span>Card details</span><button class="cd-close" type="button" aria-label="Close">✕</button></div>
-    <img id="cd-img" alt="">
-    <div class="cd-body">
-      <span class="cc-no" id="cd-no"></span> <span class="tier" id="cd-tier"></span>
-      <p class="q" id="cd-q"></p>
-      <p class="by" id="cd-by"></p>
-      <p class="n" id="cd-note"></p>
-      <div class="cd-row"><a class="btn" id="cd-link" href="#" target="_blank" rel="noopener">Read the source ↗</a></div>
-    </div>
-  </dialog>
 """
-    return out + POW_CARDS_JS + '\n' + TAIL
+    return out + TAIL
 
 
 def pow_privacy_html(data):
@@ -2026,7 +2250,10 @@ def pow_privacy_html(data):
             'your nickname (or “Anonymous #…”) and the date are listed on the Fellow Travelers page.</li>'
             '\n      <li>If you add a <strong>Lightning address</strong> to your passport, it is used only to recover your passport on a new device, together with a one-time recovery code we show you once. '
             'We keep a hashed copy of the address and of the code plus a masked form for you to see, never the address itself. It is never shown publicly, never paid and never contacted. '
-            'Recovery attempts are counted per network (as a salted hash, kept 1 day). Clear the field and save to delete it and switch recovery off.</li>')
+            'Recovery attempts are counted per network (as a salted hash, kept 1 day). Clear the field and save to delete it and switch recovery off.</li>'
+            '\n      <li>Each <strong>Proof of Walk card</strong> carries a random verify code (it isn’t linked to your device ID) and a QR code. Anyone who scans or types it sees only the statue, the date and the rank: '
+            'no nickname, no exact time, no location and no other stamps. Shared and printed cards show your check-in date, time and verify code, because they’re on the card. '
+            'Cards are drawn on your device’s screen; print files are made in your browser and aren’t sent to anyone. Verify lookups are counted per network (as a salted hash, kept 1 day).</li>')
 
 
 def privacy_page(data):
@@ -3092,6 +3319,9 @@ def outputs(data):
             files[f'proof-of-walk/share/{POW_SHARE[k][0]}/index.html'] = pow_share_page(data, k)
         files.update(pow_card_pages(data))
         files['proof-of-walk/cards/index.html'] = pow_cards_page(data)
+        files['proof-of-walk/card-data.js'] = card_data_js(data)
+        files.update(card_share_pages(data))
+        files['v/index.html'] = verify_page(data)
     for s in data['statues']:
         files[f"{s['page']}/index.html"] = statue_page(s, data)
     return files
@@ -3103,6 +3333,8 @@ def main():
         refresh_checkins()
     data = load()
     data['events'] = load_events(data)
+    global POW_CARD_JS_URL
+    POW_CARD_JS_URL = pow_card_js_url(data) if os.path.exists(os.path.join(ROOT, 'pow-card.js')) else ''
     if '--worker' in sys.argv:
         write_worker_statues(data)
         return
