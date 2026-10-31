@@ -2,6 +2,7 @@
 //   img/cards/og/<rank>/<page>.<ver>.jpg  1200x630 generic share images (no date, code or quote), 3 ranks x 11 statues
 //   img/cards/og/card/<rank>/<page>/NN.<ver>.jpg  1200x630 per-card share images for the Worker's /c/CODE pages:
 //     statue x rank at check-in x card number (3 x 11 x 21); --only-cards renders just these, --no-cards skips them
+//   img/cards/og/rank/<rank>.<ver>.jpg  1200x630 city-free rank images (always; --only-ranks renders just these)
 //   img/cards/sample-front.<ver>.jpg, sample-back.<ver>.jpg, sample-back-21.<ver>.jpg  600x840 explainer samples
 // Usage: node tools/render_combined_cards.mjs [--chrome /usr/bin/google-chrome] [--pw /path/to/node_modules/playwright-core]
 // Needs playwright-core (not a site dependency): npm i playwright-core in any folder and pass --pw. Run after build.py.
@@ -36,6 +37,11 @@ if (!onlyCards) for (const [slug, st] of Object.entries(data.statues)) for (cons
   const b64 = await page.evaluate(async ([slug, k]) => (await window.PowCard.og(document.createElement('canvas'), { slug, rank: k })).toDataURL('image/jpeg', 0.88).split(',')[1], [slug, k]);
   save(`img/cards/og/${r.share}/${st.page}.${VER}.jpg`, b64); n++;
 }
+for (const [k, r] of Object.entries(data.ranks)) {   // city-free rank images for /proof-of-walk/share/<rank>/
+  const b64 = await page.evaluate(async k => (await window.PowCard.ogRank(document.createElement('canvas'), k)).toDataURL('image/jpeg', 0.88).split(',')[1], k);
+  save(`img/cards/og/rank/${r.share}.${VER}.jpg`, b64);
+}
+if (process.argv.includes('--only-ranks')) { console.log('wrote 3 rank share images'); await browser.close(); srv.close(); process.exit(0); }
 if (!noCards) for (const [slug, st] of Object.entries(data.statues)) for (const [k, r] of Object.entries(data.ranks)) for (let c = 1; c <= 21; c++) {
   const b64 = await page.evaluate(async ([slug, k, c]) => (await window.PowCard.ogCard(document.createElement('canvas'), { slug, rank: k, n: c })).toDataURL('image/jpeg', 0.8).split(',')[1], [slug, k, c]);
   save(`img/cards/og/card/${r.share}/${st.page}/${String(c).padStart(2, '0')}.${VER}.jpg`, b64); m++;

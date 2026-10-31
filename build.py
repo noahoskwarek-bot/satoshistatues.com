@@ -37,6 +37,8 @@ CHECKABLE = ('Installed', 'Restored', 'Damaged', 'Donated')  # Damaged = still i
 # Any other status (Planned, Unveiled, ...) is listed with a page and pin but can't be stamped and isn't counted.
 # 'Unveiled' = unveiled at a known spot but public visiting isn't confirmed yet; statue.stamp_note / stamp_short explain why.
 BUILD_DATE = os.environ.get('BUILD_DATE') or datetime.date.today().isoformat()
+# Site-wide preview image; ?v= busts X/Facebook/iMessage caches when it changes (cards1: 'Collect cards', Noah 5:08 PM ET).
+OG_IMAGE = SITE + '/og-image.jpg?v=cards1'
 LB_API = ''  # set from statues.json config.leaderboard_api in load()
 POW_ON = False  # config.proof_of_walk.enabled, set in load()
 
@@ -446,7 +448,7 @@ def terms_page(data):
     title = 'Terms – satoshistatues.com'
     desc = 'Terms for visiting statues, the Satoshi Fountain Lightning giveaway and tips on satoshistatues.com.'
     canonical = SITE + '/terms/'
-    out = head(title, desc, canonical, SITE + '/og-image.jpg', 1200, 630, 'Satoshi statues world map', '')
+    out = head(title, desc, canonical, OG_IMAGE, 1200, 630, 'Satoshi statues world map', '')
     li = lambda items: '<ul class="src" style="font-size:.95rem;color:#e6edf3">' + ''.join(f'<li>{x}</li>' for x in items) + '</ul>'
     visiting = li(['Obey local laws and any rules at the site.',
                    'Don’t trespass. Only visit statues from public places or during opening hours, and respect private property.',
@@ -490,7 +492,7 @@ def rules_page(data):
     pi = payout_info(data)
     title = 'Official Rules: Satoshi Fountain giveaway – satoshistatues.com'
     desc = 'Official Rules for the Satoshi Fountain Lightning giveaway on satoshistatues.com: eligibility, amounts, odds and limits.'
-    out = head(title, desc, SITE + '/rules/', SITE + '/og-image.jpg', 1200, 630, 'Satoshi statues world map', '')
+    out = head(title, desc, SITE + '/rules/', OG_IMAGE, 1200, 630, 'Satoshi statues world map', '')
     li = lambda items: '<ul class="src" style="font-size:.95rem;color:#e6edf3">' + ''.join(f'<li>{x}</li>' for x in items) + '</ul>'
     pct = lambda w: f'{100 * w / pi["total"]:.1f}%'.replace('.0%', '%')
     rows = ''.join(f'<tr><td>{a:,}–{b:,} sats (each amount in this range equally likely)</td><td>{w} in {pi["total"]:,} ({pct(w)})</td></tr>' for a, b, w in pi['tiers'])
@@ -638,7 +640,7 @@ def img_abs(s):
     """Absolute image URL for OG/JSON-LD. Remote (hot-linked) photos fall back to the site card."""
     if s.get('img') and not s['img'].startswith('http'):
         return f"{SITE}/{s['img']}", s.get('imgW'), s.get('imgH'), True
-    return f'{SITE}/og-image.jpg', 1200, 630, False
+    return OG_IMAGE, 1200, 630, False
 
 
 def creators(s):
@@ -1223,7 +1225,7 @@ def statue_page(s, data):
     # stampable statues get the check-in box (with its own "Open on the map" link) near the top instead
     map_btn = '' if s['status'] in CHECKABLE else f'\n      <a class="btn" href="/?s={s["page"]}">🗺️ Open on the map</a>'
     stamp = ('' if s['status'] in CHECKABLE else
-             f'\n    <p class="note" style="margin-top:6px;color:#8b949e">{e(s.get("stamp_note") or "Not yet installed, so it can’t be stamped in the Satoshi Passport (not counted in the total).")}</p>')
+             f'\n    <p class="note" style="margin-top:6px;color:#8b949e">{e(s.get("stamp_note") or "Not yet installed, so there’s no card to collect yet (not counted in the total).")}</p>')
     giscus_attrs = {
         'data-repo': REPO, 'data-repo-id': GISCUS['repoId'], 'data-category': GISCUS['category'],
         'data-category-id': GISCUS['categoryId'], 'data-mapping': 'specific', 'data-term': f"statue-{s['slug']}",
@@ -1287,7 +1289,7 @@ def nodes_page(data):
                  'numberOfItems': len(series),
                  'itemListElement': [{'@type': 'ListItem', 'position': i + 1, 'url': page_url(s), 'name': s['label']} for i, s in enumerate(series)]}
     lds = ld(item_list) + '\n  ' + ld(breadcrumb_ld([('Map', SITE + '/'), ('21 Nodes', canonical)]))
-    out = head(title, desc, canonical, SITE + '/og-image.jpg', 1200, 630, 'Satoshi statues world map', lds)
+    out = head(title, desc, canonical, OG_IMAGE, 1200, 630, 'Satoshi statues world map', lds)
     rows = ''
     for i, s in enumerate(series, 1):
         cites = ' '.join(f'<a href="{e(x["url"])}" target="_blank" rel="noopener noreferrer">[{j}]</a>' for j, x in enumerate(s.get('sources', []), 1))
@@ -1440,10 +1442,10 @@ def leaderboard_page(data):
     n = sum(1 for s in data['statues'] if s['status'] in CHECKABLE)
     title = 'Satoshi Passport Leaderboard – Who Has Visited the Most Satoshi Statues?'
     desc = (f'Leaderboard of visitors who checked in at Satoshi Nakamoto statues with the Satoshi Passport: '
-            f'GPS-checked stamps at {n} statues, plus recent check-ins.')
+            f'GPS-checked cards from {n} statues, plus recent check-ins.')
     canonical = SITE + '/leaderboard/'
     lds = ld(breadcrumb_ld([('Map', SITE + '/'), ('Leaderboard', canonical)]))
-    out = head(title, desc, canonical, SITE + '/og-image.jpg', 1200, 630, 'Satoshi statues world map', lds)
+    out = head(title, desc, canonical, OG_IMAGE, 1200, 630, 'Satoshi statues world map', lds)
     out = out.replace('</style>', LB_CSS + '</style>', 1)
     out += f"""  <main>
     <div class="crumbs"><a href="/">Map</a> › Leaderboard</div>
@@ -1523,13 +1525,13 @@ def pow_keep_text(data):
 
 
 def pow_lb_link(data):
-    return (f'\n    <p class="note">👣 Pills show each walker’s Proof of Walk rank (GPS-verified stamps only): “N of {pow_genesis_required(data)} to Genesis”, then '
+    return (f'\n    <p class="note">👣 Pills show each walker’s Proof of Walk rank (GPS-verified cards only): “N of {pow_genesis_required(data)} cards to Genesis”, then '
             f'🧱 Genesis Block ({pow_genesis_required(data)} of the original 10), then 🏛️ Grand High Order (Genesis + {pow_order_extra(data)} more). '
             '<a href="/proof-of-walk/">How ranks work →</a></p>')
 
 
 def pow_head(data, title, desc, canonical, lds):
-    out = head(title, desc, canonical, SITE + '/og-image.jpg', 1200, 630, 'Satoshi statues world map', lds)
+    out = head(title, desc, canonical, OG_IMAGE, 1200, 630, 'Satoshi statues world map', lds)
     if pow_cfg(data).get('preview'):
         out = out.replace('<meta name="robots" content="index, follow" />', '<meta name="robots" content="noindex, nofollow" />', 1)
     return out.replace('</style>', LB_CSS + SHARE_CSS + POW_CSS + '</style>', 1)
@@ -1792,11 +1794,11 @@ POW_JS = r"""<script src="/share.js"></script>
       el.innerHTML = j.members.length ? j.members.map(function (m) {
         return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + esc(m.name) + '</span><span class="lb-meta">Since ' +
           day(m.since) + '</span></span><span class="lb-stamps">' + m.stamps + '<small>statues</small></span></li>';
-      }).join('') : '<li class="lb-empty">No members yet. Mine the Genesis Block, then stamp 1 more statue to join.</li>';
+      }).join('') : '<li class="lb-empty">No members yet. Mine the Genesis Block, then collect 1 more card to join.</li>';
       if (ge) ge.innerHTML = (j.genesis || []).length ? j.genesis.map(function (m) {
         return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + esc(m.name) + '</span><span class="lb-meta">Mined ' +
           day(m.joined) + '</span></span><span class="lb-stamps">' + m.stamps + '<small>statues</small></span></li>';
-      }).join('') : '<li class="lb-empty">No miners yet. Stamp any ' + (j.genesis_at || 3) + ' of the original 10 to mine the Genesis Block.</li>';
+      }).join('') : '<li class="lb-empty">No miners yet. Collect cards from any ' + (j.genesis_at || 3) + ' of the original 10 to mine the Genesis Block.</li>';
     }).catch(function () { off(el); off(ge); });
   }
   loadMe(); renderRecover(); loadList(); loadRoll();
@@ -1854,10 +1856,10 @@ def pow_roll_page(data):
     <div class="crumbs"><a href="/">Map</a> › <a href="/proof-of-walk/">Proof of Walk</a> › Fellow Travelers</div>
     <h1>🏛️ {e(ORDER_NAME)}</h1>
     <p class="sub">The members’ roll: walkers with {e(pow_order_rule(data))}. {e(pow_keep_text(data))}</p>
-    <p class="note">Ranked by total statues stamped; on a tie, whoever got there first ranks higher.</p>
+    <p class="note">Ranked by total cards collected; on a tie, whoever got there first ranks higher.</p>
     <ol class="lb-list pow-roll" id="pow-roll"><li class="lb-empty">Loading…</li></ol>
     <h2 id="genesis">🧱 {e(GENESIS_TITLE)}</h2>
-    <p class="note">Walkers who stamped {e(pow_genesis_rule(data))}.</p>
+    <p class="note">Walkers who collected cards from {e(pow_genesis_rule(data))}.</p>
     <ol class="lb-list pow-roll" id="pow-genesis-roll"><li class="lb-empty">Loading…</li></ol>
     <p class="note" style="margin-top:10px"><a href="/proof-of-walk/">← Proof of Walk ranks and leaderboard</a></p>
     {footer(data)}
@@ -1888,46 +1890,56 @@ def pow_share_url(key):
     return f'{SITE}/proof-of-walk/share/{POW_SHARE[key][0]}/'
 
 
-# Old share pages (go-live redirect, Noah 2026-10-31 2:26 PM ET): the 3 rank pages /proof-of-walk/share/<rank>/ and the
-# 63 prism card pages /proof-of-walk/share/<rank>/NN/ now redirect (same method as /fellow-travelers/: meta refresh +
-# location.replace + canonical, noindex) to that rank's combined share page at the default statue (OLD_SHARE_STATUE).
-# The redirect page keeps the target's og:/twitter: tags, so links in old posts still unfurl (crawlers don't follow JS
-# and not all follow meta refresh). Old images under img/pow-share/ stay, so nothing 404s.
-OLD_SHARE_STATUE = 'lugano'   # Lugano: the approved mockup statue, one of the original 10, also the cards page's share image
+# Launch rank share pages /proof-of-walk/share/<rank>/ and the 63 old prism links /proof-of-walk/share/<rank>/NN/ (Noah
+# 2026-10-31 5:08 PM ET, city-free): titles like "Confirmed on Proof of Walk", og/twitter tags to match, a city-free rank
+# image (img/cards/og/rank/<rank>.<ver>.jpg, PowCard.ogRank) and humans are sent on to /proof-of-walk/ (meta refresh +
+# location.replace + canonical, noindex). The statue pages /proof-of-walk/share/<rank>/<statue>/ stay as they are.
+def pow_rank_rule(data, key):
+    return {'confirmed': 'Your first GPS-verified card at any Satoshi statue.',
+            'genesis': f'Cards from any {pow_genesis_required(data)} of the original 10 Satoshi statues.',
+            'order': f'The Genesis Block plus {pow_order_extra(data)} more statue{"" if pow_order_extra(data) == 1 else "s"}, anywhere on the map.'}[key]
+
+
+def card_og_rank_img(rank_slug):
+    return f'img/cards/og/rank/{rank_slug}.{CARD_OG_VER}.jpg'
 
 
 def old_share_redirect_page(data, key):
-    s = next(x for x in card_statues(data) if x['page'] == OLD_SHARE_STATUE)
-    rs, label, _, _ = POW_RANKS[key]
-    target = card_share_url(key, s)
-    title = f'{label} at {card_phrase(s)}'
-    desc = 'A real walk to a real statue, verified by GPS. Start your Proof of Walk passport.'
-    img = f'{SITE}/{card_og_img(rs, s["page"])}'
+    rs, label, _, emoji = POW_RANKS[key]
+    target = SITE + '/proof-of-walk/'
+    url = f'{SITE}/proof-of-walk/share/{rs}/'
+    title = f'{label} on Proof of Walk'
+    desc = f'{pow_rank_rule(data, key)} A real walk to a real statue, verified by GPS. Start your Proof of Walk passport.'
+    img = f'{SITE}/{card_og_rank_img(rs)}'
+    alt = f'Proof of Walk {label}: {pow_rank_rule(data, key)}'
     return f'''<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{e(title)} · Satoshi Statues</title>
+  <meta name="description" content="{e(desc)}" />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="{target}" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="{target}" />
+  <meta property="og:url" content="{url}" />
   <meta property="og:title" content="{e(title)}" />
   <meta property="og:description" content="{e(desc)}" />
   <meta property="og:image" content="{img}" />
   <meta property="og:image:type" content="image/jpeg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="{e(alt)}" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="{e(title)}" />
   <meta name="twitter:description" content="{e(desc)}" />
   <meta name="twitter:image" content="{img}" />
+  <meta name="twitter:image:alt" content="{e(alt)}" />
   <meta http-equiv="refresh" content="0; url={target}" />
   <script>location.replace("{target}");</script>
 </head>
 <body>
-  <p>This Proof of Walk card has a new look. <a href="{target}">See {e(label)} →</a></p>
+  <p>{emoji} {e(title)}. <a href="{target}">See Proof of Walk ranks →</a></p>
 </body>
 </html>
 '''
@@ -2132,7 +2144,7 @@ def card_data_js(data):
                       'tz': s.get('tz') or 'UTC', 'phrase': card_phrase(s), 'og_place': card_phrase(s)} for s in card_statues(data)}
     d = {'site': SITE, 'statues': st,
          'quotes': [{'n': x['n'], 'q': x['quote'], 'by': x['by'], 'hue': x['hue']} for x in card_quotes()],
-         'ranks': {k: {'share': v[0], 'label': v[1], 'badge': v[2], 'emoji': v[3]} for k, v in POW_RANKS.items()},
+         'ranks': {k: {'share': v[0], 'label': v[1], 'badge': v[2], 'emoji': v[3], 'rule': pow_rank_rule(data, k)} for k, v in POW_RANKS.items()},
          'credit': CARD_CREDIT, 'not_affiliated': CARD_NOT_AFFILIATED, 'card_page': card_page_base()}
     if CARD_PRINT_ORDERING_OPEN:
         d['print_note'] = CARD_PRINT_NOTE
@@ -2159,8 +2171,8 @@ def card_share_page(data, key, s):
     out = head(title, desc, url, img, 1200, 630, alt, '')
     out = out.replace('<meta name="robots" content="index, follow" />', '<meta name="robots" content="noindex, follow" />', 1)
     out = out.replace('<meta property="og:image:width"', '<meta property="og:image:type" content="image/jpeg" />\n  <meta property="og:image:width"', 1)
-    rule = {'confirmed': 'a first GPS-verified stamp at any Satoshi statue',
-            'genesis': f'GPS stamps at any {pow_genesis_required(data)} of the original 10 statues',
+    rule = {'confirmed': 'a first GPS-verified card at any Satoshi statue',
+            'genesis': f'GPS-verified cards from any {pow_genesis_required(data)} of the original 10 statues',
             'order': f'the Genesis Block plus {pow_order_extra(data)} more statue, anywhere on the map'}[key]
     out = out.replace('</style>', '.cs-hero{display:block;width:100%;height:auto;border-radius:12px;border:1px solid #30363d;margin:6px 0 12px}'
                       '.cs-go{display:grid;gap:8px;margin:12px 0}.cs-go .btn{min-height:52px;font-size:1rem}'
@@ -2171,7 +2183,7 @@ def card_share_page(data, key, s):
     <h1>{emoji} {e(label)} ✓</h1>
     <p class="sub">at {e(s['label'])} · {e(s['city'])}, {e(s['country'])}</p>
     <img class="cs-hero" src="/{card_og_img(rs, s['page'])}" width="1200" height="630" alt="{e(alt)}" />
-    <p class="note">Someone walked to {e(card_phrase(s))} and earned <strong>{e(label)}</strong> on Proof of Walk: {e(rule)}. Every stamp is checked by GPS on the spot.</p>
+    <p class="note">Someone walked to {e(card_phrase(s))} and earned <strong>{e(label)}</strong> on Proof of Walk: {e(rule)}. Every check-in is checked by GPS on the spot.</p>
     <div class="cs-go"><a class="btn primary" href="/">📍 Find a statue near you</a><a class="btn" href="/proof-of-walk/">👣 Start your passport</a></div>
     <h2>How it works</h2>
     <ol class="cs-steps">
@@ -2219,7 +2231,7 @@ def verify_page(data):
     canonical = SITE + '/v/'
     title = 'Verify a Proof of Walk card – satoshistatues.com'
     desc = 'Check that a Proof of Walk card is a real, GPS-verified check-in at a Satoshi statue.'
-    out = head(title, desc, canonical, SITE + '/og-image.jpg', 1200, 630, 'Satoshi statues world map', '')
+    out = head(title, desc, canonical, OG_IMAGE, 1200, 630, 'Satoshi statues world map', '')
     out = out.replace('<meta name="robots" content="index, follow" />', '<meta name="robots" content="noindex, nofollow" />', 1)
     out = out.replace('</style>', '.v-out{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px;margin:12px 0}'
                       '.v-out.good{border-left:3px solid #3fb950}.v-out.bad{border-left:3px solid #f85149}.v-ok{font-size:1.25rem;font-weight:800;color:#3fb950;margin:0 0 4px}'
@@ -2298,7 +2310,7 @@ def pow_cards_page(data):
     <div class="crumbs"><a href="/">Map</a> › <a href="/proof-of-walk/">Proof of Walk</a> › Cards</div>
     <h1>🗺️ Proof of Walk cards</h1>
     <p class="sub">Your statue, your rank, your quote.</p>
-    <p class="note">Every rank you earn comes with a card. The front shows the Satoshi statue you walked to, your rank and a GPS-verified seal with the date. The back carries one of <strong>21 Bitcoin quotes</strong>, the details of your check-in and a code anyone can scan to verify it.</p>
+    <p class="note">Every statue you walk to is a card in your passport, and the check-in that earns a rank becomes that rank’s card. The front shows the Satoshi statue you walked to, your rank and a GPS-verified seal with the date. The back carries one of <strong>21 Bitcoin quotes</strong>, the details of your check-in and a code anyone can scan to verify it.</p>
     <div class="duo">
       <figure><img src="/img/cards/sample-front.{CARD_OG_VER}.jpg" width="600" height="840" alt="Sample card front: LUGANO, Lugano, Switzerland, a lakeside scene with a hooded walker, the Genesis Block badge and the GPS verified seal, checked in 31 Oct 2026"><figcaption><strong>Front.</strong> The statue whose check-in earned the rank, the rank badge, the GPS-verified seal and the check-in date.</figcaption></figure>
       <figure><img src="/img/cards/sample-back.{CARD_OG_VER}.jpg" width="600" height="840" alt="Sample card back: the quote Not your keys, not your coins, card 01 of 21 Common, the GPS-verified check-in box with a verify code, and a QR code"><figcaption><strong>Back.</strong> Your quote and its card number, the GPS-verified check-in (statue, local date and time) and the verify code with its QR.</figcaption></figure>
@@ -2306,8 +2318,8 @@ def pow_cards_page(data):
 
     <h2>How it works</h2>
     <ol class="ranks">
-      <li class="rank" style="grid-template-columns:1fr"><div><span class="step">Rank 1</span><h3>👣 Confirmed ✓</h3><p>Your first GPS-verified stamp at any Satoshi statue. Your card shows that statue.</p></div></li>
-      <li class="rank" style="grid-template-columns:1fr"><div><span class="step">Rank 2</span><h3>🧱 Genesis Block ✓</h3><p>Stamp any {g} of the original 10 statues. Your card shows the statue that completed it.</p></div></li>
+      <li class="rank" style="grid-template-columns:1fr"><div><span class="step">Rank 1</span><h3>👣 Confirmed ✓</h3><p>Your first GPS-verified card at any Satoshi statue. Your card shows that statue.</p></div></li>
+      <li class="rank" style="grid-template-columns:1fr"><div><span class="step">Rank 2</span><h3>🧱 Genesis Block ✓</h3><p>Collect cards from any {g} of the original 10 statues. Your card shows the statue that completed it.</p></div></li>
       <li class="rank" style="grid-template-columns:1fr"><div><span class="step">Rank 3</span><h3>🏛️ Grand High Order ✓</h3><p>The Genesis Block plus {o} more statue{'' if o == 1 else 's'}, anywhere on the map. Your card shows the statue that got you there.</p></div></li>
     </ol>
     <p class="note" style="margin-top:10px">Every GPS-verified check-in is a card in your passport, one per statue: that statue, your rank at the time, a quote and its own verify code. The check-in that earns a rank is that rank’s card, and each rank is earned at a different statue. Once you have a card, it’s yours and it never changes.</p>
@@ -2355,13 +2367,13 @@ def pow_cards_page(data):
 def pow_privacy_html(data):
     if not pow_cfg(data):
         return ''
-    return (f'\n      <li><strong>Proof of Walk</strong> ranks are worked out from your GPS-verified stamps. If you mine the Genesis Block ({pow_genesis_required(data)} of the original 10), '
+    return (f'\n      <li><strong>Proof of Walk</strong> ranks are worked out from your GPS-verified cards. If you mine the Genesis Block ({pow_genesis_required(data)} of the original 10), '
             'your nickname (or “Anonymous #…”) and the date are listed on the Fellow Travelers page.</li>'
             '\n      <li>If you add a <strong>Lightning address</strong> to your passport, it is used only to recover your passport on a new device, together with a one-time recovery code we show you once. '
             'We keep a hashed copy of the address and of the code plus a masked form for you to see, never the address itself. It is never shown publicly, never paid and never contacted. '
             'Recovery attempts are counted per network (as a salted hash, kept 1 day). Clear the field and save to delete it and switch recovery off.</li>'
             '\n      <li>Each <strong>Proof of Walk card</strong> (one per GPS-verified check-in) carries a random verify code (it isn’t linked to your device ID) and a QR code. Anyone who scans or types it sees only the statue, the date and the rank: '
-            'no nickname, no exact time, no location and no other stamps. Shared and printed cards show your check-in date, time and verify code, because they’re on the card. '
+            'no nickname, no exact time, no location and no other cards. Shared and printed cards show your check-in date, time and verify code, because they’re on the card. '
             'Cards are drawn on your device’s screen; print files are made in your browser and aren’t sent to anyone. Verify lookups are counted per network (as a salted hash, kept 1 day).</li>')
 
 
@@ -2370,24 +2382,24 @@ def privacy_page(data):
     title = 'Privacy – satoshistatues.com'
     desc = 'What satoshistatues.com stores for the Satoshi Passport leaderboard and analytics, and how to have it deleted.'
     canonical = SITE + '/privacy/'
-    out = head(title, desc, canonical, SITE + '/og-image.jpg', 1200, 630, 'Satoshi statues world map', '')
+    out = head(title, desc, canonical, OG_IMAGE, 1200, 630, 'Satoshi statues world map', '')
     out += f"""  <main>
     <div class="crumbs"><a href="/">Map</a> › Privacy</div>
     <h1>Privacy</h1>
     <p class="sub">Short version: no accounts, no locations kept, and IP addresses only as hashes for 7 days.</p>
     <h2>Satoshi Passport and leaderboard</h2>
     <ul class="src" style="font-size:.95rem;color:#e6edf3">
-      <li>Your passport stamps are saved in your browser (localStorage).</li>
+      <li>Your passport cards are saved in your browser (localStorage).</li>
       <li>When you check in, your browser sends your location, a <strong>random device ID</strong> (created in your browser, not linked to your name) and the statue to our leaderboard server. The server only uses the location to check that you are within 150 m. <strong>Coordinates are not stored.</strong> We keep the statue, the time and a rough distance band such as “under 50 m”.</li>
       <li>If you add a <strong>nickname or X handle</strong>, it is shown publicly on the leaderboard and in the recent check-ins feed.</li>
-      <li>The first time you use the leaderboard, stamps already in your passport are added to it.</li>{pow_privacy_html(data)}
+      <li>The first time you use the leaderboard, cards already in your passport are added to it.</li>{pow_privacy_html(data)}
       <li><strong>IP addresses</strong> are only used for rate limiting. They are stored as a salted, per-day hash and <strong>deleted after 7 days</strong>.</li>
       <li>The server runs on Cloudflare Workers with a Cloudflare D1 database.</li>
     </ul>
     <h2>Analytics</h2>
     <p class="note">We use <a href="https://www.goatcounter.com/" target="_blank" rel="noopener noreferrer">GoatCounter</a> for privacy-friendly page counts without cookies. A successful check-in also sends an anonymous “Check-in &lt;statue&gt;” event, without any location.</p>
 {fountain_privacy_html(data)}    <h2>Deleting your data</h2>
-    <p class="note">Email <a href="mailto:{SUPPORT_EMAIL}">{SUPPORT_EMAIL}</a> with your leaderboard nickname (or the statue and rough time of your check-in) and we will delete your stamps and nickname. Clearing your browser data removes your local passport and device ID.</p>
+    <p class="note">Email <a href="mailto:{SUPPORT_EMAIL}">{SUPPORT_EMAIL}</a> with your leaderboard nickname (or the statue and rough time of your check-in) and we will delete your cards and nickname. Clearing your browser data removes your local passport and device ID.</p>
     <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">Last updated {BUILD_DATE}.</p>
     {footer(data)}
   </main>
@@ -2802,7 +2814,7 @@ EVENTS_CSS = ('.events{background:#161b22;border:1px solid #30363d;border-radius
 
 def social_meta(url, title, desc, alt='Satoshi statues world map'):
     """Open Graph + Twitter tags for pages that don't use head() (embed, printable passport): site og-image.jpg."""
-    img = SITE + '/og-image.jpg'
+    img = OG_IMAGE
     return f'''<meta property="og:type" content="website" />
   <meta property="og:url" content="{url}" />
   <meta property="og:title" content="{e(title)}" />
@@ -3129,7 +3141,7 @@ def test_statue_page(t, data):
   </header>
   <main class="tp">
     <h1>🧪 {e(t["name"])}</h1>
-    <p class="tp-note">Private test page for the giveaway. This isn’t a real statue: it isn’t on the map, and checking in here doesn’t stamp your passport or appear on the leaderboard.</p>
+    <p class="tp-note">Private test page for the giveaway. This isn’t a real statue: it isn’t on the map, and checking in here doesn’t add a card to your passport or appear on the leaderboard.</p>
     <div class="tp-ci" data-tp-checkin data-slug="{e(t["slug"])}">
       <button class="btn primary" type="button">📍 Check in at the test spot</button>
       <div class="checkin-msg" aria-live="polite" hidden></div>

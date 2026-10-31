@@ -301,6 +301,23 @@
     c.fillStyle = ORANGE; f(c, 800, 30, 'PCInter'); c.fillText('satoshistatues.com', X, 596);
     return canvas;
   }
+  // City-free rank share image (1200x630) for the launch rank pages /proof-of-walk/share/<rank>/ (and their old NN
+  // links): the rank badge and seal, the rank name and its rule, no statue. img/cards/og/rank/<rank>.<ver>.jpg.
+  async function ogRank(canvas, rank) {
+    await load(); var d = D(), k = rankKey(rank), r = d.ranks[k];
+    canvas.width = 1200; canvas.height = 630; var c = canvas.getContext('2d');
+    var g = c.createLinearGradient(0, 0, 1200, 630); g.addColorStop(0, '#161b22'); g.addColorStop(1, '#0d1117'); c.fillStyle = g; c.fillRect(0, 0, 1200, 630);
+    var rg = c.createRadialGradient(270, 315, 20, 270, 315, 420); rg.addColorStop(0, 'rgba(247,147,26,.22)'); rg.addColorStop(1, 'rgba(247,147,26,0)'); c.fillStyle = rg; c.fillRect(0, 0, 1200, 630);
+    c.save(); c.translate(130, 110); c.scale(1.45, 1.45); shield(c, k, 0, 0, 196, 248); c.restore();
+    seal(c, 430, 470, 86);
+    var X = 600, MW = 540; c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+    c.fillStyle = ORANGE; f(c, 800, 26, 'PCInter'); spaced(c, 'PROOF OF WALK', X, 150, 6);
+    c.fillStyle = '#fff'; fit(c, r.label, MW, 76, 800, 'PCInter', 40); c.fillText(r.label, X, 240);
+    c.fillStyle = '#f2cc60'; f(c, 800, 32, 'PCInter'); wrap(c, r.rule || '', MW).forEach(function (l, i) { c.fillText(l, X, 300 + i * 42); });
+    c.fillStyle = '#e6edf3'; f(c, 500, 28, 'PCInter'); wrap(c, 'Walk to a Satoshi statue, tap “Check in here” and collect that city’s card. Free, no sign-up.', MW).forEach(function (l, i) { c.fillText(l, X, 410 + i * 38); });
+    c.fillStyle = ORANGE; f(c, 800, 34, 'PCInter'); c.fillText('satoshistatues.com', X, 570);
+    return canvas;
+  }
   // ---------- UI: card view with flip, Share (Web Share API Level 2 + fallbacks) and Get a print ----------
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); };
   var IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -361,5 +378,5 @@
     });
     return el;
   }
-  window.PowCard = { load: load, render: render, png: png, og: og, ogCard: ogCard, mount: mount, cardPage: cardPage, shareUrl: shareUrl, shareText: shareText, localParts: localParts, rankKey: rankKey };
+  window.PowCard = { load: load, render: render, png: png, og: og, ogCard: ogCard, ogRank: ogRank, mount: mount, cardPage: cardPage, shareUrl: shareUrl, shareText: shareText, localParts: localParts, rankKey: rankKey };
 })();

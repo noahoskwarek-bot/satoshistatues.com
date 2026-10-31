@@ -144,7 +144,7 @@ def og_main(font):
     for line in ('Satoshi Nakamoto', 'Statues'):
         d.text((70, y), line, font=fb, fill=(230, 237, 243)); y += 70
     y += 18
-    for line in ('Every Satoshi statue on Earth, on one', 'world map. Collect stamps in your', 'Satoshi Passport.'):
+    for line in ('Every Satoshi statue on Earth, on one', 'world map. Collect cards in your', 'Satoshi Passport.'):
         d.text((70, y), line, font=fr, fill=(201, 209, 217)); y += 40
     d.rectangle((0, 0, W, 8), fill=(247, 147, 26))
     d.text((70, H - 62), 'satoshistatues.com', font=ImageFont.truetype(os.path.join(ROOT, 'fonts', 'inter-800.woff'), 34),
