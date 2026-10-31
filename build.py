@@ -1571,7 +1571,7 @@ POW_JS = r"""<script src="/share.js"></script>
   var SHARE_SLUG = { confirmed: 'confirmed', genesis: 'genesis-block', order: 'grand-high-order' };
   // me.card = this walker's prism card for the current rank ({ rank: slug, n: 1-21 }, from the Worker); else the base card.
   var cardOf = function (me) { var k = me && me.rank && SHARE_SLUG[me.rank.key], c = me && me.card, n = c ? Number(c.n) : 0;
-    return k && c && c.rank === k && n >= 1 && n <= 21 && n === Math.floor(n) ? { slug: k, nn: (n < 10 ? '0' : '') + n, tier: String(c.tier || '') } : null; };
+    return k && c && c.rank === k && n >= 1 && n <= 21 && n === Math.floor(n) ? { slug: k, nn: (n < 10 ? '0' : '') + n, tier: (String(c.tier || '') === '1 of 121' ? 'Legendary' : String(c.tier || '')) } : null; };
   var shareUrl = function (me) { var k = me && me.rank && SHARE_SLUG[me.rank.key], c = cardOf(me);
     return c ? URL_POW + 'share/' + c.slug + '/' + c.nn + '/' : k ? URL_POW + 'share/' + k + '/' : URL_POW; };
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
@@ -1816,7 +1816,7 @@ def pow_share_page(data, key):
 # base share pages (noindex, not in the sitemap, canonical /proof-of-walk/, humans redirected). Quotes stay in the
 # images, not in page copy. Pages are only made for cards whose image exists, so a missing image keeps the base page.
 POW_CARD_TIERS = {**{n: 'Common' for n in range(1, 11)}, **{n: 'Uncommon' for n in range(11, 17)},
-                  **{n: 'Rare' for n in range(17, 20)}, 20: 'Ultra rare', 21: '1 of 121'}
+                  **{n: 'Rare' for n in range(17, 20)}, 20: 'Ultra rare', 21: 'Legendary'}
 
 
 def pow_card_img(slug, n):
@@ -1872,8 +1872,8 @@ POW_CARD_TEXT = {
     21: ('The Times 03/Jan/2009 Chancellor on brink of second bailout for banks', 'Genesis block coinbase, Block 0, Jan 3 2009', 'The newspaper headline Satoshi put inside the very first Bitcoin block (block 0) on January 3, 2009. It is still there today.', 'https://mempool.space/block/000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f'),
 }
 
-POW_CARD_UNITS = {'Common': 7, 'Uncommon': 6, 'Rare': 4, 'Ultra rare': 2, '1 of 121': 1}   # per card, out of 121 (= the Worker's cards.js)
-POW_CARD_CLASS = {'Common': 't-common', 'Uncommon': 't-uncommon', 'Rare': 't-rare', 'Ultra rare': 't-ultra', '1 of 121': 't-genesis'}
+POW_CARD_UNITS = {'Common': 7, 'Uncommon': 6, 'Rare': 4, 'Ultra rare': 2, 'Legendary': 1}   # per card, out of 121 (= the Worker's cards.js)
+POW_CARD_CLASS = {'Common': 't-common', 'Uncommon': 't-uncommon', 'Rare': 't-rare', 'Ultra rare': 't-ultra', 'Legendary': 't-genesis'}
 POW_CARDS_RANK = 'confirmed'   # the gallery shows the Confirmed set (same 21 sayings and frames on every rank)
 POW_CARDS_CSS = '.strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 16px}\n.strip img,.rank img,.gen img{display:block;width:100%;height:auto;border-radius:8px;border:1px solid #30363d;background:#161b22}\n.strip figcaption{font-size:.75rem;color:#8b949e;margin-top:4px;text-align:center}\n.ranks{list-style:none;display:grid;gap:12px}\n.rank{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:14px;align-items:center;background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px}\n.rank h3{font-size:1.05rem;color:#f7931a;margin-bottom:2px}.rank p{font-size:.92rem;color:#c9d1d9}\n.rank .step{display:inline-block;font-size:.72rem;font-weight:700;color:#8b949e;letter-spacing:.04em;text-transform:uppercase}\n.tiers{list-style:none;border:1px solid #30363d;border-radius:10px;background:#161b22;overflow:hidden}\n.tiers li{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px;border-bottom:1px solid #30363d}\n.tiers li:last-child{border-bottom:0}\n.sw{width:52px;height:34px;border-radius:6px;border:1px solid #30363d}\n.tiers strong{display:block}.tiers .desc{font-size:.85rem;color:#8b949e}\n.tiers .pct{font-weight:800;font-size:1.05rem;text-align:right;white-space:nowrap}.tiers .pct small{display:block;font-size:.7rem;font-weight:400;color:#8b949e}\n.tier{display:inline-block;font-size:.72rem;font-weight:700;border-radius:4px;padding:1px 7px;color:#0d1117}\n.t-common{--f:linear-gradient(135deg,#8a5a2b,#e8b07a 45%,#7a4a1f)}\n.t-uncommon{--f:linear-gradient(135deg,#1f6f8b,#7fe3f0 40%,#2a9d8f 70%,#9be7c4)}\n.t-rare{--f:linear-gradient(135deg,#ff6b6b,#ffd93d,#6bff95,#4dd2ff)}\n.t-ultra{--f:linear-gradient(135deg,#ff4d4d,#ffb84d,#f9ff4d,#4dff88,#4dc3ff,#a64dff,#ff4dd2)}\n.t-genesis{--f:conic-gradient(from 0deg,#ff4d4d,#ffb84d,#f9ff4d,#4dff88,#4dc3ff,#a64dff,#ff4dd2,#ff4d4d)}\n.sw,.tier{background:var(--f)}\n.gen{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px;align-items:center;background:#1f1a0d;border:1px solid #6e5a1e;border-radius:10px;padding:14px;margin:10px 0}\n.gen h3{color:#ffdf80;font-size:1.05rem;margin-bottom:6px}.gen p{font-size:.92rem;color:#e6edf3}.gen p+p{margin-top:8px}\n.gen code{display:block;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.88rem;color:#ffdf80;background:#0d1117;border:1px dashed #6e5a1e;border-radius:8px;padding:8px 10px;margin:8px 0;overflow-wrap:anywhere}\n.grid{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}\n.cc{all:unset;text-decoration:none;color:inherit;box-sizing:border-box;display:flex;flex-direction:column;width:100%;height:100%;cursor:pointer;background:#161b22;border:1px solid #30363d;border-radius:10px;overflow:hidden}\n.cc:hover,.cc:focus-visible{border-color:#f7931a;outline:none}\n.cc img{display:block;width:100%;height:auto;aspect-ratio:16/9}\n.cc-meta{display:flex;justify-content:space-between;align-items:center;padding:8px 10px 2px}\n.cc-no{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;font-size:.85rem;color:#e6edf3}\n.cc-q{display:block;padding:2px 10px 10px;font-size:.85rem;color:#c9d1d9;font-style:italic}\n#cd{border:1px solid #30363d;border-radius:12px;padding:0;background:#161b22;color:#e6edf3;width:min(720px,94vw);max-height:92vh;margin:auto}\n#cd::backdrop{background:rgba(0,0,0,.85)}\n#cd img{display:block;width:100%;height:auto}\n#cd .cd-body{padding:12px 16px 16px}\n#cd .q{font-size:1.05rem;font-style:italic;margin:8px 0 4px}\n#cd .by{font-size:.85rem;color:#8b949e}\n#cd .n{font-size:.92rem;margin-top:10px}\n#cd .cd-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}\n#cd .cd-bar{display:flex;justify-content:space-between;align-items:center;padding:4px 6px 4px 16px;font-size:.85rem;color:#8b949e;border-bottom:1px solid #30363d}\n#cd .cd-close{width:44px;height:44px;border-radius:50%;border:1px solid #30363d;background:#21262d;color:#e6edf3;font-size:1.1rem;cursor:pointer}\n.share-list{list-style:none;display:grid;gap:8px;margin:10px 0}\n.share-list a{display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 12px;border:1px solid #30363d;border-radius:8px;background:#161b22;color:#e6edf3;text-decoration:none;font-size:.92rem}\n.share-list a:hover{border-color:#f7931a;color:#f7931a}\n@media (max-width:600px){.brand-logo{height:36px}.top .tagline{font-size:.72rem;padding-left:10px}.top nav{width:100%}h1{font-size:1.4rem}\n.rank,.gen{grid-template-columns:1fr}.strip{gap:6px}.tiers li{grid-template-columns:40px minmax(0,1fr) auto;gap:10px}.sw{width:40px;height:28px}.grid{grid-template-columns:1fr 1fr;gap:8px}.cc-q{font-size:.8rem}}\n@media (max-width:360px){.grid{grid-template-columns:1fr}}'
 
@@ -1888,14 +1888,14 @@ def pow_cards_odds_html():
             'Uncommon': 'Two-tone foil with a soft streak of light across the art.',
             'Rare': 'Prism foil frame and holographic bands over the art.',
             'Ultra rare': 'Full rainbow foil with ripples and sparkles.',
-            '1 of 121': 'Double rainbow frame, full holographic shine, sparkles.'}
+            'Legendary': 'Double rainbow frame, full holographic shine, sparkles.'}
     rows = []
     for t, u in POW_CARD_UNITS.items():
         ns = [n for n in range(1, 22) if POW_CARD_TIERS[n] == t]
         span = f'Card {ns[0]:02d}' if len(ns) == 1 else f'Cards {ns[0]:02d}–{ns[-1]:02d}'
         tot = u * len(ns)
         each = '' if len(ns) == 1 else f' Each card: {u} in 121.'
-        pct = '1 in 121<small>of cards</small>' if tot == 1 else f'{tot / 121 * 100:.1f}%<small>{tot} in 121</small>'
+        pct = 'Extremely rare' if tot == 1 else f'{tot / 121 * 100:.1f}%<small>{tot} in 121</small>'
         rows.append(f'<li class="{POW_CARD_CLASS[t]}"><span class="sw"></span><span><strong>{e(t)}</strong><span class="desc">{span}. {desc[t]}{each}</span></span><span class="pct">{pct}</span></li>')
     return '<ul class="tiers">' + ''.join(rows) + '</ul>'
 
@@ -1943,7 +1943,7 @@ def pow_cards_page(data):
     desc = 'Every Proof of Walk rank comes with a collectible card: one of 21 designs, each with a famous Bitcoin saying. See all 21 and how rare each one is.'
     lds = ld(breadcrumb_ld([('Map', SITE + '/'), ('Proof of Walk', SITE + '/proof-of-walk/'), ('Cards', canonical)]))
     out = head(title, desc, canonical, f'{SITE}/{pow_card_img("genesis-block", 21)}', 1280, 720,
-               'Proof of Walk card No. 21 of 21, the 1 of 121 Genesis card', lds)
+               'Proof of Walk card No. 21 of 21, the Legendary Genesis card', lds)
     if pow_cfg(data).get('preview'):
         out = out.replace('<meta name="robots" content="index, follow" />', '<meta name="robots" content="noindex, nofollow" />', 1)
     out = out.replace('</style>', POW_CARDS_CSS + '</style>', 1)
@@ -1958,7 +1958,7 @@ def pow_cards_page(data):
     <div class="strip">
       <figure><img src="{th(POW_CARDS_RANK, 1)}" width="640" height="360" alt="Common card No. 01"><figcaption>Common</figcaption></figure>
       <figure><img src="{th(POW_CARDS_RANK, 17)}" width="640" height="360" alt="Rare card No. 17"><figcaption>Rare</figcaption></figure>
-      <figure><img src="{th(POW_CARDS_RANK, 21)}" width="640" height="360" alt="1 of 121 card No. 21"><figcaption>1 of 121</figcaption></figure>
+      <figure><img src="{th(POW_CARDS_RANK, 21)}" width="640" height="360" alt="Legendary card No. 21"><figcaption>Legendary</figcaption></figure>
     </div>
 
     <h2>Earn a rank, get a card</h2>
@@ -1972,14 +1972,14 @@ def pow_cards_page(data):
 
     <h2>How rare is each card?</h2>
     {pow_cards_odds_html()}
-    <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">Odds are per card drawn, out of 121. The diamonds under the serial number show the tier: one for Common, up to five for 1 of 121.</p>
+    <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">Odds are per card drawn, out of 121. The diamonds under the serial number show the tier: one for Common, up to five for Legendary.</p>
 
-    <h2>The 1 of 121 Genesis card</h2>
+    <h2>The Legendary Genesis card</h2>
     <div class="gen">
-      <img src="{th(POW_CARDS_RANK, 21)}" width="640" height="360" loading="lazy" alt="Card 21, 1 of 121: the genesis block headline">
+      <img src="{th(POW_CARDS_RANK, 21)}" width="640" height="360" loading="lazy" alt="Card 21, Legendary: the genesis block headline">
       <div>
         <h3>Card No. 21 · the rarest design</h3>
-        <p>Each time you earn a rank, at any statue, your card gets its own draw, with a 1 in 121 chance of being the Genesis card.</p>
+        <p>Every time you earn a rank, there’s an extremely rare chance your card is the Legendary Genesis card, at any statue.</p>
         <p>That draw is separate from everything else: like the ranks, cards are just for fun, free, and not linked to tips or the giveaway.</p>
       </div>
     </div>

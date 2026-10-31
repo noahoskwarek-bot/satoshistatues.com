@@ -124,7 +124,7 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
   var SHARE_SLUG = { confirmed: 'confirmed', genesis: 'genesis-block', order: 'grand-high-order' };
   // me.card = this walker's prism card for the current rank ({ rank: slug, n: 1-21 }, from the Worker); else the base card.
   var cardOf = function (me) { var k = me && me.rank && SHARE_SLUG[me.rank.key], c = me && me.card, n = c ? Number(c.n) : 0;
-    return k && c && c.rank === k && n >= 1 && n <= 21 && n === Math.floor(n) ? { slug: k, nn: (n < 10 ? '0' : '') + n, tier: String(c.tier || '') } : null; };
+    return k && c && c.rank === k && n >= 1 && n <= 21 && n === Math.floor(n) ? { slug: k, nn: (n < 10 ? '0' : '') + n, tier: (String(c.tier || '') === '1 of 121' ? 'Legendary' : String(c.tier || '')) } : null; };
   var shareUrl = function (me) { var k = me && me.rank && SHARE_SLUG[me.rank.key], c = cardOf(me);
     return c ? URL_POW + 'share/' + c.slug + '/' + c.nn + '/' : k ? URL_POW + 'share/' + k + '/' : URL_POW; };
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
