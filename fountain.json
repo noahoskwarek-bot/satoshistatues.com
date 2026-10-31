@@ -6,7 +6,8 @@
     "el-zonte",
     "budapest",
     "lugano",
-    "vienna"
+    "vienna",
+    "buenos-aires"
   ],
   "claim_minutes": 21,
   "address_retention_days": 90,
