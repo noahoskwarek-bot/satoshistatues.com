@@ -140,6 +140,12 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
     var s = document.createElement('script'); s.src = window.SS_POWCARD || '/pow-card.js'; s.onload = function () { if (window.PowCard) fn(window.PowCard); }; document.head.appendChild(s);
   };
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  // Top card tier pill (same as LB_JS tierPill; Noah 2026-11-01 8:18 AM ET via Matt): m.top_tier from /api/pow/order; null = no cards = no pill.
+  var TIER_CLASS = { 'Common': 't-common', 'Uncommon': 't-uncommon', 'Rare': 't-rare', 'Ultra rare': 't-ultra', 'Legendary': 't-genesis' };
+  function tierPill(t) {
+    if (!t || !TIER_CLASS[t]) return '';
+    return '<a class="lb-tier ' + TIER_CLASS[t] + '" href="/proof-of-walk/cards/" title="Top card collected: ' + esc(t) + '">' + esc(t) + '</a>';
+  }
   var get = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
   var set = function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} };
   var $ = function (id) { return document.getElementById(id); };
@@ -297,12 +303,12 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
     getj('/api/pow/order').then(function (j) {
       if (!j.ok) { off(el); off(ge); return; }
       el.innerHTML = j.members.length ? j.members.map(function (m) {
-        return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + esc(m.name) + '</span><span class="lb-meta">Since ' +
-          day(m.since) + '</span></span><span class="lb-stamps">' + m.stamps + '<small>statues</small></span></li>';
+        return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + esc(m.name) + tierPill(m.top_tier) + '</span><span class="lb-meta">Since ' +
+          day(m.since) + '</span></span><span class="lb-stamps">' + m.stamps + '<small>card' + (m.stamps === 1 ? '' : 's') + '</small></span></li>';
       }).join('') : '<li class="lb-empty">No members yet. Mine the Genesis Block, then collect 1 more card to join.</li>';
       if (ge) ge.innerHTML = (j.genesis || []).length ? j.genesis.map(function (m) {
-        return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + esc(m.name) + '</span><span class="lb-meta">Mined ' +
-          day(m.joined) + '</span></span><span class="lb-stamps">' + m.stamps + '<small>statues</small></span></li>';
+        return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + esc(m.name) + tierPill(m.top_tier) + '</span><span class="lb-meta">Mined ' +
+          day(m.joined) + '</span></span><span class="lb-stamps">' + m.stamps + '<small>card' + (m.stamps === 1 ? '' : 's') + '</small></span></li>';
       }).join('') : '<li class="lb-empty">No miners yet. Collect cards from any ' + (j.genesis_at || 3) + ' of the original 10 to mine the Genesis Block.</li>';
     }).catch(function () { off(el); off(ge); });
   }

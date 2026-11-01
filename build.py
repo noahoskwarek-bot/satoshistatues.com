@@ -1660,6 +1660,12 @@ POW_JS = r"""<script src="/share.js"></script>
     var s = document.createElement('script'); s.src = window.SS_POWCARD || '/pow-card.js'; s.onload = function () { if (window.PowCard) fn(window.PowCard); }; document.head.appendChild(s);
   };
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  // Top card tier pill (same as LB_JS tierPill; Noah 2026-11-01 8:18 AM ET via Matt): m.top_tier from /api/pow/order; null = no cards = no pill.
+  var TIER_CLASS = { 'Common': 't-common', 'Uncommon': 't-uncommon', 'Rare': 't-rare', 'Ultra rare': 't-ultra', 'Legendary': 't-genesis' };
+  function tierPill(t) {
+    if (!t || !TIER_CLASS[t]) return '';
+    return '<a class="lb-tier ' + TIER_CLASS[t] + '" href="/proof-of-walk/cards/" title="Top card collected: ' + esc(t) + '">' + esc(t) + '</a>';
+  }
   var get = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
   var set = function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} };
   var $ = function (id) { return document.getElementById(id); };
@@ -1817,12 +1823,12 @@ POW_JS = r"""<script src="/share.js"></script>
     getj('/api/pow/order').then(function (j) {
       if (!j.ok) { off(el); off(ge); return; }
       el.innerHTML = j.members.length ? j.members.map(function (m) {
-        return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + esc(m.name) + '</span><span class="lb-meta">Since ' +
-          day(m.since) + '</span></span><span class="lb-stamps">' + m.stamps + '<small>statues</small></span></li>';
+        return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + esc(m.name) + tierPill(m.top_tier) + '</span><span class="lb-meta">Since ' +
+          day(m.since) + '</span></span><span class="lb-stamps">' + m.stamps + '<small>card' + (m.stamps === 1 ? '' : 's') + '</small></span></li>';
       }).join('') : '<li class="lb-empty">No members yet. Mine the Genesis Block, then collect 1 more card to join.</li>';
       if (ge) ge.innerHTML = (j.genesis || []).length ? j.genesis.map(function (m) {
-        return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + esc(m.name) + '</span><span class="lb-meta">Mined ' +
-          day(m.joined) + '</span></span><span class="lb-stamps">' + m.stamps + '<small>statues</small></span></li>';
+        return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + esc(m.name) + tierPill(m.top_tier) + '</span><span class="lb-meta">Mined ' +
+          day(m.joined) + '</span></span><span class="lb-stamps">' + m.stamps + '<small>card' + (m.stamps === 1 ? '' : 's') + '</small></span></li>';
       }).join('') : '<li class="lb-empty">No miners yet. Collect cards from any ' + (j.genesis_at || 3) + ' of the original 10 to mine the Genesis Block.</li>';
     }).catch(function () { off(el); off(ge); });
   }
@@ -1882,6 +1888,7 @@ def pow_roll_page(data):
     <h1>🏛️ {e(ORDER_NAME)}</h1>
     <p class="sub">The members’ roll: walkers with {e(pow_order_rule(data))}. {e(pow_keep_text(data))}</p>
     <p class="note">Ranked by total cards collected; on a tie, whoever got there first ranks higher.</p>
+    <p class="note">✨ The colored pill shows the rarest city card each walker has collected, from Common up to Legendary. <a href="/proof-of-walk/cards/">About the cards →</a></p>
     <ol class="lb-list pow-roll" id="pow-roll"><li class="lb-empty">Loading…</li></ol>
     <h2 id="genesis">🧱 {e(GENESIS_TITLE)}</h2>
     <p class="note">Walkers who collected cards from {e(pow_genesis_rule(data))}.</p>
