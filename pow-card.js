@@ -186,13 +186,13 @@
     c.fillStyle = '#3d2706'; c.beginPath(); c.arc(cx, cy - r * .1, r * .26, Math.PI * .8, Math.PI * 2.2); c.lineTo(cx, cy + r * .36); c.closePath(); c.fill();
     c.strokeStyle = '#f6d27a'; c.lineWidth = r * .07; c.lineCap = 'round'; c.beginPath(); c.moveTo(cx - r * .12, cy - r * .1); c.lineTo(cx - r * .02, cy); c.lineTo(cx + r * .14, cy - r * .2); c.stroke();
   }
-  // "Link your X" (PREVIEW, Noah 2026-11-01 11:04 AM ET via Matt): card.x = the walker's verified X handle (no "@"),
+  // "Link your X" (PREVIEW, Noah 2026-11-01 11:04 AM ET via Matt): card.x = the walker's linked X handle (no "@"),
   // only when they linked X with X's own sign-in. Then the front and back show "@handle" with a small blue check and
-  // "X verified". Cards of walkers who didn't link X are drawn exactly as before.
+  // a plain blue ✓ "Verified" (Noah 2026-11-01 11:36 AM ET; never X's badge shape). Cards of walkers who didn't link X are drawn exactly as before.
   function xHandle(card) { return card && typeof card.x === 'string' && /^[A-Za-z0-9_]{1,15}$/.test(card.x) ? '@' + card.x : ''; }
   function xCheck(c, x, y, r) {
-    c.save(); c.fillStyle = '#1d9bf0'; c.beginPath(); c.arc(x, y, r, 0, 7); c.fill();
-    c.strokeStyle = '#fff'; c.lineWidth = r * .26; c.lineCap = 'round'; c.lineJoin = 'round';
+    // a plain blue tick (like the ✓ character), no circle or badge shape behind it
+    c.save(); c.strokeStyle = '#1d9bf0'; c.lineWidth = r * .34; c.lineCap = 'round'; c.lineJoin = 'round';
     c.beginPath(); c.moveTo(x - r * .45, y + r * .02); c.lineTo(x - r * .1, y + r * .36); c.lineTo(x + r * .48, y - r * .34); c.stroke(); c.restore();
   }
   // the handle pill on the front, between the rank shield and the GPS seal
@@ -203,7 +203,7 @@
     c.strokeStyle = 'rgba(29,155,240,.9)'; c.lineWidth = 2.5; c.stroke(); c.restore();
     xCheck(c, cx - pw / 2 + 20 + 17, y + ph / 2, 17);
     c.fillStyle = '#fff'; f(c, 800, sz, 'PCInter'); c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillText(h, cx - pw / 2 + 20 + 34 + 12, y + ph / 2 + 1);
-    c.textBaseline = 'alphabetic'; c.textAlign = 'center'; c.fillStyle = '#8ecdf8'; f(c, 800, 18, 'PCInter'); spaced(c, 'X VERIFIED', cx, y - 10, 4, 'center');
+    c.textBaseline = 'alphabetic'; c.textAlign = 'center'; c.fillStyle = '#8ecdf8'; f(c, 800, 18, 'PCInter'); spaced(c, '✓ VERIFIED', cx, y - 10, 4, 'center');
   }
   // ---------- the two sides ----------
   async function front(c, card, o) {
@@ -249,7 +249,7 @@
     c.fillStyle = t === 'Common' ? hsl(q.hue, 55, 62) : rainbow(c, 0, 0, W, 0);
     for (var i = 0; i < dia; i++) { var dx = W / 2 - bw / 2 + 22 + lw + 26 + i * 26, dy = 593; c.beginPath(); c.moveTo(dx, dy - 10); c.lineTo(dx + 9, dy); c.lineTo(dx, dy + 10); c.lineTo(dx - 9, dy); c.closePath(); c.fill(); }
     // GPS-verified check-in box
-    // with a verified X handle the box gains one line ("✓ @handle · X verified") and the QR tile is 10 units smaller
+    // with a linked X handle the box gains one line ("✓ @handle · Verified") and the QR tile is 10 units smaller
     var xh = xHandle(card), bh = xh ? 232 : 206, ly = xh ? [690, 734, 776, 816] : [694, 744, 790, 834];
     c.textAlign = 'center'; c.strokeStyle = 'rgba(247,147,26,.9)'; c.lineWidth = 2.5; rr(c, 150, 648, 700, bh, 18); c.fillStyle = 'rgba(0,0,0,.35)'; c.fill(); c.stroke();
     c.fillStyle = ORANGE; f(c, 800, 26, 'PCInter'); spaced(c, 'GPS-VERIFIED CHECK-IN', W / 2, ly[0], 4, 'center');
@@ -258,7 +258,7 @@
     f(c, 500, 30, 'PCMono'); c.fillText(p ? p.day + ' ' + p.mon + ' ' + p.year + (card.dateOnly ? '' : ' · ' + p.hm + ' ' + p.tz) : 'Date shown on your card', W / 2, ly[2]);   // dateOnly: public share page (date, no time)
     fit(c, 'Verify code: ' + (card.code || 'PW-XXXX-XXXX'), 640, 30, 500, 'PCMono', 18); c.fillText('Verify code: ' + (card.code || 'PW-XXXX-XXXX'), W / 2, ly[3]);
     if (xh) {
-      var xt = xh + ' · X verified', xs = fit(c, xt, 560, 30, 800, 'PCInter', 18), xw = c.measureText(xt).width, x0 = W / 2 - (xw + 40) / 2;
+      var xt = xh + ' · Verified', xs = fit(c, xt, 560, 30, 800, 'PCInter', 18), xw = c.measureText(xt).width, x0 = W / 2 - (xw + 40) / 2;
       xCheck(c, x0 + 14, 849, 14); c.fillStyle = '#8ecdf8'; c.textAlign = 'left'; c.fillText(xt, x0 + 40, 849 + xs * .36); c.textAlign = 'center';
     }
     // QR (EC level M, 4-module quiet zone) on a light tile: 300 units = 450 px on the print file
@@ -360,13 +360,13 @@
     el.classList.add('pc');
     var city = esc(d.statues[card.slug].subtitle.split(',')[0]);
     el.innerHTML = '<p class="pc-rank">' + (card.earns === false ? '🗺️ <strong>' + city + ' card ✓</strong> · ' + d.ranks[k].emoji + ' ' + esc(d.ranks[k].label)
-      : d.ranks[k].emoji + ' <strong>' + esc(d.ranks[k].label) + ' ✓</strong> · ' + esc(d.statues[card.slug].label)) + '</p><div class="pc-stage"><canvas class="pc-face" data-side="front" role="img" aria-label="Your ' + esc(d.ranks[k].label) + ' card, front: ' + esc(d.statues[card.slug].label) + (xHandle(card) ? ', ' + esc(xHandle(card)) + ', X verified' : '') + '"></canvas>' +
+      : d.ranks[k].emoji + ' <strong>' + esc(d.ranks[k].label) + ' ✓</strong> · ' + esc(d.statues[card.slug].label)) + '</p><div class="pc-stage"><canvas class="pc-face" data-side="front" role="img" aria-label="Your ' + esc(d.ranks[k].label) + ' card, front: ' + esc(d.statues[card.slug].label) + (xHandle(card) ? ', ' + esc(xHandle(card)) + ', verified' : '') + '"></canvas>' +
       '<canvas class="pc-face" data-side="back" hidden role="img" aria-label="Your card, back: card ' + card.n + ' of 21, verify code ' + esc(card.code || '') + '"></canvas></div>' +
       '<div class="pc-flip" role="group" aria-label="Card side"><button type="button" data-flip="front" aria-pressed="true">Front</button><button type="button" data-flip="back" aria-pressed="false">Back</button></div>' +
       '<div class="pc-share"><button class="btn primary pc-main" type="button" data-pc="share">📤 Share</button>' +
-      '<div class="pc-fb"><a class="btn" data-pc="x" href="' + esc('https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url)) + '" target="_blank" rel="noopener noreferrer">𝕏 Post on X</a>' +
+      '<div class="pc-fb"><a class="btn" data-pc="x" href="' + esc('https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url)) + '" target="_blank" rel="noopener noreferrer">Post on X</a>' +
       '<a class="btn" data-pc="save" href="#" download="' + esc(name) + '">⬇️ Save image</a><button class="btn" type="button" data-pc="copy">🔗 Copy link</button></div>' +
-      '<p class="pc-hint">Your card shows your check-in date' + (xHandle(card) ? ', verify code and your X verified ' + esc(xHandle(card)) : ' and verify code') + '. <span class="pc-toast" role="status" aria-live="polite"></span></p></div>' +
+      '<p class="pc-hint">Your card shows your check-in date' + (xHandle(card) ? ', verify code and your ' + esc(xHandle(card)) + ' with a blue ✓ Verified' : ' and verify code') + '. <span class="pc-toast" role="status" aria-live="polite"></span></p></div>' +
       '<section class="pc-print" aria-labelledby="pc-print-h-' + k + '"><h3 id="pc-print-h-' + k + '">🖨️ Get a print</h3>' +
       '<p class="pc-sub">Print it yourself: print-ready files for the front and back, 1650 × 2250 px each (2.5 × 3.5 in card at 600 dpi, with 1/8 in bleed on every side). Trim to 2.5 × 3.5 in.</p>' +
       '<div class="pc-row"><button class="btn" type="button" data-print="front">⬇️ Front (print PNG)</button><button class="btn" type="button" data-print="back">⬇️ Back (print PNG)</button></div>' +

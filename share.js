@@ -25,7 +25,7 @@
     return '<div class="ss-share" role="group" aria-label="' + esc(label || 'Share') + '">' +
       (label ? '<span class="ss-share-q">' + esc(label) + '</span>' : '') +
       '<button class="btn" type="button" data-ss-share data-text="' + esc(text) + '" data-url="' + esc(url) + '" aria-label="Share with your phone’s share sheet, or copy the link">📤 Share</button>' +
-      '<a class="btn" href="' + esc(xIntent(text, url)) + '" target="_blank" rel="noopener noreferrer" aria-label="Share on X (opens in a new tab)">𝕏 Share on X</a>' +
+      '<a class="btn" href="' + esc(xIntent(text, url)) + '" target="_blank" rel="noopener noreferrer" aria-label="Share on X (opens in a new tab)">Share on X</a>' +
       '<span class="ss-share-ok" role="status" aria-live="polite"></span></div>';
   }
   function copied(b, ok, text) {

@@ -175,13 +175,13 @@ function powStatus(me) {
 }
 // Per-check-in cards (passport-cards): every successful GPS check-in shows its card (p.me.stamp_cards[slug]: rank as of
 // this check-in, quote, verify code), not only rank-ups.
-// "Link your X" (PREVIEW, Noah 2026-11-01 11:04 AM ET via Matt): the walker's verified X handle goes on the card
+// "Link your X" (PREVIEW, Noah 2026-11-01 11:04 AM ET via Matt): the walker's linked X handle goes on the card
 // (card.x); walkers who haven't linked get an optional "Link your X" button under the card. X's own sign-in page; we
 // only read the @handle and never post. After X, the walker lands on /proof-of-walk/ where the link is confirmed.
 let powXHandle = '';
 function xLinkPromptHtml() {
-  return '<div class="lb-note x-prompt" style="margin-top:10px">𝕏 Want your @handle on your cards and the leaderboard, with an “X verified” check? ' +
-    '<button type="button" data-x-link style="display:inline-flex;align-items:center;min-height:44px;padding:8px 18px;margin:6px 0;border-radius:999px;border:0;background:#e7e9ea;color:#0d1117;font-weight:700;font-size:.95rem;font-family:inherit;cursor:pointer">𝕏 Link your X</button>' +
+  return '<div class="lb-note x-prompt" style="margin-top:10px">Want your @handle on your cards and the leaderboard, with a blue ✓ Verified? ' +
+    '<button type="button" data-x-link style="display:inline-flex;align-items:center;min-height:44px;padding:8px 18px;margin:6px 0;border-radius:999px;border:0;background:#e7e9ea;color:#0d1117;font-weight:700;font-size:.95rem;font-family:inherit;cursor:pointer">Link your X</button>' +
     '<br><span style="font-size:.8rem;color:#8b949e">Optional. You sign in on X; we only read your handle. We never post or send messages.</span><span class="x-msg" aria-live="polite" style="display:block;color:#f0883e;font-size:.85rem"></span></div>';
 }
 document.addEventListener('click', ev => {
@@ -190,9 +190,9 @@ document.addEventListener('click', ev => {
   b.disabled = true; b.textContent = 'Opening X…';
   lbPost('/api/x/start', { device_id: lbDevice() }).then(({ j }) => {
     if (j.ok && j.url) { location.href = j.url; return; }
-    b.disabled = false; b.textContent = '𝕏 Link your X';
+    b.disabled = false; b.textContent = 'Link your X';
     const m = b.parentNode.querySelector('.x-msg'); if (m) m.textContent = j.message || "Couldn't open X. Please try again.";
-  }).catch(() => { b.disabled = false; b.textContent = '𝕏 Link your X'; });
+  }).catch(() => { b.disabled = false; b.textContent = 'Link your X'; });
 }, true);
 function powCardRevealHtml(sc, slug, head) {
   const card = { rank: sc.rank, slug, n: Number(sc.n), at: sc.at, code: sc.code, earns: !!sc.earns, ...(powXHandle ? { x: powXHandle } : {}) };
@@ -224,7 +224,7 @@ function powRankUpHtml(p, s) {
     return `<div class="lb-note pow-up">${head}</div><div class="pc-reveal" data-pc="${escHtml(JSON.stringify(card))}"><p class="lb-note">🗺️ Your new card is on its way…</p></div>`;
   }
   const share = window.SSShare ? window.SSShare.row(p.me.share, url, 'Share your rank')
-    : `<div class="ci-share"><a class="btn" href="https://x.com/intent/post?text=${encodeURIComponent(p.me.share)}&url=${encodeURIComponent(url)}" target="_blank" rel="noopener noreferrer">𝕏 Share on X</a></div>`;
+    : `<div class="ci-share"><a class="btn" href="https://x.com/intent/post?text=${encodeURIComponent(p.me.share)}&url=${encodeURIComponent(url)}" target="_blank" rel="noopener noreferrer">Share on X</a></div>`;
   return `<div class="lb-note pow-up">${head}</div>${share}`;
 }
 // Mount any card reveal that was just shown (pow-card.js renders the card, Share, Save image and Get a print).
@@ -294,7 +294,7 @@ function checkinTooFarHtml(s, d, accuracy) {
       // share.js (every statue page): share sheet + X with the check-in line. Older cached pages keep the X-only row.
       if (window.SSShare && d.shareName) return window.SSShare.row(`I just checked in at ${d.shareName} ⚡`, url, 'Share your check-in') + more;
       const x = `https://x.com/intent/post?text=${encodeURIComponent(shareText(p))}&url=${encodeURIComponent(url)}`;
-      return `<div class="ci-share"><a class="btn" href="${x}" target="_blank" rel="noopener noreferrer">𝕏 Share on X</a><a class="btn" href="/?s=${s.page}">📤 Share card on the map</a><a class="btn" href="/#passport">🛂 My passport</a></div>`;
+      return `<div class="ci-share"><a class="btn" href="${x}" target="_blank" rel="noopener noreferrer">Share on X</a><a class="btn" href="/?s=${s.page}">📤 Share card on the map</a><a class="btn" href="/#passport">🛂 My passport</a></div>`;
     }
     function collected(p) {
       btn.hidden = true;

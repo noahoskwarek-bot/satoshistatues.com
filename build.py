@@ -478,6 +478,8 @@ def terms_page(data):
     {giveaway}
     <h2>Tips</h2>
     {tips}
+    <h2>Linking your X account</h2>
+    <p class="note">Linking your X account is optional. {e(X_DISCLAIMER)}</p>
     <h2>Privacy</h2>
     <p class="note">What we store and for how long: <a href="/privacy/">Privacy</a>.</p>{'<p class="note">Giveaway amounts and odds: <a href="/rules/">Official Rules</a>.</p>' if rules_on(data) else ''}
     <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">Last updated {BUILD_DATE}.</p>
@@ -580,7 +582,7 @@ def share_box(s):
             f'<span class="ss-share-q">Share this statue</span>'
             f'<button class="btn" type="button" data-ss-share data-text="{e(text)}" data-url="{e(url)}" '
             f'aria-label="Share with your phone’s share sheet, or copy the link">📤 Share</button>'
-            f'<a class="btn" href="{e(x)}" target="_blank" rel="noopener noreferrer" aria-label="Share on X (opens in a new tab)">𝕏 Share on X</a>'
+            f'<a class="btn" href="{e(x)}" target="_blank" rel="noopener noreferrer" aria-label="Share on X (opens in a new tab)">Share on X</a>'
             f'<span class="ss-share-ok" role="status" aria-live="polite"></span></div>')
 
 
@@ -608,7 +610,14 @@ def footer(data, extra=''):
 
 def support_line():
     # 'Questions? support@…' on its own small line at the bottom of every page's footer (home: BUILD:SUPPORT block).
-    return f'<span class="support-line">Questions? <a href="mailto:{SUPPORT_EMAIL}">{SUPPORT_EMAIL}</a></span>'
+    return (f'<span class="support-line">Questions? <a href="mailto:{SUPPORT_EMAIL}">{SUPPORT_EMAIL}</a></span>'
+            f'<span class="support-line x-disc" id="x-disclaimer">{e(X_DISCLAIMER)}</span>')
+
+
+# Footer + terms disclaimer for the blue ✓ "Verified" badge (Noah 2026-11-01 11:36 AM ET; text as given, typographic quotes).
+X_DISCLAIMER = ('SatoshiStatues.com is not affiliated with or endorsed by X Corp. ‘Verified’ means the walker signed in with that X account. '
+                'It is not X’s own verification badge.')
+PRIVACY_UPDATED = '2026-11-01'   # privacy text changed for Link your X (Grant's edits); independent of BUILD_DATE
 
 
 def slug_of(s):
@@ -1339,7 +1348,13 @@ CARDS_LINK_CSS = ('a.cards-link,a.cards-link:visited{display:inline-flex;align-i
                   'a.cards-link:hover,a.cards-link:focus-visible{border-color:#f7931a;background:rgba(247,147,26,.15);color:#f7931a;text-decoration:none}'
                   '.cg-more{text-align:center;margin:10px 0 0}') + (
     # "Link your X" (PREVIEW, Noah 2026-11-01 11:04 AM ET via Matt): verified-handle check, "unverified" tag, Link box.
-    '.xv{display:inline-flex;align-items:center;justify-content:center;width:1.05em;height:1.05em;margin-left:4px;border-radius:50%;background:#1d9bf0;color:#fff;font-size:.72em;font-weight:900;vertical-align:middle;line-height:1}'
+    # Badge (Noah 2026-11-01 11:36 AM ET, "Just Verified with a checkmark"): a plain blue ✓ character, never X's badge shape.
+    # Tap or hover shows what it means (<details> popover, no JS needed, works on iPhone).
+    '.xv{color:#1d9bf0;font-weight:900;margin-left:4px;cursor:pointer;list-style:none;display:inline}'
+    '.xv::-webkit-details-marker{display:none}.xv::marker{content:""}'
+    '.xvd{display:inline;position:relative}'
+    '.xvd .xtip{position:absolute;z-index:20;left:-40px;top:1.6em;width:230px;background:#161b22;border:1px solid #1d9bf0;border-radius:8px;padding:8px 10px;font-size:.8rem;font-weight:400;line-height:1.35;color:#e6edf3;box-shadow:0 6px 18px rgba(0,0,0,.5);white-space:normal;text-align:left}'
+    '.xvd .xtip a{color:#58a6ff}'
     '.xu{display:inline-block;margin-left:6px;font-size:.68rem;font-weight:600;color:#8b949e;border:1px dashed #484f58;border-radius:999px;padding:0 7px;vertical-align:middle;white-space:nowrap}'
     '.xlink{background:#0d1117;border:1px solid #30363d;border-left:3px solid #1d9bf0;border-radius:10px;padding:12px 14px;margin:12px 0;font-size:.92rem;scroll-margin-top:12px}'
     '.xlink.on{border-left-color:#3fb950}.xlink p{margin:4px 0 8px}'
@@ -1400,11 +1415,12 @@ LB_JS = r"""<script>
     if (s < 129600) return Math.round(s / 3600) + ' h ago';
     return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
   }
-  // "Link your X" (PREVIEW): e.x_verified = handle proven with X sign-in (link + blue check); e.name_unverified = an older
+  // "Link your X" (PREVIEW): e.x_linked = handle proven with X sign-in (link + blue check); e.name_unverified = an older
   // typed "@" nickname (plain text + "unverified" tag, no link). Everyone else: the nickname as before.
+  var XV = '<details class="xvd"><summary class="xv" title="Signed in with this X account. Not X’s verification badge." aria-label="Verified">✓</summary><span class="xtip" role="note"><strong>Verified:</strong> Signed in with this X account. Not X’s verification badge. <a href="#x-disclaimer">More</a></span></details>';   // blue ✓ Verified with its tap/hover note
   function nameHtml(e) {
     var n = esc(e.name);
-    if (e.x_verified && /^@[A-Za-z0-9_]{1,15}$/.test(e.name)) return '<a href="https://x.com/' + e.name.slice(1) + '" target="_blank" rel="noopener noreferrer nofollow">' + n + '</a><span class="xv" title="X verified" aria-label="X verified">✓</span>';
+    if (e.x_linked && /^@[A-Za-z0-9_]{1,15}$/.test(e.name)) return '<a href="https://x.com/' + e.name.slice(1) + '" target="_blank" rel="noopener noreferrer nofollow">' + n + '</a>' + XV;
     if (e.name_unverified) return n + '<span class="xu" title="Typed name, not checked with X">unverified</span>';
     return n;
   }
@@ -1456,10 +1472,10 @@ LB_JS = r"""<script>
           pill(m.pow) + tierPill(m.top_tier) + '. ' + (m.pow && m.pow.genesis && !m.pow.order ? 'Collect 1 more card to join the Grand High Order. ' : '') : 'No cards on the leaderboard yet. ') +
           'Your name: <strong>' + nameHtml(m) + '</strong>' +
           (m.x ? '<p class="lb-meta" style="margin-top:6px">Linked to X. Manage it on <a href="/proof-of-walk/#xlink">your passport</a>.</p>'
-            : (m.name_released ? '<p class="x-note">Your old name <strong>' + esc(m.name_released) + '</strong> now belongs to its X verified owner. Pick a new nickname, or link your X.</p>' : '') +
+            : (m.name_released ? '<p class="x-note">Your old name <strong>' + esc(m.name_released) + '</strong> now belongs to the owner of that X account, who linked it. Pick a new nickname, or link your X.</p>' : '') +
               (m.name_unverified ? '<p class="x-note">Your name isn’t checked with X, so it shows as “unverified”. <a href="/proof-of-walk/#xlink">Link your X</a> to show it with a check.</p>' : '') +
               '<form class="lb-nick" id="lb-nick"><input name="nick" maxlength="20" aria-label="Nickname" placeholder="Nickname" value="' + esc(m.nickname || '') + '"><button type="submit">Save name</button></form><div class="lb-msg" id="lb-msg" aria-live="polite"></div>' +
-              '<p class="lb-meta" style="margin-top:6px">Want your @handle here with a check? <a href="/proof-of-walk/#xlink">𝕏 Link your X</a> (optional).</p>');
+              '<p class="lb-meta" style="margin-top:6px">Want your @handle here with a blue ✓ Verified? <a href="/proof-of-walk/#xlink">Link your X</a> (optional).</p>');
         if (!document.getElementById('lb-nick')) return;
         document.getElementById('lb-nick').addEventListener('submit', function (ev) {
           ev.preventDefault();
@@ -1686,9 +1702,10 @@ POW_JS = r"""<script src="/share.js"></script>
     return '<a class="lb-tier ' + TIER_CLASS[t] + '" href="/proof-of-walk/cards/" title="Top card collected: ' + esc(t) + '">' + esc(t) + '</a>';
   }
   // "Link your X" (PREVIEW): verified check / "unverified" tag on names (same as LB_JS nameHtml).
+  var XV = '<details class="xvd"><summary class="xv" title="Signed in with this X account. Not X’s verification badge." aria-label="Verified">✓</summary><span class="xtip" role="note"><strong>Verified:</strong> Signed in with this X account. Not X’s verification badge. <a href="#x-disclaimer">More</a></span></details>';   // blue ✓ Verified with its tap/hover note
   function nameHtml(e) {
     var n = esc(e.name);
-    if (e.x_verified && /^@[A-Za-z0-9_]{1,15}$/.test(e.name)) return '<a href="https://x.com/' + e.name.slice(1) + '" target="_blank" rel="noopener noreferrer nofollow" style="color:inherit">' + n + '</a><span class="xv" title="X verified" aria-label="X verified">✓</span>';
+    if (e.x_linked && /^@[A-Za-z0-9_]{1,15}$/.test(e.name)) return '<a href="https://x.com/' + e.name.slice(1) + '" target="_blank" rel="noopener noreferrer nofollow" style="color:inherit">' + n + '</a>' + XV;
     if (e.name_unverified) return n + '<span class="xu" title="Typed name, not checked with X">unverified</span>';
     return n;
   }
@@ -1746,7 +1763,7 @@ POW_JS = r"""<script src="/share.js"></script>
       var c = cardFor(me, b.getAttribute('data-cg')), box = $('pow-combo'); if (!c || !box) return;
       box.hidden = false; box.innerHTML = '<p class="pow-sub">Loading your card…</p>';
       if (c.pending) { box.innerHTML = '<p class="pow-sub">This card is still being made. Reload the page in a moment.</p>'; return; }
-      if (me && me.x && me.x.username) c.x = me.x.username;   // verified X handle on the card (Link your X)
+      if (me && me.x && me.x.username) c.x = me.x.username;   // linked X handle on the card (Link your X)
       withPowCard(function (P) { var holder = document.createElement('div'); box.innerHTML = '<div class="cg-view-bar"><button type="button" data-cg-close>✕ Close card</button><a href="/' + esc((MAP.filter(function (m) { return m.slug === c.slug; })[0] || {}).page || '') + '/">Statue page →</a></div>'; box.appendChild(holder);
         box.querySelector('[data-cg-close]').addEventListener('click', function () { box.hidden = true; box.innerHTML = ''; b.focus(); });
         P.mount(holder, c).then(function () { box.scrollIntoView({ block: 'start', behavior: 'smooth' }); }); });
@@ -1756,7 +1773,7 @@ POW_JS = r"""<script src="/share.js"></script>
   function renderMe(me) {
     var el = $('pow-me'); if (!el) return;
     var gN = me.genesis_at || 3;
-    var h = '<div class="pow-sub">Your Satoshi Passport rank' + (me.x ? ' · <strong>@' + esc(me.x.username) + '</strong><span class="xv" aria-label="X verified">✓</span>' : me.nickname ? ' · <strong>' + esc(me.nickname) + '</strong>' + (me.nick_unverified ? '<span class="xu">unverified</span>' : '') : '') + '</div>' +
+    var h = '<div class="pow-sub">Your Satoshi Passport rank' + (me.x ? ' · <strong>@' + esc(me.x.username) + '</strong>' + XV : me.nickname ? ' · <strong>' + esc(me.nickname) + '</strong>' + (me.nick_unverified ? '<span class="xu">unverified</span>' : '') : '') + '</div>' +
       '<div class="pow-rank">' + esc(me.rank.label || 'No rank yet') + '</div>';
     if (me.order) h += '<div class="pow-genesis">🏛️ <strong>The Grand High Order of Fellow Travelers</strong> · since ' + esc((me.order_since || '').slice(0, 10)) +
       '<br><span class="pow-fine">' + me.distinct_stamps + ' cards collected</span></div>';
@@ -1799,21 +1816,21 @@ POW_JS = r"""<script src="/share.js"></script>
   var xNote = '';
   function xBox(me) {
     var note = xNote ? '<div class="lb-msg" id="x-msg" aria-live="polite" style="color:#3fb950">' + xNote + '</div>' : '<div class="lb-msg" id="x-msg" aria-live="polite"></div>';
-    if (me.x) return '<div class="xlink on" id="xlink"><strong>@' + esc(me.x.username) + '</strong><span class="xv" aria-label="X verified">✓</span> <span class="pow-fine">X verified · linked ' + esc(fmtDay(me.x.verified_at)) + '</span>' +
-      '<p class="pow-fine">Your cards, card pages and the leaderboards show this handle with a check.</p>' +
+    if (me.x) return '<div class="xlink on" id="xlink">✅ Verified: <strong>@' + esc(me.x.username) + '</strong>' + XV + ' <span class="pow-fine">· linked ' + esc(fmtDay(me.x.linked_at)) + '</span>' +
+      '<p class="pow-fine">Your cards, card pages and the leaderboards show this handle with a blue ✓ Verified. It means you signed in with this X account; it isn’t X’s own verification badge.</p>' +
       '<button class="pow-ghost" type="button" id="x-relink">Refresh handle</button> <button class="pow-ghost" type="button" id="x-unlink">Unlink X</button>' + note + '</div>';
     return '<div class="xlink" id="xlink">' +
-      (me.name_released ? '<p class="x-note">Your old name <strong>' + esc(me.name_released) + '</strong> now belongs to its X verified owner, so it was removed. Pick a new nickname below, or link your X.</p>' : '') +
-      (me.nick_unverified ? '<p class="x-note">Your name <strong>' + esc(me.nickname) + '</strong> isn’t checked with X, so it shows as “unverified”. Link your X to show it with a check.</p>' : '') +
-      '<strong>𝕏 Link your X</strong> <span class="pow-fine">(optional)</span>' +
-      '<p class="pow-fine">Show your @handle on your cards and the leaderboard with an “X verified” check. You sign in on X, and we only read your handle. We never post or send messages, and we don’t keep your X login.</p>' +
-      '<button class="x-btn" type="button" id="x-link">𝕏 Link your X</button>' + note + '</div>';
+      (me.name_released ? '<p class="x-note">Your old name <strong>' + esc(me.name_released) + '</strong> now belongs to the owner of that X account, who linked it, so it was removed. Pick a new nickname below, or link your X.</p>' : '') +
+      (me.nick_unverified ? '<p class="x-note">Your name <strong>' + esc(me.nickname) + '</strong> isn’t checked with X, so it shows as “unverified”. Link your X to show it with a blue ✓ Verified.</p>' : '') +
+      '<strong>Link your X</strong> <span class="pow-fine">(optional)</span>' +
+      '<p class="pow-fine">Show your @handle on your cards and the leaderboard with a blue ✓ Verified. You sign in on X, and we only read your handle. We never post or send messages, and we don’t keep your X login.</p>' +
+      '<button class="x-btn" type="button" id="x-link">Link your X</button>' + note + '</div>';
   }
   function xStart(btn) {
     if (btn) { btn.disabled = true; btn.textContent = 'Opening X…'; }
     post('/api/x/start', { device_id: dev }).then(function (j) {
       if (j.ok && j.url) { location.href = j.url; return; }
-      if (btn) { btn.disabled = false; btn.textContent = '𝕏 Link your X'; }
+      if (btn) { btn.disabled = false; btn.textContent = btn.id === 'x-relink' ? 'Refresh handle' : 'Link your X'; }
       if ($('x-msg')) $('x-msg').textContent = j.message || 'Couldn’t open X. Please try again.';
     }).catch(function () { if ($('x-msg')) $('x-msg').textContent = 'Couldn’t reach the server.'; if (btn) btn.disabled = false; });
   }
@@ -1835,7 +1852,7 @@ POW_JS = r"""<script src="/share.js"></script>
     if (x && XMSG[x]) { xNote = XMSG[x]; return Promise.resolve(); }
     if (!dev) return Promise.resolve();
     return post('/api/x/finish', { device_id: dev, token: t }).then(function (j) {
-      xNote = j.ok ? '✅ Linked: @' + esc(j.x.username) + ' is X verified.' + (j.moved ? ' It was linked to another passport before; it’s on this one now.' : '') : esc(j.message || 'Couldn’t link X. Please try again.');
+      xNote = j.ok ? '✅ Verified: @' + esc(j.x.username) + '.' + (j.moved ? ' It was linked to another passport before; it’s on this one now.' : '') : esc(j.message || 'Couldn’t link X. Please try again.');
     }).catch(function () { xNote = 'Couldn’t reach the server.'; });
   }
   function showCode(code) {
@@ -2327,8 +2344,9 @@ VERIFY_JS = r"""<script>
     if (!j || !j.ok) { show('<p class="v-no">❌ We couldn’t find that code. Check the letters and numbers on the back of the card and try again.</p>', 'bad'); return; }
     var rk = RS[j.rank_key] || RS.confirmed;
     var xh = j.x_username && /^[A-Za-z0-9_]{1,15}$/.test(j.x_username) ? j.x_username : '';
+    var XV = '<details class="xvd"><summary class="xv" title="Signed in with this X account. Not X’s verification badge." aria-label="Verified">✓</summary><span class="xtip" role="note"><strong>Verified:</strong> Signed in with this X account. Not X’s verification badge. <a href="#x-disclaimer">More</a></span></details>';
     show('<p class="v-ok">✅ GPS-verified check-in</p><p class="v-line"><strong>' + esc(j.statue.label) + '</strong> · ' + esc(j.date) + ' · ' + rk[1] + ' ' + esc(j.rank) + '</p>' +
-      (xh ? '<p class="v-line v-x">X account verified: <a href="https://x.com/' + xh + '" target="_blank" rel="noopener noreferrer nofollow"><strong>@' + esc(xh) + '</strong></a><span class="xv" aria-label="X verified">✓</span></p>' : '') +
+      (xh ? '<p class="v-line v-x">X account verified by sign-in: <a href="https://x.com/' + xh + '" target="_blank" rel="noopener noreferrer nofollow"><strong>@' + esc(xh) + '</strong></a>' + XV + '</p>' : '') +
       '<img class="v-img" src="/img/cards/og/' + rk[0] + '/' + encodeURIComponent(j.statue.page) + '.__OGV__.jpg" width="1200" height="630" alt="' + esc(j.rank) + ' card for ' + esc(j.statue.label) + '">' +
       '<p class="note">This card was issued by satoshistatues.com for a real check-in within 150 m of the statue.</p>' +
       '<p class="note"><a href="/' + encodeURIComponent(j.statue.page) + '/">About ' + esc(j.statue.label) + ' →</a></p>', 'good');
@@ -2484,23 +2502,31 @@ def pow_privacy_html(data):
             'We keep a hashed copy of the address and of the code plus a masked form for you to see, never the address itself. It is never shown publicly, never paid and never contacted. '
             'Recovery attempts are counted per network (as a salted hash, kept 1 day). Clear the field and save to delete it and switch recovery off.</li>'
             '\n      <li>Each <strong>Proof of Walk card</strong> (one per GPS-verified check-in) carries a random verify code (it isn’t linked to your device ID) and a QR code. Anyone who scans or types it sees only the statue, the date and the rank '
-            '(plus your X verified @handle, only if you linked X): no nickname, no exact time, no location and no other cards. Shared and printed cards show your check-in date, time and verify code, because they’re on the card. '
-            'Cards are drawn on your device’s screen; print files are made in your browser and aren’t sent to anyone. Verify lookups are counted per network (as a salted hash, kept 1 day).</li>'
+            '(plus your @handle with a blue ✓ Verified, only if you linked X): no nickname, no exact time, no location and no other cards. Shared and printed cards show your check-in date, time and verify code, because they’re on the card. '
+            'Cards are drawn on your device’s screen; print files (including your @handle, if linked) are made in your browser and aren’t sent to anyone. Verify lookups are counted per network (as a salted hash, kept 1 day).</li>'
             + X_PRIVACY_HTML)
 
 
 # "Link your X" privacy text (PREVIEW, Noah 2026-11-01 11:04 AM ET via Matt). For Grant's (legal) review before go-live.
 X_PRIVACY_HTML = (
-    '\n      <li><strong>Link your X (optional).</strong> If you tap “Link your X”, you sign in on X’s own page and X tells us your X user ID and @handle. '
-    'We store only those two and the date you linked them, with your passport. We ask X only for permission to read your profile '
-    '(“users.read” and “tweet.read”, which X requires for reading your handle). We never post, like, follow or send messages for you, and we don’t keep your X login: '
-    'the one-time access key X gives us is used once to read your handle, then we ask X to cancel it, and it is never saved.</li>'
-    '\n      <li>Once linked, your @handle is shown publicly with an “X verified” check on your cards (including shared and printed cards), your card pages, the verify page for your cards, '
-    'the leaderboards and the Fellow Travelers page. One X account can be linked to one passport at a time; linking it from another device moves it there. '
-    'If your handle changes on X, tap “Refresh handle”.</li>'
-    '\n      <li>To remove it, tap <strong>Unlink X</strong> on your <a href="/proof-of-walk/#xlink">passport</a>, or email us (below). Your cards stay; the handle and check are removed from them (card images you already saved, shared or printed can’t be changed). '
+    '\n      <li><strong>Link your X (optional).</strong> Linking is optional, and you can undo it at any time by unlinking. '
+    'If you tap “Link your X”, you sign in on X’s own page. Signing in happens on X, and X’s own privacy policy applies there. '
+    'X then tells us your X user ID and @handle. We store only those two and the date you linked them, with your passport. '
+    'We ask X only for permission to read your profile (“users.read” and “tweet.read”, which X requires for reading your handle). '
+    'We never post, like, follow or send messages for you, and we don’t keep your X login: the one-time access key X gives us is used once to read your handle, '
+    'then we ask X to cancel it, and it is never saved.</li>'
+    '\n      <li>A sign-in that isn’t finished is deleted after 10 minutes.</li>'
+    '\n      <li>Once linked, your @handle is shown publicly with a blue ✓ “Verified” on your cards (including saved, shared and printed card images), your card pages, '
+    'the verify page for your cards, the leaderboards and the Fellow Travelers page. “Verified” means you signed in with that X account; it is not X’s own verification badge. '
+    'One X account can be linked to one passport at a time; linking it from another device moves it there. If your handle changes on X, tap “Refresh handle”.</li>'
+    '\n      <li>To unlink, tap <strong>Unlink X</strong> on your <a href="/proof-of-walk/#xlink">passport</a>, or email us (below). '
+    'Unlinking deletes your X user ID, handle and link date from our server, along with any unfinished sign-in. '
+    'Your cards stay; the handle and ✓ are removed from them and from your card pages, the verify page and the leaderboards. '
+    'Card images you already saved, shared or printed can’t be changed, and apps or sites where you shared a card link may show their own saved preview for a while. '
+    'Our database host keeps a rolling backup of the database for up to 30 days, so a copy can stay in that backup until it rolls off. '
     'You can also remove our access in X: Settings › Security and account access › Apps and sessions › Connected apps.</li>'
-    '\n      <li>Nicknames can’t start with “@” any more. An older “@” nickname is shown as “unverified” and is removed if the owner of that X account links it.</li>')
+    '\n      <li>Nicknames can’t start with “@” any more. An older “@” nickname is shown as “unverified” and is removed if the owner of that X account links it; '
+    'the note telling you so is deleted after 30 days.</li>')
 
 
 def privacy_page(data):
@@ -2512,7 +2538,7 @@ def privacy_page(data):
     out += f"""  <main>
     <div class="crumbs"><a href="/">Map</a> › Privacy</div>
     <h1>Privacy</h1>
-    <p class="sub">Short version: no accounts, no locations kept, and IP addresses only as hashes for 7 days.</p>
+    <p class="sub">Short version: no accounts, no locations kept, IP addresses only as hashes for 7 days. If you choose to link X, we keep your X user ID and @handle.</p>
     <h2>Satoshi Passport and leaderboard</h2>
     <ul class="src" style="font-size:.95rem;color:#e6edf3">
       <li>Your passport cards are saved in your browser (localStorage).</li>
@@ -2525,8 +2551,8 @@ def privacy_page(data):
     <h2>Analytics</h2>
     <p class="note">We use <a href="https://www.goatcounter.com/" target="_blank" rel="noopener noreferrer">GoatCounter</a> for privacy-friendly page counts without cookies. A successful check-in also sends an anonymous “Check-in &lt;statue&gt;” event, without any location.</p>
 {fountain_privacy_html(data)}    <h2>Deleting your data</h2>
-    <p class="note">Email <a href="mailto:{SUPPORT_EMAIL}">{SUPPORT_EMAIL}</a> with your leaderboard nickname (or the statue and rough time of your check-in) and we will delete your cards and nickname. Clearing your browser data removes your local passport and device ID.</p>
-    <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">Last updated {BUILD_DATE}.</p>
+    <p class="note">Email <a href="mailto:{SUPPORT_EMAIL}">{SUPPORT_EMAIL}</a> with your leaderboard nickname (or the statue and rough time of your check-in) and we will delete your cards, nickname and your linked X account. Clearing your browser data removes your local passport and device ID.</p>
+    <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">Last updated {PRIVACY_UPDATED}.</p>
     {footer(data)}
   </main>
 """
