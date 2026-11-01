@@ -761,14 +761,6 @@
     .stamp-tile.soon .stamp-date { color: #58a6ff; }
     .stamp-tile.just .stamp-ring { animation: stampIn 0.6s cubic-bezier(.2, 1.6, .4, 1); }
     @keyframes stampIn { 0% { transform: scale(1.8) rotate(-30deg); opacity: 0; } 100% { transform: scale(1) rotate(-8deg); opacity: 1; } }
-    .pp-more { margin-top: 18px; border: 1px solid #30363d; border-radius: 10px; padding: 0 12px; }
-    .pp-more summary { min-height: 46px; display: flex; align-items: center; cursor: pointer; font-weight: 600; color: #f7931a; font-size: 0.9rem; list-style: none; }
-    .pp-more summary::-webkit-details-marker { display: none; }
-    .pp-more summary::after { content: '▾'; margin-left: auto; color: #8b949e; transition: transform 0.2s; }
-    .pp-more[open] summary::after { transform: rotate(180deg); }
-    .pp-more .share-box { margin: 4px 0 12px; grid-template-columns: 220px 1fr; }
-    .pp-more .share-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .pp-more .share-grid .ghost-btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
     .pp-foot { margin-top: 14px; }
     .pp-complete { margin: 12px 0 4px; padding: 14px; border: 1px solid #f7931a; border-radius: 12px; background: linear-gradient(135deg, rgba(247,147,26,0.20), rgba(247,147,26,0.04)); }
     .pp-complete-badge { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
@@ -782,15 +774,8 @@
     .pp-link:hover { color: #f7931a; }
     .pp-link:disabled { cursor: wait; }
     .share-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 6px; }
-    .share-box { display: grid; grid-template-columns: minmax(0, 300px) 1fr; gap: 16px; align-items: start; margin: 14px 0 6px; }
     .badge-preview { width: 100%; aspect-ratio: 1200 / 630; border-radius: 10px; border: 1px solid #30363d; background: #0d1117; display: block; -webkit-touch-callout: default; }
-    .share-actions { display: flex; flex-direction: column; gap: 8px; }
-    .share-actions .directions-btn { margin: 0; text-align: center; }
-    .share-actions .ghost-btn { text-align: center; }
-    .share-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .share-hint { font-size: 0.78rem; color: #8b949e; line-height: 1.4; }
     @media (max-width: 560px) {
-      .share-box { grid-template-columns: 1fr; }
       .badge-preview { max-width: 320px; margin: 0 auto; }
     }
     .toast {
@@ -859,8 +844,6 @@
       .stamp-ring { width: 58px; height: 58px; font-size: 1.7rem; }
       .pp-count { font-size: 2.8rem; }
       .pp-primary { font-size: 0.9rem; padding: 10px 8px; }
-      .pp-more .share-box { grid-template-columns: 1fr; }
-      .pp-more .badge-preview { max-width: 210px; margin: 0 auto; }
       .sidebar { padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
     }
   </style>
@@ -988,23 +971,6 @@
       <div class="cg-view" id="pp-card-view" aria-live="polite" hidden></div>
       <h3 class="pp-section" id="pp-soon-title">Coming soon <span class="pp-section-sub">Not counted yet</span></h3>
       <ul class="cg-grid" id="passport-soon"></ul>
-      <details class="pp-more" id="pp-more">
-        <summary>More ways to share</summary>
-        <div class="share-box">
-          <img class="badge-preview" id="badge-preview" alt="Your Satoshi Passport badge" />
-          <div class="share-actions">
-            <div class="share-grid">
-              <a class="ghost-btn" id="share-x" href="#" target="_blank" rel="noopener noreferrer">𝕏 Post</a>
-              <a class="ghost-btn" id="share-fb" href="#" target="_blank" rel="noopener noreferrer">Facebook</a>
-              <button class="ghost-btn" type="button" onclick="shareNostr()">⚡ Nostr</button>
-              <button class="ghost-btn" type="button" onclick="downloadBadge()">⬇️ Save image</button>
-              <button class="ghost-btn" type="button" onclick="shareCard(null, 'story')">📱 Story</button>
-              <button class="ghost-btn" type="button" onclick="copyShareText()">📋 Copy text</button>
-            </div>
-            <div class="share-hint" id="share-hint"><strong>Share my passport</strong> sends the badge image straight to Instagram, X, WhatsApp, Signal and more. X and Facebook links share text only, so attach the saved image. On iPhone you can also long-press the badge to save it.</div>
-          </div>
-        </div>
-      </details>
       <div class="pp-foot">
         <p class="modal-note">Tap <strong>Check in here</strong> when you're within 150 m of a statue to collect its card. Cards are saved in this browser. Each check-in also goes to the <a href="/leaderboard/">leaderboard</a> with a random device ID: your location is only checked, never stored. <a href="/privacy/">Privacy</a></p>
         <div class="pp-lb"><a class="pp-lb-link" href="/leaderboard/">🏆 Leaderboard</a><button class="pp-link" type="button" onclick="lbNickPrompt()">✏️ Leaderboard name</button></div>
@@ -1999,7 +1965,6 @@
       powHomeRank();
       renderPassportList();
       loadCardFonts();
-      if (!isMobile) document.getElementById('pp-more').open = true;
       refreshBadge();
       openModal('passport-modal');
       renderComplete(true);
@@ -2227,7 +2192,6 @@
       return c;
     }
     function drawBadge() { return drawCard({}); }
-    document.addEventListener('toggle', ev => { if (ev.target && ev.target.id === 'pp-more' && ev.target.open && !badge) refreshBadge(); }, true);
     function cardFile(opts) {
       // JPEG keeps photo cards small (~150-300 KB instead of 1-2 MB PNG) for mobile sharing.
       const url = drawCard(opts).toDataURL('image/jpeg', 0.9);
@@ -2288,24 +2252,16 @@
     let badge = null; // { url, blob, file }
     function refreshBadge(force) {
       badge = null;
-      const more = document.getElementById('pp-more');
-      // Lazy: only draw when the preview is visible or the user taps share/save.
-      if (force || (more && more.open)) {
+      // Lazy: the passport badge image is only drawn when the user taps Share my passport.
+      if (force) {
       try {
         const url = drawBadge().toDataURL('image/png');
         const blob = dataUrlToBlob(url);
         let file = null;
         try { file = new File([blob], 'satoshi-passport.png', { type: 'image/png' }); } catch (e) {}
         badge = { url, blob, file };
-        document.getElementById('badge-preview').src = url;
       } catch (e) { badge = null; }
       }
-      const n = visitedCount();
-      const xText = `${shareBase()} on the Satoshi Passport @satoshistatue21`;
-      document.getElementById('share-x').href =
-        `https://twitter.com/intent/tweet?text=${encodeURIComponent(xText)}&url=${encodeURIComponent(SITE_URL)}&hashtags=Bitcoin`;
-      document.getElementById('share-fb').href =
-        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SITE_URL + '/')}`;
       document.getElementById('share-main').textContent = '📤 Share my passport';
     }
     function canShareFile() {
@@ -2361,13 +2317,6 @@
       copyText(text).then(ok => {
         if (ok) toast(typeof okMsg === 'string' ? okMsg : 'Share text copied!');
         else window.prompt('Copy your share text:', text);
-      });
-    }
-    function shareNostr() {
-      const text = shareText();
-      copyText(text).then(ok => {
-        if (ok) toast('Copied! Paste it into your Nostr client (Damus, Primal, Amethyst…) and attach the downloaded image.');
-        else window.prompt('Copy this into your Nostr client:', text);
       });
     }
     // Comments (giscus), loaded only when a location's comment panel is opened
