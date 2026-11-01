@@ -1331,7 +1331,16 @@ def nodes_page(data):
     return out + TAIL
 
 
-LB_CSS = (
+# 'About the cards' link (Noah 2026-11-01 7:43 AM ET): a subtle outlined pill so it is easier to spot, on every page that links
+# to /proof-of-walk/cards/ (home passport, /proof-of-walk/, fellow-travelers grid, /v/, card share pages).
+CARDS_LINK_CSS = ('a.cards-link,a.cards-link:visited{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:6px 14px;margin:4px 0;'
+                  'border:1px solid rgba(247,147,26,.55);border-radius:999px;background:rgba(247,147,26,.07);color:#f7931a;'
+                  'font-weight:600;font-size:.86rem;line-height:1.2;text-decoration:none;white-space:nowrap}'
+                  'a.cards-link:hover,a.cards-link:focus-visible{border-color:#f7931a;background:rgba(247,147,26,.15);color:#f7931a;text-decoration:none}'
+                  '.cg-more{text-align:center;margin:10px 0 0}')
+
+
+LB_CSS = CARDS_LINK_CSS + (
     '.lb-me{background:#161b22;border:1px solid #30363d;border-left:3px solid #f7931a;border-radius:10px;padding:12px 14px;margin:14px 0;font-size:.92rem}'
     '.lb-list{list-style:none;border:1px solid #30363d;border-radius:10px;background:#161b22;overflow:hidden}'
     '.lb-list li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #30363d;min-height:52px}'
@@ -1543,7 +1552,7 @@ def pow_lb_link(data):
             f'🧱 Genesis Block ({pow_genesis_required(data)} of the original 10), then 🏛️ Grand High Order (Genesis + {pow_order_extra(data)} more). '
             '<a href="/proof-of-walk/">How ranks work →</a></p>'
             '\n    <p class="note">✨ The colored pill shows the rarest city card each walker has collected, from Common up to Legendary. '
-            '<a href="/proof-of-walk/cards/">About the cards →</a></p>')
+            '<a class="cards-link" href="/proof-of-walk/cards/">About the cards →</a></p>')
 
 
 def pow_head(data, title, desc, canonical, lds):
@@ -1553,13 +1562,6 @@ def pow_head(data, title, desc, canonical, lds):
     return out.replace('</style>', LB_CSS + SHARE_CSS + POW_CSS + '</style>', 1)
 
 
-# 'About the cards' link (Noah 2026-11-01 7:43 AM ET): a subtle outlined pill so it is easier to spot, on every page that links
-# to /proof-of-walk/cards/ (home passport, /proof-of-walk/, fellow-travelers grid, /v/, card share pages).
-CARDS_LINK_CSS = ('a.cards-link,a.cards-link:visited{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:6px 14px;margin:4px 0;'
-                  'border:1px solid rgba(247,147,26,.55);border-radius:999px;background:rgba(247,147,26,.07);color:#f7931a;'
-                  'font-weight:600;font-size:.86rem;line-height:1.2;text-decoration:none;white-space:nowrap}'
-                  'a.cards-link:hover,a.cards-link:focus-visible{border-color:#f7931a;background:rgba(247,147,26,.15);color:#f7931a;text-decoration:none}'
-                  '.cg-more{text-align:center;margin:10px 0 0}')
 
 
 # Passport card grid (passport-cards preview): one card per counted statue, shared by the home passport modal and
@@ -1888,7 +1890,7 @@ def pow_roll_page(data):
     <h1>🏛️ {e(ORDER_NAME)}</h1>
     <p class="sub">The members’ roll: walkers with {e(pow_order_rule(data))}. {e(pow_keep_text(data))}</p>
     <p class="note">Ranked by total cards collected; on a tie, whoever got there first ranks higher.</p>
-    <p class="note">✨ The colored pill shows the rarest city card each walker has collected, from Common up to Legendary. <a href="/proof-of-walk/cards/">About the cards →</a></p>
+    <p class="note">✨ The colored pill shows the rarest city card each walker has collected, from Common up to Legendary. <a class="cards-link" href="/proof-of-walk/cards/">About the cards →</a></p>
     <ol class="lb-list pow-roll" id="pow-roll"><li class="lb-empty">Loading…</li></ol>
     <h2 id="genesis">🧱 {e(GENESIS_TITLE)}</h2>
     <p class="note">Walkers who collected cards from {e(pow_genesis_rule(data))}.</p>
