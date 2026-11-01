@@ -107,7 +107,7 @@ footer.site{border-top:1px solid #30363d;margin-top:30px;padding-top:14px;font-s
     var xh = j.x_username && /^[A-Za-z0-9_]{1,15}$/.test(j.x_username) ? j.x_username : '';
     var XV = '<details class="xvd"><summary class="xv" title="Signed in with this X account. Not X’s verification badge." aria-label="Verified">✓</summary><span class="xtip" role="note"><strong>Verified:</strong> Signed in with this X account. Not X’s verification badge. <a href="#x-disclaimer">More</a></span></details>';
     show('<p class="v-ok">✅ GPS-verified check-in</p><p class="v-line"><strong>' + esc(j.statue.label) + '</strong> · ' + esc(j.date) + ' · ' + rk[1] + ' ' + esc(j.rank) + '</p>' +
-      (xh ? '<p class="v-line v-x">X account verified by sign-in: <a href="https://x.com/' + xh + '" target="_blank" rel="noopener noreferrer nofollow"><strong>@' + esc(xh) + '</strong></a>' + XV + '</p>' : '') +
+      (xh ? '<div class="v-line v-x">X account verified by sign-in: <a href="https://x.com/' + xh + '" target="_blank" rel="noopener noreferrer nofollow"><strong>@' + esc(xh) + '</strong></a>' + XV + '</div>' : '') +
       '<img class="v-img" src="/img/cards/og/' + rk[0] + '/' + encodeURIComponent(j.statue.page) + '.v1.jpg" width="1200" height="630" alt="' + esc(j.rank) + ' card for ' + esc(j.statue.label) + '">' +
       '<p class="note">This card was issued by satoshistatues.com for a real check-in within 150 m of the statue.</p>' +
       '<p class="note"><a href="/' + encodeURIComponent(j.statue.page) + '/">About ' + esc(j.statue.label) + ' →</a></p>', 'good');
