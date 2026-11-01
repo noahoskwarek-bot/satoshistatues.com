@@ -2498,7 +2498,7 @@ X_PRIVACY_HTML = (
     '\n      <li>Once linked, your @handle is shown publicly with an “X verified” check on your cards (including shared and printed cards), your card pages, the verify page for your cards, '
     'the leaderboards and the Fellow Travelers page. One X account can be linked to one passport at a time; linking it from another device moves it there. '
     'If your handle changes on X, tap “Refresh handle”.</li>'
-    '\n      <li>To remove it, tap <strong>Unlink X</strong> on your <a href="/proof-of-walk/#xlink">passport</a>, or email us (below). Your cards stay; the handle and check are removed from them. '
+    '\n      <li>To remove it, tap <strong>Unlink X</strong> on your <a href="/proof-of-walk/#xlink">passport</a>, or email us (below). Your cards stay; the handle and check are removed from them (card images you already saved, shared or printed can’t be changed). '
     'You can also remove our access in X: Settings › Security and account access › Apps and sessions › Connected apps.</li>'
     '\n      <li>Nicknames can’t start with “@” any more. An older “@” nickname is shown as “unverified” and is removed if the owner of that X account links it.</li>')
 
