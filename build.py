@@ -1537,9 +1537,18 @@ def pow_head(data, title, desc, canonical, lds):
     return out.replace('</style>', LB_CSS + SHARE_CSS + POW_CSS + '</style>', 1)
 
 
+# 'About the cards' link (Noah 2026-11-01 7:43 AM ET): a subtle outlined pill so it is easier to spot, on every page that links
+# to /proof-of-walk/cards/ (home passport, /proof-of-walk/, fellow-travelers grid, /v/, card share pages).
+CARDS_LINK_CSS = ('a.cards-link,a.cards-link:visited{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:6px 14px;margin:4px 0;'
+                  'border:1px solid rgba(247,147,26,.55);border-radius:999px;background:rgba(247,147,26,.07);color:#f7931a;'
+                  'font-weight:600;font-size:.86rem;line-height:1.2;text-decoration:none;white-space:nowrap}'
+                  'a.cards-link:hover,a.cards-link:focus-visible{border-color:#f7931a;background:rgba(247,147,26,.15);color:#f7931a;text-decoration:none}'
+                  '.cg-more{text-align:center;margin:10px 0 0}')
+
+
 # Passport card grid (passport-cards preview): one card per counted statue, shared by the home passport modal and
 # /proof-of-walk/. Collected = face-up art thumbnail (img/cards/art/thumb/, tools/make_card_thumbs.py); not yet = dimmed + 🔒.
-CARD_GRID_CSS = (
+CARD_GRID_CSS = CARDS_LINK_CSS + (
     '.cg-line{margin:0 0 10px;font-size:.92rem;color:#e6edf3;text-align:center}.cg-line strong{color:#f7931a}'
     '.cg-grid{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0;padding:0}'
     '@media(min-width:560px){.cg-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}'
@@ -1682,7 +1691,7 @@ POW_JS = r"""<script src="/share.js"></script>
         (n ? '<span class="cg-no" aria-hidden="true">' + nn + '/21</span>' : '') + (c.rank ? '<span class="cg-badge" aria-hidden="true">' + RANK_EMOJI[c.rank] + '</span>' : '') +
         '<span class="cg-cap"><span class="cg-name">' + nm + '</span>' + (t ? '<span class="cg-tier">' + '◆'.repeat(t[1]) + ' ' + t[0] + '</span>' : '') + '<span class="cg-date">' + esc(fmtDay(c.at)) + '</span></span></button></li>';
     }).join('') + '</ul><div id="pow-combo" class="cg-view" aria-live="polite" hidden></div>' +
-      '<p class="cg-hint">Tap a card to flip it, share it or print it. <a href="/proof-of-walk/cards/">About the cards</a></p>';
+      '<p class="cg-hint">Tap a card to flip it, share it or print it.</p><p class="cg-more"><a class="cards-link" href="/proof-of-walk/cards/">About the cards</a></p>';
   }
   function wireGrid(el, me) {
     el.querySelectorAll('[data-cg]').forEach(function (b) { b.addEventListener('click', function () {
@@ -1829,7 +1838,7 @@ def pow_page(data):
     <h1>👣 Proof of Walk{pv}</h1>
     <p class="sub">{e(pitch)}</p>
     <div class="pow-card" id="pow-me" aria-live="polite">Loading…</div>
-    <p class="note pow-cards-link" style="font-size:.9rem">🗺️ Every statue you walk to is a card in your passport: that statue, your rank at the time, one of 21 Bitcoin quotes and a verify code. <a href="/proof-of-walk/cards/">See the cards →</a></p>
+    <p class="note pow-cards-link" style="font-size:.9rem">🗺️ Every statue you walk to is a card in your passport: that statue, your rank at the time, one of 21 Bitcoin quotes and a verify code.<br><a class="cards-link" href="/proof-of-walk/cards/">See the cards →</a></p>
     <div id="pow-recover"></div>
     <noscript><p class="note">Proof of Walk needs JavaScript.</p></noscript>
     <h2>Ranks</h2>
@@ -2179,7 +2188,7 @@ def card_share_page(data, key, s):
     out = out.replace('</style>', '.cs-hero{display:block;width:100%;height:auto;border-radius:12px;border:1px solid #30363d;margin:6px 0 12px}'
                       '.cs-go{display:grid;gap:8px;margin:12px 0}.cs-go .btn{min-height:52px;font-size:1rem}'
                       '.cs-steps{margin:8px 0 0 1.2em;color:#c9d1d9;font-size:.95rem}.cs-steps li{margin:4px 0}'
-                      '.cs-tags{color:#58a6ff;font-size:.9rem;margin-top:10px}</style>', 1)
+                      '.cs-tags{color:#58a6ff;font-size:.9rem;margin-top:10px}' + CARDS_LINK_CSS + '</style>', 1)
     out += f"""  <main>
     <div class="crumbs"><a href="/">Map</a> › <a href="/proof-of-walk/">Proof of Walk</a> › {e(label)}</div>
     <h1>{emoji} {e(label)} ✓</h1>
@@ -2193,7 +2202,8 @@ def card_share_page(data, key, s):
       <li>Tap <strong>Check in here</strong> within 150 m. Your phone’s GPS confirms you’re there.</li>
       <li>Earn ranks (Confirmed, Genesis Block, Grand High Order), each with its own card of the statue you walked to.</li>
     </ol>
-    <p class="note">Free, no sign-up, no app. <a href="/{s['page']}/">About {e(s['label'])} →</a> · <a href="/proof-of-walk/cards/">About the cards →</a></p>
+    <p class="note">Free, no sign-up, no app. <a href="/{s['page']}/">About {e(s['label'])} →</a></p>
+    <p><a class="cards-link" href="/proof-of-walk/cards/">About the cards →</a></p>
     <p class="cs-tags">#ProofOfWalk #Bitcoin</p>
     {footer(data)}
   </main>
@@ -2239,7 +2249,7 @@ def verify_page(data):
                       '.v-out.good{border-left:3px solid #3fb950}.v-out.bad{border-left:3px solid #f85149}.v-ok{font-size:1.25rem;font-weight:800;color:#3fb950;margin:0 0 4px}'
                       '.v-line{font-size:1.02rem;margin:0 0 10px}.v-img{display:block;width:100%;height:auto;border-radius:10px;margin:8px 0}'
                       '.v-form{display:flex;gap:8px;margin:10px 0}.v-form input{flex:1;min-height:44px;padding:10px 12px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font:600 16px ui-monospace,Menlo,monospace;text-transform:uppercase}'
-                      '.v-form button{min-height:44px;padding:10px 16px;border-radius:8px;border:none;background:#f7931a;color:#0d1117;font-weight:700;font-family:inherit;cursor:pointer}</style>', 1)
+                      '.v-form button{min-height:44px;padding:10px 16px;border-radius:8px;border:none;background:#f7931a;color:#0d1117;font-weight:700;font-family:inherit;cursor:pointer}' + CARDS_LINK_CSS + '</style>', 1)
     out += f"""  <main>
     <div class="crumbs"><a href="/">Map</a> › <a href="/proof-of-walk/">Proof of Walk</a> › Verify</div>
     <h1>✅ Verify a Proof of Walk card</h1>
@@ -2247,7 +2257,8 @@ def verify_page(data):
     <div id="v-out" class="v-out" aria-live="polite"><p>Loading…</p></div>
     <form class="v-form" method="get" action="/v/"><label class="sr-only" for="v-code" style="position:absolute;left:-9999px">Verify code</label>
       <input id="v-code" name="c" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="PW-XXXX-XXXX"><button type="submit">Check</button></form>
-    <p class="note">No names, exact times or locations are shown here. <a href="/proof-of-walk/cards/">About the cards</a> · <a href="/privacy/">Privacy</a></p>
+    <p class="note">No names, exact times or locations are shown here. <a href="/privacy/">Privacy</a></p>
+    <p><a class="cards-link" href="/proof-of-walk/cards/">About the cards</a></p>
     {footer(data)}
   </main>
 """
