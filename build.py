@@ -1337,7 +1337,16 @@ CARDS_LINK_CSS = ('a.cards-link,a.cards-link:visited{display:inline-flex;align-i
                   'border:1px solid rgba(247,147,26,.55);border-radius:999px;background:rgba(247,147,26,.07);color:#f7931a;'
                   'font-weight:600;font-size:.86rem;line-height:1.2;text-decoration:none;white-space:nowrap}'
                   'a.cards-link:hover,a.cards-link:focus-visible{border-color:#f7931a;background:rgba(247,147,26,.15);color:#f7931a;text-decoration:none}'
-                  '.cg-more{text-align:center;margin:10px 0 0}')
+                  '.cg-more{text-align:center;margin:10px 0 0}') + (
+    # "Link your X" (PREVIEW, Noah 2026-11-01 11:04 AM ET via Matt): verified-handle check, "unverified" tag, Link box.
+    '.xv{display:inline-flex;align-items:center;justify-content:center;width:1.05em;height:1.05em;margin-left:4px;border-radius:50%;background:#1d9bf0;color:#fff;font-size:.72em;font-weight:900;vertical-align:middle;line-height:1}'
+    '.xu{display:inline-block;margin-left:6px;font-size:.68rem;font-weight:600;color:#8b949e;border:1px dashed #484f58;border-radius:999px;padding:0 7px;vertical-align:middle;white-space:nowrap}'
+    '.xlink{background:#0d1117;border:1px solid #30363d;border-left:3px solid #1d9bf0;border-radius:10px;padding:12px 14px;margin:12px 0;font-size:.92rem;scroll-margin-top:12px}'
+    '.xlink.on{border-left-color:#3fb950}.xlink p{margin:4px 0 8px}'
+    '.x-btn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:8px 18px;border-radius:999px;border:0;background:#e7e9ea;color:#0d1117;font-weight:700;font-size:.95rem;font-family:inherit;cursor:pointer}'
+    '.x-note{background:#1f1a0d;border:1px solid #6e5a1e;border-radius:8px;padding:8px 10px;margin:8px 0;font-size:.86rem;color:#f2cc60}'
+    '.x-note strong{color:#ffdf80}'
+)
 
 
 LB_CSS = CARDS_LINK_CSS + (
@@ -1391,9 +1400,12 @@ LB_JS = r"""<script>
     if (s < 129600) return Math.round(s / 3600) + ' h ago';
     return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
   }
+  // "Link your X" (PREVIEW): e.x_verified = handle proven with X sign-in (link + blue check); e.name_unverified = an older
+  // typed "@" nickname (plain text + "unverified" tag, no link). Everyone else: the nickname as before.
   function nameHtml(e) {
     var n = esc(e.name);
-    if (/^@[A-Za-z0-9_]{1,15}$/.test(e.name)) n = '<a href="https://x.com/' + e.name.slice(1) + '" target="_blank" rel="noopener noreferrer nofollow">' + n + '</a>';
+    if (e.x_verified && /^@[A-Za-z0-9_]{1,15}$/.test(e.name)) return '<a href="https://x.com/' + e.name.slice(1) + '" target="_blank" rel="noopener noreferrer nofollow">' + n + '</a><span class="xv" title="X verified" aria-label="X verified">✓</span>';
+    if (e.name_unverified) return n + '<span class="xu" title="Typed name, not checked with X">unverified</span>';
     return n;
   }
   // Top card tier pill from the Worker (entry.top_tier; null = no cards = no pill). Same classes as POW_CARD_CLASS.
@@ -1443,7 +1455,12 @@ LB_JS = r"""<script>
         box.innerHTML = (m.rank ? 'You are <strong>#' + m.rank + '</strong> with <strong>' + m.gps + '</strong> GPS-verified card' + (m.gps === 1 ? '' : 's') +
           pill(m.pow) + tierPill(m.top_tier) + '. ' + (m.pow && m.pow.genesis && !m.pow.order ? 'Collect 1 more card to join the Grand High Order. ' : '') : 'No cards on the leaderboard yet. ') +
           'Your name: <strong>' + nameHtml(m) + '</strong>' +
-          '<form class="lb-nick" id="lb-nick"><input name="nick" maxlength="20" aria-label="Nickname or X handle" placeholder="Nickname or @handle" value="' + esc(m.nickname || '') + '"><button type="submit">Save name</button></form><div class="lb-msg" id="lb-msg" aria-live="polite"></div>';
+          (m.x ? '<p class="lb-meta" style="margin-top:6px">Linked to X. Manage it on <a href="/proof-of-walk/#xlink">your passport</a>.</p>'
+            : (m.name_released ? '<p class="x-note">Your old name <strong>' + esc(m.name_released) + '</strong> now belongs to its X verified owner. Pick a new nickname, or link your X.</p>' : '') +
+              (m.name_unverified ? '<p class="x-note">Your name isn’t checked with X, so it shows as “unverified”. <a href="/proof-of-walk/#xlink">Link your X</a> to show it with a check.</p>' : '') +
+              '<form class="lb-nick" id="lb-nick"><input name="nick" maxlength="20" aria-label="Nickname" placeholder="Nickname" value="' + esc(m.nickname || '') + '"><button type="submit">Save name</button></form><div class="lb-msg" id="lb-msg" aria-live="polite"></div>' +
+              '<p class="lb-meta" style="margin-top:6px">Want your @handle here with a check? <a href="/proof-of-walk/#xlink">𝕏 Link your X</a> (optional).</p>');
+        if (!document.getElementById('lb-nick')) return;
         document.getElementById('lb-nick').addEventListener('submit', function (ev) {
           ev.preventDefault();
           var v = this.nick.value, msg = document.getElementById('lb-msg');
@@ -1668,6 +1685,13 @@ POW_JS = r"""<script src="/share.js"></script>
     if (!t || !TIER_CLASS[t]) return '';
     return '<a class="lb-tier ' + TIER_CLASS[t] + '" href="/proof-of-walk/cards/" title="Top card collected: ' + esc(t) + '">' + esc(t) + '</a>';
   }
+  // "Link your X" (PREVIEW): verified check / "unverified" tag on names (same as LB_JS nameHtml).
+  function nameHtml(e) {
+    var n = esc(e.name);
+    if (e.x_verified && /^@[A-Za-z0-9_]{1,15}$/.test(e.name)) return '<a href="https://x.com/' + e.name.slice(1) + '" target="_blank" rel="noopener noreferrer nofollow" style="color:inherit">' + n + '</a><span class="xv" title="X verified" aria-label="X verified">✓</span>';
+    if (e.name_unverified) return n + '<span class="xu" title="Typed name, not checked with X">unverified</span>';
+    return n;
+  }
   var get = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
   var set = function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} };
   var $ = function (id) { return document.getElementById(id); };
@@ -1722,6 +1746,7 @@ POW_JS = r"""<script src="/share.js"></script>
       var c = cardFor(me, b.getAttribute('data-cg')), box = $('pow-combo'); if (!c || !box) return;
       box.hidden = false; box.innerHTML = '<p class="pow-sub">Loading your card…</p>';
       if (c.pending) { box.innerHTML = '<p class="pow-sub">This card is still being made. Reload the page in a moment.</p>'; return; }
+      if (me && me.x && me.x.username) c.x = me.x.username;   // verified X handle on the card (Link your X)
       withPowCard(function (P) { var holder = document.createElement('div'); box.innerHTML = '<div class="cg-view-bar"><button type="button" data-cg-close>✕ Close card</button><a href="/' + esc((MAP.filter(function (m) { return m.slug === c.slug; })[0] || {}).page || '') + '/">Statue page →</a></div>'; box.appendChild(holder);
         box.querySelector('[data-cg-close]').addEventListener('click', function () { box.hidden = true; box.innerHTML = ''; b.focus(); });
         P.mount(holder, c).then(function () { box.scrollIntoView({ block: 'start', behavior: 'smooth' }); }); });
@@ -1731,7 +1756,7 @@ POW_JS = r"""<script src="/share.js"></script>
   function renderMe(me) {
     var el = $('pow-me'); if (!el) return;
     var gN = me.genesis_at || 3;
-    var h = '<div class="pow-sub">Your Satoshi Passport rank' + (me.nickname ? ' · <strong>' + esc(me.nickname) + '</strong>' : '') + '</div>' +
+    var h = '<div class="pow-sub">Your Satoshi Passport rank' + (me.x ? ' · <strong>@' + esc(me.x.username) + '</strong><span class="xv" aria-label="X verified">✓</span>' : me.nickname ? ' · <strong>' + esc(me.nickname) + '</strong>' + (me.nick_unverified ? '<span class="xu">unverified</span>' : '') : '') + '</div>' +
       '<div class="pow-rank">' + esc(me.rank.label || 'No rank yet') + '</div>';
     if (me.order) h += '<div class="pow-genesis">🏛️ <strong>The Grand High Order of Fellow Travelers</strong> · since ' + esc((me.order_since || '').slice(0, 10)) +
       '<br><span class="pow-fine">' + me.distinct_stamps + ' cards collected</span></div>';
@@ -1740,8 +1765,9 @@ POW_JS = r"""<script src="/share.js"></script>
     var card = cardOf(me), combo = comboCards(me);
     // passport-cards preview: the card grid replaces the Genesis pips and the per-rank "Your cards" tabs.
     h += '<h3 class="pow-cards-h">Your passport cards</h3><p class="cg-line">' + cardsLine(me) + '</p>' + gridHtml(me);
-    h += '<form class="pow-form" id="pow-form"><label for="pow-nick">Passport nickname (shown on the leaderboard)</label>' +
-      '<input id="pow-nick" name="nick" maxlength="20" autocomplete="nickname" placeholder="Nickname or @handle" value="' + esc(me.nickname || get(NICK) || '') + '">' +
+    h += xBox(me);
+    h += '<form class="pow-form" id="pow-form"><label for="pow-nick">Passport nickname (shown on the leaderboard' + (me.x ? ' if you unlink X' : '') + ')</label>' +
+      '<input id="pow-nick" name="nick" maxlength="20" autocomplete="nickname" placeholder="Nickname" value="' + esc(me.nickname || get(NICK) || '') + '">' +
       '<label for="pow-ln">Lightning address (optional, for passport recovery)</label>' +
       '<input id="pow-ln" name="ln" maxlength="120" inputmode="email" autocomplete="off" placeholder="' + esc(me.lightning_address || 'name@wallet.com') + '">' +
       '<p class="pow-fine">Your passport lives on this device. No password. Add a Lightning address and you get a one-time recovery code: the two together move your passport to a new phone. ' +
@@ -1751,7 +1777,7 @@ POW_JS = r"""<script src="/share.js"></script>
       '. <button class="pow-ghost" type="button" id="pow-newcode">New recovery code</button></div>';
     h += '<div id="pow-codeslot"></div>';
     el.innerHTML = h;
-    wireGrid(el, me);
+    wireGrid(el, me); wireX(me);
     if ($('pow-newcode')) $('pow-newcode').addEventListener('click', function () {
       if (!confirm('Make a new recovery code? Your old code stops working.')) return;
       post('/api/pow/recovery-code', { device_id: dev }).then(function (j) { if (j.ok) { renderMe(j.me); showCode(j.recovery_code); } });
@@ -1767,6 +1793,51 @@ POW_JS = r"""<script src="/share.js"></script>
     });
   }
   var dev = get(DEV);
+  // ---------- "Link your X" (PREVIEW, Noah 2026-11-01 11:04 AM ET via Matt) ----------
+  // Optional. X's own sign-in page proves the account; the Worker reads only the @handle (+ X user id), never posts, and
+  // keeps no X login. Coming back from X: ?xt=<one-time token> is confirmed from this device (POST /api/x/finish).
+  var xNote = '';
+  function xBox(me) {
+    var note = xNote ? '<div class="lb-msg" id="x-msg" aria-live="polite" style="color:#3fb950">' + xNote + '</div>' : '<div class="lb-msg" id="x-msg" aria-live="polite"></div>';
+    if (me.x) return '<div class="xlink on" id="xlink"><strong>@' + esc(me.x.username) + '</strong><span class="xv" aria-label="X verified">✓</span> <span class="pow-fine">X verified · linked ' + esc(fmtDay(me.x.verified_at)) + '</span>' +
+      '<p class="pow-fine">Your cards, card pages and the leaderboards show this handle with a check.</p>' +
+      '<button class="pow-ghost" type="button" id="x-relink">Refresh handle</button> <button class="pow-ghost" type="button" id="x-unlink">Unlink X</button>' + note + '</div>';
+    return '<div class="xlink" id="xlink">' +
+      (me.name_released ? '<p class="x-note">Your old name <strong>' + esc(me.name_released) + '</strong> now belongs to its X verified owner, so it was removed. Pick a new nickname below, or link your X.</p>' : '') +
+      (me.nick_unverified ? '<p class="x-note">Your name <strong>' + esc(me.nickname) + '</strong> isn’t checked with X, so it shows as “unverified”. Link your X to show it with a check.</p>' : '') +
+      '<strong>𝕏 Link your X</strong> <span class="pow-fine">(optional)</span>' +
+      '<p class="pow-fine">Show your @handle on your cards and the leaderboard with an “X verified” check. You sign in on X, and we only read your handle. We never post or send messages, and we don’t keep your X login.</p>' +
+      '<button class="x-btn" type="button" id="x-link">𝕏 Link your X</button>' + note + '</div>';
+  }
+  function xStart(btn) {
+    if (btn) { btn.disabled = true; btn.textContent = 'Opening X…'; }
+    post('/api/x/start', { device_id: dev }).then(function (j) {
+      if (j.ok && j.url) { location.href = j.url; return; }
+      if (btn) { btn.disabled = false; btn.textContent = '𝕏 Link your X'; }
+      if ($('x-msg')) $('x-msg').textContent = j.message || 'Couldn’t open X. Please try again.';
+    }).catch(function () { if ($('x-msg')) $('x-msg').textContent = 'Couldn’t reach the server.'; if (btn) btn.disabled = false; });
+  }
+  function wireX(me) {
+    xNote = '';
+    if ($('x-link')) $('x-link').addEventListener('click', function () { xStart(this); });
+    if ($('x-relink')) $('x-relink').addEventListener('click', function () { xStart(this); });
+    if ($('x-unlink')) $('x-unlink').addEventListener('click', function () {
+      if (!confirm('Unlink your X account? Your cards stay; the @handle and check are removed from them.')) return;
+      post('/api/x/unlink', { device_id: dev }).then(function (j) { if (j.ok) { xNote = 'X unlinked. Your cards no longer show a handle.'; loadMe(); loadList(); } });
+    });
+  }
+  // back from X: finish on this device, then clean the address bar
+  var XQ = new URLSearchParams(location.search), XMSG = { cancelled: 'No problem. Nothing was linked.', error: 'X sign-in didn’t work. Please try again.', expired: 'That sign-in took too long. Please try again.' };
+  function xReturn() {
+    var t = XQ.get('xt'), x = XQ.get('x');
+    if (!t && !x) return Promise.resolve();
+    try { history.replaceState(null, '', location.pathname + '#xlink'); } catch (e) {}
+    if (x && XMSG[x]) { xNote = XMSG[x]; return Promise.resolve(); }
+    if (!dev) return Promise.resolve();
+    return post('/api/x/finish', { device_id: dev, token: t }).then(function (j) {
+      xNote = j.ok ? '✅ Linked: @' + esc(j.x.username) + ' is X verified.' + (j.moved ? ' It was linked to another passport before; it’s on this one now.' : '') : esc(j.message || 'Couldn’t link X. Please try again.');
+    }).catch(function () { xNote = 'Couldn’t reach the server.'; });
+  }
   function showCode(code) {
     var el = $('pow-codeslot'); if (!el || !code) return;
     el.innerHTML = '<div class="pow-codebox"><strong>🔑 Your recovery code</strong><div class="pow-code" id="pow-code">' + esc(code) + '</div>' +
@@ -1806,7 +1877,7 @@ POW_JS = r"""<script src="/share.js"></script>
     var el = $('pow-me'); if (!el) return;
     if (!dev) { el.innerHTML = '<div class="pow-rank">No rank yet</div><p class="pow-sub">Check in at a statue (within 150 m) to collect your first card. Open a statue on the <a href="/">map</a> or its page and tap <strong>Check in here</strong>.</p>' +
       '<h3 class="pow-cards-h">Your passport cards</h3><p class="cg-line">' + cardsLine(null) + '</p>' + gridHtml(null); wireGrid(el, null); return; }
-    post('/api/pow/me', { device_id: dev }).then(function (j) { if (j.ok) renderMe(j.me); else off(el); }).catch(function () { off(el); });
+    post('/api/pow/me', { device_id: dev }).then(function (j) { if (j.ok) { renderMe(j.me); if (location.hash === '#xlink' && $('xlink')) $('xlink').scrollIntoView({ block: 'center' }); } else off(el); }).catch(function () { off(el); });
   }
   function loadList() {
     var el = $('pow-list'); if (!el) return;
@@ -1814,7 +1885,7 @@ POW_JS = r"""<script src="/share.js"></script>
       if (!j.ok) return off(el);
       if ($('pow-total')) $('pow-total').textContent = j.total_walkers + (j.total_walkers === 1 ? ' walker' : ' walkers') + ' so far.';
       el.innerHTML = j.entries.length ? j.entries.map(function (x) {
-        return '<li><span class="lb-rank">' + x.position + '</span><span class="lb-who"><span class="lb-name">' + esc(x.name) + 
+        return '<li><span class="lb-rank">' + x.position + '</span><span class="lb-who"><span class="lb-name">' + nameHtml(x) + 
           '</span><span class="lb-meta">' + (x.order ? '🏛️ Grand High Order' : x.genesis ? '🧱 Genesis Block' : x.progress + ' of ' + (j.genesis_at || 3) + ' cards to Genesis') + '</span></span><span class="lb-stamps">' + x.stamps + '<small>card' + (x.stamps === 1 ? '' : 's') + '</small></span></li>';
       }).join('') : '<li class="lb-empty">No walkers yet. Be the first.</li>';
     }).catch(function () { off(el); });
@@ -1825,16 +1896,16 @@ POW_JS = r"""<script src="/share.js"></script>
     getj('/api/pow/order').then(function (j) {
       if (!j.ok) { off(el); off(ge); return; }
       el.innerHTML = j.members.length ? j.members.map(function (m) {
-        return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + esc(m.name) + tierPill(m.top_tier) + '</span><span class="lb-meta">Since ' +
+        return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + nameHtml(m) + tierPill(m.top_tier) + '</span><span class="lb-meta">Since ' +
           day(m.since) + '</span></span><span class="lb-stamps">' + m.stamps + '<small>card' + (m.stamps === 1 ? '' : 's') + '</small></span></li>';
       }).join('') : '<li class="lb-empty">No members yet. Mine the Genesis Block, then collect 1 more card to join.</li>';
       if (ge) ge.innerHTML = (j.genesis || []).length ? j.genesis.map(function (m) {
-        return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + esc(m.name) + tierPill(m.top_tier) + '</span><span class="lb-meta">Mined ' +
+        return '<li><span class="lb-rank">' + m.number + '</span><span class="lb-who"><span class="lb-name">' + nameHtml(m) + tierPill(m.top_tier) + '</span><span class="lb-meta">Mined ' +
           day(m.joined) + '</span></span><span class="lb-stamps">' + m.stamps + '<small>card' + (m.stamps === 1 ? '' : 's') + '</small></span></li>';
       }).join('') : '<li class="lb-empty">No miners yet. Collect cards from any ' + (j.genesis_at || 3) + ' of the original 10 to mine the Genesis Block.</li>';
     }).catch(function () { off(el); off(ge); });
   }
-  loadMe(); renderRecover(); loadList(); loadRoll();
+  xReturn().then(loadMe); renderRecover(); loadList(); loadRoll();
 })();
 </script>"""
 
@@ -2255,7 +2326,9 @@ VERIFY_JS = r"""<script>
   fetch(A + '/api/pow/verify?code=' + encodeURIComponent(code)).then(function (r) { return r.json(); }).then(function (j) {
     if (!j || !j.ok) { show('<p class="v-no">❌ We couldn’t find that code. Check the letters and numbers on the back of the card and try again.</p>', 'bad'); return; }
     var rk = RS[j.rank_key] || RS.confirmed;
+    var xh = j.x_username && /^[A-Za-z0-9_]{1,15}$/.test(j.x_username) ? j.x_username : '';
     show('<p class="v-ok">✅ GPS-verified check-in</p><p class="v-line"><strong>' + esc(j.statue.label) + '</strong> · ' + esc(j.date) + ' · ' + rk[1] + ' ' + esc(j.rank) + '</p>' +
+      (xh ? '<p class="v-line v-x">X account verified: <a href="https://x.com/' + xh + '" target="_blank" rel="noopener noreferrer nofollow"><strong>@' + esc(xh) + '</strong></a><span class="xv" aria-label="X verified">✓</span></p>' : '') +
       '<img class="v-img" src="/img/cards/og/' + rk[0] + '/' + encodeURIComponent(j.statue.page) + '.__OGV__.jpg" width="1200" height="630" alt="' + esc(j.rank) + ' card for ' + esc(j.statue.label) + '">' +
       '<p class="note">This card was issued by satoshistatues.com for a real check-in within 150 m of the statue.</p>' +
       '<p class="note"><a href="/' + encodeURIComponent(j.statue.page) + '/">About ' + esc(j.statue.label) + ' →</a></p>', 'good');
@@ -2278,11 +2351,11 @@ def verify_page(data):
     out += f"""  <main>
     <div class="crumbs"><a href="/">Map</a> › <a href="/proof-of-walk/">Proof of Walk</a> › Verify</div>
     <h1>✅ Verify a Proof of Walk card</h1>
-    <p class="sub">Every card carries a code. It shows only the statue, the date and the rank.</p>
+    <p class="sub">Every card carries a code. It shows the statue, the date and the rank, plus the walker’s @handle if they linked their X account.</p>
     <div id="v-out" class="v-out" aria-live="polite"><p>Loading…</p></div>
     <form class="v-form" method="get" action="/v/"><label class="sr-only" for="v-code" style="position:absolute;left:-9999px">Verify code</label>
       <input id="v-code" name="c" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="PW-XXXX-XXXX"><button type="submit">Check</button></form>
-    <p class="note">No names, exact times or locations are shown here. <a href="/privacy/">Privacy</a></p>
+    <p class="note">No nicknames, exact times or locations are shown here. <a href="/privacy/">Privacy</a></p>
     <p><a class="cards-link" href="/proof-of-walk/cards/">About the cards</a></p>
     {footer(data)}
   </main>
@@ -2410,9 +2483,24 @@ def pow_privacy_html(data):
             '\n      <li>If you add a <strong>Lightning address</strong> to your passport, it is used only to recover your passport on a new device, together with a one-time recovery code we show you once. '
             'We keep a hashed copy of the address and of the code plus a masked form for you to see, never the address itself. It is never shown publicly, never paid and never contacted. '
             'Recovery attempts are counted per network (as a salted hash, kept 1 day). Clear the field and save to delete it and switch recovery off.</li>'
-            '\n      <li>Each <strong>Proof of Walk card</strong> (one per GPS-verified check-in) carries a random verify code (it isn’t linked to your device ID) and a QR code. Anyone who scans or types it sees only the statue, the date and the rank: '
-            'no nickname, no exact time, no location and no other cards. Shared and printed cards show your check-in date, time and verify code, because they’re on the card. '
-            'Cards are drawn on your device’s screen; print files are made in your browser and aren’t sent to anyone. Verify lookups are counted per network (as a salted hash, kept 1 day).</li>')
+            '\n      <li>Each <strong>Proof of Walk card</strong> (one per GPS-verified check-in) carries a random verify code (it isn’t linked to your device ID) and a QR code. Anyone who scans or types it sees only the statue, the date and the rank '
+            '(plus your X verified @handle, only if you linked X): no nickname, no exact time, no location and no other cards. Shared and printed cards show your check-in date, time and verify code, because they’re on the card. '
+            'Cards are drawn on your device’s screen; print files are made in your browser and aren’t sent to anyone. Verify lookups are counted per network (as a salted hash, kept 1 day).</li>'
+            + X_PRIVACY_HTML)
+
+
+# "Link your X" privacy text (PREVIEW, Noah 2026-11-01 11:04 AM ET via Matt). For Grant's (legal) review before go-live.
+X_PRIVACY_HTML = (
+    '\n      <li><strong>Link your X (optional).</strong> If you tap “Link your X”, you sign in on X’s own page and X tells us your X user ID and @handle. '
+    'We store only those two and the date you linked them, with your passport. We ask X only for permission to read your profile '
+    '(“users.read” and “tweet.read”, which X requires for reading your handle). We never post, like, follow or send messages for you, and we don’t keep your X login: '
+    'the one-time access key X gives us is used once to read your handle, then we ask X to cancel it, and it is never saved.</li>'
+    '\n      <li>Once linked, your @handle is shown publicly with an “X verified” check on your cards (including shared and printed cards), your card pages, the verify page for your cards, '
+    'the leaderboards and the Fellow Travelers page. One X account can be linked to one passport at a time; linking it from another device moves it there. '
+    'If your handle changes on X, tap “Refresh handle”.</li>'
+    '\n      <li>To remove it, tap <strong>Unlink X</strong> on your <a href="/proof-of-walk/#xlink">passport</a>, or email us (below). Your cards stay; the handle and check are removed from them. '
+    'You can also remove our access in X: Settings › Security and account access › Apps and sessions › Connected apps.</li>'
+    '\n      <li>Nicknames can’t start with “@” any more. An older “@” nickname is shown as “unverified” and is removed if the owner of that X account links it.</li>')
 
 
 def privacy_page(data):
@@ -2429,7 +2517,7 @@ def privacy_page(data):
     <ul class="src" style="font-size:.95rem;color:#e6edf3">
       <li>Your passport cards are saved in your browser (localStorage).</li>
       <li>When you check in, your browser sends your location, a <strong>random device ID</strong> (created in your browser, not linked to your name) and the statue to our leaderboard server. The server only uses the location to check that you are within 150 m. <strong>Coordinates are not stored.</strong> We keep the statue, the time and a rough distance band such as “under 50 m”.</li>
-      <li>If you add a <strong>nickname or X handle</strong>, it is shown publicly on the leaderboard and in the recent check-ins feed.</li>
+      <li>If you add a <strong>nickname</strong>, it is shown publicly on the leaderboard and in the recent check-ins feed.</li>
       <li>The first time you use the leaderboard, cards already in your passport are added to it.</li>{pow_privacy_html(data)}
       <li><strong>IP addresses</strong> are only used for rate limiting. They are stored as a salted, per-day hash and <strong>deleted after 7 days</strong>.</li>
       <li>The server runs on Cloudflare Workers with a Cloudflare D1 database.</li>

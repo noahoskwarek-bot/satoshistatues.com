@@ -139,7 +139,7 @@ async function lbPost(path, body) {
   return { status: r.status, j };
 }
 function lbNickForm(intro) {
-  return `<form class="lb-nick" data-lb-nick><div class="lb-nick-q">${intro}</div><div class="lb-nick-row"><input name="nick" maxlength="20" aria-label="Nickname or X handle" placeholder="Nickname or @handle" value="${escHtml(lsGet(LB_NICK) || '')}" autocomplete="nickname"><button type="submit">Save</button>${intro.includes('optional') ? '<button type="button" class="lb-skip" data-lb-skip>No thanks</button>' : ''}</div><div class="lb-nick-msg" aria-live="polite"></div></form>`;
+  return `<form class="lb-nick" data-lb-nick><div class="lb-nick-q">${intro}</div><div class="lb-nick-row"><input name="nick" maxlength="20" aria-label="Nickname" placeholder="Nickname" value="${escHtml(lsGet(LB_NICK) || '')}" autocomplete="nickname"><button type="submit">Save</button>${intro.includes('optional') ? '<button type="button" class="lb-skip" data-lb-skip>No thanks</button>' : ''}</div><div class="lb-nick-msg" aria-live="polite"></div></form>`;
 }
 // Ask the server to record the stamp. Rejections (too far, poor accuracy, rate limits) block the stamp;
 // if the leaderboard can't be reached, the stamp is still saved locally.
@@ -153,8 +153,9 @@ async function lbSubmit(s, c) {
       let html = `<div class="lb-note">🏆 ${me && me.rank ? `You're <strong>#${me.rank}</strong> on the <a href="/leaderboard/">leaderboard</a> with ${me.stamps} card${me.stamps === 1 ? '' : 's'}.` : 'Saved to the <a href="/leaderboard/">leaderboard</a>.'}</div>`;
       if (j.pow && j.pow.me && j.pow.me.rank && j.pow.me.rank.label && !j.pow.ranked_up)
         html += `<div class="lb-note">👣 ${powStatus(j.pow.me)} on <a href="/proof-of-walk/">Proof of Walk</a></div>`;
-      if (!(me && me.nickname) && !lsGet(LB_NICK_SKIP)) html += lbNickForm('Show a name or X handle on the leaderboard? (optional)');
+      if (!(me && (me.nickname || me.x)) && !lsGet(LB_NICK_SKIP)) html += lbNickForm('Show a name on the leaderboard? (optional)');
       html += powRankUpHtml(j.pow, s);
+      if (j.pow && j.pow.me && !j.pow.me.x) html += xLinkPromptHtml();
       return { html, pow: j.pow || null };
     }
     if (status >= 400 && status < 500) return { rejected: true, html: `🏆 ${escHtml(j.message || "The check-in wasn't accepted.")}` };
@@ -174,11 +175,31 @@ function powStatus(me) {
 }
 // Per-check-in cards (passport-cards): every successful GPS check-in shows its card (p.me.stamp_cards[slug]: rank as of
 // this check-in, quote, verify code), not only rank-ups.
+// "Link your X" (PREVIEW, Noah 2026-11-01 11:04 AM ET via Matt): the walker's verified X handle goes on the card
+// (card.x); walkers who haven't linked get an optional "Link your X" button under the card. X's own sign-in page; we
+// only read the @handle and never post. After X, the walker lands on /proof-of-walk/ where the link is confirmed.
+let powXHandle = '';
+function xLinkPromptHtml() {
+  return '<div class="lb-note x-prompt" style="margin-top:10px">𝕏 Want your @handle on your cards and the leaderboard, with an “X verified” check? ' +
+    '<button type="button" data-x-link style="display:inline-flex;align-items:center;min-height:44px;padding:8px 18px;margin:6px 0;border-radius:999px;border:0;background:#e7e9ea;color:#0d1117;font-weight:700;font-size:.95rem;font-family:inherit;cursor:pointer">𝕏 Link your X</button>' +
+    '<br><span style="font-size:.8rem;color:#8b949e">Optional. You sign in on X; we only read your handle. We never post or send messages.</span><span class="x-msg" aria-live="polite" style="display:block;color:#f0883e;font-size:.85rem"></span></div>';
+}
+document.addEventListener('click', ev => {
+  const b = ev.target.closest && ev.target.closest('[data-x-link]');
+  if (!b) return;
+  b.disabled = true; b.textContent = 'Opening X…';
+  lbPost('/api/x/start', { device_id: lbDevice() }).then(({ j }) => {
+    if (j.ok && j.url) { location.href = j.url; return; }
+    b.disabled = false; b.textContent = '𝕏 Link your X';
+    const m = b.parentNode.querySelector('.x-msg'); if (m) m.textContent = j.message || "Couldn't open X. Please try again.";
+  }).catch(() => { b.disabled = false; b.textContent = '𝕏 Link your X'; });
+}, true);
 function powCardRevealHtml(sc, slug, head) {
-  const card = { rank: sc.rank, slug, n: Number(sc.n), at: sc.at, code: sc.code, earns: !!sc.earns };
+  const card = { rank: sc.rank, slug, n: Number(sc.n), at: sc.at, code: sc.code, earns: !!sc.earns, ...(powXHandle ? { x: powXHandle } : {}) };
   return `${head ? `<div class="lb-note pow-up">${head}</div>` : ''}<div class="pc-reveal" data-pc="${escHtml(JSON.stringify(card))}"><p class="lb-note">🗺️ Your new card is on its way…</p></div>`;
 }
 function powRankUpHtml(p, s) {
+  powXHandle = p && p.me && p.me.x && p.me.x.username ? p.me.x.username : '';
   const sc = s && p && p.me && p.me.stamp_cards && p.me.stamp_cards[s.slug];
   if (p && p.me && !p.ranked_up && sc && sc.code) return powCardRevealHtml(sc, s.slug, '');
   if (!p || !p.ranked_up || !p.me || !p.me.share) return '';
@@ -199,7 +220,7 @@ function powRankUpHtml(p, s) {
   const k = p.me.rank && p.me.rank.key, cc = k && p.me.cards && p.me.cards[k];
   if (sc && sc.code) return powCardRevealHtml(sc, s.slug, head);
   if (cc && cc.code && cc.earned && cc.earned.slug) {
-    const card = { rank: k, slug: cc.earned.slug, n: Number(cc.n), at: cc.earned.at, code: cc.code };
+    const card = { rank: k, slug: cc.earned.slug, n: Number(cc.n), at: cc.earned.at, code: cc.code, ...(powXHandle ? { x: powXHandle } : {}) };
     return `<div class="lb-note pow-up">${head}</div><div class="pc-reveal" data-pc="${escHtml(JSON.stringify(card))}"><p class="lb-note">🗺️ Your new card is on its way…</p></div>`;
   }
   const share = window.SSShare ? window.SSShare.row(p.me.share, url, 'Share your rank')
@@ -217,7 +238,7 @@ function powMountReveal() {
 function lbNickPrompt() {
   const out = document.getElementById('geo-test-result');
   out.className = 'checkin-msg';
-  out.innerHTML = lbNickForm('Your leaderboard name or X handle (2–20 letters, numbers, spaces, _ or -, or @handle):');
+  out.innerHTML = lbNickForm('Your leaderboard name (2–20 letters, numbers, spaces, _ or -). To show your @handle, use “Link your X” on your passport.');
   const inp = out.querySelector('input'); if (inp) inp.focus();
 }
 document.addEventListener('submit', ev => {
