@@ -2515,7 +2515,7 @@ X_PRIVACY_HTML = (
     'We ask X only for permission to read your profile (“users.read” and “tweet.read”, which X requires for reading your handle). '
     'We never post, like, follow or send messages for you, and we don’t keep your X login: the one-time access key X gives us is used once to read your handle, '
     'then we ask X to cancel it, and it is never saved.</li>'
-    '\n      <li>A sign-in that isn’t finished is deleted after 10 minutes.</li>'
+    '\n      <li>An unfinished X sign-in expires after 10 minutes and is deleted within 20 minutes.</li>'
     '\n      <li>Once linked, your @handle is shown publicly with a blue ✓ “Verified” on your cards (including saved, shared and printed card images), your card pages, '
     'the verify page for your cards, the leaderboards and the Fellow Travelers page. “Verified” means you signed in with that X account; it is not X’s own verification badge. '
     'One X account can be linked to one passport at a time; linking it from another device moves it there. If your handle changes on X, tap “Refresh handle”.</li>'
@@ -2523,7 +2523,7 @@ X_PRIVACY_HTML = (
     'Unlinking deletes your X user ID, handle and link date from our server, along with any unfinished sign-in. '
     'Your cards stay; the handle and ✓ are removed from them and from your card pages, the verify page and the leaderboards. '
     'Card images you already saved, shared or printed can’t be changed, and apps or sites where you shared a card link may show their own saved preview for a while. '
-    'Our database host keeps a rolling backup of the database for up to 30 days, so a copy can stay in that backup until it rolls off. '
+    'Backups are covered under <a href="#deleting">Deleting your data</a>. '
     'You can also remove our access in X: Settings › Security and account access › Apps and sessions › Connected apps.</li>'
     '\n      <li>Nicknames can’t start with “@” any more. An older “@” nickname is shown as “unverified” and is removed if the owner of that X account links it; '
     'the note telling you so is deleted after 30 days.</li>')
@@ -2550,8 +2550,9 @@ def privacy_page(data):
     </ul>
     <h2>Analytics</h2>
     <p class="note">We use <a href="https://www.goatcounter.com/" target="_blank" rel="noopener noreferrer">GoatCounter</a> for privacy-friendly page counts without cookies. A successful check-in also sends an anonymous “Check-in &lt;statue&gt;” event, without any location.</p>
-{fountain_privacy_html(data)}    <h2>Deleting your data</h2>
+{fountain_privacy_html(data)}    <h2 id="deleting">Deleting your data</h2>
     <p class="note">Email <a href="mailto:{SUPPORT_EMAIL}">{SUPPORT_EMAIL}</a> with your leaderboard nickname (or the statue and rough time of your check-in) and we will delete your cards, nickname and your linked X account. Clearing your browser data removes your local passport and device ID.</p>
+    <p class="note">Our database host keeps rolling backups for up to 30 days. Data you delete, including an unlinked X account, can remain in a backup until it rolls off, and we don’t restore deleted data to the site.</p>
     <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">Last updated {PRIVACY_UPDATED}.</p>
     {footer(data)}
   </main>
