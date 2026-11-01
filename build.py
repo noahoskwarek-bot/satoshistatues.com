@@ -1541,7 +1541,9 @@ def pow_keep_text(data):
 def pow_lb_link(data):
     return (f'\n    <p class="note">👣 Pills show each walker’s Proof of Walk rank (GPS-verified cards only): “N of {pow_genesis_required(data)} cards to Genesis”, then '
             f'🧱 Genesis Block ({pow_genesis_required(data)} of the original 10), then 🏛️ Grand High Order (Genesis + {pow_order_extra(data)} more). '
-            '<a href="/proof-of-walk/">How ranks work →</a></p>')
+            '<a href="/proof-of-walk/">How ranks work →</a></p>'
+            '\n    <p class="note">✨ The colored pill shows the rarest city card each walker has collected, from Common up to Legendary. '
+            '<a href="/proof-of-walk/cards/">About the cards →</a></p>')
 
 
 def pow_head(data, title, desc, canonical, lds):
