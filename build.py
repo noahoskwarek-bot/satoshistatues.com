@@ -1344,7 +1344,6 @@ LB_CSS = (
     '.lb-meta{font-size:.78rem;color:#8b949e;font-weight:400}'
     '.lb-stamps{flex:0 0 auto;text-align:right;font-weight:800;font-size:1.15rem}'
     '.lb-stamps small{display:block;font-size:.7rem;font-weight:400;color:#8b949e}'
-    '.lb-ver{display:inline-block;margin-left:6px;font-size:.7rem;font-weight:700;color:#0d1117;background:#3fb950;border-radius:4px;padding:1px 6px;vertical-align:middle}'
     '.lb-feed{list-style:none;font-size:.88rem}'
     '.lb-feed li{padding:8px 0;border-bottom:1px solid #21262d}'
     '.lb-feed a{color:#f7931a}'
@@ -1359,6 +1358,15 @@ LB_CSS = (
     '.lb-pill strong{color:#f7931a;font-weight:800}'
     '.lb-pill.gen{background:#1f1a0d;border-color:#6e5a1e;color:#f2cc60}.lb-pill.gen strong{color:#ffdf80}'
     'a.lb-pill:hover{border-color:#f7931a}'
+    # Top card tier pill (Noah 2026-11-01 8:00 AM ET via Matt; replaces the green "verified" tag): the walker's highest
+    # card tier, same names and foil colors as the tier chips on /proof-of-walk/cards/ (POW_CARDS_CSS .t-*).
+    '.lb-tier{display:inline-block;margin-left:6px;font-size:.68rem;font-weight:700;color:#0d1117;border-radius:999px;padding:1px 7px;vertical-align:middle;white-space:nowrap;text-decoration:none;background:var(--f)}'
+    '.lb-tier.t-common{--f:linear-gradient(135deg,#8a5a2b,#e8b07a 45%,#7a4a1f)}'
+    '.lb-tier.t-uncommon{--f:linear-gradient(135deg,#1f6f8b,#7fe3f0 40%,#2a9d8f 70%,#9be7c4)}'
+    '.lb-tier.t-rare{--f:linear-gradient(135deg,#ff6b6b,#ffd93d,#6bff95,#4dd2ff)}'
+    '.lb-tier.t-ultra{--f:linear-gradient(135deg,#ff4d4d,#ffb84d,#f9ff4d,#4dff88,#4dc3ff,#a64dff,#ff4dd2)}'
+    '.lb-tier.t-genesis{--f:conic-gradient(from 0deg,#ff4d4d,#ffb84d,#f9ff4d,#4dff88,#4dc3ff,#a64dff,#ff4dd2,#ff4d4d)}'
+    '.lb-name a.lb-tier,.lb-me a.lb-tier{color:#0d1117}a.lb-tier:hover{outline:1px solid #f7931a}'
 )
 
 LB_JS = r"""<script>
@@ -1377,7 +1385,13 @@ LB_JS = r"""<script>
   function nameHtml(e) {
     var n = esc(e.name);
     if (/^@[A-Za-z0-9_]{1,15}$/.test(e.name)) n = '<a href="https://x.com/' + e.name.slice(1) + '" target="_blank" rel="noopener noreferrer nofollow">' + n + '</a>';
-    return n + (e.verified ? '<span class="lb-ver" title="Verified by satoshistatues.com">✓ verified</span>' : '');
+    return n;
+  }
+  // Top card tier pill from the Worker (entry.top_tier; null = no cards = no pill). Same classes as POW_CARD_CLASS.
+  var TIER_CLASS = { 'Common': 't-common', 'Uncommon': 't-uncommon', 'Rare': 't-rare', 'Ultra rare': 't-ultra', 'Legendary': 't-genesis' };
+  function tierPill(t) {
+    if (!t || !TIER_CLASS[t]) return '';
+    return '<a class="lb-tier ' + TIER_CLASS[t] + '" href="/proof-of-walk/cards/" title="Top card collected: ' + esc(t) + '">' + esc(t) + '</a>';
   }
   // Proof of Walk rank pill from the Worker (entry.pow; null = no GPS stamps = no pill).
   function pill(p) {
@@ -1396,7 +1410,7 @@ LB_JS = r"""<script>
       document.getElementById('lb-total').textContent = j.total_people ? (j.total_people === 1 ? '1 person' : j.total_people + ' people') + ' so far.' : '';
       if (!j.entries.length) { el.innerHTML = '<li class="lb-empty">No check-ins yet. Visit a statue and be the first!</li>'; return; }
       el.innerHTML = j.entries.map(function (e) {
-        return '<li' + (e.id === meId ? ' class="me"' : '') + '><span class="lb-rank">' + e.rank + '</span><span class="lb-who"><span class="lb-name">' + nameHtml(e) + pill(e.pow) +
+        return '<li' + (e.id === meId ? ' class="me"' : '') + '><span class="lb-rank">' + e.rank + '</span><span class="lb-who"><span class="lb-name">' + nameHtml(e) + pill(e.pow) + tierPill(e.top_tier) +
           (e.id === meId ? ' <span class="lb-meta">(you)</span>' : '') + '</span><span class="lb-meta">' + stampsMeta(e) + '</span></span><span class="lb-stamps">' + e.gps +
           '<small>card' + (e.gps === 1 ? '' : 's') + ' of ' + j.statues + '</small></span></li>';
       }).join('');
@@ -1418,7 +1432,7 @@ LB_JS = r"""<script>
       .then(function (r) { return r.json(); }).then(function (j) {
         if (!j.ok) return; var m = j.me; meId = m.id;
         box.innerHTML = (m.rank ? 'You are <strong>#' + m.rank + '</strong> with <strong>' + m.gps + '</strong> GPS-verified card' + (m.gps === 1 ? '' : 's') +
-          pill(m.pow) + '. ' + (m.pow && m.pow.genesis && !m.pow.order ? 'Collect 1 more card to join the Grand High Order. ' : '') : 'No cards on the leaderboard yet. ') +
+          pill(m.pow) + tierPill(m.top_tier) + '. ' + (m.pow && m.pow.genesis && !m.pow.order ? 'Collect 1 more card to join the Grand High Order. ' : '') : 'No cards on the leaderboard yet. ') +
           'Your name: <strong>' + nameHtml(m) + '</strong>' +
           '<form class="lb-nick" id="lb-nick"><input name="nick" maxlength="20" aria-label="Nickname or X handle" placeholder="Nickname or @handle" value="' + esc(m.nickname || '') + '"><button type="submit">Save name</button></form><div class="lb-msg" id="lb-msg" aria-live="polite"></div>';
         document.getElementById('lb-nick').addEventListener('submit', function (ev) {
