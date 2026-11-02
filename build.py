@@ -434,8 +434,8 @@ def fountain_privacy_html(data):
     <ul class="src" style="font-size:.95rem;color:#e6edf3">
       <li>The giveaway runs at selected statues ({e(fountain_names(data))}). It only uses data when you take part.</li>
       <li>A GPS check-in at one of these statues creates a <strong>single-use code</strong> that is valid for {int(f.get('claim_minutes', 21))} minutes. We store a hash of the code, your hashed device ID, the statue and the time, and delete it after 1 day.</li>
-      <li>If you claim the giveaway we store the <strong>Lightning address</strong> you enter, the statue, the amount, the payout status and the time. The full address is kept for {int(f.get('address_retention_days', 90))} days for our payout records, then deleted. After that we only keep a masked form (like “sa…@w….com”) and a salted hash so each address can only be used once per statue.</li>
-      <li>Only the masked form is ever shown publicly, in the statue’s recent activity list.</li>
+      <li>If you claim the giveaway, the <strong>Lightning address</strong> you enter is used once, to send that payout, and is <strong>not stored</strong>: not in our database, not in our logs, and not in a shortened or masked form. We keep the statue, the amount, the payout status, the time and a salted hash of the address, so each address can only be used once per statue. The hash can’t be turned back into your address.</li>
+      <li>No address is ever shown publicly. The statue’s recent activity list shows “a visitor”.</li>
       <li>Your <strong>IP address</strong> is used for daily limits as a salted, per-day hash and deleted after 7 days.</li>
       <li>Tips are sent from your own wallet straight to our Bitcoin tip address (the same one as on the map’s home page). We don’t store anything about tips.</li>
       <li>To send a payout, our server asks the wallet service behind your Lightning address for an invoice, and our Lightning payment provider pays it.</li>
@@ -617,7 +617,7 @@ def support_line():
 # Footer + terms disclaimer for the blue ✓ "Verified" badge (Noah 2026-11-01 11:36 AM ET; text as given, typographic quotes).
 X_DISCLAIMER = ('SatoshiStatues.com is not affiliated with or endorsed by X Corp. ‘Verified’ means the walker signed in with that X account. '
                 'It is not X’s own verification badge.')
-PRIVACY_UPDATED = '2026-11-01'   # privacy text changed for Link your X (Grant's edits); independent of BUILD_DATE
+PRIVACY_UPDATED = '2026-11-02'   # xrecover preview: X-only recovery, no stored Lightning addresses (for Grant); independent of BUILD_DATE
 
 
 def slug_of(s):
@@ -1785,26 +1785,14 @@ POW_JS = r"""<script src="/share.js"></script>
     h += xBox(me);
     h += '<form class="pow-form" id="pow-form"><label for="pow-nick">Passport nickname (shown on the leaderboard' + (me.x ? ' if you unlink X' : '') + ')</label>' +
       '<input id="pow-nick" name="nick" maxlength="20" autocomplete="nickname" placeholder="Nickname" value="' + esc(me.nickname || get(NICK) || '') + '">' +
-      '<label for="pow-ln">Lightning address (optional, for passport recovery)</label>' +
-      '<input id="pow-ln" name="ln" maxlength="120" inputmode="email" autocomplete="off" placeholder="' + esc(me.lightning_address || 'name@wallet.com') + '">' +
-      '<p class="pow-fine">Your passport lives on this device. No password. Add a Lightning address and you get a one-time recovery code: the two together move your passport to a new phone. ' +
-      'The address is never shown publicly, never paid and never contacted, and we keep only a scrambled (hashed) copy.</p>' +
       '<button type="submit">Save</button><div class="lb-msg" id="pow-msg" aria-live="polite"></div></form>';
-    if (me.recovery_set) h += '<div class="pow-key">🔑 Recovery is on for ' + esc(me.lightning_address || 'your address') +
-      '. <button class="pow-ghost" type="button" id="pow-newcode">New recovery code</button></div>';
-    h += '<div id="pow-codeslot"></div>';
     el.innerHTML = h;
-    wireGrid(el, me); wireX(me);
-    if ($('pow-newcode')) $('pow-newcode').addEventListener('click', function () {
-      if (!confirm('Make a new recovery code? Your old code stops working.')) return;
-      post('/api/pow/recovery-code', { device_id: dev }).then(function (j) { if (j.ok) { renderMe(j.me); showCode(j.recovery_code); } });
-    });
+    wireGrid(el, me); wireX(me); renderRecover(me);
     $('pow-form').addEventListener('submit', function (ev) {
       ev.preventDefault();
-      var body = { device_id: dev, nickname: $('pow-nick').value };
-      if ($('pow-ln').value.trim()) body.lightning_address = $('pow-ln').value;
+      var body = { device_id: dev, nickname: $('pow-nick').value };   // no Lightning address: the passport never stores one
       post('/api/pow/profile', body).then(function (j) {
-        if (j.ok) { set(NICK, j.me.nickname || ''); renderMe(j.me); $('pow-msg').textContent = 'Saved.'; if (j.recovery_code) showCode(j.recovery_code); loadList(); }
+        if (j.ok) { set(NICK, j.me.nickname || ''); renderMe(j.me); $('pow-msg').textContent = 'Saved.'; loadList(); }
         else $('pow-msg').textContent = j.message || 'Couldn’t save that.';
       }).catch(function () { $('pow-msg').textContent = 'Couldn’t reach the server.'; });
     });
@@ -1813,26 +1801,33 @@ POW_JS = r"""<script src="/share.js"></script>
   // ---------- "Link your X" (PREVIEW, Noah 2026-11-01 11:04 AM ET via Matt) ----------
   // Optional. X's own sign-in page proves the account; the Worker reads only the @handle (+ X user id), never posts, and
   // keeps no X login. Coming back from X: ?xt=<one-time token> is confirmed from this device (POST /api/x/finish).
-  var xNote = '';
+  var xNote = '', xNoteOk = true;
+  // xrecover: X is the only way to move a passport. No password, no recovery code, no Lightning address.
+  var XHOME = '<p class="pow-fine pow-home" id="pow-home"><strong>Your passport lives on this device. No password.</strong> ';
   function xBox(me) {
-    var note = xNote ? '<div class="lb-msg" id="x-msg" aria-live="polite" style="color:#3fb950">' + xNote + '</div>' : '<div class="lb-msg" id="x-msg" aria-live="polite"></div>';
+    var note = xNote ? '<div class="lb-msg" id="x-msg" aria-live="polite" style="color:' + (xNoteOk ? '#3fb950' : '#e3b341') + '">' + xNote + '</div>' : '<div class="lb-msg" id="x-msg" aria-live="polite"></div>';
     if (me.x) return '<div class="xlink on" id="xlink">✅ Verified: <strong>@' + esc(me.x.username) + '</strong>' + XV + ' <span class="pow-fine">· linked ' + esc(fmtDay(me.x.linked_at)) + '</span>' +
       '<p class="pow-fine">Your cards, card pages and the leaderboards show this handle with a blue ✓ Verified. It means you signed in with this X account; it isn’t X’s own verification badge.</p>' +
+      XHOME + 'New phone? Open this page there, tap “Lost your phone?” and sign in as @' + esc(me.x.username) + '. Your passport moves over and leaves this device.</p>' +
       '<button class="pow-ghost" type="button" id="x-relink">Refresh handle</button> <button class="pow-ghost" type="button" id="x-unlink">Unlink X</button>' + note + '</div>';
     return '<div class="xlink" id="xlink">' +
       (me.name_released ? '<p class="x-note">Your old name <strong>' + esc(me.name_released) + '</strong> now belongs to the owner of that X account, who linked it, so it was removed. Pick a new nickname below, or link your X.</p>' : '') +
       (me.nick_unverified ? '<p class="x-note">Your name <strong>' + esc(me.nickname) + '</strong> isn’t checked with X, so it shows as “unverified”. Link your X to show it with a blue ✓ Verified.</p>' : '') +
+      XHOME + 'Link your X to move it to a new phone.</p>' +
       '<strong>Link your X</strong> <span class="pow-fine">(optional)</span>' +
       '<p class="pow-fine">Show your @handle on your cards and the leaderboard with a blue ✓ Verified. You sign in on X, and we only read your handle. We never post or send messages, and we don’t keep your X login.</p>' +
       '<button class="x-btn" type="button" id="x-link">Link your X</button>' + note + '</div>';
   }
-  function xStart(btn) {
+  var XMODE = 'satoshiXMode';
+  function xStart(btn, mode, msgId) {
+    var label = btn ? btn.textContent : '', msg = function (s) { if ($(msgId || 'x-msg')) $(msgId || 'x-msg').textContent = s; };
     if (btn) { btn.disabled = true; btn.textContent = 'Opening X…'; }
+    try { sessionStorage.setItem(XMODE, mode || 'link'); } catch (e) {}
     post('/api/x/start', { device_id: dev }).then(function (j) {
       if (j.ok && j.url) { location.href = j.url; return; }
-      if (btn) { btn.disabled = false; btn.textContent = btn.id === 'x-relink' ? 'Refresh handle' : 'Link your X'; }
-      if ($('x-msg')) $('x-msg').textContent = j.message || 'Couldn’t open X. Please try again.';
-    }).catch(function () { if ($('x-msg')) $('x-msg').textContent = 'Couldn’t reach the server.'; if (btn) btn.disabled = false; });
+      if (btn) { btn.disabled = false; btn.textContent = label; }
+      msg(j.message || 'Couldn’t open X. Please try again.');
+    }).catch(function () { msg('Couldn’t reach the server.'); if (btn) { btn.disabled = false; btn.textContent = label; } });
   }
   function wireX(me) {
     xNote = '';
@@ -1850,49 +1845,38 @@ POW_JS = r"""<script src="/share.js"></script>
     if (!t && !x) return Promise.resolve();
     try { history.replaceState(null, '', location.pathname + '#xlink'); } catch (e) {}
     if (x && XMSG[x]) { xNote = XMSG[x]; return Promise.resolve(); }
+    var mode = 'link'; try { mode = sessionStorage.getItem(XMODE) || 'link'; sessionStorage.removeItem(XMODE); } catch (e) {}
     if (!dev) return Promise.resolve();
-    return post('/api/x/finish', { device_id: dev, token: t }).then(function (j) {
-      xNote = j.ok ? '✅ Verified: @' + esc(j.x.username) + '.' + (j.moved ? ' It was linked to another passport before; it’s on this one now.' : '') : esc(j.message || 'Couldn’t link X. Please try again.');
-    }).catch(function () { xNote = 'Couldn’t reach the server.'; });
-  }
-  function showCode(code) {
-    var el = $('pow-codeslot'); if (!el || !code) return;
-    el.innerHTML = '<div class="pow-codebox"><strong>🔑 Your recovery code</strong><div class="pow-code" id="pow-code">' + esc(code) + '</div>' +
-      'Save it now (screenshot, password manager or paper). <strong>We can’t show it again.</strong> With your Lightning address it moves your passport to a new device. ' +
-      'Anyone with both could move it too, so keep the code private.<br><button type="button" id="pow-copy">Copy code</button></div>';
-    $('pow-copy').addEventListener('click', function () {
-      if (navigator.clipboard) navigator.clipboard.writeText(code).then(function () { $('pow-copy').textContent = 'Copied'; });
-    });
-    el.scrollIntoView({ block: 'nearest' });
-  }
-  function renderRecover() {
-    var el = $('pow-recover'); if (!el) return;
-    el.innerHTML = '<details class="pow-recover"' + (location.hash === '#recover' ? ' open' : '') + '><summary>New phone or cleared browser? Recover your passport</summary>' +
-      '<form class="pow-form" id="pow-rform"><label for="pow-rln">Lightning address you saved</label>' +
-      '<input id="pow-rln" maxlength="120" inputmode="email" autocomplete="off" placeholder="name@wallet.com" required>' +
-      '<label for="pow-rcode">Recovery code</label><input id="pow-rcode" maxlength="40" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX" required>' +
-      '<p class="pow-fine">Moves your cards, rank and nickname to this device; the old device loses them. Nothing is paid and your wallet isn’t contacted. ' +
-      'You get a fresh recovery code afterwards. 5 tries per day from each network.</p>' +
-      '<button type="submit">Recover passport</button><div class="lb-msg" id="pow-rmsg" aria-live="polite"></div>' +
-      '<p class="pow-fine">Trouble recovering? Email <a href="mailto:__SUPPORT__">__SUPPORT__</a></p></form></details>';
-    $('pow-rform').addEventListener('submit', function (ev) {
-      ev.preventDefault();
-      if (!dev) { dev = (crypto.randomUUID ? crypto.randomUUID() : Array.from(crypto.getRandomValues(new Uint8Array(16)), function (b) { return b.toString(16).padStart(2, '0'); }).join('')); set(DEV, dev); }
-      $('pow-rmsg').textContent = 'Checking…';
-      post('/api/pow/recover', { device_id: dev, lightning_address: $('pow-rln').value, code: $('pow-rcode').value }).then(function (j) {
-        if (!j.ok) { $('pow-rmsg').textContent = j.message || 'Couldn’t recover that passport.'; return; }
+    return post('/api/x/finish', { device_id: dev, token: t, mode: mode }).then(function (j) {
+      xNoteOk = !!j.ok;
+      if (j.ok && j.restored) {
+        // the passport moved here: mirror its cards into this browser's local passport (same as the home map's)
         var p = {}; try { p = JSON.parse(get('satoshiPassport.v1')) || {}; } catch (e) {}
-        (j.me.stamped || []).forEach(function (s) { if (!p[s.slug]) p[s.slug] = { date: s.at }; });
-        set('satoshiPassport.v1', JSON.stringify(p)); set('satoshiClaimed.v1', '1'); if (j.me.nickname) set(NICK, j.me.nickname);
-        $('pow-rmsg').textContent = ''; el.querySelector('details').open = false;
-        renderMe(j.me); showCode(j.recovery_code); loadList();
-        $('pow-msg').textContent = '✅ Passport recovered: ' + j.me.stamps + ' card' + (j.me.stamps === 1 ? '' : 's') + ' moved to this device.';
-      }).catch(function () { $('pow-rmsg').textContent = 'Couldn’t reach the server.'; });
+        ((j.me && j.me.stamped) || []).forEach(function (s) { if (!p[s.slug]) p[s.slug] = { date: s.at }; });
+        set('satoshiPassport.v1', JSON.stringify(p)); set('satoshiClaimed.v1', '1'); if (j.me && j.me.nickname) set(NICK, j.me.nickname);
+        var n = (j.me && j.me.stamps) || 0;
+        xNote = '✅ Passport restored: ' + n + ' card' + (n === 1 ? '' : 's') + ' moved to this device. Signed in as @' + esc(j.x.username) + '. Your old device no longer has it.';
+      } else xNote = j.ok ? '✅ Verified: @' + esc(j.x.username) + '.' : esc(j.message || 'Couldn’t link X. Please try again.');
+    }).catch(function () { xNoteOk = false; xNote = 'Couldn’t reach the server.'; });
+  }
+  // "Lost your phone?": sign in with X on this device. If that X account is linked to a passport, the whole passport
+  // moves here and the old device loses it. Hidden once this device's passport is linked to X.
+  function renderRecover(me) {
+    var el = $('pow-recover'); if (!el) return;
+    if (me && me.x) { el.innerHTML = ''; return; }
+    el.innerHTML = '<details class="pow-recover" id="pow-lost"' + (location.hash === '#recover' ? ' open' : '') + '><summary>Lost your phone? Sign in with X to restore your passport</summary>' +
+      '<p class="pow-fine">If you linked your X on your old phone, sign in with the same X account here. Your cards, rank and nickname move to this device, and the old device loses them. ' +
+      'No password and no code. Nothing is paid.</p>' +
+      '<button class="x-btn" type="button" id="x-restore">Sign in with X</button><div class="lb-msg" id="pow-rmsg" aria-live="polite"></div>' +
+      '<p class="pow-fine">Never linked your X? We can’t move that passport. Trouble? Email <a href="mailto:__SUPPORT__">__SUPPORT__</a></p></details>';
+    $('x-restore').addEventListener('click', function () {
+      if (!dev) { dev = (crypto.randomUUID ? crypto.randomUUID() : Array.from(crypto.getRandomValues(new Uint8Array(16)), function (b) { return b.toString(16).padStart(2, '0'); }).join('')); set(DEV, dev); }
+      xStart(this, 'restore', 'pow-rmsg');
     });
   }
   function loadMe() {
     var el = $('pow-me'); if (!el) return;
-    if (!dev) { el.innerHTML = '<div class="pow-rank">No rank yet</div><p class="pow-sub">Check in at a statue (within 150 m) to collect your first card. Open a statue on the <a href="/">map</a> or its page and tap <strong>Check in here</strong>.</p>' +
+    if (!dev) { renderRecover(null); if (xNote && $('pow-rmsg')) $('pow-rmsg').textContent = xNote; el.innerHTML = '<div class="pow-rank">No rank yet</div><p class="pow-sub">Check in at a statue (within 150 m) to collect your first card. Open a statue on the <a href="/">map</a> or its page and tap <strong>Check in here</strong>.</p>' +
       '<h3 class="pow-cards-h">Your passport cards</h3><p class="cg-line">' + cardsLine(null) + '</p>' + gridHtml(null); wireGrid(el, null); return; }
     post('/api/pow/me', { device_id: dev }).then(function (j) { if (j.ok) { renderMe(j.me); if (location.hash === '#xlink' && $('xlink')) $('xlink').scrollIntoView({ block: 'center' }); } else off(el); }).catch(function () { off(el); });
   }
@@ -1922,7 +1906,7 @@ POW_JS = r"""<script src="/share.js"></script>
       }).join('') : '<li class="lb-empty">No miners yet. Collect cards from any ' + (j.genesis_at || 3) + ' of the original 10 to mine the Genesis Block.</li>';
     }).catch(function () { off(el); off(ge); });
   }
-  xReturn().then(loadMe); renderRecover(); loadList(); loadRoll();
+  xReturn().then(loadMe); loadList(); loadRoll();
 })();
 </script>"""
 
@@ -2498,9 +2482,10 @@ def pow_privacy_html(data):
         return ''
     return (f'\n      <li><strong>Proof of Walk</strong> ranks are worked out from your GPS-verified cards. If you mine the Genesis Block ({pow_genesis_required(data)} of the original 10), '
             'your nickname (or “Anonymous #…”) and the date are listed on the Fellow Travelers page.</li>'
-            '\n      <li>If you add a <strong>Lightning address</strong> to your passport, it is used only to recover your passport on a new device, together with a one-time recovery code we show you once. '
-            'We keep a hashed copy of the address and of the code plus a masked form for you to see, never the address itself. It is never shown publicly, never paid and never contacted. '
-            'Recovery attempts are counted per network (as a salted hash, kept 1 day). Clear the field and save to delete it and switch recovery off.</li>'
+            '\n      <li>Your passport lives on this device. There’s no password and no recovery code, and we don’t ask for or keep a Lightning address for your passport. '
+            'To move your passport to a new phone, <strong>link your X</strong> (below), then on the new phone tap “Lost your phone?” and sign in with the same X account. '
+            'Your cards, rank and nickname move to the new device and the old device no longer has them. '
+            'Restores are counted per network and per X account (as salted hashes, kept 1 day).</li>'
             '\n      <li>Each <strong>Proof of Walk card</strong> (one per GPS-verified check-in) carries a random verify code (it isn’t linked to your device ID) and a QR code. Anyone who scans or types it sees only the statue, the date and the rank '
             '(plus your @handle with a blue ✓ Verified, only if you linked X): no nickname, no exact time, no location and no other cards. Shared and printed cards show your check-in date, time and verify code, because they’re on the card. '
             'Cards are drawn on your device’s screen; print files (including your @handle, if linked) are made in your browser and aren’t sent to anyone. Verify lookups are counted per network (as a salted hash, kept 1 day).</li>'
@@ -2518,7 +2503,7 @@ X_PRIVACY_HTML = (
     '\n      <li>An unfinished X sign-in expires after 10 minutes and is deleted within 20 minutes.</li>'
     '\n      <li>Once linked, your @handle is shown publicly with a blue ✓ “Verified” on your cards (including saved, shared and printed card images), your card pages, '
     'the verify page for your cards, the leaderboards and the Fellow Travelers page. “Verified” means you signed in with that X account; it is not X’s own verification badge. '
-    'One X account can be linked to one passport at a time; linking it from another device moves it there. If your handle changes on X, tap “Refresh handle”.</li>'
+    'One X account can be linked to one passport at a time; signing in with it on another device moves your whole passport there. If your handle changes on X, tap “Refresh handle”.</li>'
     '\n      <li>To unlink, tap <strong>Unlink X</strong> on your <a href="/proof-of-walk/#xlink">passport</a>, or email us (below). '
     'Unlinking deletes your X user ID, handle and link date from our server, along with any unfinished sign-in. '
     'Your cards stay; the handle and ✓ are removed from them and from your card pages, the verify page and the leaderboards. '
