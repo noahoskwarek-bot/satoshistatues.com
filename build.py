@@ -2590,7 +2590,9 @@ FONT_REG = os.path.join(ROOT, 'fonts', 'inter-500.woff')
 
 
 def og_path(s):
-    return f"og/{s['page']}.jpg"
+    # optional og_ver (e.g. "v2") gives the share image a new file name so X/Facebook recrawl it instead of reusing a cached card
+    v = s.get('og_ver')
+    return f"og/{s['page']}-{v}.jpg" if v else f"og/{s['page']}.jpg"
 
 
 def og_image(s):
