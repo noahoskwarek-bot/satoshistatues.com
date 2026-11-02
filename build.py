@@ -919,11 +919,15 @@ def photo_cta(s, data):
 
 
 def credit_html(s):
-    # Optional per-statue "photo_credit": plain text, or an @handle that links to X.
+    # Optional per-statue "photo_credit": plain text, or an @handle that links to X
+    # (to the source post when "photo_source" is set).
     cr = (s.get('photo_credit') or '').strip()
     if not cr:
         return ''
-    if re.fullmatch(r'@[A-Za-z0-9_]{1,15}', cr):
+    src = (s.get('photo_source') or '').strip()  # optional: URL of the post the photo comes from
+    if src:
+        who = f'<a href="{e(src)}" target="_blank" rel="noopener noreferrer">{e(cr)}</a>'
+    elif re.fullmatch(r'@[A-Za-z0-9_]{1,15}', cr):
         who = f'<a href="https://x.com/{cr[1:]}" target="_blank" rel="noopener noreferrer">{e(cr)}</a>'
     else:
         who = e(cr)
@@ -2606,7 +2610,9 @@ def og_image(s):
         ph = Image.open(os.path.join(ROOT, s['img'])).convert('RGB')
         scale = max(pw / ph.width, OG_H / ph.height)
         ph = ph.resize((round(ph.width * scale), round(ph.height * scale)), Image.LANCZOS)
-        left, top = (ph.width - pw) // 2, max(0, (ph.height - OG_H) // 3)
+        fx = float(s.get('imgFocusX', 0.5))  # optional: horizontal centre of the subject (0-1) for the share-card crop
+        left = min(max(0, round(ph.width * fx - pw / 2)), ph.width - pw)
+        top = max(0, (ph.height - OG_H) // 3)
         ph = ph.crop((left, top, left + pw, top + OG_H))
         mask = Image.new('L', (pw, OG_H), 255)
         md = ImageDraw.Draw(mask)
