@@ -1739,7 +1739,7 @@
       "type": "Stainless-steel and glass cube (2.4 m per side)",
       "status": "Installed",
       "statusLabel": "Installed Oct 2026 · outdoors, best on weekdays",
-      "note": "“El Génesis de Satoshi Nakamoto”: a 2.4 m stainless-steel and glass cube inspired by Bitcoin’s genesis block, awarded the Grand Prize of the Premio B·Arte 2025. Unveiled on 29 Oct 2026 in an open-air plaza at Polo DOT in Buenos Aires, at the opening of LABITCONF 2026.",
+      "note": "“El Génesis de Satoshi Nakamoto”: a 2.4 m stainless-steel and glass cube inspired by Bitcoin’s genesis block, awarded the Grand Prize of the Premio B·Arte 2025. Unveiled on 29 Oct 2026 in an open-air plaza at Polo DOT in Buenos Aires, at the opening of LABITCONF 2026. Expected to move to Parque de la Innovación (date TBA).",
       "img": "satoshi-buenos-aires.jpg",
       "imgW": 675,
       "imgH": 1200,
@@ -1781,6 +1781,10 @@
         {
           "label": "Criptoinforme (22 Oct 2026)",
           "url": "https://criptoinforme.com/eventos/monumento-satoshi-nakamoto-buenos-aires/"
+        },
+        {
+          "label": "CriptoNoticias: planned move to Parque de la Innovación",
+          "url": "https://www.criptonoticias.com/comunidad/escultura-satoshi-nakamoto-estreno-buenos-aires/"
         }
       ],
       "label": "Satoshi Monument Buenos Aires",
