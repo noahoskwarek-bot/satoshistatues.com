@@ -571,6 +571,7 @@
     }
     .passport-btn:hover { background: #30363d; }
     .popup-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .popup-actions ~ .popup-location { margin-top: 10px; }
     .ci-what { font-size: .85rem; line-height: 1.45; color: #c9d1d9; margin: 8px 0 0; }
     .ci-what[hidden] { display: none; }
     .ci-what a.ci-cards { color: #f7931a; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; padding: 10px 0; margin: -10px 0; }
@@ -1742,6 +1743,13 @@
              loading="lazy" decoding="async"
              onerror="this.onerror=null;this.style.display='none'">${photoCreditHtml(s)}` : ''}
         <h3>${s.name}</h3>
+        <div class="popup-actions">
+          <a class="directions-btn" href="${mapsUrl}" target="_blank" rel="noopener noreferrer">Get Directions</a>
+          ${checkinHtml}
+          <button class="ghost-btn" type="button" data-comments="${s.slug}">💬 Comments</button>
+        </div>
+        ${whatHtml}
+        ${msgHtml}
         <div class="popup-location">${fullLocation} · ${s.place}</div>
         ${s.pin_note ? `<div class="popup-approx" style="color:#d29922;font-size:.85rem;margin:2px 0 4px">📍 ${s.pin_note}</div>` : s.pin_approx ? `<div class="popup-approx" style="color:#d29922;font-size:.85rem;margin:2px 0 4px">📍 Approximate location</div>` : ''}
         ${s.giveaway ? giveawayPopupHtml(s) : ''}
@@ -1753,13 +1761,6 @@
           ${s.note}
         </div>
         ${checkinCountHtml(s)}
-        <div class="popup-actions">
-          <a class="directions-btn" href="${mapsUrl}" target="_blank" rel="noopener noreferrer">Get Directions</a>
-          ${checkinHtml}
-          <button class="ghost-btn" type="button" data-comments="${s.slug}">💬 Comments</button>
-        </div>
-        ${whatHtml}
-        ${msgHtml}
         <div class="popup-links"><a href="/${s.page}/">📄 Statue page</a>${s.guide ? ` · <a href="/${s.page}/#visiting">🧭 Visiting guide</a>` : ''} · <a href="${correctionUrl(s)}" target="_blank" rel="noopener noreferrer">✏️ Suggest a correction</a></div>
         <div class="popup-photo">📸 Snap a photo? Post it and tag us: <a href="https://x.com/satoshistatue21" target="_blank" rel="noopener noreferrer">@satoshistatue21</a> on X, <a href="https://www.instagram.com/satoshi.statues/" target="_blank" rel="noopener noreferrer">@satoshi.statues</a> on Instagram, <a href="https://www.tiktok.com/@satoshistatues" target="_blank" rel="noopener noreferrer">@satoshistatues</a> on TikTok, #SatoshiStatues.</div>
       `;

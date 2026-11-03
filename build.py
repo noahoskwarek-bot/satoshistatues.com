@@ -1278,6 +1278,10 @@ def statue_page(s, data):
     {confirmed_html(s, data)}
     {alert_html(s)}{checkin_box(s, data)}{fountain_box(s, data)}
     {img_html}
+    <div class="actions">
+      <a class="btn primary" href="{directions}" target="_blank" rel="noopener noreferrer">🧭 Get Directions</a>{map_btn}
+      <a class="btn" href="#comments">💬 Comments</a>
+    </div>
     <dl class="facts">
       <dt>Location</dt><dd>{e(s['place'])}, {e(s['city'])}, {e(s['country'])}</dd>
       <dt>Unveiled</dt><dd>{e(s.get('unveiled') or s['year'])}</dd>
@@ -1288,10 +1292,6 @@ def statue_page(s, data):
       <dt>Access</dt><dd>{acc}</dd>
       <dt>Coordinates</dt><dd>{s['lat']}, {s['lng']}{pin_html(s)}</dd>
     </dl>
-    <div class="actions">
-      <a class="btn primary" href="{directions}" target="_blank" rel="noopener noreferrer">🧭 Get Directions</a>{map_btn}
-      <a class="btn" href="#comments">💬 Comments</a>
-    </div>
     {share_box(s)}
     {series}
     <h2>About</h2>
