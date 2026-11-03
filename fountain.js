@@ -160,7 +160,7 @@
   // paused or out of budget. A network error keeps the static line (same as the giveaway box staying as built).
   function ciWhat(open) {
     var el = document.querySelector('[data-ci-what][data-free]');
-    if (el && !open) el.textContent = el.getAttribute('data-free');
+    if (el && !open) el.innerHTML = el.getAttribute('data-free');
   }
   function load() {
     return getJSON('/api/fountain?slug=' + encodeURIComponent(slug)).then(function (j) {

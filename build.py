@@ -390,7 +390,7 @@ GIVEAWAY_HOME_JS = r'''(function () {
   window.giveawayOpen = function (slug) { var k = info(slug).kind; return k !== 'off' && k !== 'paused'; };
   function apply(slug) {
     var W = window.SS_CI_WHAT, ok = window.giveawayOpen(slug);
-    if (W) document.querySelectorAll('[data-ci-what="' + slug + '"]').forEach(function (el) { el.textContent = ok ? W.pay : W.free; });
+    if (W) document.querySelectorAll('[data-ci-what="' + slug + '"]').forEach(function (el) { el.innerHTML = ok ? W.pay : W.free; });
     document.querySelectorAll('[data-gw-badge="' + slug + '"]').forEach(function (el) { fill(el, slug, false); });
     document.querySelectorAll('[data-gw-pop="' + slug + '"]').forEach(function (el) { fill(el, slug, true); });
   }
@@ -1171,6 +1171,7 @@ CHECKIN_CSS = ('.checkin-box{background:#161b22;border:1px solid #30363d;border-
                '.ci-stamp{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border:2px dashed #3fb950;border-radius:8px;color:#3fb950;font-weight:700;transform:rotate(-1deg)}'
                '.ci-map{color:#8b949e;font-size:.88rem;display:inline-flex;align-items:center;min-height:44px}.ci-map:hover{color:#f7931a}'
                '.ci-what{font-size:.92rem;color:#e6edf3;margin:8px 0 0;line-height:1.45}'
+               '.ci-what a.ci-cards{color:#f7931a;font-weight:600;text-decoration:underline;text-underline-offset:2px;padding:10px 0;margin:-10px 0}'
                '.ci-note{font-size:.85rem;color:#8b949e;margin:8px 0 0;line-height:1.45}.ci-note a{color:#f7931a}'
                '.checkin-msg{margin-top:10px;font-size:.88rem;line-height:1.45;color:#e6edf3;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:9px 11px}'
                '.checkin-msg.ok{border-color:#3fb950;color:#3fb950}.checkin-msg.warn{border-color:#f7931a}'
@@ -1189,7 +1190,8 @@ CHECKIN_CSS = ('.checkin-box{background:#161b22;border:1px solid #30363d;border-
 # only last while the giveaway budget/limits do (fountain.js claim form + Worker issueClaim), so the paying line says so.
 # fountain.js / the home map switch a paying line to the non-paying one when the Worker says the giveaway is off or paused.
 def ci_what(kind):
-    card = 'Proof of Walk card' if POW_ON else 'card'
+    # "Proof of Walk card" links to the cards page (Noah, 2026-11-03). The strings are HTML: our own constants only.
+    card = '<a class="ci-cards" href="/proof-of-walk/cards/">Proof of Walk card</a>' if POW_ON else 'card'
     return {'pay': f'Check in to get your {card}, add this statue to your passport and claim free sats with a Lightning address while the giveaway lasts. No sign-up needed.',
             'free': f'Check in to get your {card} and add this statue to your passport. No sign-up needed.',
             'near': f'Check in at the nearest statue to get its {card} and add it to your passport. No sign-up needed.',
@@ -1216,8 +1218,8 @@ def checkin_box(s, data):
             f'<div class="ci-row"><button class="btn ci-btn" type="button" data-ss-checkin-btn>📍 Check in here</button>'
             f'<span class="ci-stamp" hidden></span>'
             f'<a class="ci-map" href="/?s={s["page"]}">🗺️ Open on the map</a></div>'
-            + (f'<p class="ci-what" data-ci-what data-free="{e(ci_what("free"))}">{e(ci_what("pay"))}</p>' if fountain_on(data, s)
-               else f'<p class="ci-what" data-ci-what>{e(ci_what("free"))}</p>') +
+            + (f'<p class="ci-what" data-ci-what data-free="{e(ci_what("free"))}">{ci_what("pay")}</p>' if fountain_on(data, s)
+               else f'<p class="ci-what" data-ci-what>{ci_what("free")}</p>') +
             f'<p class="ci-note">At the statue? Tap within 150 m. '
             f'Your location is only checked, never stored. <a href="/leaderboard/">Leaderboard</a>'
             + (' · <a href="/proof-of-walk/">Proof of Walk</a>' if POW_ON else '') + '</p>'
