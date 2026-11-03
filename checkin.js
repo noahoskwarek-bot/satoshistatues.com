@@ -302,6 +302,8 @@ function checkinTooFarHtml(s, d, accuracy) {
       st.innerHTML = `✅ Card collected · ${fmtDate(p[s.slug].date)}`;
       st.hidden = false;
       const note = box.querySelector('.ci-note');
+      const what = box.querySelector('[data-ci-what]');
+      if (what) what.hidden = true;
       if (note) note.innerHTML = 'Saved in your Satoshi Passport. <a href="/#passport">My passport</a> · <a href="/leaderboard/">Leaderboard</a>';
       box.classList.add('done');
     }

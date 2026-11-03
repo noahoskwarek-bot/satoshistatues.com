@@ -387,7 +387,10 @@ GIVEAWAY_HOME_JS = r'''(function () {
       '<div data-gw-text>' + popText(i) + '</div>' +
       '<div class="gw-links"><a href="/' + encodeURIComponent(s.page) + '/#giveaway">See how it works ›</a> <span class="gw-terms">· 18+ · <a class="gw-terms" href="__RULES_HREF__">__RULES_LABEL__</a></span></div></div>';
   };
+  window.giveawayOpen = function (slug) { var k = info(slug).kind; return k !== 'off' && k !== 'paused'; };
   function apply(slug) {
+    var W = window.SS_CI_WHAT, ok = window.giveawayOpen(slug);
+    if (W) document.querySelectorAll('[data-ci-what="' + slug + '"]').forEach(function (el) { el.textContent = ok ? W.pay : W.free; });
     document.querySelectorAll('[data-gw-badge="' + slug + '"]').forEach(function (el) { fill(el, slug, false); });
     document.querySelectorAll('[data-gw-pop="' + slug + '"]').forEach(function (el) { fill(el, slug, true); });
   }
@@ -1167,6 +1170,7 @@ CHECKIN_CSS = ('.checkin-box{background:#161b22;border:1px solid #30363d;border-
                '.btn.ci-btn{background:#238636;border-color:#238636;color:#fff;font-size:1rem}.btn.ci-btn:hover{background:#2ea043;border-color:#2ea043}.btn.ci-btn:disabled{opacity:.7;cursor:wait}'
                '.ci-stamp{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border:2px dashed #3fb950;border-radius:8px;color:#3fb950;font-weight:700;transform:rotate(-1deg)}'
                '.ci-map{color:#8b949e;font-size:.88rem;display:inline-flex;align-items:center;min-height:44px}.ci-map:hover{color:#f7931a}'
+               '.ci-what{font-size:.92rem;color:#e6edf3;margin:8px 0 0;line-height:1.45}'
                '.ci-note{font-size:.85rem;color:#8b949e;margin:8px 0 0;line-height:1.45}.ci-note a{color:#f7931a}'
                '.checkin-msg{margin-top:10px;font-size:.88rem;line-height:1.45;color:#e6edf3;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:9px 11px}'
                '.checkin-msg.ok{border-color:#3fb950;color:#3fb950}.checkin-msg.warn{border-color:#f7931a}'
@@ -1178,6 +1182,24 @@ CHECKIN_CSS = ('.checkin-box{background:#161b22;border:1px solid #30363d;border-
                '.lb-nick button.lb-skip{background:#21262d;color:#c9d1d9;border:1px solid #30363d;font-weight:600}.lb-nick-msg{font-size:.8rem;color:#f0883e;margin-top:4px}'
                '.ci-share{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.ci-share .btn{color:#e6edf3;font-size:.85rem}'
                '.checkin-box [hidden]{display:none!important}')
+
+
+# One short line under every check-in button saying what the walker gets (Noah via Matt, 2026-11-03).
+# Paying vs. not comes from fountain.json (fountain_on), never a hard-coded list. Sats need a Lightning address and
+# only last while the giveaway budget/limits do (fountain.js claim form + Worker issueClaim), so the paying line says so.
+# fountain.js / the home map switch a paying line to the non-paying one when the Worker says the giveaway is off or paused.
+def ci_what(kind):
+    card = 'Proof of Walk card' if POW_ON else 'card'
+    return {'pay': f'Check in to get your {card}, add this statue to your passport and claim free sats with a Lightning address while the giveaway lasts. No sign-up needed.',
+            'free': f'Check in to get your {card} and add this statue to your passport. No sign-up needed.',
+            'near': f'Check in at the nearest statue to get its {card} and add it to your passport. No sign-up needed.',
+            'near_pay': ' At giveaway statues you can also claim free sats.'}[kind]
+
+
+def ci_what_script(data):
+    # Home map copy (popup "Check in" + passport "Check in here"): same strings as the statue pages.
+    d = {'pay': ci_what('pay'), 'free': ci_what('free'), 'near': ci_what('near') + (ci_what('near_pay') if fountain_on(data) else '')}
+    return f'<script>window.SS_CI_WHAT = {json.dumps(d, ensure_ascii=False)};</script>'
 
 
 def checkin_box(s, data):
@@ -1194,7 +1216,9 @@ def checkin_box(s, data):
             f'<div class="ci-row"><button class="btn ci-btn" type="button" data-ss-checkin-btn>📍 Check in here</button>'
             f'<span class="ci-stamp" hidden></span>'
             f'<a class="ci-map" href="/?s={s["page"]}">🗺️ Open on the map</a></div>'
-            f'<p class="ci-note">At the statue? Tap to collect its card in your Satoshi Passport (within 150 m). '
+            + (f'<p class="ci-what" data-ci-what data-free="{e(ci_what("free"))}">{e(ci_what("pay"))}</p>' if fountain_on(data, s)
+               else f'<p class="ci-what" data-ci-what>{e(ci_what("free"))}</p>') +
+            f'<p class="ci-note">At the statue? Tap within 150 m. '
             f'Your location is only checked, never stored. <a href="/leaderboard/">Leaderboard</a>'
             + (' · <a href="/proof-of-walk/">Proof of Walk</a>' if POW_ON else '') + '</p>'
             f'<div class="checkin-msg" aria-live="polite" hidden></div></div>')
@@ -3227,7 +3251,7 @@ def build_index(data, text):
     text = replace_block(text, 'SIGNUP', '        ' + signup_html(data, 'home'))
     text = replace_block(text, 'EMBED', embed_box_html())
     text = replace_block(text, 'SUPPORT', '        <p class="support-p">' + support_line() + '</p>')
-    text = replace_block(text, 'HEADLINKS', '  ' + FEED_LINK + '\n  <style>' + ALERT_CSS + CARD_GRID_CSS + '</style>' + ('\n  ' + api_script() if api_script() else '') + '\n  ' + checkin_script() + giveaway_home_head(data))
+    text = replace_block(text, 'HEADLINKS', '  ' + FEED_LINK + '\n  <style>' + ALERT_CSS + CARD_GRID_CSS + '</style>' + ('\n  ' + api_script() if api_script() else '') + '\n  ' + ci_what_script(data) + '\n  ' + checkin_script() + giveaway_home_head(data))
     return text
 
 # ---------- Temporary hidden test statue (fountain.json "test_page") ----------

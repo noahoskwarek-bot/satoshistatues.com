@@ -156,10 +156,17 @@
     // Home-map callouts link to #giveaway; the box is hidden until the API answers, so scroll once it appears.
     if (first && location.hash === '#giveaway') box.scrollIntoView({ block: 'start' });
   }
+  // The line under "Check in here" (build.py ci_what): drop the sats part when the Worker says the giveaway is off,
+  // paused or out of budget. A network error keeps the static line (same as the giveaway box staying as built).
+  function ciWhat(open) {
+    var el = document.querySelector('[data-ci-what][data-free]');
+    if (el && !open) el.textContent = el.getAttribute('data-free');
+  }
   function load() {
     return getJSON('/api/fountain?slug=' + encodeURIComponent(slug)).then(function (j) {
-      if (!j || !j.ok || !j.enabled) { box.hidden = true; return; }
+      if (!j || !j.ok || !j.enabled) { box.hidden = true; ciWhat(false); return; }
       state = j; render();
+      ciWhat(!j.paused && j.giveaway_sats_left >= minPay(j));
     }).catch(function () { box.hidden = true; });
   }
   box.addEventListener('submit', function (ev) {
