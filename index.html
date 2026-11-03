@@ -845,7 +845,9 @@
       .popup-photo a { display: inline-block; padding: 10px 0; margin: -10px 0; }
       .statue-card { padding: 10px 12px; }
       .modal-backdrop { padding: 0; align-items: flex-end; }
-      .modal { max-height: 90vh; border-radius: 12px 12px 0 0; padding: 16px 14px 20px; }
+      /* 90dvh, not just 90vh: on iOS (Chrome and Safari) vh is the viewport with the toolbars hidden, so a 90vh
+         bottom sheet was taller than the visible area and its title and close button sat under the address bar. */
+      .modal { max-height: 90vh; max-height: 90dvh; border-radius: 12px 12px 0 0; padding: 16px 14px 20px; }
       #passport-modal .modal { max-height: 92vh; max-height: 92dvh; }
       .stamp-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
       .stamp-tile { min-height: 118px; }
@@ -1644,7 +1646,11 @@
       detailStatue = s;
       renderDetail();
       openModal('detail-modal');
-      document.querySelector('#detail-modal .modal').scrollTop = 0;
+      const md = document.querySelector('#detail-modal .modal');
+      // Browsers without dvh (iOS < 15.4): cap the sheet at 90% of the visible height instead of 90vh.
+      if (!(window.CSS && CSS.supports && CSS.supports('max-height', '1dvh')) && window.matchMedia('(max-width: 768px)').matches) md.style.maxHeight = Math.round(window.innerHeight * 0.9) + 'px';
+      md.scrollTop = 0;
+      requestAnimationFrame(() => { md.scrollTop = 0; });  // always open at the top, after layout
       setActiveCard(index);
     }
     function isDetailOpen() { return document.getElementById('detail-modal').classList.contains('open'); }
