@@ -40,7 +40,8 @@
     "_photo_help": "Visitor photos are not collected by email: statue pages and map popups ask people to post their own photo and tag us (handles in build.py SOCIAL_TAGS). photo_x_handle is still used for photo credits/shoutouts.",
     "photo_x_handle": "satoshistatue21",
     "_leaderboard_help": "Leaderboard API (Cloudflare Worker in /workspace/leaderboard). Statue coordinates for its server-side distance check come from `python3 build.py --worker`.",
-    "leaderboard_api": "https://api.satoshistatues.workers.dev"
+    "leaderboard_api": "https://api.satoshistatues.workers.dev",
+    "_card_art_credit_help": "statue.card_art_credit (optional): the Proof of Walk card art is a real, openly licensed photo (img/cards/art/<page>.jpg). author/author_url, license/license_url, source/source_url (the file page), modified (e.g. 'cropped'), taken. Shown as a small credit on the card front, on the statue page and on the card share pages. Without it the card keeps the illustration."
   },
   "statues": [
     {
@@ -185,7 +186,17 @@
         "label": "Statue of Satoshi (official site, archived)",
         "url": "https://web.archive.org/web/20261008082829/https://www.statueofsatoshi.com/"
       },
-      "timeline": "World’s first Satoshi statue, with a reflective face so visitors see themselves (“We are all Satoshi”)."
+      "timeline": "World’s first Satoshi statue, with a reflective face so visitors see themselves (“We are all Satoshi”).",
+      "card_art_credit": {
+        "author": "Elekes Andor",
+        "author_url": "https://commons.wikimedia.org/wiki/User:Elekes_Andor",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "source": "Wikimedia Commons",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Satoshi_Nakamoto_(2).jpg",
+        "modified": "cropped",
+        "taken": "29 Oct 2021"
+      }
     },
     {
       "name": "Lugano",
@@ -380,7 +391,17 @@
         "label": "Tether / Plan ₿ (Oct 2024)",
         "url": "https://tether.io/news/plan-b-initiative-unveils-satoshi-nakamoto-statue-at-3rd-annual-plan-forum-in-lugano/"
       },
-      "timeline": "First of Valentina Picozzi’s optical-illusion Satoshi statues, unveiled for Plan ₿ Forum (later restored after a move)."
+      "timeline": "First of Valentina Picozzi’s optical-illusion Satoshi statues, unveiled for Plan ₿ Forum (later restored after a move).",
+      "card_art_credit": {
+        "author": "Martin Thurnherr",
+        "author_url": null,
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "source": "Wikimedia Commons",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Satoshi_Nakamoto_Metallskulptur_in_Lugano_004.png",
+        "modified": "cropped, sky extended",
+        "taken": "24 Oct 2024, before the 2025 damage and repair"
+      }
     },
     {
       "name": "El Zonte",

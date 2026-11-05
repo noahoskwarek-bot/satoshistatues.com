@@ -220,6 +220,12 @@
     else { var gg = c.createLinearGradient(0, ay, 0, ay + ah); gg.addColorStop(0, '#3a2a4a'); gg.addColorStop(1, '#0d1117'); c.fillStyle = gg; c.fillRect(ax, ay, aw, ah); }
     holo(c, card, ax, ay, aw, ah);
     var sh = c.createLinearGradient(0, ay + ah * .62, 0, ay + ah); sh.addColorStop(0, 'rgba(10,12,16,0)'); sh.addColorStop(1, 'rgba(10,12,16,.55)'); c.fillStyle = sh; c.fillRect(ax, ay, aw, ah);
+    // real-photo art: credit line (author, license, cropped) at the top right of the photo, like a caption
+    if (im && st.art_credit) {
+      f(c, 600, 19, 'PCInter'); c.textAlign = 'right'; c.textBaseline = 'alphabetic';
+      var cw = c.measureText(st.art_credit).width; c.fillStyle = 'rgba(10,12,16,.55)'; rr(c, ax + aw - cw - 34, ay + 12, cw + 22, 32, 8); c.fill();
+      c.fillStyle = '#e6edf3'; c.fillText(st.art_credit, ax + aw - 23, ay + 35);
+    }
     c.restore();
     c.strokeStyle = 'rgba(247,147,26,.9)'; c.lineWidth = 3; rr(c, ax, ay, aw, ah, 18); c.stroke();
     shield(c, k, 92, 1004, 196, 248);

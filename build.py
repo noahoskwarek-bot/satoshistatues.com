@@ -1289,7 +1289,7 @@ def statue_page(s, data):
     <h1>{e(s['label'])}</h1>
     <p class="sub">{e(s['place'])} · {e(s['city'])}, {e(s['country'])}{pin_sub(s)}</p>
     {confirmed_html(s, data)}
-    {alert_html(s)}{checkin_box(s, data)}{fountain_box(s, data)}
+    {alert_html(s)}{checkin_box(s, data)}{card_art_credit_html(s)}{fountain_box(s, data)}
     {img_html}
     <div class="actions">
       <a class="btn primary" href="{directions}" target="_blank" rel="noopener noreferrer">🧭 Get Directions</a>{map_btn}
@@ -2441,9 +2441,29 @@ def write_worker_cardshare(data):
     print(f'wrote {path} ({len(st)} card statues)')
 
 
+def card_art_credit_short(s):
+    # One line drawn on the card front over the photo: "Photo: Author · CC BY-SA 4.0 · cropped"
+    c = s['card_art_credit']
+    return ' · '.join(x for x in (f"Photo: {c['author']}", c['license'], c.get('modified')) if x)
+
+
+def card_art_credit_html(s, cls='card-credit'):
+    # Full credit with links (author, license, file page) for the statue page and the card share pages.
+    c = s.get('card_art_credit')
+    if not c:
+        return ''
+    a = (f'<a href="{e(c["author_url"])}" rel="noopener">{e(c["author"])}</a>' if c.get('author_url') else e(c['author']))
+    lic = f'<a href="{e(c["license_url"])}" rel="noopener license">{e(c["license"])}</a>'
+    src = f'<a href="{e(c["source_url"])}" rel="noopener">{e(c.get("source") or "source")}</a>'
+    mod = f', {e(c["modified"])}' if c.get('modified') else ''
+    taken = f' Photo taken {e(c["taken"])}.' if c.get('taken') else ''
+    return (f'<p class="{cls}" style="font-size:.78rem;color:#8b949e;margin:6px 0">Proof of Walk card photo: {a}, {lic}, via {src}{mod}.{taken}</p>')
+
+
 def card_data_js(data):
     st = {s['slug']: {'page': s['page'], 'title': s['city'].upper(), 'subtitle': f"{s['city']}, {s['country']}", 'label': s['label'],
-                      'tz': s.get('tz') or 'UTC', 'phrase': card_phrase(s), 'og_place': card_phrase(s)} for s in card_statues(data)}
+                      'tz': s.get('tz') or 'UTC', 'phrase': card_phrase(s), 'og_place': card_phrase(s),
+                      **({'art_credit': card_art_credit_short(s)} if s.get('card_art_credit') else {})} for s in card_statues(data)}
     d = {'site': SITE, 'statues': st,
          'quotes': [{'n': x['n'], 'q': x['quote'], 'by': x['by'], 'hue': x['hue']} for x in card_quotes()],
          'ranks': {k: {'share': v[0], 'label': v[1], 'badge': v[2], 'emoji': v[3], 'rule': pow_rank_rule(data, k)} for k, v in POW_RANKS.items()},
@@ -2469,7 +2489,8 @@ def card_share_page(data, key, s):
     title = f'{label} at {card_phrase(s)}'
     desc = 'A real walk to a real statue, verified by GPS. Start your Proof of Walk passport.'
     url, img = card_share_url(key, s), f'{SITE}/{card_og_img(rs, s["page"])}'
-    alt = f'Proof of Walk {label} card for {s["label"]}, {s["city"]}, {s["country"]}: a city scene with the rank badge and a GPS-verified seal.'
+    scene = 'a photo of the statue' if s.get('card_art_credit') else 'a city scene'
+    alt = f'Proof of Walk {label} card for {s["label"]}, {s["city"]}, {s["country"]}: {scene} with the rank badge and a GPS-verified seal.'
     out = head(title, desc, url, img, 1200, 630, alt, '')
     out = out.replace('<meta name="robots" content="index, follow" />', '<meta name="robots" content="noindex, follow" />', 1)
     out = out.replace('<meta property="og:image:width"', '<meta property="og:image:type" content="image/jpeg" />\n  <meta property="og:image:width"', 1)
@@ -2484,7 +2505,7 @@ def card_share_page(data, key, s):
     <div class="crumbs"><a href="/">Map</a> › <a href="/proof-of-walk/">Proof of Walk</a> › {e(label)}</div>
     <h1>{emoji} {e(label)} ✓</h1>
     <p class="sub">at {e(s['label'])} · {e(s['city'])}, {e(s['country'])}</p>
-    <img class="cs-hero" src="/{card_og_img(rs, s['page'])}" width="1200" height="630" alt="{e(alt)}" />
+    <img class="cs-hero" src="/{card_og_img(rs, s['page'])}" width="1200" height="630" alt="{e(alt)}" />{card_art_credit_html(s)}
     <p class="note">Someone walked to {e(card_phrase(s))} and earned <strong>{e(label)}</strong> on Proof of Walk: {e(rule)}. Every check-in is checked by GPS on the spot.</p>
     <div class="cs-go"><a class="btn primary" href="/">📍 Find a statue near you</a><a class="btn" href="/proof-of-walk/">👣 Start your passport</a></div>
     <h2>How it works</h2>
