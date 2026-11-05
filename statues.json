@@ -40,8 +40,7 @@
     "_photo_help": "Visitor photos are not collected by email: statue pages and map popups ask people to post their own photo and tag us (handles in build.py SOCIAL_TAGS). photo_x_handle is still used for photo credits/shoutouts.",
     "photo_x_handle": "satoshistatue21",
     "_leaderboard_help": "Leaderboard API (Cloudflare Worker in /workspace/leaderboard). Statue coordinates for its server-side distance check come from `python3 build.py --worker`.",
-    "leaderboard_api": "https://api.satoshistatues.workers.dev",
-    "_card_art_credit_help": "statue.card_art_credit (optional): the Proof of Walk card art is a real, openly licensed photo (img/cards/art/<page>.jpg). author/author_url, license/license_url, source/source_url (the file page), modified (e.g. 'cropped'), taken. Shown as a small credit on the card front, on the statue page and on the card share pages. Without it the card keeps the illustration."
+    "leaderboard_api": "https://api.satoshistatues.workers.dev"
   },
   "statues": [
     {
@@ -57,9 +56,9 @@
       "type": "Mirrored-face bronze bust",
       "status": "Installed",
       "note": "World’s first Satoshi statue. Reflective face so visitors see themselves (“We are all Satoshi”). Free public access 24/7.",
-      "img": "satoshi-nakamoto-87.jpg",
-      "imgW": 1200,
-      "imgH": 800,
+      "img": "satoshi-budapest-commons.jpg",
+      "imgW": 660,
+      "imgH": 880,
       "page": "budapest",
       "tz": "Europe/Budapest",
       "unveiled": "16 Sep 2021",
@@ -187,17 +186,12 @@
         "url": "https://web.archive.org/web/20261008082829/https://www.statueofsatoshi.com/"
       },
       "timeline": "World’s first Satoshi statue, with a reflective face so visitors see themselves (“We are all Satoshi”).",
-      "card_art_credit": {
-        "author": "Elekes Andor",
-        "author_url": "https://commons.wikimedia.org/wiki/User:Elekes_Andor",
-        "license": "CC BY-SA 4.0",
-        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "source": "Wikimedia Commons",
-        "source_url": "https://commons.wikimedia.org/wiki/File:Satoshi_Nakamoto_(2).jpg",
-        "modified": "cropped",
-        "taken": "29 Oct 2021",
-        "share_alike": true
-      }
+      "photo_credit": "Elekes Andor",
+      "photo_source": "https://commons.wikimedia.org/wiki/File:Satoshi_Nakamoto_(2).jpg",
+      "photo_license": "CC BY-SA 4.0",
+      "photo_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "photo_source_label": "Wikimedia Commons",
+      "photo_note": "The site’s share image uses a cropped version of this photo, shared under CC BY-SA 4.0."
     },
     {
       "name": "Lugano",
@@ -213,9 +207,9 @@
       "type": "Disappearing metal (1st of series)",
       "status": "Restored",
       "note": "First of the optical-illusion series. Unveiled in Parco Ciani in Oct 2024, it was later moved to the Foce, the mouth of the Cassarate river, where vandals threw it into Lake Lugano on the night of 1–2 Aug 2025; divers recovered it in pieces. The artist repaired it with the kintsugi technique and it was re-inaugurated on 24 Oct 2025 in the central area of Parco Ciani, near the Dying Socrates sculpture. On 19 Apr 2026 it was vandalized again and found seriously damaged in its central body. It was back on display in Parco Ciani on 22 Oct 2026, the eve of the 5th Plan ₿ Forum.",
-      "img": "464209387_18424822771076669_4342153522642907768_n.jpg",
-      "imgW": 512,
-      "imgH": 640,
+      "img": "satoshi-lugano-commons.jpg",
+      "imgW": 660,
+      "imgH": 991,
       "page": "lugano",
       "tz": "Europe/Zurich",
       "unveiled": "25 Oct 2024",
@@ -393,17 +387,12 @@
         "url": "https://tether.io/news/plan-b-initiative-unveils-satoshi-nakamoto-statue-at-3rd-annual-plan-forum-in-lugano/"
       },
       "timeline": "First of Valentina Picozzi’s optical-illusion Satoshi statues, unveiled for Plan ₿ Forum (later restored after a move).",
-      "card_art_credit": {
-        "author": "Martin Thurnherr",
-        "author_url": null,
-        "license": "CC BY-SA 4.0",
-        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "source": "Wikimedia Commons",
-        "source_url": "https://commons.wikimedia.org/wiki/File:Satoshi_Nakamoto_Metallskulptur_in_Lugano_004.png",
-        "modified": "cropped, sky extended",
-        "taken": "24 Oct 2024, before the 2025 damage and repair",
-        "share_alike": true
-      }
+      "photo_credit": "Martin Thurnherr",
+      "photo_source": "https://commons.wikimedia.org/wiki/File:Satoshi_Nakamoto_Metallskulptur_in_Lugano_004.png",
+      "photo_license": "CC BY-SA 4.0",
+      "photo_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "photo_source_label": "Wikimedia Commons",
+      "photo_note": "The site’s share image uses a cropped version of this photo, shared under CC BY-SA 4.0."
     },
     {
       "name": "El Zonte",
@@ -2098,7 +2087,7 @@
       "status": "Installed",
       "statusLabel": "Installed Apr 2026 · on a university campus",
       "note": "A 2 m stainless-steel “vanishing” Satoshi by Italian artist Valentina Picozzi, on a black stone pedestal on Blockchain Hill (the campus pine hill, renamed) at FPT University’s Hòa Lạc campus. Unveiled by FPT Education on 1 Apr 2026. The exact spot on the hill isn’t mapped, so the pin marks the campus.",
-      "img": "hoa-lac-illustration.jpg",
+      "img": "satoshi-hoa-lac.jpg",
       "imgW": 675,
       "imgH": 900,
       "page": "hoa-lac",
@@ -2248,7 +2237,8 @@
         "url": "https://fpt.edu.vn/tin-tuc/fpt-edu-tin-tuc-chung/fpt-edu-khanh-thanh-tuong-cha-de-bitcoin-satoshi-nakamoto-tai-campus-hoa-lac"
       },
       "timeline": "A 2 m stainless-steel “vanishing” Satoshi by Valentina Picozzi on Blockchain Hill at FPT University’s Hòa Lạc campus.",
-      "img_illustration": true
+      "photo_credit": "FPT University Hanoi",
+      "photo_source": "https://fpt.edu.vn/tin-tuc/fpt-edu-tin-tuc-chung/fpt-edu-khanh-thanh-tuong-cha-de-bitcoin-satoshi-nakamoto-tai-campus-hoa-lac"
     }
   ],
   "upcoming21": [
