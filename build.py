@@ -607,6 +607,7 @@ if(n>0){el.textContent="\\uD83D\\uDC63 "+n+(n===1?" person has":" people have")+
 def footer(data, extra=''):
     nostr = f' · <a href="{e(nostr_url(data))}" rel="me">Nostr</a>' if nostr_url(data) else ''
     return (f'<footer class="site"><a href="/">satoshistatues.com</a> · <a href="/21-nodes/">21 Nodes tracker</a> · '
+            f'<a href="/timeline/">Timeline</a> · '
             f'<a href="/leaderboard/">Leaderboard</a> · <a href="/feed.xml">Feed</a>{nostr}{extra}{fountain_footer_link(data)} · <a href="/privacy/">Privacy</a>'
             f'{support_line()}</footer>')
 
@@ -1254,6 +1255,12 @@ def statue_page(s, data):
         acc = e(first) + ' <a href="#visiting">More in Visiting ↓</a>'
     else:
         acc = 'Unknown. Check locally before you go.'
+    backers_row = ''
+    if (s.get('backers') or '').strip():
+        bk = e(s['backers'])
+        if s.get('backersSource'):
+            bk += f' <a href="{e(s["backersSource"]["url"])}" target="_blank" rel="noopener noreferrer">Source: {e(s["backersSource"]["label"])}</a>'
+        backers_row = f'\n      <dt>Who\'s behind it</dt><dd>{bk}</dd>'
     directions = f"https://www.google.com/maps/dir/?api=1&destination={s['lat']},{s['lng']}"
     series = ''
     if s.get('series21'):
@@ -1289,7 +1296,7 @@ def statue_page(s, data):
       <dt>Artist</dt><dd>{artist}</dd>
       <dt>Type</dt><dd>{e(s['type'])}</dd>
       <dt>Status</dt><dd>{status_badge(s['status'], s.get('statusLabel'))}</dd>
-      <dt>Access</dt><dd>{acc}</dd>
+      <dt>Access</dt><dd>{acc}</dd>{backers_row}
       <dt>Coordinates</dt><dd>{s['lat']}, {s['lng']}{pin_html(s)}</dd>
     </dl>
     {share_box(s)}
@@ -1316,6 +1323,123 @@ def statue_page(s, data):
 '''
     return out + share_script() + '\n' + (checkin_script() + '\n' if s['status'] in CHECKABLE else '') + fountain_script(s, data) + LIVE_COUNT_JS + '\n' + TAIL
 
+
+def timeline_statues(data):
+    # every real statue, oldest unveiling first; skip anything marked hidden/test
+    return sorted(
+        (s for s in data['statues'] if not s.get('hidden') and not s.get('test')),
+        key=unveil_key)
+
+
+def timeline_blurb(s):
+    if (s.get('timeline') or '').strip():
+        return s['timeline'].strip()
+    # fall back to the first sentence of the existing note
+    note = (s.get('note') or '').strip()
+    if not note:
+        return ''
+    m = re.split(r'(?<=[.!?])\s+', note, maxsplit=1)
+    return m[0]
+
+
+def timeline_status_label(s):
+    st = s.get('status') or ''
+    if st == 'Planned':
+        return 'Planned'
+    if st == 'Donated':
+        return s.get('statusLabel') or 'Donated, not on public display'
+    if st == 'Restored':
+        return s.get('statusLabel') or 'Restored'
+    return s.get('statusLabel') or st
+
+
+def timeline_page(data):
+    statues = timeline_statues(data)
+    title = 'Timeline of Satoshi statues'
+    desc = ('Every Satoshi statue and Bitcoin monument on this site, listed by unveiling date from oldest to newest, '
+            'with city, status and a short sourced backstory.')
+    canonical = SITE + '/timeline/'
+    og = SITE + '/og/timeline.jpg'
+    item_list = {'@context': 'https://schema.org', '@type': 'ItemList',
+                 'name': 'Timeline of Satoshi statues', 'numberOfItems': len(statues),
+                 'itemListElement': [{'@type': 'ListItem', 'position': i + 1, 'url': page_url(s),
+                                     'name': s['label']} for i, s in enumerate(statues)]}
+    lds = ld(item_list) + '\n  ' + ld(breadcrumb_ld([('Map', SITE + '/'), ('Timeline', canonical)]))
+    out = head(title, desc, canonical, og, OG_W, OG_H, 'Timeline of Satoshi statues (satoshistatues.com)', lds)
+    rows = ''
+    for s in statues:
+        st = timeline_status_label(s)
+        cls = s['status'].lower()
+        if s['status'] not in CHECKABLE:
+            cls = 'planned'
+        blurb = e(timeline_blurb(s))
+        rows += (
+            f'<li class="tl-item">'
+            f'<div class="tl-date">{e(s.get("unveiled") or s["year"])}</div>'
+            f'<div class="tl-body">'
+            f'<a class="tl-title" href="/{s["page"]}/">{e(s["label"])}</a>'
+            f'<div class="tl-meta">{e(s["city"])}, {e(s["country"])} · '
+            f'<span class="badge b-{cls}">{e(st)}</span></div>'
+            f'<p class="tl-note">{blurb}</p>'
+            f'</div></li>'
+        )
+    css = (
+        '.tl{list-style:none;margin:18px 0 0;padding:0;border-left:2px solid #30363d}'
+        '.tl-item{position:relative;padding:0 0 22px 18px}'
+        '.tl-item:last-child{padding-bottom:0}'
+        '.tl-item:before{content:"";position:absolute;left:-7px;top:6px;width:12px;height:12px;'
+        'border-radius:50%;background:#f7931a;box-shadow:0 0 0 3px #0d1117}'
+        '.tl-date{font-size:.85rem;color:#f7931a;font-weight:700;margin-bottom:4px}'
+        '.tl-title{font-size:1.05rem;font-weight:700;color:#e6edf3;text-decoration:none}'
+        '.tl-title:hover{color:#f7931a}'
+        '.tl-meta{font-size:.85rem;color:#8b949e;margin:4px 0 6px}'
+        '.tl-note{margin:0;font-size:.92rem;color:#c9d1d9;line-height:1.45}'
+    )
+    out += (
+        '  <main>\n'
+        '    <div class="crumbs"><a href="/">Map</a> › Timeline</div>\n'
+        '    <h1>Timeline of Satoshi statues</h1>\n'
+        '    <p class="sub">Oldest first. Planned and not-yet-public entries are labelled. Each line links to that statue’s page.</p>\n'
+        f'    <style>{css}</style>\n'
+        '    <ol class="tl">\n'
+        f'      {rows}\n'
+        '    </ol>\n'
+        f'    {footer(data)}\n'
+        '  </main>\n'
+    )
+    return out + TAIL
+
+
+def og_timeline_image(data):
+    """1200x630 share card for /timeline/."""
+    from PIL import Image, ImageDraw, ImageFilter, ImageFont
+    import io
+    bg = (13, 17, 23)
+    im = Image.new('RGB', (OG_W, OG_H), bg)
+    glow = Image.new('L', (OG_W, OG_H), 0)
+    ImageDraw.Draw(glow).ellipse((-260, -300, 520, 380), fill=90)
+    glow = glow.filter(ImageFilter.GaussianBlur(120))
+    im = Image.composite(Image.new('RGB', (OG_W, OG_H), (247, 147, 26)), im, glow)
+    d = ImageDraw.Draw(im)
+    fb = lambda n: ImageFont.truetype(FONT_BOLD, n)
+    fr = lambda n: ImageFont.truetype(FONT_REG, n)
+    pin = Image.open(os.path.join(ROOT, 'brand', 'pin-512.png')).convert('RGBA')
+    d.rectangle((0, 0, OG_W, 8), fill=(247, 147, 26))
+    mark = pin.resize((round(pin.width * 80 / pin.height), 80), Image.LANCZOS)
+    im.paste(mark, (70, 60), mark)
+    d.text((70 + mark.width + 16, 100), 'SATOSHI', font=fb(32), fill=(255, 255, 255), anchor='lm')
+    d.text((70 + mark.width + 16 + d.textlength('SATOSHI ', font=fb(32)), 100), 'STATUES', font=fb(32), fill=(247, 147, 26), anchor='lm')
+    d.text((70, 220), 'Timeline', font=fb(72), fill=(230, 237, 243))
+    d.text((70, 320), 'Satoshi statues by unveiling date', font=fr(36), fill=(201, 209, 217))
+    statues = timeline_statues(data)
+    if statues:
+        first = statues[0].get('unveiled') or statues[0]['year']
+        last = statues[-1].get('unveiled') or statues[-1]['year']
+        d.text((70, 380), f'{first}  →  {last}', font=fr(28), fill=(139, 148, 158))
+    d.text((70, OG_H - 62), 'satoshistatues.com', font=fb(34), fill=(247, 147, 26), anchor='ls')
+    buf = io.BytesIO()
+    im.save(buf, 'JPEG', quality=84, optimize=True, progressive=True)
+    return buf.getvalue()
 
 def nodes_page(data):
     series, installed = nodes21(data)
@@ -2714,7 +2838,9 @@ def og_image(s):
 
 
 def bin_outputs(data):
-    return {og_path(s): og_image(s) for s in data['statues']}
+    out = {og_path(s): og_image(s) for s in data['statues']}
+    out['og/timeline.jpg'] = og_timeline_image(data)
+    return out
 
 
 # ---------- "Visiting" trip guide (optional per statue; see GUIDES.md) ----------
@@ -3186,7 +3312,7 @@ def page_lastmod(s):
 
 
 def sitemap(data):
-    urls = [(SITE + p, BUILD_DATE) for p in ('/', '/21-nodes/', '/leaderboard/', '/privacy/') + (('/terms/',) if fountain_on(data) else ()) + (('/rules/',) if rules_on(data) else ()) + (('/proof-of-walk/', '/proof-of-walk/fellow-travelers/', '/proof-of-walk/cards/') if pow_cfg(data) and not pow_cfg(data).get('preview') else ())] + [(page_url(s), page_lastmod(s)) for s in data['statues']]
+    urls = [(SITE + p, BUILD_DATE) for p in ('/', '/21-nodes/', '/timeline/', '/leaderboard/', '/privacy/') + (('/terms/',) if fountain_on(data) else ()) + (('/rules/',) if rules_on(data) else ()) + (('/proof-of-walk/', '/proof-of-walk/fellow-travelers/', '/proof-of-walk/cards/') if pow_cfg(data) and not pow_cfg(data).get('preview') else ())] + [(page_url(s), page_lastmod(s)) for s in data['statues']]
     body = ''.join(f'  <url><loc>{u}</loc><lastmod>{m}</lastmod></url>\n' for u, m in urls)
     return f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{body}</urlset>\n'
 
@@ -3233,7 +3359,7 @@ def map_stays(data):
 
 
 def build_index(data, text):
-    statues_js = [{k: v for k, v in s.items() if k not in ('slug', 'sources', 'accessSource', 'label', 'visit', 'story')} for s in data['statues']]
+    statues_js = [{k: v for k, v in s.items() if k not in ('slug', 'sources', 'accessSource', 'backersSource', 'label', 'visit', 'story', 'timeline')} for s in data['statues']]
     for s, src in zip(statues_js, data['statues']):
         s['label'] = src['label']
         if has_guide(src):
@@ -3467,6 +3593,7 @@ def outputs(data):
              'feed.xml': feed_xml(data),
              '.nojekyll': '',
              '21-nodes/index.html': nodes_page(data),
+             'timeline/index.html': timeline_page(data),
              'leaderboard/index.html': leaderboard_page(data),
              'privacy/index.html': privacy_page(data),
              'embed/index.html': embed_page(data),

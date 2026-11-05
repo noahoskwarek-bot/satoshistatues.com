@@ -2,9 +2,38 @@
   "_comment": "Single source of truth for satoshistatues.com. Edit here, then run: python3 build.py",
   "config": {
     "_proof_of_walk_help": "Proof of Walk passport ranks: /proof-of-walk/ and /proof-of-walk/fellow-travelers/, data from the Worker /api/pow/* (POW_ENABLED). enabled=true: pages built, plus small links in the check-in note, the leaderboard and the home passport. preview=true: pages are noindex and left out of the sitemap. Ranks (Noah 2026-10-30 12:35 ET): Confirmed (first GPS stamp); Genesis Block = GPS stamps at any genesis_required (3) of genesis_set (the FIXED original 10, never add to it); The Grand High Order of Fellow Travelers = Genesis + order_extra (1) more statue anywhere on the map. order_keep: true = the Order is kept for good once earned. Order members are ranked by total statues stamped, ties to whoever got there first. All of these reach the Worker via build.py --worker. enabled=false: no pages, no links.",
-    "proof_of_walk": {"enabled": true, "preview": false, "genesis_required": 3, "order_extra": 1, "order_keep": true, "genesis_set": ["budapest", "el-zonte", "fornelli", "hanoi", "kranj-bitcoin-monument", "lugano", "miami-bitcoin-bull", "new-york", "tokyo", "vienna"]},
+    "proof_of_walk": {
+      "enabled": true,
+      "preview": false,
+      "genesis_required": 3,
+      "order_extra": 1,
+      "order_keep": true,
+      "genesis_set": [
+        "budapest",
+        "el-zonte",
+        "fornelli",
+        "hanoi",
+        "kranj-bitcoin-monument",
+        "lugano",
+        "miami-bitcoin-bull",
+        "new-york",
+        "tokyo",
+        "vienna"
+      ]
+    },
     "_lodging_help": "Stay nearby (BTC Map lodging, tools/fetch_merchants.py → lodging.json): up to max_items stays within radius_mi miles; if none, the nearest within fallback_km (labelled); else a one-line none. Re-run the fetch after changing. The fetch drops dead stay websites automatically (404/410, no such domain, parked/placeholder page); hide_websites lists extra dead links confirmed by hand (shown with their BTC Map link instead).",
-    "lodging": {"radius_mi": 5, "fallback_km": 25, "max_items": 5, "hide_websites": ["https://www.lacasadiduilia.it", "http://www.ecoapartment.at/", "http://www.vienna-apartment.co.at/stubenbastei-10-1010-wien/", "http://www.vienna-apartment.co.at/eslinggasse-9-1010-wien/", "https://www.gabbani.com/home/"]},
+    "lodging": {
+      "radius_mi": 5,
+      "fallback_km": 25,
+      "max_items": 5,
+      "hide_websites": [
+        "https://www.lacasadiduilia.it",
+        "http://www.ecoapartment.at/",
+        "http://www.vienna-apartment.co.at/stubenbastei-10-1010-wien/",
+        "http://www.vienna-apartment.co.at/eslinggasse-9-1010-wien/",
+        "https://www.gabbani.com/home/"
+      ]
+    },
     "_nostr_help": "Nostr profile for the site. nostr_hex is served as NIP-05 _@satoshistatues.com via /.well-known/nostr.json. Then run: python3 build.py",
     "nostr_npub": "npub1dx7qh8fpp9l45lzrv9ff95f0f3gkrlvjhhptqjrxyhemze68kuhs72vv8h",
     "nostr_hex": "69bc0b9d21097f5a7c43615292d12f4c5161fd92bdc2b0486625f3b16747b72f",
@@ -150,7 +179,13 @@
       "last_confirmed": "2021-09",
       "last_confirmed_source": "report",
       "last_confirmed_url": "https://apnews.com/article/technology-business-arts-and-entertainment-hungary-blockchain-96a6b57589b73fd4e376fe5f91b022e3",
-      "alert": null
+      "alert": null,
+      "backers": "Hungarian crypto community founders from Kripto Akadémia, MrCoin, Blockchain Budapest and the Blockchain Hungary Association; community-funded.",
+      "backersSource": {
+        "label": "Statue of Satoshi (official site, archived)",
+        "url": "https://web.archive.org/web/20261008082829/https://www.statueofsatoshi.com/"
+      },
+      "timeline": "World’s first Satoshi statue, with a reflective face so visitors see themselves (“We are all Satoshi”)."
     },
     {
       "name": "Lugano",
@@ -339,7 +374,13 @@
       "last_confirmed": "2026-10",
       "last_confirmed_source": "report",
       "last_confirmed_url": "https://x.com/satoshigallery/status/2113362834549567992",
-      "alert": null
+      "alert": null,
+      "backers": "Unveiled by Plan ₿, the joint initiative of Tether and the City of Lugano. Who paid for the piece has not been stated.",
+      "backersSource": {
+        "label": "Tether / Plan ₿ (Oct 2024)",
+        "url": "https://tether.io/news/plan-b-initiative-unveils-satoshi-nakamoto-statue-at-3rd-annual-plan-forum-in-lugano/"
+      },
+      "timeline": "First of Valentina Picozzi’s optical-illusion Satoshi statues, unveiled for Plan ₿ Forum (later restored after a move)."
     },
     {
       "name": "El Zonte",
@@ -489,7 +530,18 @@
       "last_confirmed": "2025-04",
       "last_confirmed_source": "report",
       "last_confirmed_url": "https://elsalvadorinenglish.com/2025/04/13/satoshi-rises-in-el-zonte-new-public-space-in-el-salvador-celebrating-sound-money-and-freedom/",
-      "alert": null
+      "alert": null,
+      "access": "Outdoors in a public beachfront space at Playa El Zonte (Bitcoin Beach), opened by El Salvador’s Ministry of Public Works with showers, water stations and a calisthenics area. Hours and fees are not published.",
+      "accessSource": {
+        "label": "El Salvador in English (13 Apr 2025)",
+        "url": "https://elsalvadorinenglish.com/2025/04/13/satoshi-rises-in-el-zonte-new-public-space-in-el-salvador-celebrating-sound-money-and-freedom/"
+      },
+      "backers": "Unveiled by Tether and Plan ₿; installed as part of a public space built by El Salvador’s Ministry of Public Works. Who paid for the statue has not been confirmed.",
+      "backersSource": {
+        "label": "ChainCatcher",
+        "url": "https://www.chaincatcher.com/en/article/2165920"
+      },
+      "timeline": "21 Nodes statue that moved from Museo MARTE in San Salvador to Bitcoin Beach’s new public space."
     },
     {
       "name": "Tokyo",
@@ -632,7 +684,18 @@
       "last_confirmed": "2025-09",
       "last_confirmed_source": "report",
       "last_confirmed_url": "https://www.forbes.com/sites/frankcorva/2025/09/08/bitcoin-finds-a-home-in-the-heart-of-tokyo/",
-      "alert": null
+      "alert": null,
+      "access": "Outdoors outside Tokyo Bitcoin Base near Yotsuya Station. Viewing hours for the statue itself are unverified.",
+      "accessSource": {
+        "label": "Forbes (8 Sep 2025)",
+        "url": "https://www.forbes.com/sites/frankcorva/2025/09/08/bitcoin-finds-a-home-in-the-heart-of-tokyo/"
+      },
+      "backers": "Unveiled at Tokyo Bitcoin Base, opened by Fulgur Ventures. Who bought the statue has not been stated.",
+      "backersSource": {
+        "label": "Forbes (8 Sep 2025)",
+        "url": "https://www.forbes.com/sites/frankcorva/2025/09/08/bitcoin-finds-a-home-in-the-heart-of-tokyo/"
+      },
+      "timeline": "21 Nodes statue outside Tokyo Bitcoin Base, unveiled at the Base’s grand opening."
     },
     {
       "name": "Hanoi",
@@ -757,7 +820,13 @@
       "last_confirmed": "2025-09",
       "last_confirmed_source": "report",
       "last_confirmed_url": "https://vietnamnews.vn/economy/1724928/statue-of-bitcoin-creator-satoshi-unveiled-in-ha-noi.html",
-      "alert": null
+      "alert": null,
+      "backers": "Brought to Vietnam by the Vietnam Blockchain and Digital Asset Association (VBA); displayed at 1Matrix headquarters.",
+      "backersSource": {
+        "label": "Viet Nam News (10 Sep 2025)",
+        "url": "https://vietnamnews.vn/economy/1724928/statue-of-bitcoin-creator-satoshi-unveiled-in-ha-noi.html"
+      },
+      "timeline": "21 Nodes statue indoors in the Blockchain Gallery at 1Matrix headquarters in Times City."
     },
     {
       "name": "Miami",
@@ -903,7 +972,13 @@
         "date": "2025-11-11",
         "source_url": "https://www.miaminewtimes.com/news/francis-suarez-announces-new-weird-crypto-statue-for-miami-park-40501787/",
         "source_label": "Miami New Times"
-      }
+      },
+      "backers": "Brought to Miami by Cantor Fitzgerald’s Brandon and Kyle Lutnick. Funding details have not been reported.",
+      "backersSource": {
+        "label": "Miami New Times (12 Nov 2025)",
+        "url": "https://www.miaminewtimes.com/news/francis-suarez-announces-new-weird-crypto-statue-for-miami-park-40501787/"
+      },
+      "timeline": "21 Nodes statue unveiled in Miami Beach; a permanent waterfront park site was announced but not confirmed."
     },
     {
       "name": "New York",
@@ -1054,7 +1129,13 @@
       "last_confirmed": "2025-12",
       "last_confirmed_source": "report",
       "last_confirmed_url": "https://www.cryptotimes.io/2025/12/11/twenty-one-capital-installs-satoshi-statue-at-nyse/",
-      "alert": null
+      "alert": null,
+      "backers": "Twenty One Capital (XXI).",
+      "backersSource": {
+        "label": "Cointelegraph (Dec 2025)",
+        "url": "https://cointelegraph.com/news/satoshi-nakamoto-statue-nyse-bitcoin"
+      },
+      "timeline": "21 Nodes statue installed indoors at the New York Stock Exchange; not open to the general public."
     },
     {
       "name": "Fornelli",
@@ -1174,7 +1255,18 @@
       "last_confirmed": "2025-05",
       "last_confirmed_source": "report",
       "last_confirmed_url": "https://www.ansa.it/molise/notizie/2025/05/09/nel-cuore-del-molise-fornelli-diventa-il-paese-dei-bitcoin_86b9bc75-2554-4121-b171-11b2a2ac9e24.html",
-      "alert": null
+      "alert": null,
+      "access": "Outdoors in Piazza Umberto I, a public square. No hours are published.",
+      "accessSource": {
+        "label": "Comune di Fornelli",
+        "url": "https://comune.fornelli.is.it/vivere-il-comune/eventi/inaugurazione-ufficiale-del-monumento-dedicato-a-bitcoin-e-a-satoshi-nakamoto-ideato-da-mattia-pannoni/"
+      },
+      "backers": "Funded entirely by the Comune di Fornelli, on Mattia Pannoni’s proposal.",
+      "backersSource": {
+        "label": "Comune di Fornelli",
+        "url": "https://comune.fornelli.is.it/vivere-il-comune/eventi/inaugurazione-ufficiale-del-monumento-dedicato-a-bitcoin-e-a-satoshi-nakamoto-ideato-da-mattia-pannoni/"
+      },
+      "timeline": "Italy’s first Bitcoin/Satoshi monument, in a Molise village known for high Bitcoin merchant adoption."
     },
     {
       "name": "Hong Kong",
@@ -1358,7 +1450,13 @@
         "date": "2026-04-20",
         "source_url": "https://www.microbit.ai/en/news/press-releases/microbit-hashkey-group-hong-kong-unveils-its-first-satoshi-nakamoto-statue-at-web3-festival/",
         "source_label": "MicroBit press release"
-      }
+      },
+      "backers": "MicroBit Capital Management and HashKey Group, with several early industry figures; given to the Hong Kong SAR Government.",
+      "backersSource": {
+        "label": "PANews",
+        "url": "https://www.panews.io/articles/019da97a-6832-702c-9a59-0fa8061b4b08"
+      },
+      "timeline": "21 Nodes statue unveiled at the Hong Kong Web3 Festival and given to the Hong Kong SAR Government; no permanent public site reported."
     },
     {
       "name": "Kranj Bitcoin Monument",
@@ -1471,7 +1569,18 @@
       "last_confirmed": "2018-03",
       "last_confirmed_source": "report",
       "last_confirmed_url": "https://www.rtvslo.si/news-in-english/a-world-first-in-kranj-a-monument-devoted-to-blockchain-technology/448636",
-      "alert": null
+      "alert": null,
+      "access": "Outdoors in a traffic circle (roundabout) near the courthouse at Stane Žagar and Gregorčič streets; view it from the surrounding sidewalks. No opening hours.",
+      "accessSource": {
+        "label": "RTV Slovenija",
+        "url": "https://www.rtvslo.si/news-in-english/a-world-first-in-kranj-a-monument-devoted-to-blockchain-technology/448636"
+      },
+      "backers": "Built by the Municipality of Kranj with support from 3fs and Bitstamp.",
+      "backersSource": {
+        "label": "RTV Slovenija",
+        "url": "https://www.rtvslo.si/news-in-english/a-world-first-in-kranj-a-monument-devoted-to-blockchain-technology/448636"
+      },
+      "timeline": "Often called the world’s first public Bitcoin monument: a large Corten-steel “B” in a city roundabout."
     },
     {
       "name": "Miami Bitcoin Bull",
@@ -1593,7 +1702,18 @@
       "last_confirmed": "2025-04",
       "last_confirmed_source": "report",
       "last_confirmed_url": "https://www.local10.com/news/local/2025/04/19/miami-bull-crypto-statue-vandalized/",
-      "alert": null
+      "alert": null,
+      "access": "Outdoors on the open Miami Dade College Wolfson Campus, in front of Building 1000 facing NE 1st Avenue. Viewing hours are unverified.",
+      "accessSource": {
+        "label": "MDC The Reporter (22 Apr 2022)",
+        "url": "https://mdcthereporter.com/miami-dade-college-hits-the-bull-s-eye-with-futuristic-robotic-statue/"
+      },
+      "backers": "TradeStation.",
+      "backersSource": {
+        "label": "MDC The Reporter (22 Apr 2022)",
+        "url": "https://mdcthereporter.com/miami-dade-college-hits-the-bull-s-eye-with-futuristic-robotic-statue/"
+      },
+      "timeline": "Chrome-and-fiberglass robotic bull with blue laser eyes, first shown at Bitcoin 2022 then moved to Miami Dade College."
     },
     {
       "name": "Vienna",
@@ -1740,7 +1860,13 @@
       "last_confirmed": "2026-10",
       "last_confirmed_source": "report",
       "last_confirmed_url": "https://bitcoin-austria.at/beitraege/satoshi-statue-enthuellung-wien/",
-      "alert": null
+      "alert": null,
+      "backers": "Bitcoin Austria; crowdfunded by more than 120 private supporters plus companies (Genesis sponsor Bitpanda), with Incrementum, Enzinger Steuerberatung, Bitkern, Was Bitcoin bringt, Stadler Partner, Bitcredit, Validvent and Viertel Zwei.",
+      "backersSource": {
+        "label": "Bitcoin Austria: Vienna unveiling",
+        "url": "https://bitcoin-austria.at/beitraege/satoshi-statue-enthuellung-wien/"
+      },
+      "timeline": "21 Nodes statue unveiled by Bitcoin Austria for its 15th anniversary, outdoors at Viertel Zwei."
     },
     {
       "name": "Buenos Aires",
@@ -1925,7 +2051,13 @@
       "last_confirmed": "2026-10",
       "last_confirmed_source": "report",
       "last_confirmed_url": "https://www.criptonoticias.com/comunidad/buenos-aires-monumento-satoshi-nakamoto/",
-      "last_confirmed_kind": "reported"
+      "last_confirmed_kind": "reported",
+      "backers": "Organised by Bitcoin Argentina (Bitcoin.ar); funded by Fundación Bitcoin Iberoamérica; venue Polo DOT (Workplace by IRSA).",
+      "backersSource": {
+        "label": "Bitcoin Argentina (ONG): El Génesis de Satoshi Nakamoto",
+        "url": "https://bitcoin.ar/premiobarte-monumento/"
+      },
+      "timeline": "“El Génesis de Satoshi Nakamoto”: a 2.4 m stainless-steel and glass cube inspired by Bitcoin’s genesis block, at Polo DOT."
     }
   ],
   "upcoming21": [
