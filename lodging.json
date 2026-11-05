@@ -274,6 +274,11 @@
      "lng": -58.379565
     }
    ]
+  },
+  "hoa-lac": {
+   "within_radius": 0,
+   "within_fallback": 0,
+   "nearest": []
   }
  }
 }

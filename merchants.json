@@ -461,6 +461,13 @@
      "verified_at": "2023-11-25"
     }
    ]
+  },
+  "hoa-lac": {
+   "lat": 21.01353,
+   "lng": 105.52526,
+   "within_1km": 0,
+   "within_5km": 0,
+   "nearest": []
   }
  }
 }

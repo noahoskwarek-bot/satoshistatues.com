@@ -173,7 +173,8 @@ def write_worker_statues(data):
     # label/city/country/tz: the combined card's verify lookup (/api/pow/verify) shows the statue label and the date in
     # the statue's own time zone (statues.json "tz", IANA).
     st = {s['slug']: {'name': s['name'], 'page': s['page'], 'lat': s['lat'], 'lng': s['lng'],
-                      'label': s['label'], 'city': s['city'], 'country': s['country'], 'tz': s.get('tz') or 'UTC'}
+                      'label': s['label'], 'city': s['city'], 'country': s['country'], 'tz': s.get('tz') or 'UTC',
+                      **({'radius_m': int(s['checkin_radius_m'])} if s.get('checkin_radius_m') else {})}
           for s in data['statues'] if s['status'] in CHECKABLE}
     path = os.path.join(WORKER_DIR, 'src', 'statues.gen.js')
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -1214,6 +1215,11 @@ def checkin_box(s, data):
     attrs = {'data-slug': s['slug'], 'data-name': s['name'], 'data-label': s['label'], 'data-city': s['city'],
              'data-page': s['page'], 'data-url': page_url(s), 'data-share-name': share_name(s), 'data-lat': s['lat'], 'data-lng': s['lng'],
              'data-checkins': s.get('checkins', 0), 'data-checkable': stampable}
+    # statue.checkin_radius_m (int, optional): wider check-in radius when only the site/campus is mapped (default 150 m,
+    # the Worker's RADIUS_M); build.py --worker passes it to the Worker as radius_m so both sides agree.
+    radius = int(s.get('checkin_radius_m') or 150)
+    if s.get('checkin_radius_m'):
+        attrs['data-radius'] = radius
     a = ' '.join(f'{k}="{e(str(v))}"' for k, v in attrs.items())
     return (f'\n    <style>{CHECKIN_CSS}</style><div class="checkin-box" data-ss-checkin {a}>'
             f'<div class="ci-row"><button class="btn ci-btn" type="button" data-ss-checkin-btn>📍 Check in here</button>'
@@ -1221,7 +1227,7 @@ def checkin_box(s, data):
             f'<a class="ci-map" href="/?s={s["page"]}">🗺️ Open on the map</a></div>'
             + (f'<p class="ci-what" data-ci-what data-free="{e(ci_what("free"))}">{ci_what("pay")}</p>' if fountain_on(data, s)
                else f'<p class="ci-what" data-ci-what>{ci_what("free")}</p>') +
-            f'<p class="ci-note">At the statue? Tap within 150 m. '
+            f'<p class="ci-note">At the statue? Tap within {radius} m. '
             f'Your location is only checked, never stored. <a href="/leaderboard/">Leaderboard</a>'
             + (' · <a href="/proof-of-walk/">Proof of Walk</a>' if POW_ON else '') + '</p>'
             f'<div class="checkin-msg" aria-live="polite" hidden></div></div>')
@@ -2390,7 +2396,8 @@ def card_phrase(s):
     # Share text / share-page title: true for every statue (Kranj is a Bitcoin "B" monument, Miami's is the Bitcoin Bull,
     # Buenos Aires is the "Satoshi Monument" glass cube).
     return {'kranj': 'the Bitcoin monument in Kranj', 'miami-bull': 'the Bitcoin Bull in Miami',
-            'buenos-aires': 'the Satoshi monument in Buenos Aires'}.get(s['page'], f"the Satoshi statue in {s['city']}")
+            'buenos-aires': 'the Satoshi monument in Buenos Aires',
+            'hoa-lac': 'the Satoshi statue at FPT University Hòa Lạc'}.get(s['page'], f"the Satoshi statue in {s['city']}")
 
 
 def card_quotes():
@@ -2775,12 +2782,29 @@ def og_image(s):
         has_photo = True
     d = ImageDraw.Draw(im)
     fb = lambda n: ImageFont.truetype(FONT_BOLD, n)
+    # The site's Inter woff files are a Latin subset with no Vietnamese letters (ạ, ơ, ư...). For a statue whose text
+    # needs them (Latin Extended Additional, U+1E00-U+1EFF), use the full Inter font so the share card has no missing glyphs.
+    # Other statues keep the subset fonts, so their images are unchanged.
+    full_inter = '/usr/share/fonts/truetype/sand-box/google/Inter/Inter-VariableFont_opsz,wght.ttf'
+    txt = ' '.join(str(s.get(k) or '') for k in ('label', 'city', 'country', 'place', 'statusLabel', 'status'))
+    if any(0x1E00 <= ord(c) <= 0x1EFF for c in txt) and os.path.exists(full_inter):
+        def _inter(n, w):
+            f = ImageFont.truetype(full_inter, n)
+            try:
+                f.set_variation_by_axes([min(32, max(14, n)), w])
+            except Exception:
+                pass
+            return f
+        fb = lambda n: _inter(n, 800)
+        globals_fr = lambda n: _inter(n, 500)
+    else:
+        globals_fr = None
     pin = Image.open(os.path.join(ROOT, 'brand', 'pin-512.png')).convert('RGBA')  # from tools/make_brand.py
     if not has_photo:
         big = pin.resize((round(pin.width * 300 / pin.height), 300), Image.LANCZOS)
         big.putalpha(big.getchannel('A').point(lambda a: a * 0.35))
         im.paste(big, (1000 - big.width // 2, 158), big)
-    fr = lambda n: ImageFont.truetype(FONT_REG, n)
+    fr = globals_fr or (lambda n: ImageFont.truetype(FONT_REG, n))
     d.rectangle((0, 0, OG_W, 8), fill=(247, 147, 26))
     mark = pin.resize((round(pin.width * 80 / pin.height), 80), Image.LANCZOS)
     im.paste(mark, (70, 60), mark)

@@ -3,6 +3,8 @@
 // Same 150 m radius as the leaderboard server, same localStorage stamp key/format
 // ({ "<slug>": { "date": "<ISO>" } }), same /api/checkin submission and GoatCounter "checkin/<slug>" event.
 const CHECKIN_RADIUS_M = 150; // same radius the leaderboard server enforces
+// A statue can set a wider radius (statues.json checkin_radius_m, e.g. a campus where only the site is mapped); the Worker gets the same value.
+function checkinRadius(s) { return (s && +s.checkin_radius_m) || CHECKIN_RADIUS_M; }
 const PASSPORT_KEY = 'satoshiPassport.v1';
 function fmtDate(iso) {
   try { return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); } catch (e) { return iso; }
@@ -267,8 +269,9 @@ function checkinOkHtml(s, saved, n, total) {
     : `🟠 You're here, but this browser won't let us save the card (private mode?).`;
 }
 function checkinTooFarHtml(s, d, accuracy) {
+  const r = checkinRadius(s);
   const acc = accuracy && accuracy > CHECKIN_RADIUS_M ? ` (your location fix is only accurate to about ${fmtDist(accuracy)})` : '';
-  return `So close… well, sort of! You're about <strong>${roundedDist(d, CHECKIN_RADIUS_M)}</strong> from ${s.name}${acc}. Get within ${CHECKIN_RADIUS_M} m to collect its card.`;
+  return `So close… well, sort of! You're about <strong>${roundedDist(d, r)}</strong> from ${s.name}${acc}. Get within ${r} m to collect its card.`;
 }
 // ----- Statue page "📍 Check in here" box (build.py renders <div data-ss-checkin …>; the home page has none) -----
 (function () {
@@ -276,7 +279,7 @@ function checkinTooFarHtml(s, d, accuracy) {
     const box = document.querySelector('[data-ss-checkin]');
     if (!box) return;
     const d = box.dataset;
-    const s = { slug: d.slug, name: d.name, city: d.city, label: d.label, page: d.page, lat: +d.lat, lng: +d.lng, checkins: +d.checkins || 0 };
+    const s = { slug: d.slug, name: d.name, city: d.city, label: d.label, page: d.page, lat: +d.lat, lng: +d.lng, checkins: +d.checkins || 0, checkin_radius_m: +d.radius || 0 };
     const checkable = (d.checkable || '').split(',').filter(Boolean);
     const btn = box.querySelector('[data-ss-checkin-btn]');
     const out = box.querySelector('.checkin-msg');
@@ -321,7 +324,7 @@ function checkinTooFarHtml(s, d, accuracy) {
       navigator.geolocation.getCurrentPosition(pos => {
         const { latitude, longitude, accuracy } = pos.coords;
         const dist = haversineM(latitude, longitude, s.lat, s.lng);
-        if (dist <= CHECKIN_RADIUS_M) {
+        if (dist <= checkinRadius(s)) {
           btn.textContent = '🏆 Saving…';
           lbSubmit(s, pos.coords).then(r => {
             btn.disabled = false; btn.textContent = IDLE;

@@ -2058,6 +2058,174 @@
         "url": "https://bitcoin.ar/premiobarte-monumento/"
       },
       "timeline": "“El Génesis de Satoshi Nakamoto”: a 2.4 m stainless-steel and glass cube inspired by Bitcoin’s genesis block, at Polo DOT."
+    },
+    {
+      "name": "Hòa Lạc",
+      "country": "Vietnam",
+      "city": "Hòa Lạc",
+      "place": "Blockchain Hill, FPT University Hòa Lạc campus, Hòa Lạc Hi-Tech Park, Hanoi",
+      "lat": 21.01353,
+      "lng": 105.52526,
+      "pin_approx": true,
+      "checkin_radius_m": 400,
+      "year": 2026,
+      "artist": "Valentina Picozzi",
+      "artistUrl": null,
+      "type": "Vanishing stainless steel (2 m)",
+      "status": "Installed",
+      "statusLabel": "Installed Apr 2026 · on a university campus",
+      "note": "A 2 m stainless-steel “vanishing” Satoshi by Italian artist Valentina Picozzi, on a black stone pedestal on Blockchain Hill (the campus pine hill, renamed) at FPT University’s Hòa Lạc campus. Unveiled by FPT Education on 1 Apr 2026. The exact spot on the hill isn’t mapped, so the pin marks the campus.",
+      "img": "satoshi-hoa-lac.jpg",
+      "imgW": 675,
+      "imgH": 900,
+      "photo_credit": "FPT University Hanoi",
+      "page": "hoa-lac",
+      "tz": "Asia/Ho_Chi_Minh",
+      "unveiled": "1 Apr 2026",
+      "series21": false,
+      "access": "Outdoors on Blockchain Hill inside the FPT University Hòa Lạc campus (university grounds); FPT says the spot has become a check-in place for students. Public visitor access and hours are unverified: check with the university before you go.",
+      "accessSource": {
+        "label": "FPT University (English)",
+        "url": "https://daihoc.fpt.edu.vn/en/news/FPT-Edu-Khanh-Thanh-Tuong-Cha-De-Bitcoin-Satoshi-Nakamoto-Tai-Hoa-Lac-Campus/"
+      },
+      "sources": [
+        {
+          "label": "FPT Education (1 Apr 2026, Vietnamese)",
+          "url": "https://fpt.edu.vn/tin-tuc/fpt-edu-tin-tuc-chung/fpt-edu-khanh-thanh-tuong-cha-de-bitcoin-satoshi-nakamoto-tai-campus-hoa-lac"
+        },
+        {
+          "label": "FPT University (English)",
+          "url": "https://daihoc.fpt.edu.vn/en/news/FPT-Edu-Khanh-Thanh-Tuong-Cha-De-Bitcoin-Satoshi-Nakamoto-Tai-Hoa-Lac-Campus/"
+        },
+        {
+          "label": "OpenStreetMap: FPT University campus",
+          "url": "https://www.openstreetmap.org/way/800878327"
+        }
+      ],
+      "label": "Satoshi Statue Hòa Lạc",
+      "pin_note": "Pin: FPT University Hòa Lạc campus (exact spot on Blockchain Hill not mapped)",
+      "story": [
+        {
+          "label": "Artist",
+          "text": "Valentina Picozzi, an Italian artist. FPT calls it the “vanishing” (tan biến) version.",
+          "sources": [
+            {
+              "label": "FPT Education (1 Apr 2026, Vietnamese)",
+              "url": "https://fpt.edu.vn/tin-tuc/fpt-edu-tin-tuc-chung/fpt-edu-khanh-thanh-tuong-cha-de-bitcoin-satoshi-nakamoto-tai-campus-hoa-lac"
+            },
+            {
+              "label": "FPT University (English)",
+              "url": "https://daihoc.fpt.edu.vn/en/news/FPT-Edu-Khanh-Thanh-Tuong-Cha-De-Bitcoin-Satoshi-Nakamoto-Tai-Hoa-Lac-Campus/"
+            }
+          ]
+        },
+        {
+          "label": "Unveiled",
+          "text": "1 Apr 2026, in a red-cloth ceremony organised by FPT Education on Blockchain Hill, attended by FPT University chairman Dr. Lê Trường Tùng and rector Dr. Nguyễn Khắc Thành.",
+          "sources": [
+            {
+              "label": "FPT Education (1 Apr 2026, Vietnamese)",
+              "url": "https://fpt.edu.vn/tin-tuc/fpt-edu-tin-tuc-chung/fpt-edu-khanh-thanh-tuong-cha-de-bitcoin-satoshi-nakamoto-tai-campus-hoa-lac"
+            },
+            {
+              "label": "FPT University (English)",
+              "url": "https://daihoc.fpt.edu.vn/en/news/FPT-Edu-Khanh-Thanh-Tuong-Cha-De-Bitcoin-Satoshi-Nakamoto-Tai-Hoa-Lac-Campus/"
+            }
+          ]
+        },
+        {
+          "label": "What it is",
+          "text": "A 2 m statue of Satoshi Nakamoto in stainless steel (inox) on a black stone pedestal.",
+          "sources": [
+            {
+              "label": "FPT Education (1 Apr 2026, Vietnamese)",
+              "url": "https://fpt.edu.vn/tin-tuc/fpt-edu-tin-tuc-chung/fpt-edu-khanh-thanh-tuong-cha-de-bitcoin-satoshi-nakamoto-tai-campus-hoa-lac"
+            },
+            {
+              "label": "FPT University (English)",
+              "url": "https://daihoc.fpt.edu.vn/en/news/FPT-Edu-Khanh-Thanh-Tuong-Cha-De-Bitcoin-Satoshi-Nakamoto-Tai-Hoa-Lac-Campus/"
+            }
+          ]
+        },
+        {
+          "label": "What the design means",
+          "text": "It seems to disappear as you move from a side view to the front, like Satoshi Nakamoto vanishing after building the Bitcoin network and handing it to the global community.",
+          "sources": [
+            {
+              "label": "FPT Education (1 Apr 2026, Vietnamese)",
+              "url": "https://fpt.edu.vn/tin-tuc/fpt-edu-tin-tuc-chung/fpt-edu-khanh-thanh-tuong-cha-de-bitcoin-satoshi-nakamoto-tai-campus-hoa-lac"
+            },
+            {
+              "label": "FPT University (English)",
+              "url": "https://daihoc.fpt.edu.vn/en/news/FPT-Edu-Khanh-Thanh-Tuong-Cha-De-Bitcoin-Satoshi-Nakamoto-Tai-Hoa-Lac-Campus/"
+            }
+          ]
+        },
+        {
+          "label": "Where",
+          "text": "The campus pine hill, renamed Blockchain Hill (đồi Blockchain) for the statue. Other campus sculptures include the Self-Made Man on Delta Hill.",
+          "sources": [
+            {
+              "label": "FPT Education (1 Apr 2026, Vietnamese)",
+              "url": "https://fpt.edu.vn/tin-tuc/fpt-edu-tin-tuc-chung/fpt-edu-khanh-thanh-tuong-cha-de-bitcoin-satoshi-nakamoto-tai-campus-hoa-lac"
+            },
+            {
+              "label": "FPT University (English)",
+              "url": "https://daihoc.fpt.edu.vn/en/news/FPT-Edu-Khanh-Thanh-Tuong-Cha-De-Bitcoin-Satoshi-Nakamoto-Tai-Hoa-Lac-Campus/"
+            }
+          ]
+        },
+        {
+          "label": "Why here",
+          "text": "FPT linked the unveiling to Vietnam officially recognising digital and crypto assets and piloting a crypto-asset market, and said it should encourage young people to master technology.",
+          "sources": [
+            {
+              "label": "FPT Education (1 Apr 2026, Vietnamese)",
+              "url": "https://fpt.edu.vn/tin-tuc/fpt-edu-tin-tuc-chung/fpt-edu-khanh-thanh-tuong-cha-de-bitcoin-satoshi-nakamoto-tai-campus-hoa-lac"
+            },
+            {
+              "label": "FPT University (English)",
+              "url": "https://daihoc.fpt.edu.vn/en/news/FPT-Edu-Khanh-Thanh-Tuong-Cha-De-Bitcoin-Satoshi-Nakamoto-Tai-Hoa-Lac-Campus/"
+            }
+          ]
+        }
+      ],
+      "visit": {
+        "updated": "2026-11-05",
+        "getting_there": "FPT University’s Hòa Lạc campus is in the Education and Training Zone of Hòa Lạc Hi-Tech Park, Km29 Thăng Long Boulevard (FPT University’s address). OpenStreetMap shows a bus stop called “Đại học FPT Hòa Lạc” at the campus edge; routes and timetables are unverified.\n\nParking: unverified.",
+        "exact_spot": "On Blockchain Hill, the pine-wooded hill on the campus that FPT renamed for the statue (FPT Education). The statue stands on a black stone pedestal among the pines. The hill isn’t mapped in OpenStreetMap, so the pin is the campus point (21.01353, 105.52526). Check-in works anywhere within 400 m of it, which covers the campus.",
+        "photo_tip": "FPT says the statue fades away as you move from the side to the front, so take both angles.\n\nGeneric tip (not from a source): the polished steel reflects the sky, so an overcast day or side light avoids hot spots.",
+        "hours_access": "On university campus grounds. FPT says the area has become a check-in spot for students. Whether visitors from outside the university can walk in, and at what hours, is unverified (OpenStreetMap lists the campus as open daily 07:00–22:00, also unverified). Check with FPT University before you go.",
+        "sources": [
+          {
+            "label": "FPT Education (1 Apr 2026, Vietnamese)",
+            "url": "https://fpt.edu.vn/tin-tuc/fpt-edu-tin-tuc-chung/fpt-edu-khanh-thanh-tuong-cha-de-bitcoin-satoshi-nakamoto-tai-campus-hoa-lac"
+          },
+          {
+            "label": "FPT University (English)",
+            "url": "https://daihoc.fpt.edu.vn/en/news/FPT-Edu-Khanh-Thanh-Tuong-Cha-De-Bitcoin-Satoshi-Nakamoto-Tai-Hoa-Lac-Campus/"
+          },
+          {
+            "label": "OpenStreetMap: FPT University campus",
+            "url": "https://www.openstreetmap.org/way/800878327"
+          },
+          {
+            "label": "BTC Map API",
+            "url": "https://btcmap.org/map"
+          }
+        ]
+      },
+      "last_confirmed": "2026-04",
+      "last_confirmed_source": "report",
+      "last_confirmed_url": "https://fpt.edu.vn/tin-tuc/fpt-edu-tin-tuc-chung/fpt-edu-khanh-thanh-tuong-cha-de-bitcoin-satoshi-nakamoto-tai-campus-hoa-lac",
+      "last_confirmed_kind": "reported",
+      "alert": null,
+      "backers": "Unveiled by FPT Education (Khối Giáo dục FPT, part of the FPT Group) on its Hòa Lạc campus.",
+      "backersSource": {
+        "label": "FPT Education (1 Apr 2026, Vietnamese)",
+        "url": "https://fpt.edu.vn/tin-tuc/fpt-edu-tin-tuc-chung/fpt-edu-khanh-thanh-tuong-cha-de-bitcoin-satoshi-nakamoto-tai-campus-hoa-lac"
+      },
+      "timeline": "A 2 m stainless-steel “vanishing” Satoshi by Valentina Picozzi on Blockchain Hill at FPT University’s Hòa Lạc campus."
     }
   ],
   "upcoming21": [
