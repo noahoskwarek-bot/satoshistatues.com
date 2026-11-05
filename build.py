@@ -339,10 +339,12 @@ def fountain_script(s, data):
 # Static first: a neutral label without an amount. Then /api/fountain?slug= refines it (amount from the Worker's
 # PAYOUT_SATS, "paused", or hidden when the budget is out). Any API failure keeps the neutral label, never an error.
 # Original-10 badge (Noah 2026-11-05): driven by proof_of_walk.genesis_set. Map popup/sheet + statue pages.
-GENESIS_BADGE_CSS = ('.genesis-badge{display:inline-block;margin:6px 0 2px;font-size:.78rem;font-weight:700;line-height:1.3}'
+GENESIS_BADGE_CSS = ('.genesis-badge{display:block;margin:8px 0 0;font-size:.78rem;font-weight:700;line-height:1}'
                      '.genesis-badge a{color:#f2cc60;text-decoration:none;border:1px solid #6e5a1e;background:#1f1a0d;'
-                     'border-radius:999px;padding:3px 10px;display:inline-flex;align-items:center;gap:4px}'
-                     '.genesis-badge a:hover{border-color:#e3b341;color:#ffdf80}')
+                     'border-radius:999px;padding:5px 11px;display:inline-flex;align-items:center;justify-content:center;'
+                     'gap:6px;line-height:1}'
+                     '.genesis-badge a:hover{border-color:#e3b341;color:#ffdf80}'
+                     '.genesis-badge+.confirmed{margin-top:10px}')
 
 GIVEAWAY_HOME_CSS = ('.gw-badge{display:inline-block;font-size:.7rem;padding:2px 7px;border-radius:4px;margin-top:7px;font-weight:600;'
                      'background:rgba(247,147,26,.12);border:1px solid rgba(247,147,26,.45);color:#f7931a;line-height:1.35}'
