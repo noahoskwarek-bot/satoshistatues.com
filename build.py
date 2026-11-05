@@ -338,6 +338,12 @@ def fountain_script(s, data):
 # Only emitted when fountain.json is enabled, and only statues listed there get s.giveaway in the map data.
 # Static first: a neutral label without an amount. Then /api/fountain?slug= refines it (amount from the Worker's
 # PAYOUT_SATS, "paused", or hidden when the budget is out). Any API failure keeps the neutral label, never an error.
+# Original-10 badge (Noah 2026-11-05): driven by proof_of_walk.genesis_set. Map popup/sheet + statue pages.
+GENESIS_BADGE_CSS = ('.genesis-badge{display:inline-block;margin:6px 0 2px;font-size:.78rem;font-weight:700;line-height:1.3}'
+                     '.genesis-badge a{color:#f2cc60;text-decoration:none;border:1px solid #6e5a1e;background:#1f1a0d;'
+                     'border-radius:999px;padding:3px 10px;display:inline-flex;align-items:center;gap:4px}'
+                     '.genesis-badge a:hover{border-color:#e3b341;color:#ffdf80}')
+
 GIVEAWAY_HOME_CSS = ('.gw-badge{display:inline-block;font-size:.7rem;padding:2px 7px;border-radius:4px;margin-top:7px;font-weight:600;'
                      'background:rgba(247,147,26,.12);border:1px solid rgba(247,147,26,.45);color:#f7931a;line-height:1.35}'
                      '.gw-badge.gw-paused{background:#21262d;border-color:#30363d;color:#8b949e}.gw-badge[hidden],.gw-pop[hidden]{display:none!important}'
@@ -846,7 +852,7 @@ def head(title, desc, canonical, image, iw, ih, img_alt, extra_ld):
   {ICON_LINKS}
   {FEED_LINK}
   {extra_ld}
-  <style>{CSS}{ALERT_CSS}{STORY_CSS}{VISIT_CSS}{EVENTS_CSS}{GALLERY_CSS}</style>
+  <style>{CSS}{ALERT_CSS}{STORY_CSS}{VISIT_CSS}{EVENTS_CSS}{GALLERY_CSS}{GENESIS_BADGE_CSS}</style>
   {api_script()}
 </head>
 <body>
@@ -1297,6 +1303,7 @@ def statue_page(s, data):
     <div class="crumbs"><a href="/">Map</a> › {e(s['label'])}</div>
     <h1>{e(s['label'])}</h1>
     <p class="sub">{e(s['place'])} · {e(s['city'])}, {e(s['country'])}{pin_sub(s)}</p>
+    {genesis_badge_html(s, data)}
     {confirmed_html(s, data)}
     {alert_html(s)}{checkin_box(s, data)}{fountain_box(s, data)}
     {img_html}
@@ -1747,6 +1754,19 @@ def pow_order_rule(data):
 
 def pow_keep_text(data):
     return 'Once earned, it’s yours for good.' if pow_order_keep(data) else ''
+
+
+def is_genesis_statue(s, data):
+    return s.get('slug') in set(pow_genesis_set(data))
+
+
+def genesis_badge_html(s, data, kind='page'):
+    """kind='page' → statue page line; kind='map' → short Original 10 pill (popup/sheet uses JS)."""
+    if not is_genesis_statue(s, data):
+        return ''
+    if kind == 'map':
+        return '<div class="genesis-badge"><a href="/proof-of-walk/">🧱 Original 10</a></div>'
+    return '<p class="genesis-badge"><a href="/proof-of-walk/">🧱 Genesis · one of the original 10</a></p>'
 
 
 def pow_lb_link(data):
@@ -3393,6 +3413,7 @@ def map_stays(data):
 
 def build_index(data, text):
     statues_js = [{k: v for k, v in s.items() if k not in ('slug', 'sources', 'accessSource', 'backersSource', 'label', 'visit', 'story', 'timeline')} for s in data['statues']]
+    genesis = set(pow_genesis_set(data))
     for s, src in zip(statues_js, data['statues']):
         s['label'] = src['label']
         if has_guide(src):
@@ -3400,6 +3421,8 @@ def build_index(data, text):
         s['nearby_eligible'] = nearby_eligible(src)
         if fountain_on(data, src):
             s['giveaway'] = True
+        if src['slug'] in genesis:
+            s['genesis'] = True
     js = '    const statues = ' + json.dumps(statues_js, ensure_ascii=False, indent=2).replace('\n', '\n    ') + ';'
     text = replace_block(text, 'STATUES', js, comment=('// ', ''))
     text = replace_block(text, 'STAYS', '    const stays = ' + json.dumps(map_stays(data), ensure_ascii=False) + ';', comment=('// ', ''))
@@ -3412,7 +3435,7 @@ def build_index(data, text):
     text = replace_block(text, 'SIGNUP', '        ' + signup_html(data, 'home'))
     text = replace_block(text, 'EMBED', embed_box_html())
     text = replace_block(text, 'SUPPORT', '        <p class="support-p">' + support_line() + '</p>')
-    text = replace_block(text, 'HEADLINKS', '  ' + FEED_LINK + '\n  <style>' + ALERT_CSS + CARD_GRID_CSS + '</style>' + ('\n  ' + api_script() if api_script() else '') + '\n  ' + ci_what_script(data) + '\n  ' + checkin_script() + giveaway_home_head(data))
+    text = replace_block(text, 'HEADLINKS', '  ' + FEED_LINK + '\n  <style>' + ALERT_CSS + CARD_GRID_CSS + GENESIS_BADGE_CSS + '</style>' + ('\n  ' + api_script() if api_script() else '') + '\n  ' + ci_what_script(data) + '\n  ' + checkin_script() + giveaway_home_head(data))
     return text
 
 # ---------- Temporary hidden test statue (fountain.json "test_page") ----------
