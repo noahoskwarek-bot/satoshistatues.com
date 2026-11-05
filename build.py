@@ -179,7 +179,7 @@ def write_worker_statues(data):
     path = os.path.join(WORKER_DIR, 'src', 'statues.gen.js')
     os.makedirs(os.path.dirname(path), exist_ok=True)
     # Proof of Walk rank config (config.proof_of_walk), read by the Worker's src/pow.js: Genesis = genesis_required of
-    # genesis_set; Grand High Order = Genesis + order_extra more statues, kept for good unless order_keep = false.
+    # genesis_set; Full Node = Genesis + order_extra more statues, kept for good unless order_keep = false.
     pg = {'set': sorted(pow_genesis_set(data)), 'required': pow_genesis_required(data)}
     po = {'extra': pow_order_extra(data), 'keep': pow_order_keep(data)}
     with open(path, 'w', encoding='utf-8') as f:
@@ -1602,7 +1602,7 @@ LB_JS = r"""<script>
   // Proof of Walk rank pill from the Worker (entry.pow; null = no GPS stamps = no pill).
   function pill(p) {
     if (!p || !p.label) return '';
-    if (p.order) return '<a class="lb-pill gen" href="/proof-of-walk/fellow-travelers/" title="Proof of Walk: The Grand High Order of Fellow Travelers">🏛️ <strong>Grand High Order</strong></a>';
+    if (p.order) return '<a class="lb-pill gen" href="/proof-of-walk/fellow-travelers/" title="Proof of Walk: Full Node">🏛️ <strong>Full Node</strong></a>';
     return p.genesis
       ? '<a class="lb-pill gen" href="/proof-of-walk/" title="Proof of Walk: Genesis Block">🧱 <strong>Genesis Block</strong></a>'
       : '<a class="lb-pill" href="/proof-of-walk/" title="Proof of Walk: Confirmed">👣 <strong>' + (p.progress == null ? esc(p.label) : p.progress + ' of ' + (p.genesis_at || 3) + ' cards to Genesis') + '</strong></a>';
@@ -1638,7 +1638,7 @@ LB_JS = r"""<script>
       .then(function (r) { return r.json(); }).then(function (j) {
         if (!j.ok) return; var m = j.me; meId = m.id;
         box.innerHTML = (m.rank ? 'You are <strong>#' + m.rank + '</strong> with <strong>' + m.gps + '</strong> GPS-verified card' + (m.gps === 1 ? '' : 's') +
-          pill(m.pow) + tierPill(m.top_tier) + '. ' + (m.pow && m.pow.genesis && !m.pow.order ? 'Collect 1 more card to join the Grand High Order. ' : '') : 'No cards on the leaderboard yet. ') +
+          pill(m.pow) + tierPill(m.top_tier) + '. ' + (m.pow && m.pow.genesis && !m.pow.order ? 'Collect 1 more card to reach Full Node. ' : '') : 'No cards on the leaderboard yet. ') +
           'Your name: <strong>' + nameHtml(m) + '</strong>' +
           (m.x ? '<p class="lb-meta" style="margin-top:6px">Linked to X. Manage it on <a href="/proof-of-walk/#xlink">your passport</a>.</p>'
             : (m.name_released ? '<p class="x-note">Your old name <strong>' + esc(m.name_released) + '</strong> now belongs to the owner of that X account, who linked it. Pick a new nickname, or link your X.</p>' : '') +
@@ -1698,11 +1698,11 @@ def leaderboard_page(data):
 # leaderboard) and /proof-of-walk/fellow-travelers/ (the rolls). Data comes from the Worker's /api/pow/* (POW_ENABLED);
 # `build.py --worker` copies the rank config into the Worker's src/statues.gen.js, so both sides always agree.
 # Three ranks (Noah, 2026-10-30 12:35 ET), mirroring the Worker's src/pow.js:
-#   Confirmed = first GPS-verified stamp · Genesis Block = any 3 of the original 10 · The Grand High Order of Fellow
+#   Confirmed = first GPS-verified stamp · Genesis Block = any 3 of the original 10 · Full Node
 #   Travelers = Genesis + 1 more stamp at any statue (4+ statues), kept for good; members ranked by total statues
 #   stamped, ties to whoever got there first. Progress: "N of 3 to Genesis".
 GENESIS_TITLE = 'Genesis Block'
-ORDER_NAME = 'The Grand High Order of Fellow Travelers'
+ORDER_NAME = 'Full Node'
 
 
 SUPPORT_EMAIL = 'support@satoshistatues.com'  # Zoho Mail support mailbox
@@ -1751,7 +1751,7 @@ def pow_keep_text(data):
 
 def pow_lb_link(data):
     return (f'\n    <p class="note">👣 Pills show each walker’s Proof of Walk rank (GPS-verified cards only): “N of {pow_genesis_required(data)} cards to Genesis”, then '
-            f'🧱 Genesis Block ({pow_genesis_required(data)} of the original 10), then 🏛️ Grand High Order (Genesis + {pow_order_extra(data)} more). '
+            f'🧱 Genesis Block ({pow_genesis_required(data)} of the original 10), then 🏛️ Full Node (Genesis + {pow_order_extra(data)} more). '
             '<a href="/proof-of-walk/">How ranks work →</a></p>'
             '\n    <p class="note">✨ The colored pill shows the rarest city card each walker has collected, from Common up to Legendary. '
             '<a class="cards-link" href="/proof-of-walk/cards/">About the cards →</a></p>')
@@ -1837,7 +1837,7 @@ POW_CSS = CARD_GRID_CSS + (
 def pow_ranks_html(data):
     rows = [('👣', 'Confirmed', 'Your first GPS-verified card.'),
             ('🧱', GENESIS_TITLE, f'Collect cards from {pow_genesis_rule(data)}.'),
-            ('🏛️', ORDER_NAME, f'{pow_order_rule(data)[0].upper() + pow_order_rule(data)[1:]}. {pow_keep_text(data)} Members are ranked by total cards collected. <a href="/proof-of-walk/fellow-travelers/">The roll →</a>')]
+            ('🏛️', ORDER_NAME, f"You've verified the network on foot. {pow_order_rule(data)[0].upper() + pow_order_rule(data)[1:]}. {pow_keep_text(data)} Members are ranked by total cards collected. <a href=\"/proof-of-walk/fellow-travelers/\">The roll →</a>")]
     return '<ol class="pow-ranks">' + ''.join(f'<li><span>{i}</span><div><strong>{e(t)}</strong><br><span class="pow-fine">{d}</span></div></li>' for i, t, d in rows) + '</ol>'
 
 
@@ -1853,7 +1853,7 @@ POW_JS = r"""<script src="/share.js"></script>
   var shareUrl = function (me) { var k = me && me.rank && SHARE_SLUG[me.rank.key], c = cardOf(me);
     return c ? URL_POW + 'share/' + c.slug + '/' + c.nn + '/' : k ? URL_POW + 'share/' + k + '/' : URL_POW; };
   // me.cards[rank] with a verify code + earning stamp = the combined card (design 2); else the older card above.
-  var RANK_UI = { confirmed: '👣 Confirmed', genesis: '🧱 Genesis Block', order: '🏛️ Grand High Order' };
+  var RANK_UI = { confirmed: '👣 Confirmed', genesis: '🧱 Genesis Block', order: '🏛️ Full Node' };
   var comboCards = function (me) {
     var out = ['confirmed', 'genesis', 'order'].filter(function (k) { var c = me && me.cards && me.cards[k]; return c && c.code && c.earned && c.earned.slug; })
       .map(function (k) { var c = me.cards[k]; return { rank: k, slug: c.earned.slug, n: Number(c.n), at: c.earned.at, code: c.code }; });
@@ -1910,8 +1910,8 @@ POW_JS = r"""<script src="/share.js"></script>
   var fmtDay = function (iso) { try { return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }); } catch (e) { return ''; } };
   function cardsLine(me) {
     var gN = (me && me.genesis_at) || 3, n = (me && me.distinct_stamps) || 0;
-    if (me && me.order) return '🗺️ <strong>Cards collected: ' + n + '</strong> · 🏛️ Grand High Order ✓';
-    if (me && me.genesis) return '🗺️ <strong>Cards collected: ' + n + '</strong> · 🧱 Genesis Block ✓ · ' + (me.order_needed || 1) + ' more card' + ((me.order_needed || 1) === 1 ? '' : 's') + ' for the Grand High Order';
+    if (me && me.order) return '🗺️ <strong>Cards collected: ' + n + '</strong> · 🏛️ Full Node ✓';
+    if (me && me.genesis) return '🗺️ <strong>Cards collected: ' + n + '</strong> · 🧱 Genesis Block ✓ · ' + (me.order_needed || 1) + ' more card' + ((me.order_needed || 1) === 1 ? '' : 's') + ' for Full Node';
     var p = (me && me.genesis_progress) || 0;
     return '🗺️ <strong>Cards collected: ' + p + ' of ' + gN + ' to Genesis</strong>' + (n > p ? ' · ' + n + ' cards in all' : '') + '<br><span class="pow-fine">Any ' + gN + ' of the original 10 statues</span>';
   }
@@ -1948,10 +1948,10 @@ POW_JS = r"""<script src="/share.js"></script>
         '<p class="pow-fine">On ' + esc(fmtDay(me.moved_away)) + ' it was moved to another phone or browser by signing in with X. To bring it back here, tap “Lost your phone?” below and sign in with the same X account. ' +
         'Or check in at a statue to start a new passport on this device.</p>'
       : '<div class="pow-rank">' + esc(me.rank.label || 'No rank yet') + '</div>');
-    if (me.order) h += '<div class="pow-genesis">🏛️ <strong>The Grand High Order of Fellow Travelers</strong> · since ' + esc((me.order_since || '').slice(0, 10)) +
+    if (me.order) h += '<div class="pow-genesis">🏛️ <strong>Full Node</strong> · since ' + esc((me.order_since || '').slice(0, 10)) +
       '<br><span class="pow-fine">' + me.distinct_stamps + ' cards collected</span></div>';
     if (me.genesis) h += '<div class="pow-genesis">🧱 <strong>Genesis Block</strong> · mined ' + esc((me.joined_at || '').slice(0, 10)) +
-      (!me.order ? '<br><span class="pow-fine">Collect ' + (me.order_needed || 1) + ' more card' + ((me.order_needed || 1) === 1 ? '' : 's') + ', at any statue on the map, to join the Grand High Order.</span>' : '') + '</div>';
+      (!me.order ? '<br><span class="pow-fine">Collect ' + (me.order_needed || 1) + ' more card' + ((me.order_needed || 1) === 1 ? '' : 's') + ', at any statue on the map, to reach Full Node.</span>' : '') + '</div>';
     var card = cardOf(me), combo = comboCards(me);
     // passport-cards preview: the card grid replaces the Genesis pips and the per-rank "Your cards" tabs.
     h += '<h3 class="pow-cards-h">Your passport cards</h3><p class="cg-line">' + cardsLine(me) + '</p>' + gridHtml(me);
@@ -2089,7 +2089,7 @@ POW_JS = r"""<script src="/share.js"></script>
       if ($('pow-total')) $('pow-total').textContent = j.total_walkers + (j.total_walkers === 1 ? ' walker' : ' walkers') + ' so far.';
       el.innerHTML = j.entries.length ? j.entries.map(function (x) {
         return '<li><span class="lb-rank">' + x.position + '</span><span class="lb-who"><span class="lb-name">' + nameHtml(x) + 
-          '</span><span class="lb-meta">' + (x.order ? '🏛️ Grand High Order' : x.genesis ? '🧱 Genesis Block' : x.progress + ' of ' + (j.genesis_at || 3) + ' cards to Genesis') + '</span></span><span class="lb-stamps">' + x.stamps + '<small>card' + (x.stamps === 1 ? '' : 's') + '</small></span></li>';
+          '</span><span class="lb-meta">' + (x.order ? '🏛️ Full Node' : x.genesis ? '🧱 Genesis Block' : x.progress + ' of ' + (j.genesis_at || 3) + ' cards to Genesis') + '</span></span><span class="lb-stamps">' + x.stamps + '<small>card' + (x.stamps === 1 ? '' : 's') + '</small></span></li>';
       }).join('') : '<li class="lb-empty">No walkers yet. Be the first.</li>';
     }).catch(function () { off(el); });
   }
@@ -2157,10 +2157,10 @@ def pow_roll_page(data):
     canonical = SITE + '/proof-of-walk/fellow-travelers/'
     title = f'{ORDER_NAME} – Proof of Walk'
     desc = f'Members’ roll of {ORDER_NAME} ({pow_order_rule(data)}), plus the Genesis Block miners.'
-    lds = ld(breadcrumb_ld([('Map', SITE + '/'), ('Proof of Walk', SITE + '/proof-of-walk/'), ('Fellow Travelers', canonical)]))
+    lds = ld(breadcrumb_ld([('Map', SITE + '/'), ('Proof of Walk', SITE + '/proof-of-walk/'), ('Full Node', canonical)]))
     out = pow_body_tag(pow_head(data, title, desc, canonical, lds), data, 'roll')
     out += f"""  <main>
-    <div class="crumbs"><a href="/">Map</a> › <a href="/proof-of-walk/">Proof of Walk</a> › Fellow Travelers</div>
+    <div class="crumbs"><a href="/">Map</a> › <a href="/proof-of-walk/">Proof of Walk</a> › Full Node</div>
     <h1>🏛️ {e(ORDER_NAME)}</h1>
     <p class="sub">The members’ roll: walkers with {e(pow_order_rule(data))}. {e(pow_keep_text(data))}</p>
     <p class="note">Ranked by total cards collected; on a tie, whoever got there first ranks higher.</p>
@@ -2188,9 +2188,9 @@ POW_SHARE = {  # rank.key from the Worker -> (slug, emoji, title, description, i
     'genesis': ('genesis-block', '🧱', 'I mined the Genesis Block on Proof of Walk',
                 'GENESIS_RULE. Walk to Satoshi statues around the world and get your passport stamped. No signup, no cost.',
                 'Proof of Walk: Genesis Block card.'),
-    'order': ('grand-high-order', '🏛️', 'I joined the Grand High Order of Fellow Travelers',
-              'ORDER_RULE. Walk to Satoshi statues around the world and get your passport stamped. No signup, no cost.',
-              'Proof of Walk: Grand High Order of Fellow Travelers card. I joined the Grand High Order.'),
+    'order': ('grand-high-order', '🏛️', 'I reached Full Node',
+                'ORDER_RULE. Walk to Satoshi statues around the world and get your passport stamped. No signup, no cost.',
+                'Proof of Walk: Full Node card. I reached Full Node.'),
 }
 
 
@@ -2205,7 +2205,7 @@ def pow_share_url(key):
 def pow_rank_rule(data, key):
     return {'confirmed': 'Your first GPS-verified card at any Satoshi statue.',
             'genesis': f'Cards from any {pow_genesis_required(data)} of the original 10 Satoshi statues.',
-            'order': f'The Genesis Block plus {pow_order_extra(data)} more statue{"" if pow_order_extra(data) == 1 else "s"}, anywhere on the map.'}[key]
+            'order': "You've verified the network on foot."}[key]
 
 
 def card_og_rank_img(rank_slug):
@@ -2379,7 +2379,7 @@ POW_CARDS_JS = r"""<script>
 POW_RANKS = {  # rank key -> (share slug, label, badge text, emoji)
     'confirmed': ('confirmed', 'Confirmed', 'CONFIRMED', '👣'),
     'genesis': ('genesis-block', 'Genesis Block', 'GENESIS BLOCK', '🧱'),
-    'order': ('grand-high-order', 'Grand High Order', 'GRAND HIGH ORDER', '🏛️'),
+    'order': ('grand-high-order', 'Full Node', 'FULL NODE', '🏛️'),
 }
 CARD_CREDIT = ('Quotes attributed as shown. Headline from The Times, 3 Jan 2009, as embedded in Bitcoin’s genesis block. '
                'Not affiliated with or endorsed by The Times, any statue artist, owner or city.')   # approved D1
@@ -2500,7 +2500,7 @@ def card_share_page(data, key, s):
     <ol class="cs-steps">
       <li>Walk to any Satoshi statue on the <a href="/">map</a>.</li>
       <li>Tap <strong>Check in here</strong> within 150 m. Your phone’s GPS confirms you’re there.</li>
-      <li>Earn ranks (Confirmed, Genesis Block, Grand High Order), each with its own card of the statue you walked to.</li>
+      <li>Earn ranks (Confirmed, Genesis Block, Full Node), each with its own card of the statue you walked to.</li>
     </ol>
     <p class="note">Free, no sign-up, no app. <a href="/{s['page']}/">About {e(s['label'])} →</a></p>
     <p><a class="cards-link" href="/proof-of-walk/cards/">About the cards →</a></p>
@@ -2636,7 +2636,7 @@ def pow_cards_page(data):
     <ol class="ranks">
       <li class="rank" style="grid-template-columns:1fr"><div><span class="step">Rank 1</span><h3>👣 Confirmed ✓</h3><p>Your first GPS-verified card at any Satoshi statue. Your card shows that statue.</p></div></li>
       <li class="rank" style="grid-template-columns:1fr"><div><span class="step">Rank 2</span><h3>🧱 Genesis Block ✓</h3><p>Collect cards from any {g} of the original 10 statues. Your card shows the statue that completed it.</p></div></li>
-      <li class="rank" style="grid-template-columns:1fr"><div><span class="step">Rank 3</span><h3>🏛️ Grand High Order ✓</h3><p>The Genesis Block plus {o} more statue{'' if o == 1 else 's'}, anywhere on the map. Your card shows the statue that got you there.</p></div></li>
+      <li class="rank" style="grid-template-columns:1fr"><div><span class="step">Rank 3</span><h3>🏛️ Full Node ✓</h3><p>You've verified the network on foot. The Genesis Block plus {o} more statue{'' if o == 1 else 's'}, anywhere on the map. Your card shows the statue that got you there.</p></div></li>
     </ol>
     <p class="note" style="margin-top:10px">Every GPS-verified check-in is a card in your passport, one per statue: that statue, your rank at the time, a quote and its own verify code. The check-in that earns a rank is that rank’s card, and each rank is earned at a different statue. Once you have a card, it’s yours and it never changes.</p>
 
@@ -2684,7 +2684,7 @@ def pow_privacy_html(data):
     if not pow_cfg(data):
         return ''
     return (f'\n      <li><strong>Proof of Walk</strong> ranks are worked out from your GPS-verified cards. If you mine the Genesis Block ({pow_genesis_required(data)} of the original 10), '
-            'your nickname (or “Anonymous #…”) and the date are listed on the Fellow Travelers page.</li>'
+            'your nickname (or “Anonymous #…”) and the date are listed on the Full Node page.</li>'
             '\n      <li>' + PRIVACY_PASSPORT_BULLET + '</li>'
             '\n      <li>Each <strong>Proof of Walk card</strong> (one per GPS-verified check-in) carries a random verify code (it isn’t linked to your device ID) and a QR code. Anyone who scans or types it sees only the statue, the date and the rank '
             '(plus your @handle with a blue ✓ Verified, only if you linked X): no nickname, no exact time, no location and no other cards. Shared and printed cards show your check-in date, time and verify code, because they’re on the card. '
@@ -2706,7 +2706,7 @@ X_PRIVACY_HTML = (
     'then we ask X to cancel it, and it is never saved.</li>'
     '\n      <li>An unfinished X sign-in expires after 10 minutes and is deleted within 20 minutes.</li>'
     '\n      <li>Once linked, your @handle is shown publicly with a blue ✓ “Verified” on your cards (including saved, shared and printed card images), your card pages, '
-    'the verify page for your cards, the leaderboards and the Fellow Travelers page. “Verified” means you signed in with that X account; it is not X’s own verification badge. '
+    'the verify page for your cards, the leaderboards and the Full Node page. “Verified” means you signed in with that X account; it is not X’s own verification badge. '
     'One X account can be linked to one passport at a time; signing in with it on another device moves your whole passport there. If your handle changes on X, tap “Refresh handle”.</li>'
     '\n      <li>To unlink, tap <strong>Unlink X</strong> on your <a href="/proof-of-walk/#xlink">passport</a>, or email us (below). '
     'Unlinking deletes your X user ID, handle and link date from our server, along with any unfinished sign-in. '
@@ -3548,7 +3548,7 @@ def passport_redirect_page():
 
 
 # ---------- /fellow-travelers/ → /proof-of-walk/fellow-travelers/ (redirect page) ----------
-# Short link for the Grand High Order roll. Same static pattern as /passport/: meta refresh + location.replace,
+# Short link for Full Node roll. Same static pattern as /passport/: meta refresh + location.replace,
 # canonical → target, noindex, not in the sitemap. Built only when Proof of Walk is on (same as the roll page).
 FELLOW_TARGET = SITE + '/proof-of-walk/fellow-travelers/'
 
@@ -3559,14 +3559,14 @@ def fellow_travelers_redirect_page():
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fellow Travelers · Satoshi Statues</title>
+  <title>Full Node · Satoshi Statues</title>
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="{FELLOW_TARGET}" />
   <meta http-equiv="refresh" content="0; url={FELLOW_TARGET}" />
   <script>location.replace("{FELLOW_TARGET}");</script>
 </head>
 <body>
-  <p>The Fellow Travelers roll has moved to <a href="{FELLOW_TARGET}">Proof of Walk</a>.</p>
+  <p>The Full Node roll has moved to <a href="{FELLOW_TARGET}">Proof of Walk</a>.</p>
 </body>
 </html>
 '''

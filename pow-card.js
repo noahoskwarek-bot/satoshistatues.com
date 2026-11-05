@@ -60,7 +60,7 @@
   function shareText(card) {
     var st = D().statues[card.slug], k = rankKey(card.rank);
     if (card.earns === false) return 'I walked to ' + st.phrase + ' and collected its Proof of Walk card (rank at check-in: ' + D().ranks[k].label + ') 🟧 #ProofOfWalk #Bitcoin';
-    var verb = { confirmed: 'got my first Proof of Walk card', genesis: 'earned Genesis Block', order: 'reached Grand High Order' }[k];
+    var verb = { confirmed: 'got my first Proof of Walk card', genesis: 'earned Genesis Block', order: 'reached Full Node' }[k];
     return 'I walked to ' + st.phrase + ' and ' + verb + ' 🟧 #ProofOfWalk #Bitcoin' + (card.code ? '' : ' satoshistatues.com');
   }
   function fileName(card) { return 'proof-of-walk-' + D().statues[card.slug].page + '-' + D().ranks[rankKey(card.rank)].share + (card.earns === false ? '-' + (card.n < 10 ? '0' : '') + card.n : '') + '.png'; }

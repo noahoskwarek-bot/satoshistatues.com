@@ -167,12 +167,12 @@ async function lbSubmit(s, c) {
   }
 }
 // Proof of Walk: the Worker adds `pow` to the check-in reply only when POW_ENABLED is on. Three ranks: Confirmed (first
-// stamp), Genesis Block (any 3 of the original 10), The Grand High Order (Genesis + 1 more statue anywhere).
+// stamp), Genesis Block (any 3 of the original 10), Full Node (Genesis + 1 more statue anywhere).
 // Progress: "N of 3 to Genesis".
 // A new rank gets a short note plus the usual Share buttons (share.js) with the rank line.
 function powStatus(me) {
-  if (me.order) return `🏛️ <strong>Grand High Order</strong> · ${me.distinct_stamps} cards`;
-  if (me.genesis) return '🧱 <strong>Genesis Block</strong> · collect 1 more card to join the Grand High Order';
+  if (me.order) return `🏛️ <strong>Full Node</strong> · ${me.distinct_stamps} cards`;
+  if (me.genesis) return '🧱 <strong>Genesis Block</strong> · collect 1 more card to reach Full Node';
   return `<strong>${me.genesis_progress} of ${me.genesis_at || 3} cards to Genesis</strong>`;
 }
 // Per-check-in cards (passport-cards): every successful GPS check-in shows its card (p.me.stamp_cards[slug]: rank as of
@@ -211,11 +211,11 @@ function powRankUpHtml(p, s) {
   const c = p.me.card, n = c ? Number(c.n) : 0;
   const nn = slug && c && c.rank === slug && Number.isInteger(n) && n >= 1 && n <= 21 ? String(n).padStart(2, '0') + '/' : '';
   const url = location.origin + '/proof-of-walk/' + (slug ? `share/${slug}/${nn}` : '');
-  // Rank wording matches the live ladder: "Confirmed ✓", "Genesis Block ✓", "Grand High Order ✓", then "N of 3 to Genesis".
+  // Rank wording matches the live ladder: "Confirmed ✓", "Genesis Block ✓", "Full Node ✓", then "N of 3 to Genesis".
   const head = p.order_new
-    ? `🏛️ <strong>Grand High Order ✓</strong> The Grand High Order of Fellow Travelers${p.genesis_new ? ', and Genesis Block ✓ too' : ''}. It’s yours for good (<a href="/proof-of-walk/fellow-travelers/">the roll</a>).`
+    ? `🏛️ <strong>Full Node ✓</strong> You've verified the network on foot${p.genesis_new ? ', and Genesis Block ✓ too' : ''}. It’s yours for good (<a href="/proof-of-walk/fellow-travelers/">the roll</a>).`
     : p.genesis_new
-    ? `🧱 <strong>Genesis Block ✓</strong> (<a href="/proof-of-walk/fellow-travelers/#genesis">the roll</a>). Collect 1 more card, at any statue, to join the Grand High Order of Fellow Travelers.`
+    ? `🧱 <strong>Genesis Block ✓</strong> (<a href="/proof-of-walk/fellow-travelers/#genesis">the roll</a>). Collect 1 more card, at any statue, to reach Full Node.`
     : `👣 <strong>Confirmed ✓</strong> on <a href="/proof-of-walk/">Proof of Walk</a>: ${p.me.genesis_progress} of ${p.me.genesis_at || 3} cards to Genesis.`;
   // Combined statue + rank card (design 2): the card reveal with one-tap Share right after the check-in (pow-card.js,
   // loaded only now). Falls back to the older share row when the Worker has no verify code/earning stamp for the card.
