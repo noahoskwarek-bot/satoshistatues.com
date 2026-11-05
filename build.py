@@ -2126,7 +2126,7 @@ def pow_body_tag(out, data, page):
 def pow_page(data):
     canonical = SITE + '/proof-of-walk/'
     title = 'Proof of Walk – Satoshi Passport Ranks'
-    pitch = f'Walk to Satoshi statues and collect each city’s card. Collect any {pow_genesis_required(data)} of the original 10 to mine the Genesis Block.'
+    pitch = f'Walk to Satoshi statues and collect each city’s card. Collect cards from any {pow_genesis_required(data)} of the original 10 statues to mine the Genesis Block — the early wave of Satoshi statues before the network expanded further.'
     desc = f'{pitch} Three ranks: Confirmed, Genesis Block and {ORDER_NAME}.'
     lds = ld(breadcrumb_ld([('Map', SITE + '/'), ('Proof of Walk', canonical)]))
     out = pow_body_tag(pow_head(data, title, desc, canonical, lds), data, 'main')
