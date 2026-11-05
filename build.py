@@ -1189,6 +1189,7 @@ CHECKIN_CSS = ('.checkin-box{background:#161b22;border:1px solid #30363d;border-
                '.btn.ci-btn{background:#238636;border-color:#238636;color:#fff;font-size:1rem}.btn.ci-btn:hover{background:#2ea043;border-color:#2ea043}.btn.ci-btn:disabled{opacity:.7;cursor:wait}'
                '.ci-stamp{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border:2px dashed #3fb950;border-radius:8px;color:#3fb950;font-weight:700;transform:rotate(-1deg)}'
                '.ci-map{color:#8b949e;font-size:.88rem;display:inline-flex;align-items:center;min-height:44px}.ci-map:hover{color:#f7931a}'
+               '.ci-prep{font-size:.88rem;margin:8px 0 0;line-height:1.45}.ci-prep a{color:#f7931a;font-weight:600}'
                '.ci-what{font-size:.92rem;color:#e6edf3;margin:8px 0 0;line-height:1.45}'
                '.ci-what a.ci-cards{color:#f7931a;font-weight:600;text-decoration:underline;text-underline-offset:2px;padding:10px 0;margin:-10px 0}'
                '.ci-note{font-size:.85rem;color:#8b949e;margin:8px 0 0;line-height:1.45}.ci-note a{color:#f7931a}'
@@ -1242,6 +1243,7 @@ def checkin_box(s, data):
             f'<div class="ci-row"><button class="btn ci-btn" type="button" data-ss-checkin-btn>📍 Check in here</button>'
             f'<span class="ci-stamp" hidden></span>'
             f'<a class="ci-map" href="/?s={s["page"]}">🗺️ Open on the map</a></div>'
+            + (f'<p class="ci-prep"><a href="/before-you-arrive/">Before you arrive</a></p>' if fountain_on(data, s) else '')
             + (f'<p class="ci-what" data-ci-what data-free="{e(ci_what("free"))}">{ci_what("pay")}</p>' if fountain_on(data, s)
                else f'<p class="ci-what" data-ci-what>{ci_what("free")}</p>') +
             f'<p class="ci-note">At the statue? Tap within {radius} m. '
@@ -2171,6 +2173,7 @@ def pow_page(data):
     <p class="note" style="margin-top:8px"><a href="/leaderboard/">See full leaderboard →</a></p>
     <h2>How it works</h2>
     <p class="note">Tap <strong>Check in here</strong> on a statue page or the <a href="/">map</a> within 150 m. Each GPS-verified check-in is that statue’s card in your passport, one per statue. Ranks are just for fun: free, and not linked to tips or the giveaway. <a href="/privacy/">Privacy</a>.</p>
+    <p class="note" style="margin-top:8px"><a href="/before-you-arrive/">Before you arrive</a> — bring a phone with location on and a Lightning wallet that gives you an address ending in @…</p>
     {footer(data)}
   </main>
 """
@@ -2740,6 +2743,46 @@ X_PRIVACY_HTML = (
     'You can also remove our access in X: Settings › Security and account access › Apps and sessions › Connected apps.</li>'
     '\n      <li>Nicknames can’t start with “@” any more. An older “@” nickname is shown as “unverified” and is removed if the owner of that X account links it; '
     'the note telling you so is deleted after 30 days.</li>')
+
+
+def before_you_arrive_page(data):
+    """Short visitor prep: Lightning wallet + how check-in / free sats work at the statue."""
+    title = 'Before you arrive – satoshistatues.com'
+    desc = ('Bring a phone with location on and a Lightning wallet that gives you an address ending in @… '
+            'before you walk to a Satoshi statue.')
+    canonical = SITE + '/before-you-arrive/'
+    lds = ld(breadcrumb_ld([('Map', SITE + '/'), ('Before you arrive', canonical)]))
+    out = head(title, desc, canonical, OG_IMAGE, 1200, 630, 'Satoshi statues world map', lds)
+    out += f"""  <main>
+    <div class="crumbs"><a href="/">Map</a> › Before you arrive</div>
+    <h1>Before you arrive</h1>
+    <p class="sub">Bring a phone with location on, and a Lightning wallet that gives you an address ending in @… (not a long bitcoin address that starts with bc1).</p>
+
+    <h2>Wallets that work well for a first receive</h2>
+    <ul class="src" style="font-size:.95rem;color:#e6edf3">
+      <li><strong>Wallet of Satoshi</strong> — fastest setup; it gives you something like you@walletofsatoshi.com</li>
+      <li><strong>Phoenix</strong> — self-custodial; tap Receive and copy your Lightning address</li>
+      <li><strong>Strike</strong> — if you already use it; copy your Lightning address from the app</li>
+    </ul>
+    <p class="note" style="margin-top:10px">Skip on-chain-only wallets for this step. You need Lightning.</p>
+
+    <h2>At the statue</h2>
+    <ol class="src" style="font-size:.95rem;color:#e6edf3;padding-left:22px">
+      <li>Open the statue page on satoshistatues.com and tap 📍 Check in here (stay within about 150 m, location allowed).</li>
+      <li>You’ll get that city’s card in your passport.</li>
+      <li>If this statue pays free sats, enter your Lightning address, confirm you’re 18+, and tap claim. You’ve got a short window, so do it before you walk away.</li>
+      <li>You should see a confirmation that free sats are on the way to your address. Open your wallet: the balance ticks up, usually within a few seconds.</li>
+    </ol>
+
+    <h2>Show a friend</h2>
+    <p class="note">Have them install the same wallet before you go, check in from their own phone, and claim to their own address. One payout per address at each statue, so sharing one wallet won’t work twice.</p>
+
+    <p class="note" style="margin-top:16px">Free to play. No purchase or tip needed. 18+.</p>
+    <p class="note" style="margin-top:10px"><a href="/">🗺️ Back to the map</a></p>
+    {footer(data)}
+  </main>
+"""
+    return out + TAIL
 
 
 def privacy_page(data):
@@ -3369,7 +3412,7 @@ def page_lastmod(s):
 
 
 def sitemap(data):
-    urls = [(SITE + p, BUILD_DATE) for p in ('/', '/21-nodes/', '/timeline/', '/leaderboard/', '/privacy/') + (('/terms/',) if fountain_on(data) else ()) + (('/rules/',) if rules_on(data) else ()) + (('/proof-of-walk/', '/proof-of-walk/full-node/', '/proof-of-walk/cards/') if pow_cfg(data) and not pow_cfg(data).get('preview') else ())] + [(page_url(s), page_lastmod(s)) for s in data['statues']]
+    urls = [(SITE + p, BUILD_DATE) for p in ('/', '/21-nodes/', '/timeline/', '/leaderboard/', '/privacy/', '/before-you-arrive/') + (('/terms/',) if fountain_on(data) else ()) + (('/rules/',) if rules_on(data) else ()) + (('/proof-of-walk/', '/proof-of-walk/full-node/', '/proof-of-walk/cards/') if pow_cfg(data) and not pow_cfg(data).get('preview') else ())] + [(page_url(s), page_lastmod(s)) for s in data['statues']]
     body = ''.join(f'  <url><loc>{u}</loc><lastmod>{m}</lastmod></url>\n' for u, m in urls)
     return f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{body}</urlset>\n'
 
@@ -3657,6 +3700,7 @@ def outputs(data):
              'timeline/index.html': timeline_page(data),
              'leaderboard/index.html': leaderboard_page(data),
              'privacy/index.html': privacy_page(data),
+             'before-you-arrive/index.html': before_you_arrive_page(data),
              'embed/index.html': embed_page(data),
              'passport/print/index.html': passport_print_redirect_page(),
              'passport/index.html': passport_redirect_page()}

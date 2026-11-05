@@ -67,6 +67,7 @@
       : 'a fixed ' + num(s.payout_sats) + ' sats';
   }
   var FREE = '<p class="f-free">Free to play. No purchase or tip necessary. A tip won’t improve your odds. 18+. <a href="/rules/">Official Rules</a></p>';
+  var WALLET_HINT = '<p class="f-fine">Need a wallet first? <a href="/before-you-arrive/">Before you arrive</a></p>';
   function closedText(s) {
     if (s.paused) return 'The giveaway is paused at the moment.';
     if (s.giveaway_sats_left < minPay(s)) return 'The giveaway budget has run out. Thanks for visiting!';
@@ -88,6 +89,7 @@
       '<p class="f-q">✅ You’re checked in. ' + (range ? 'Get ' + esc(howMuch(s)) + ' sent to a Lightning address:'
         : 'Get ' + num(s.payout_sats) + ' sats sent to a Lightning address:') + '</p>' +
       '<input name="addr" type="email" inputmode="email" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="name@wallet.com" aria-label="Lightning address">' +
+      WALLET_HINT +
       '<label><input type="checkbox" name="adult"> I’m 18 or older</label>' +
       '<label><input type="checkbox" name="terms"> I accept the <a href="/terms/" target="_blank" rel="noopener">giveaway terms</a></label>' +
       '<button class="btn primary" type="submit">' + (range ? '⚡ Send the sats' : '⚡ Send ' + num(s.payout_sats) + ' sats') + '</button>' +
@@ -106,6 +108,7 @@
       '<form class="f-form" data-f-form novalidate>' +
       '<p class="f-q">Lightning address (claim within ' + mins + ' min):</p>' +
       '<input name="addr" type="email" inputmode="email" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="name@wallet.com" aria-label="Lightning address">' +
+      WALLET_HINT +
       '<label><input type="checkbox" name="adult"> I’m 18 or older</label>' +
       '<label><input type="checkbox" name="terms"> I accept the <a href="/terms/" target="_blank" rel="noopener">giveaway terms</a></label>' +
       '<button class="btn primary" type="submit">⚡ Claim ' + num(c.sats) + ' sats</button>' +
