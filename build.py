@@ -3407,7 +3407,7 @@ def build_index(data, text):
     text = replace_block(text, 'JSONLD', '  ' + ldhtml)
     links = '        <ul>\n' + ''.join(
         f'          <li><a href="/{s["page"]}/">{e(s["label"])}</a></li>\n'
-        for s in sorted(data['statues'], key=lambda s: -sort_year(s['year']))) + '          <li><a href="/21-nodes/">21 Nodes tracker</a></li>\n          <li><a href="/leaderboard/">🏆 Leaderboard</a></li>\n          <li><a href="/privacy/">Privacy</a></li>\n        </ul>'
+        for s in sorted(data['statues'], key=lambda s: -sort_year(s['year']))) + '          <li><a href="/21-nodes/">21 Nodes tracker</a></li>\n          <li><a href="/timeline/">🗓️ Timeline</a></li>\n          <li><a href="/leaderboard/">🏆 Leaderboard</a></li>\n          <li><a href="/privacy/">Privacy</a></li>\n        </ul>'
     text = replace_block(text, 'LINKS', links)
     text = replace_block(text, 'SIGNUP', '        ' + signup_html(data, 'home'))
     text = replace_block(text, 'EMBED', embed_box_html())
