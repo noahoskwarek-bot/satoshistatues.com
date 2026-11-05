@@ -73,3 +73,8 @@ Added 2026-10-29: **Bitcoin Histórico 2026** (Nov 11–12, 2026, Centro Histór
 Added 2026-10-29: **Le Paradigme Bitcoin 2027** (Jun 25–26, 2027, Coworking Blockchain Neuchâtel, rue St-Maurice 9, 2000 Neuchâtel; Bitcoin community event for French-speaking Switzerland; confirmed on leparadigmebitcoin.ch), ~190 km from the Lugano statue.
 
 - **Budapest Bitcoin**: still not added. The official site (budapestbitcoin.com) now shows a formal postponement notice with no new dates: "We've made the tough decision to postpone the Budapest Bitcoin Conference originally planned for 8-9, August. Please stay connected with us by following our social channels — we'll be sharing all updates there, including our next steps and future plans."
+
+## Checked 2026-11-05 (weekly)
+
+- **Miami Bitcoin Summit 2027**: REMOVED. Official site miamibitcoinsummit.com shows a banner: "Sample website Nothing on this site is accurate. Used as an example only." Dates are not confirmed.
+- **BitcoinDay Naples 2027**: KEPT as Sat Jan 16, 2027. Confirmed on bitcoinday.io published content (`api/content.js` editions kicker "Sat · Jan 16 · 2027 — ~200 seats" and SEO description "Sat Jan 16, 2027"); the Jan 15 Carnivore Dinner is a separate side-event ticket, not the main conference. Buy-tickets path 404; homepage draft flag exists but is hidden while published content is served.
