@@ -926,6 +926,9 @@ def photo_cta(s, data):
 def credit_html(s):
     # Optional per-statue "photo_credit": plain text, or an @handle that links to X
     # (to the source post when "photo_source" is set).
+    if s.get('img_illustration'):
+        # statue.img_illustration (bool): the image is the illustrated city card art (no photo we can use legally)
+        return '<span class="photo-credit">Illustration (card art), not a photo of the statue</span>'
     cr = (s.get('photo_credit') or '').strip()
     if not cr:
         return ''
@@ -1236,7 +1239,8 @@ def checkin_box(s, data):
 def statue_page(s, data):
     title = f"{s['label']} – Location, Directions & Photos"
     desc = describe(s)
-    alt = f"{s['label']}, {s['place']}, {s['city']}"
+    alt = (f"Illustration for {s['label']}: a hooded walker in a {s['city']} scene" if s.get('img_illustration')
+           else f"{s['label']}, {s['place']}, {s['city']}")
     lds = ld(statue_ld(s)) + '\n  ' + ld(breadcrumb_ld([('Map', SITE + '/'), (s['label'], page_url(s))]))
     out = head(title, desc, page_url(s), f"{SITE}/{og_path(s)}", OG_W, OG_H, f"{s['label']}: {s['city']}, {s['country']} (satoshistatues.com card)", lds)
     nav_end = '<a href="/leaderboard/">🏆 Leaderboard</a></nav>'
@@ -2444,7 +2448,8 @@ def write_worker_cardshare(data):
 def card_art_credit_short(s):
     # One line drawn on the card front over the photo: "Photo: Author · CC BY-SA 4.0 · cropped"
     c = s['card_art_credit']
-    return ' · '.join(x for x in (f"Photo: {c['author']}", c['license'], c.get('modified')) if x)
+    line = ' · '.join(x for x in (f"Photo: {c['author']}", c['license'], c.get('modified')) if x)
+    return [line, 'Card photo shared under CC BY-SA 4.0'] if c.get('share_alike') else [line]
 
 
 def card_art_credit_html(s, cls='card-credit'):
@@ -2457,6 +2462,9 @@ def card_art_credit_html(s, cls='card-credit'):
     src = f'<a href="{e(c["source_url"])}" rel="noopener">{e(c.get("source") or "source")}</a>'
     mod = f', {e(c["modified"])}' if c.get('modified') else ''
     taken = f' Photo taken {e(c["taken"])}.' if c.get('taken') else ''
+    if c.get('share_alike'):
+        # BY-SA: the adapted (cropped) photo on the card is shared under the same license
+        taken += f' The card photo is shared under <a href="{e(c["license_url"])}" rel="noopener license">CC BY-SA 4.0</a>.'
     return (f'<p class="{cls}" style="font-size:.78rem;color:#8b949e;margin:6px 0">Proof of Walk card photo: {a}, {lic}, via {src}{mod}.{taken}</p>')
 
 

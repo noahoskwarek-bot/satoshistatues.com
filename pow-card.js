@@ -222,9 +222,11 @@
     var sh = c.createLinearGradient(0, ay + ah * .62, 0, ay + ah); sh.addColorStop(0, 'rgba(10,12,16,0)'); sh.addColorStop(1, 'rgba(10,12,16,.55)'); c.fillStyle = sh; c.fillRect(ax, ay, aw, ah);
     // real-photo art: credit line (author, license, cropped) at the top right of the photo, like a caption
     if (im && st.art_credit) {
+      var cl = [].concat(st.art_credit);   // one or two lines (BY-SA: "Card photo shared under CC BY-SA 4.0")
       f(c, 600, 19, 'PCInter'); c.textAlign = 'right'; c.textBaseline = 'alphabetic';
-      var cw = c.measureText(st.art_credit).width; c.fillStyle = 'rgba(10,12,16,.55)'; rr(c, ax + aw - cw - 34, ay + 12, cw + 22, 32, 8); c.fill();
-      c.fillStyle = '#e6edf3'; c.fillText(st.art_credit, ax + aw - 23, ay + 35);
+      var cw = Math.max.apply(null, cl.map(function (l) { return c.measureText(l).width; }));
+      c.fillStyle = 'rgba(10,12,16,.55)'; rr(c, ax + aw - cw - 34, ay + 12, cw + 22, 10 + cl.length * 24, 8); c.fill();
+      c.fillStyle = '#e6edf3'; cl.forEach(function (l, i) { c.fillText(l, ax + aw - 23, ay + 35 + i * 24); });
     }
     c.restore();
     c.strokeStyle = 'rgba(247,147,26,.9)'; c.lineWidth = 3; rr(c, ax, ay, aw, ah, 18); c.stroke();

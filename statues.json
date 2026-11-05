@@ -195,7 +195,8 @@
         "source": "Wikimedia Commons",
         "source_url": "https://commons.wikimedia.org/wiki/File:Satoshi_Nakamoto_(2).jpg",
         "modified": "cropped",
-        "taken": "29 Oct 2021"
+        "taken": "29 Oct 2021",
+        "share_alike": true
       }
     },
     {
@@ -400,7 +401,8 @@
         "source": "Wikimedia Commons",
         "source_url": "https://commons.wikimedia.org/wiki/File:Satoshi_Nakamoto_Metallskulptur_in_Lugano_004.png",
         "modified": "cropped, sky extended",
-        "taken": "24 Oct 2024, before the 2025 damage and repair"
+        "taken": "24 Oct 2024, before the 2025 damage and repair",
+        "share_alike": true
       }
     },
     {
@@ -2096,10 +2098,9 @@
       "status": "Installed",
       "statusLabel": "Installed Apr 2026 · on a university campus",
       "note": "A 2 m stainless-steel “vanishing” Satoshi by Italian artist Valentina Picozzi, on a black stone pedestal on Blockchain Hill (the campus pine hill, renamed) at FPT University’s Hòa Lạc campus. Unveiled by FPT Education on 1 Apr 2026. The exact spot on the hill isn’t mapped, so the pin marks the campus.",
-      "img": "satoshi-hoa-lac.jpg",
+      "img": "hoa-lac-illustration.jpg",
       "imgW": 675,
       "imgH": 900,
-      "photo_credit": "FPT University Hanoi",
       "page": "hoa-lac",
       "tz": "Asia/Ho_Chi_Minh",
       "unveiled": "1 Apr 2026",
@@ -2246,7 +2247,8 @@
         "label": "FPT Education (1 Apr 2026, Vietnamese)",
         "url": "https://fpt.edu.vn/tin-tuc/fpt-edu-tin-tuc-chung/fpt-edu-khanh-thanh-tuong-cha-de-bitcoin-satoshi-nakamoto-tai-campus-hoa-lac"
       },
-      "timeline": "A 2 m stainless-steel “vanishing” Satoshi by Valentina Picozzi on Blockchain Hill at FPT University’s Hòa Lạc campus."
+      "timeline": "A 2 m stainless-steel “vanishing” Satoshi by Valentina Picozzi on Blockchain Hill at FPT University’s Hòa Lạc campus.",
+      "img_illustration": true
     }
   ],
   "upcoming21": [
