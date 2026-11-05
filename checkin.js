@@ -171,7 +171,7 @@ async function lbSubmit(s, c) {
 // Progress: "N of 3 to Genesis".
 // A new rank gets a short note plus the usual Share buttons (share.js) with the rank line.
 function powStatus(me) {
-  if (me.order) return `🏛️ <strong>Full Node</strong> · ${me.distinct_stamps} cards`;
+  if (me.order) return `⚡ <strong>Full Node</strong> · ${me.distinct_stamps} cards`;
   if (me.genesis) return '🧱 <strong>Genesis Block</strong> · collect 1 more card to reach Full Node';
   return `<strong>${me.genesis_progress} of ${me.genesis_at || 3} cards to Genesis</strong>`;
 }
@@ -213,9 +213,9 @@ function powRankUpHtml(p, s) {
   const url = location.origin + '/proof-of-walk/' + (slug ? `share/${slug}/${nn}` : '');
   // Rank wording matches the live ladder: "Confirmed ✓", "Genesis Block ✓", "Full Node ✓", then "N of 3 to Genesis".
   const head = p.order_new
-    ? `🏛️ <strong>Full Node ✓</strong> You've verified the network on foot${p.genesis_new ? ', and Genesis Block ✓ too' : ''}. It’s yours for good (<a href="/proof-of-walk/fellow-travelers/">the roll</a>).`
+    ? `⚡ <strong>Full Node ✓</strong> You've verified the network on foot${p.genesis_new ? ', and Genesis Block ✓ too' : ''}. It’s yours for good (<a href="/proof-of-walk/full-node/">the roll</a>).`
     : p.genesis_new
-    ? `🧱 <strong>Genesis Block ✓</strong> (<a href="/proof-of-walk/fellow-travelers/#genesis">the roll</a>). Collect 1 more card, at any statue, to reach Full Node.`
+    ? `🧱 <strong>Genesis Block ✓</strong> (<a href="/proof-of-walk/full-node/#genesis">the roll</a>). Collect 1 more card, at any statue, to reach Full Node.`
     : `👣 <strong>Confirmed ✓</strong> on <a href="/proof-of-walk/">Proof of Walk</a>: ${p.me.genesis_progress} of ${p.me.genesis_at || 3} cards to Genesis.`;
   // Combined statue + rank card (design 2): the card reveal with one-tap Share right after the check-in (pow-card.js,
   // loaded only now). Falls back to the older share row when the Worker has no verify code/earning stamp for the card.

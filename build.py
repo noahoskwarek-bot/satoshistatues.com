@@ -1517,7 +1517,7 @@ def nodes_page(data):
 
 
 # 'About the cards' link (Noah 2026-11-01 7:43 AM ET): a subtle outlined pill so it is easier to spot, on every page that links
-# to /proof-of-walk/cards/ (home passport, /proof-of-walk/, fellow-travelers grid, /v/, card share pages).
+# to /proof-of-walk/cards/ (home passport, /proof-of-walk/, full-node grid, /v/, card share pages).
 CARDS_LINK_CSS = ('a.cards-link,a.cards-link:visited{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:6px 14px;margin:4px 0;'
                   'border:1px solid rgba(247,147,26,.55);border-radius:999px;background:rgba(247,147,26,.07);color:#f7931a;'
                   'font-weight:600;font-size:.86rem;line-height:1.2;text-decoration:none;white-space:nowrap}'
@@ -1609,7 +1609,7 @@ LB_JS = r"""<script>
   // Proof of Walk rank pill from the Worker (entry.pow; null = no GPS stamps = no pill).
   function pill(p) {
     if (!p || !p.label) return '';
-    if (p.order) return '<a class="lb-pill gen" href="/proof-of-walk/fellow-travelers/" title="Proof of Walk: Full Node">🏛️ <strong>Full Node</strong></a>';
+    if (p.order) return '<a class="lb-pill gen" href="/proof-of-walk/full-node/" title="Proof of Walk: Full Node">⚡ <strong>Full Node</strong></a>';
     return p.genesis
       ? '<a class="lb-pill gen" href="/proof-of-walk/" title="Proof of Walk: Genesis Block">🧱 <strong>Genesis Block</strong></a>'
       : '<a class="lb-pill" href="/proof-of-walk/" title="Proof of Walk: Confirmed">👣 <strong>' + (p.progress == null ? esc(p.label) : p.progress + ' of ' + (p.genesis_at || 3) + ' cards to Genesis') + '</strong></a>';
@@ -1702,7 +1702,7 @@ def leaderboard_page(data):
 # ---------- Proof of Walk (passport ranks) ----------
 # statues.json config.proof_of_walk = {"enabled": true, "preview": false, "genesis_set": [the original 10 slugs],
 # "genesis_required": 3, "order_extra": 1, "order_keep": true}. Pages: /proof-of-walk/ (pitch, your rank, 3 ranks,
-# leaderboard) and /proof-of-walk/fellow-travelers/ (the rolls). Data comes from the Worker's /api/pow/* (POW_ENABLED);
+# leaderboard) and /proof-of-walk/full-node/ (the rolls; was /fellow-travelers/). Data comes from the Worker's /api/pow/* (POW_ENABLED);
 # `build.py --worker` copies the rank config into the Worker's src/statues.gen.js, so both sides always agree.
 # Three ranks (Noah, 2026-10-30 12:35 ET), mirroring the Worker's src/pow.js:
 #   Confirmed = first GPS-verified stamp · Genesis Block = any 3 of the original 10 · Full Node
@@ -1710,6 +1710,8 @@ def leaderboard_page(data):
 #   stamped, ties to whoever got there first. Progress: "N of 3 to Genesis".
 GENESIS_TITLE = 'Genesis Block'
 ORDER_NAME = 'Full Node'
+ORDER_EMOJI = '⚡'  # Noah 2026-11-05: lightning strike (was ⚡)
+ORDER_PATH = '/proof-of-walk/full-node/'  # Noah 2026-11-05: was /proof-of-walk/fellow-travelers/
 
 
 SUPPORT_EMAIL = 'support@satoshistatues.com'  # Zoho Mail support mailbox
@@ -1771,7 +1773,7 @@ def genesis_badge_html(s, data, kind='page'):
 
 def pow_lb_link(data):
     return (f'\n    <p class="note">👣 Pills show each walker’s Proof of Walk rank (GPS-verified cards only): “N of {pow_genesis_required(data)} cards to Genesis”, then '
-            f'🧱 Genesis Block ({pow_genesis_required(data)} of the original 10), then 🏛️ Full Node (Genesis + {pow_order_extra(data)} more). '
+            f'🧱 Genesis Block ({pow_genesis_required(data)} of the original 10), then ⚡ Full Node (Genesis + {pow_order_extra(data)} more). '
             '<a href="/proof-of-walk/">How ranks work →</a></p>'
             '\n    <p class="note">✨ The colored pill shows the rarest city card each walker has collected, from Common up to Legendary. '
             '<a class="cards-link" href="/proof-of-walk/cards/">About the cards →</a></p>')
@@ -1857,7 +1859,7 @@ POW_CSS = CARD_GRID_CSS + (
 def pow_ranks_html(data):
     rows = [('👣', 'Confirmed', 'Your first GPS-verified card.'),
             ('🧱', GENESIS_TITLE, f'Collect cards from {pow_genesis_rule(data)}.'),
-            ('🏛️', ORDER_NAME, f"You've verified the network on foot. {pow_order_rule(data)[0].upper() + pow_order_rule(data)[1:]}. {pow_keep_text(data)} Members are ranked by total cards collected. <a href=\"/proof-of-walk/fellow-travelers/\">The roll →</a>")]
+            ('⚡', ORDER_NAME, f"You've verified the network on foot. {pow_order_rule(data)[0].upper() + pow_order_rule(data)[1:]}. {pow_keep_text(data)} Members are ranked by total cards collected. <a href=\"/proof-of-walk/full-node/\">The roll →</a>")]
     return '<ol class="pow-ranks">' + ''.join(f'<li><span>{i}</span><div><strong>{e(t)}</strong><br><span class="pow-fine">{d}</span></div></li>' for i, t, d in rows) + '</ol>'
 
 
@@ -1873,7 +1875,7 @@ POW_JS = r"""<script src="/share.js"></script>
   var shareUrl = function (me) { var k = me && me.rank && SHARE_SLUG[me.rank.key], c = cardOf(me);
     return c ? URL_POW + 'share/' + c.slug + '/' + c.nn + '/' : k ? URL_POW + 'share/' + k + '/' : URL_POW; };
   // me.cards[rank] with a verify code + earning stamp = the combined card (design 2); else the older card above.
-  var RANK_UI = { confirmed: '👣 Confirmed', genesis: '🧱 Genesis Block', order: '🏛️ Full Node' };
+  var RANK_UI = { confirmed: '👣 Confirmed', genesis: '🧱 Genesis Block', order: '⚡ Full Node' };
   var comboCards = function (me) {
     var out = ['confirmed', 'genesis', 'order'].filter(function (k) { var c = me && me.cards && me.cards[k]; return c && c.code && c.earned && c.earned.slug; })
       .map(function (k) { var c = me.cards[k]; return { rank: k, slug: c.earned.slug, n: Number(c.n), at: c.earned.at, code: c.code }; });
@@ -1917,7 +1919,7 @@ POW_JS = r"""<script src="/share.js"></script>
   // Passport card grid: one card per counted statue. Collected (a GPS-verified check-in on the Worker) = face-up.
   // Every check-in is a full card (me.stamp_cards: rank as of that check-in, quote, verify code); the check-in that
   // earned a rank is that rank's card. Without stamp_cards (table not there yet) only the rank cards open.
-  var RANK_EMOJI = { confirmed: '👣', genesis: '🧱', order: '🏛️' };
+  var RANK_EMOJI = { confirmed: '👣', genesis: '🧱', order: '⚡' };
   var cardFor = function (me, slug) {
     var sc = me && me.stamp_cards && me.stamp_cards[slug];
     if (sc && sc.code) return { rank: sc.rank, slug: slug, n: Number(sc.n), at: sc.at, code: sc.code, earns: !!sc.earns };
@@ -1930,7 +1932,7 @@ POW_JS = r"""<script src="/share.js"></script>
   var fmtDay = function (iso) { try { return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }); } catch (e) { return ''; } };
   function cardsLine(me) {
     var gN = (me && me.genesis_at) || 3, n = (me && me.distinct_stamps) || 0;
-    if (me && me.order) return '🗺️ <strong>Cards collected: ' + n + '</strong> · 🏛️ Full Node ✓';
+    if (me && me.order) return '🗺️ <strong>Cards collected: ' + n + '</strong> · ⚡ Full Node ✓';
     if (me && me.genesis) return '🗺️ <strong>Cards collected: ' + n + '</strong> · 🧱 Genesis Block ✓ · ' + (me.order_needed || 1) + ' more card' + ((me.order_needed || 1) === 1 ? '' : 's') + ' for Full Node';
     var p = (me && me.genesis_progress) || 0;
     return '🗺️ <strong>Cards collected: ' + p + ' of ' + gN + ' to Genesis</strong>' + (n > p ? ' · ' + n + ' cards in all' : '') + '<br><span class="pow-fine">Any ' + gN + ' of the original 10 statues</span>';
@@ -1968,7 +1970,7 @@ POW_JS = r"""<script src="/share.js"></script>
         '<p class="pow-fine">On ' + esc(fmtDay(me.moved_away)) + ' it was moved to another phone or browser by signing in with X. To bring it back here, tap “Lost your phone?” below and sign in with the same X account. ' +
         'Or check in at a statue to start a new passport on this device.</p>'
       : '<div class="pow-rank">' + esc(me.rank.label || 'No rank yet') + '</div>');
-    if (me.order) h += '<div class="pow-genesis">🏛️ <strong>Full Node</strong> · since ' + esc((me.order_since || '').slice(0, 10)) +
+    if (me.order) h += '<div class="pow-genesis">⚡ <strong>Full Node</strong> · since ' + esc((me.order_since || '').slice(0, 10)) +
       '<br><span class="pow-fine">' + me.distinct_stamps + ' cards collected</span></div>';
     if (me.genesis) h += '<div class="pow-genesis">🧱 <strong>Genesis Block</strong> · mined ' + esc((me.joined_at || '').slice(0, 10)) +
       (!me.order ? '<br><span class="pow-fine">Collect ' + (me.order_needed || 1) + ' more card' + ((me.order_needed || 1) === 1 ? '' : 's') + ', at any statue on the map, to reach Full Node.</span>' : '') + '</div>';
@@ -2109,7 +2111,7 @@ POW_JS = r"""<script src="/share.js"></script>
       if ($('pow-total')) $('pow-total').textContent = j.total_walkers + (j.total_walkers === 1 ? ' walker' : ' walkers') + ' so far.';
       el.innerHTML = j.entries.length ? j.entries.map(function (x) {
         return '<li><span class="lb-rank">' + x.position + '</span><span class="lb-who"><span class="lb-name">' + nameHtml(x) + 
-          '</span><span class="lb-meta">' + (x.order ? '🏛️ Full Node' : x.genesis ? '🧱 Genesis Block' : x.progress + ' of ' + (j.genesis_at || 3) + ' cards to Genesis') + '</span></span><span class="lb-stamps">' + x.stamps + '<small>card' + (x.stamps === 1 ? '' : 's') + '</small></span></li>';
+          '</span><span class="lb-meta">' + (x.order ? '⚡ Full Node' : x.genesis ? '🧱 Genesis Block' : x.progress + ' of ' + (j.genesis_at || 3) + ' cards to Genesis') + '</span></span><span class="lb-stamps">' + x.stamps + '<small>card' + (x.stamps === 1 ? '' : 's') + '</small></span></li>';
       }).join('') : '<li class="lb-empty">No walkers yet. Be the first.</li>';
     }).catch(function () { off(el); });
   }
@@ -2174,14 +2176,14 @@ def pow_page(data):
 
 
 def pow_roll_page(data):
-    canonical = SITE + '/proof-of-walk/fellow-travelers/'
+    canonical = SITE + '/proof-of-walk/full-node/'
     title = f'{ORDER_NAME} – Proof of Walk'
     desc = f'Members’ roll of {ORDER_NAME} ({pow_order_rule(data)}), plus the Genesis Block miners.'
     lds = ld(breadcrumb_ld([('Map', SITE + '/'), ('Proof of Walk', SITE + '/proof-of-walk/'), ('Full Node', canonical)]))
     out = pow_body_tag(pow_head(data, title, desc, canonical, lds), data, 'roll')
     out += f"""  <main>
     <div class="crumbs"><a href="/">Map</a> › <a href="/proof-of-walk/">Proof of Walk</a> › Full Node</div>
-    <h1>🏛️ {e(ORDER_NAME)}</h1>
+    <h1>⚡ {e(ORDER_NAME)}</h1>
     <p class="sub">The members’ roll: walkers with {e(pow_order_rule(data))}. {e(pow_keep_text(data))}</p>
     <p class="note">Ranked by total cards collected; on a tie, whoever got there first ranks higher.</p>
     <p class="note">✨ The colored pill shows the rarest city card each walker has collected, from Common up to Legendary. <a class="cards-link" href="/proof-of-walk/cards/">About the cards →</a></p>
@@ -2208,7 +2210,7 @@ POW_SHARE = {  # rank.key from the Worker -> (slug, emoji, title, description, i
     'genesis': ('genesis-block', '🧱', 'I mined the Genesis Block on Proof of Walk',
                 'GENESIS_RULE. Walk to Satoshi statues around the world and get your passport stamped. No signup, no cost.',
                 'Proof of Walk: Genesis Block card.'),
-    'order': ('grand-high-order', '🏛️', 'I reached Full Node',
+    'order': ('grand-high-order', '⚡', 'I reached Full Node',
                 'ORDER_RULE. Walk to Satoshi statues around the world and get your passport stamped. No signup, no cost.',
                 'Proof of Walk: Full Node card. I reached Full Node.'),
 }
@@ -2399,7 +2401,7 @@ POW_CARDS_JS = r"""<script>
 POW_RANKS = {  # rank key -> (share slug, label, badge text, emoji)
     'confirmed': ('confirmed', 'Confirmed', 'CONFIRMED', '👣'),
     'genesis': ('genesis-block', 'Genesis Block', 'GENESIS BLOCK', '🧱'),
-    'order': ('grand-high-order', 'Full Node', 'FULL NODE', '🏛️'),
+    'order': ('grand-high-order', 'Full Node', 'FULL NODE', '⚡'),
 }
 CARD_CREDIT = ('Quotes attributed as shown. Headline from The Times, 3 Jan 2009, as embedded in Bitcoin’s genesis block. '
                'Not affiliated with or endorsed by The Times, any statue artist, owner or city.')   # approved D1
@@ -2539,7 +2541,7 @@ def card_share_pages(data):
 VERIFY_JS = r"""<script>
 (function () {
   var A = window.SS_API, $ = function (i) { return document.getElementById(i); };
-  var RS = { confirmed: ['confirmed', '👣'], genesis: ['genesis-block', '🧱'], order: ['grand-high-order', '🏛️'] };
+  var RS = { confirmed: ['confirmed', '👣'], genesis: ['genesis-block', '🧱'], order: ['grand-high-order', '⚡'] };
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
   var code = (new URLSearchParams(location.search).get('c') || '').trim().slice(0, 20);
   $('v-code').value = code;
@@ -2656,7 +2658,7 @@ def pow_cards_page(data):
     <ol class="ranks">
       <li class="rank" style="grid-template-columns:1fr"><div><span class="step">Rank 1</span><h3>👣 Confirmed ✓</h3><p>Your first GPS-verified card at any Satoshi statue. Your card shows that statue.</p></div></li>
       <li class="rank" style="grid-template-columns:1fr"><div><span class="step">Rank 2</span><h3>🧱 Genesis Block ✓</h3><p>Collect cards from any {g} of the original 10 statues. Your card shows the statue that completed it.</p></div></li>
-      <li class="rank" style="grid-template-columns:1fr"><div><span class="step">Rank 3</span><h3>🏛️ Full Node ✓</h3><p>You've verified the network on foot. The Genesis Block plus {o} more statue{'' if o == 1 else 's'}, anywhere on the map. Your card shows the statue that got you there.</p></div></li>
+      <li class="rank" style="grid-template-columns:1fr"><div><span class="step">Rank 3</span><h3>⚡ Full Node ✓</h3><p>You've verified the network on foot. The Genesis Block plus {o} more statue{'' if o == 1 else 's'}, anywhere on the map. Your card shows the statue that got you there.</p></div></li>
     </ol>
     <p class="note" style="margin-top:10px">Every GPS-verified check-in is a card in your passport, one per statue: that statue, your rank at the time, a quote and its own verify code. The check-in that earns a rank is that rank’s card, and each rank is earned at a different statue. Once you have a card, it’s yours and it never changes.</p>
 
@@ -3365,7 +3367,7 @@ def page_lastmod(s):
 
 
 def sitemap(data):
-    urls = [(SITE + p, BUILD_DATE) for p in ('/', '/21-nodes/', '/timeline/', '/leaderboard/', '/privacy/') + (('/terms/',) if fountain_on(data) else ()) + (('/rules/',) if rules_on(data) else ()) + (('/proof-of-walk/', '/proof-of-walk/fellow-travelers/', '/proof-of-walk/cards/') if pow_cfg(data) and not pow_cfg(data).get('preview') else ())] + [(page_url(s), page_lastmod(s)) for s in data['statues']]
+    urls = [(SITE + p, BUILD_DATE) for p in ('/', '/21-nodes/', '/timeline/', '/leaderboard/', '/privacy/') + (('/terms/',) if fountain_on(data) else ()) + (('/rules/',) if rules_on(data) else ()) + (('/proof-of-walk/', '/proof-of-walk/full-node/', '/proof-of-walk/cards/') if pow_cfg(data) and not pow_cfg(data).get('preview') else ())] + [(page_url(s), page_lastmod(s)) for s in data['statues']]
     body = ''.join(f'  <url><loc>{u}</loc><lastmod>{m}</lastmod></url>\n' for u, m in urls)
     return f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{body}</urlset>\n'
 
@@ -3570,10 +3572,11 @@ def passport_redirect_page():
 '''
 
 
-# ---------- /fellow-travelers/ → /proof-of-walk/fellow-travelers/ (redirect page) ----------
-# Short link for Full Node roll. Same static pattern as /passport/: meta refresh + location.replace,
-# canonical → target, noindex, not in the sitemap. Built only when Proof of Walk is on (same as the roll page).
-FELLOW_TARGET = SITE + '/proof-of-walk/fellow-travelers/'
+# ---------- redirects → /proof-of-walk/full-node/ ----------
+# /fellow-travelers/ (short link) and /proof-of-walk/fellow-travelers/ (old roll URL) both redirect here.
+# Same static pattern as /passport/: meta refresh + location.replace, canonical → target, noindex,
+# not in the sitemap. Built only when Proof of Walk is on (same as the roll page).
+FELLOW_TARGET = SITE + '/proof-of-walk/full-node/'
 
 
 def fellow_travelers_redirect_page():
@@ -3668,7 +3671,8 @@ def outputs(data):
         files['rules/index.html'] = rules_page(data)
     if pow_cfg(data):
         files['proof-of-walk/index.html'] = pow_page(data)
-        files['proof-of-walk/fellow-travelers/index.html'] = pow_roll_page(data)
+        files['proof-of-walk/full-node/index.html'] = pow_roll_page(data)
+        files['proof-of-walk/fellow-travelers/index.html'] = fellow_travelers_redirect_page()
         files['fellow-travelers/index.html'] = fellow_travelers_redirect_page()
         files['proof-of-walk/cards/index.html'] = pow_cards_page(data)
         files['proof-of-walk/card-data.js'] = card_data_js(data)

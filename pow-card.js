@@ -164,7 +164,7 @@
     var cx = x + w / 2; c.save(); c.fillStyle = '#fff'; c.strokeStyle = '#fff';
     if (k === 'genesis') { c.lineWidth = 13; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); c.moveTo(cx - 34, y + 62); c.lineTo(cx - 8, y + 88); c.lineTo(cx + 38, y + 38); c.stroke(); }
     if (k === 'confirmed') { [[-20, 0], [18, -14]].forEach(function (p) { c.beginPath(); c.ellipse(cx + p[0], y + 72 + p[1], 12, 20, 0, 0, 7); c.fill(); [-8, -1, 6].forEach(function (t, i) { c.beginPath(); c.arc(cx + p[0] + t, y + 46 + p[1] - (i === 1 ? 4 : 0), 4.5, 0, 7); c.fill(); }); }); }
-    if (k === 'order') { c.fillStyle = '#f2cc60'; c.beginPath(); c.moveTo(cx - 44, y + 52); c.lineTo(cx, y + 30); c.lineTo(cx + 44, y + 52); c.closePath(); c.fill(); [-32, -11, 10, 31].forEach(function (t) { c.fillRect(cx + t - 5, y + 56, 10, 34); }); c.fillRect(cx - 46, y + 92, 92, 8); }
+    if (k === 'order') { c.fillStyle = '#f2cc60'; c.beginPath(); c.moveTo(cx + 10, y + 30); c.lineTo(cx - 22, y + 72); c.lineTo(cx - 2, y + 72); c.lineTo(cx - 20, y + 112); c.lineTo(cx + 28, y + 60); c.lineTo(cx + 6, y + 60); c.lineTo(cx + 26, y + 30); c.closePath(); c.fill(); }
     c.restore();
     c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'alphabetic';
     var ty = y + 138, sz = label.length > 2 ? 26 : 30;
