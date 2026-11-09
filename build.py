@@ -1694,7 +1694,7 @@ def leaderboard_page(data):
     <h2>Recent check-ins</h2>
     <ul class="lb-feed" id="lb-feed"><li class="lb-empty">Loading…</li></ul>
     <h2>How it works</h2>
-    <p class="note">Open a statue on the <a href="/">map</a> and tap <strong>Check in here</strong> when you are within 150 m. The server checks the distance and records your card; your location itself is not stored. Each device can collect each statue’s card once, up to 5 new cards in 24 hours. People are ranked by GPS-verified cards; on a tie, whoever got there first ranks higher.</p>
+    <p class="note">Open a statue on the <a href="/">map</a> and tap <strong>Check in here</strong> when you are within 150 m. The server checks the distance and records your card; your location itself is not stored. Each device can collect each statue’s card once, and one new statue card per rolling 24 hours. Revisiting a statue you’ve already collected does not add another card or reset that 24-hour window. People are ranked by GPS-verified cards; on a tie, whoever got there first ranks higher.</p>
     <p class="note" style="margin-top:8px;font-size:.85rem;color:#8b949e">What we store and how to delete it: <a href="/privacy/">Privacy</a>.</p>
     {footer(data)}
   </main>
