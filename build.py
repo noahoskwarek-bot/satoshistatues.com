@@ -90,6 +90,7 @@ def load():
     if os.path.exists(lpath):
         with open(lpath, encoding='utf-8') as f:
             data['lodging'] = json.load(f)
+    data['walks'] = load_walks()
     return data
 
 
@@ -1330,7 +1331,7 @@ def statue_page(s, data):
     <h2>About</h2>
     <p class="note">{e(s['note'])}</p>{stamp}
     {story_html(s)}
-    {visit_html(s, data)}
+    {visit_html(s, data)}{walk_html(s, data)}
     {events_html(s, data)}
     {gallery_html(s, data)}{checkin_count_html(s)}
     {photo_cta(s, data)}
@@ -3145,6 +3146,100 @@ VISIT_CSS = ('.visit{background:#161b22;border:1px solid #30363d;border-radius:1
              '.visit .note+.note{margin-top:6px}.visit-nearby{padding-left:18px;font-size:.92rem}.visit-nearby li{margin:4px 0}'
              '.stay-warn{font-size:.85rem;color:#e3b341}'
              '.visit a{display:inline-block;padding:13px 0;margin:-13px 0}.visit li{margin:8px 0}.visit .ver{color:#8b949e;font-size:.85em}')
+
+
+
+# ---------- Self-guided walk (walks.json; selected statue pages) ----------
+# Preview-only guide: an illustrative suggested route, not turn-by-turn navigation.
+# last_checked (YYYY-MM-DD) is the day the named stops were last verified. Re-checks
+# should only change that field, plus any drop or add of a named business.
+
+def load_walks():
+    path = os.path.join(ROOT, 'walks.json')
+    if not os.path.exists(path):
+        return {}
+    with open(path, encoding='utf-8') as f:
+        data = json.load(f)
+    walks = data.get('walks') or {}
+    for page, w in walks.items():
+        assert w.get('title'), f'walks.json: {page} missing title'
+        assert w.get('last_checked'), f'walks.json: {page} missing last_checked'
+        datetime.date.fromisoformat(w['last_checked'])
+        assert w.get('stops'), f'walks.json: {page} missing stops'
+        for st in w['stops']:
+            assert st.get('n') and st.get('title') and st.get('paras'), f'walks.json: {page} stop incomplete'
+    return walks
+
+
+def fmt_last_checked(iso):
+    d = datetime.date.fromisoformat(iso)
+    return f'{d.strftime("%B")} {d.day}, {d.year}'
+
+
+def walk_maps_url(w):
+    url = (w.get('maps_url') or '').strip()
+    if not url.startswith('https://www.google.com/maps/'):
+        return ''
+    return url
+
+
+def walk_html(s, data):
+    w = (data.get('walks') or {}).get(s['page'])
+    if not w:
+        return ''
+    meta_bits = [w.get('duration'), w.get('distance'), w.get('effort'), w.get('best_time')]
+    meta = ' · '.join(x for x in meta_bits if (x or '').strip())
+    subtitle = w.get('place') or s.get('city') or ''
+    head = f'<h2 id="walk-title">👣 Self-guided walk</h2>'
+    if subtitle:
+        head += f'<p class="walk-kicker">{e(w["title"])} · {e(subtitle)}</p>'
+    else:
+        head += f'<p class="walk-kicker">{e(w["title"])}</p>'
+    if meta:
+        head += f'<p class="walk-meta">{e(meta)}</p>'
+    if (w.get('intro') or '').strip():
+        head += f'<p class="note">{e(w["intro"])}</p>'
+    if (w.get('bring') or '').strip():
+        head += f'<p class="note">Bring {e(w["bring"])}.</p>'
+    maps = walk_maps_url(w)
+    if maps:
+        label = w.get('maps_label') or 'Open a suggested walking route in Google Maps'
+        head += (f'<p class="walk-maps"><a class="btn" href="{e(maps)}" target="_blank" rel="noopener noreferrer">'
+                 f'🗺️ {e(label)}</a></p>')
+        if (w.get('maps_note') or '').strip():
+            head += f'<p class="note walk-maps-note">{e(w["maps_note"])}</p>'
+    items = []
+    for st in w['stops']:
+        cls = ' class="walk-highlight"' if st.get('highlight') else ''
+        body = ''.join(f'<p class="note">{e(para)}</p>' for para in st['paras'] if (para or '').strip())
+        links = st.get('links') or []
+        if links:
+            body += '<p class="note walk-links">' + ' · '.join(
+                f'<a href="{e(lk["url"])}" target="_blank" rel="noopener noreferrer">{e(lk["label"])}</a>'
+                for lk in links if lk.get('url') and lk.get('label')) + '</p>'
+        items.append(f'<li{cls}><h3><span class="walk-n">{int(st["n"])}</span> {e(st["title"])}</h3>{body}</li>')
+    checked = f'<p class="note walk-checked">Last checked: {e(fmt_last_checked(w["last_checked"]))}.</p>'
+    srcs = f'<h3>Walk sources</h3>{src_list(w["sources"])}' if w.get('sources') else ''
+    return ('\n    <style>' + WALK_CSS + '</style>'
+            f'<section class="walk" id="walk" aria-labelledby="walk-title">{head}'
+            f'<ol class="walk-stops">{"".join(items)}</ol>{srcs}{checked}</section>')
+
+
+WALK_CSS = ('.walk{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:4px 16px 14px;margin:22px 0;scroll-margin-top:12px}'
+            '.walk h2{margin:14px 0 4px}.walk h3{font-size:.95rem;color:#f7931a;margin:0 0 4px;display:flex;gap:8px;align-items:baseline}'
+            '.walk-kicker{font-size:1.02rem;font-weight:700;color:#e6edf3;margin:0 0 4px}'
+            '.walk-meta{font-size:.9rem;color:#c9d1d9;margin:0 0 10px}'
+            '.walk .note{margin:6px 0}'
+            '.walk-maps{margin:12px 0 6px}.walk-maps .btn{width:100%;max-width:28rem}'
+            '.walk-maps-note{font-size:.8rem;color:#8b949e}'
+            '.walk-stops{list-style:none;padding:0;margin:10px 0 0}'
+            '.walk-stops li{margin:0;padding:12px 0;border-top:1px solid #30363d}'
+            '.walk-stops li.walk-highlight{background:rgba(247,147,26,.06);margin:0 -16px;padding:12px 16px;border-top:1px solid #30363d;border-left:3px solid #f7931a}'
+            '.walk-n{display:inline-flex;align-items:center;justify-content:center;min-width:1.6em;height:1.6em;border-radius:50%;background:#21262d;border:1px solid #30363d;color:#f7931a;font-size:.8rem;font-weight:800;flex:0 0 auto}'
+            '.walk-highlight .walk-n{background:#f7931a;border-color:#f7931a;color:#0d1117}'
+            '.walk-links,.walk-checked{font-size:.8rem;color:#8b949e}'
+            '.walk a{color:#58a6ff}'
+            '@media (min-width:640px){.walk-maps .btn{width:auto}}')
 
 
 # ---------- Upcoming Bitcoin events nearby (events.json → statue pages) ----------

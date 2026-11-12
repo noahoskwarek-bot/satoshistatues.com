@@ -1,0 +1,204 @@
+{
+  "_comment": "Self-guided walk sections on selected statue pages (preview). Rendered by build.py. Illustrative suggested routes, not turn-by-turn navigation. last_checked is an ISO date (YYYY-MM-DD) per statue: the day the named stops were last verified. Re-checks should only change that field (and any drop/add of a named business). Do not add giveaway or sats-claim copy here — the existing page widget already covers that.",
+  "walks": {
+    "el-zonte": {
+      "title": "Walk. Surf. Spend. Stack Sats.",
+      "place": "Bitcoin Beach, El Zonte",
+      "duration": "60–90 min",
+      "distance": "about 1–1.5 km",
+      "effort": "easy, mostly flat",
+      "best_time": "start by about 2:30 PM so Point Break Café (about 8 AM–4 PM) is still open",
+      "bring": "a phone with location on, an optional Lightning wallet, comfortable shoes and water",
+      "intro": "A casual, self-guided outing around Bitcoin Beach, with the Satoshi statue as the highlight. This is an illustrative suggested route, not turn-by-turn navigation — paths, hours and surf conditions change, so confirm them as you go.",
+      "maps_url": "https://www.google.com/maps/dir/?api=1&travelmode=walking&origin=13.4958112,-89.4418586&waypoints=13.4954011,-89.4424197&destination=13.4953881,-89.4413685",
+      "maps_label": "Open a suggested walking route in Google Maps",
+      "maps_note": "The link walks from Point Break Café to the statue and Olas Permanentes, using verified map pins. It is a suggestion, not a guaranteed path. Looking 2 Good is next to the statue if you finish there instead.",
+      "stops": [
+        {
+          "n": 1,
+          "title": "Start in the Bitcoin Beach area",
+          "paras": [
+            "Get your bearings in the community around Playa El Zonte, a short walk from the statue.",
+            "Bring a phone with location on, comfortable shoes, water and an optional Lightning wallet. Plan to start by about 2:30 PM so Point Break Café (about 8 AM–4 PM) is still open, and check opening hours and local conditions first."
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Point Break Café",
+          "paras": [
+            "A nearby café for coffee, a smoothie or a snack — a short pause before the statue.",
+            "It was still listed as open with daily hours of 8:00 AM–4:00 PM when this guide was last checked. A 2:30 PM start leaves time to stop here before the usual 4:00 PM close; confirm hours before you go. Always ask before paying. No wallet? You can still enjoy the walk."
+          ],
+          "links": [
+            {
+              "label": "Point Break Café on BTC Map",
+              "url": "https://btcmap.org/merchant/368"
+            }
+          ]
+        },
+        {
+          "n": 3,
+          "title": "Satoshi statue",
+          "highlight": true,
+          "paras": [
+            "The highlight of the walk. When you are at the statue, tap “Check in here” on this page to collect a free Proof of Walk statue card — a souvenir for your passport, no sign-up needed.",
+            "It is a see-through Satoshigallery figure: a head-on photo with the sea behind it makes that effect obvious, and afternoon light is softer. (The official photo tip on this page also notes that the figure reads more clearly from the side.)"
+          ]
+        },
+        {
+          "n": 4,
+          "title": "Black sand beach and the point break",
+          "paras": [
+            "Walk down to El Zonte’s black-sand beach and watch surfers on the point break if conditions allow. Pause for photos, a water break and the salty air.",
+            "Follow local access advice and tide conditions. Save an actual surf session for extra time after the walk."
+          ]
+        },
+        {
+          "n": 5,
+          "title": "A local pupusería or small shop",
+          "paras": [
+            "Find an open pupusería or small shop and, if you want to pay in sats, ask first — Lightning acceptance and hours vary. Confirm the price and payment method before you order."
+          ]
+        },
+        {
+          "n": 6,
+          "title": "Finish at a beachfront spot",
+          "paras": [
+            "If you want to sit down at the end, finish at Looking 2 Good or at Olas Permanentes. Both are options, subject to opening hours and access, and both were still listed as open when this guide was last checked. Ask before paying.",
+            "Share your statue card if you like, and take a last photo. Six stops, one relaxed outing."
+          ],
+          "links": [
+            {
+              "label": "Looking 2 Good on BTC Map",
+              "url": "https://btcmap.org/merchant/22414"
+            },
+            {
+              "label": "Olas Permanentes",
+              "url": "https://olaspermanentes.surf/restaurantes/el-zonte/"
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "label": "Satoshi Statues on X: El Zonte walk (7 Nov 2026)",
+          "url": "https://x.com/satoshistatue21/status/2119146950863831265"
+        },
+        {
+          "label": "BTC Map (places re-checked 12 Nov 2026)",
+          "url": "https://btcmap.org/map#16/13.49540/-89.44242"
+        },
+        {
+          "label": "Olas Permanentes (official site, re-checked 12 Nov 2026)",
+          "url": "https://olaspermanentes.surf/restaurantes/el-zonte/"
+        }
+      ],
+      "last_checked": "2026-11-12"
+    },
+    "lugano": {
+      "title": "Park, Statue & Plan ₿",
+      "place": "Parco Ciani, Lugano",
+      "duration": "60–90 min",
+      "distance": "about 1.5–2 km",
+      "effort": "easy, mostly flat",
+      "best_time": "best in the afternoon",
+      "bring": "a phone with location on, an optional Lightning wallet, comfortable shoes and water",
+      "intro": "A relaxed stroll through Parco Ciani, past the Satoshi statue, a café stop and the edge of the center. This is an illustrative suggested route, not turn-by-turn navigation — confirm paths and hours as you go.",
+      "maps_url": "https://www.google.com/maps/dir/?api=1&travelmode=walking&origin=46.0050613,8.9563358&waypoints=46.0042,8.9585%7C46.0057646,8.9571824&destination=46.0036289,8.9516442",
+      "maps_label": "Open a suggested walking route in Google Maps",
+      "maps_note": "The link walks from Palazzo dei Congressi (a named entrance area by the park) to the statue pin, Il Cannolo Sua Eccellenza on Via Pasquale Lucchini, and Piazza della Riforma. It is a suggestion, not a guaranteed path. You can finish back at the lakefront instead of the piazza.",
+      "stops": [
+        {
+          "n": 1,
+          "title": "A lakefront entrance to Parco Ciani",
+          "paras": [
+            "Start at the park, coming in from the lakefront or from Palazzo dei Congressi (the bus stop there is about 130 m from the statue, as noted in Visiting above).",
+            "This is a good moment for a short introduction to Plan ₿, the City of Lugano and Tether initiative that supports everyday Bitcoin payments in the city.",
+            "The park itself is free. Official hours from the City of Lugano: 6:30 AM–11:30 PM from March to October, and 6:30 AM–9:00 PM from November to February."
+          ],
+          "links": [
+            {
+              "label": "City of Lugano: Parco Ciani hours",
+              "url": "https://www.lugano.ch/en/vivere-lugano/cultura-e-tempo-libero/parchi-aree-gioco/parco-ciani/"
+            }
+          ]
+        },
+        {
+          "n": 2,
+          "title": "Walk through Parco Ciani",
+          "paras": [
+            "Take in Lake Lugano, the mountain views and the park’s sculptures. Leave time to pause for photos rather than rushing the next stop.",
+            "Afternoon makes a relaxed outing. Stay inside the park’s seasonal opening hours."
+          ]
+        },
+        {
+          "n": 3,
+          "title": "Satoshi statue",
+          "highlight": true,
+          "paras": [
+            "The highlight, in the central area of the park near the Dying Socrates sculpture. When you are at the statue, tap “Check in here” on this page to collect a free Proof of Walk statue card — a souvenir for your passport, no sign-up needed.",
+            "A head-on photo with the lake behind it makes a clean background. (The official photo tip on this page also notes that this Satoshigallery figure reads more clearly from the side and nearly vanishes from the front.)",
+            "Unveiled here by Plan ₿ in October 2024, the statue was later damaged more than once — including being thrown into the lake in 2025 and vandalized again in April 2026 — then repaired and put back on display in Parco Ciani on 22 October 2026. The exact plinth may differ slightly from the map pin; use the Visiting notes on this page for the latest pin."
+          ]
+        },
+        {
+          "n": 4,
+          "title": "A nearby café",
+          "paras": [
+            "For coffee, gelato or a snack, try Il Cannolo Sua Eccellenza on Via Pasquale Lucchini (corner with Via Cattaneo), subject to opening hours — or another nearby café. The business has more than one Lugano shop, so confirm which one you are heading to.",
+            "The official site still lists that Lugano shop, and it is also on BTC Map. Always ask before paying; Bitcoin and LVGA acceptance varies by business."
+          ],
+          "links": [
+            {
+              "label": "Il Cannolo Sua Eccellenza on BTC Map",
+              "url": "https://btcmap.org/merchant/2036"
+            },
+            {
+              "label": "Official site (shop list)",
+              "url": "https://www.ilcannolo.com/"
+            }
+          ]
+        },
+        {
+          "n": 5,
+          "title": "Toward Piazza della Riforma",
+          "paras": [
+            "Walk toward the edge of the city center and Piazza della Riforma. You may see Plan ₿ stickers or payment signs in shop windows.",
+            "This is the everyday side of the walk: local shops and a chance to ask how people pay. Not every shop accepts Bitcoin or LVGA. Always ask first."
+          ]
+        },
+        {
+          "n": 6,
+          "title": "Finish at the lakefront or a central square",
+          "paras": [
+            "Take a seat by the lake or in a central piazza, share your statue card if you like, and take a last photo.",
+            "A park stroll, a Satoshi statue and a taste of the city — six stops, one relaxed outing."
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "label": "Satoshi Statues on X: Lugano walk (7 Nov 2026)",
+          "url": "https://x.com/satoshistatue21/status/2119151432116941270"
+        },
+        {
+          "label": "City of Lugano: Parco Ciani (hours re-checked 12 Nov 2026)",
+          "url": "https://www.lugano.ch/en/vivere-lugano/cultura-e-tempo-libero/parchi-aree-gioco/parco-ciani/"
+        },
+        {
+          "label": "Plan ₿ unveiling (Tether, Oct 2024)",
+          "url": "https://tether.io/news/plan-b-initiative-unveils-satoshi-nakamoto-statue-at-3rd-annual-plan-forum-in-lugano/"
+        },
+        {
+          "label": "BTC Map (Il Cannolo re-checked 12 Nov 2026)",
+          "url": "https://btcmap.org/merchant/2036"
+        },
+        {
+          "label": "Il Cannolo Sua Eccellenza (official shop list)",
+          "url": "https://www.ilcannolo.com/"
+        }
+      ],
+      "last_checked": "2026-11-12"
+    }
+  }
+}
