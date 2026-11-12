@@ -291,7 +291,7 @@ FOUNTAIN_CSS = ('.fountain{background:#161b22;border:1px solid #30363d;border-le
                 'animation:f-burst 1.3s cubic-bezier(.2,.7,.3,1) forwards;animation-delay:var(--dl)}'
                 '@keyframes f-burst{0%{opacity:1;transform:translate(-50%,-50%) rotate(0)}100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) rotate(var(--r))}}'
                 '@media (prefers-reduced-motion:reduce){.f-odo .s{transition:none}.f-got.f-lucky{animation:none}.f-conf{display:none}}'
-                '.fountain[hidden],.fountain [hidden]{display:none!important}')
+                '.fountain[hidden],.fountain [hidden]{display:none!important}''.fountain-compact{margin:12px 0}''.fountain-compact .f-sum{margin:0 0 8px;font-size:1.05rem;color:#f7931a;display:flex;flex-wrap:wrap;align-items:baseline;gap:6px}''.fountain-compact .f-sum b{font-size:1.35rem;color:#e6edf3}''.fountain-compact .f-more{margin-top:8px}''.fountain-compact .f-stats{display:none}')
 
 
 # Shown under the claim box (and so under the address form after the reveal) on every giveaway page.
@@ -304,16 +304,19 @@ def fountain_box(s, data):
         return ''
     f = data['fountain']
     api = f.get('api') or LB_API
-    return (f'\n    <style>{FOUNTAIN_CSS}</style><section class="fountain" id="giveaway" data-ss-fountain data-slug="{e(s["slug"])}" data-name="{e(s["name"])}" data-share-name="{e(share_name(s))}" data-url="{e(page_url(s))}" data-api="{e(api)}" hidden>'
-            f'<h2>⛲ Satoshi Fountain</h2>'
+    return (f'\n    <style>{FOUNTAIN_CSS}</style><section class="fountain fountain-compact" id="giveaway" aria-label="Satoshi Fountain" data-ss-fountain data-slug="{e(s["slug"])}" data-name="{e(s["name"])}" data-share-name="{e(share_name(s))}" data-url="{e(page_url(s))}" data-api="{e(api)}" hidden>'
+            f'<h2 class="f-sum">⛲ <b data-f-left>–</b> giveaway sats left</h2>'
+            f'<div data-f-claim></div>'
+            f'<details class="sp-details f-more">'
+            f'<summary>Terms, wallets and recent activity</summary>'
             f'<p>A small Lightning giveaway for visitors who check in at this statue, while the giveaway budget lasts.</p>'
             + (f'<p class="f-fine f-odds">{e(odds_line(data))}</p>' if odds_line(data) else '') +
-            f'<div class="f-stats"><div class="f-stat"><b data-f-left>–</b>giveaway sats left</div></div>'
             f'<p class="f-fine">Check in here to get <span data-f-howmuch>{e(payout_phrase(data))}</span> sent to a Lightning address. '
             f'One per Lightning address per statue. 18+ only. No tip needed, and tipping never changes the giveaway. '
             f'The giveaway can stop at any time. {rules_links(data)}</p>'
-            f'<div data-f-claim></div>{WALLETS_LINE}'
+            f'{WALLETS_LINE}'
             f'<h3>Recent activity</h3><div class="f-recent" data-f-recent></div>'
+            f'</details>'
             f'</section>')
 
 
@@ -1162,9 +1165,9 @@ GALLERY_CSS = ('.confirmed{font-size:.88rem;color:#8b949e;margin:-8px 0 14px;lin
 # ---------- "The story" (optional per statue; see GUIDES.md) ----------
 # statues.json → statue.story: [{"label": "Artist", "text": "…", "reported": true?, "sources": [{"label", "url"}]}]
 # Only sourced facts. `reported: true` marks partly confirmed items (shown with a 'Reported' tag).
-def story_html(s):
+def story_html(s, preamble=''):
     items = [x for x in (s.get('story') or []) if (x.get('text') or '').strip()]
-    if not items:
+    if not items and not (preamble or '').strip():
         return ''
     rows = []
     for x in items:
@@ -1173,9 +1176,14 @@ def story_html(s):
         tag = '<span class="rep">Reported</span> ' if x.get('reported') else ''
         rows.append(f'<dt>{e(x["label"])}</dt><dd>{tag}{e(x["text"].strip())}'
                     f'{f"<span class=cites>Sources:{cites}</span>" if cites else ""}</dd>')
-    return (f'<section class="story" id="story" aria-labelledby="story-title"><h2 id="story-title">📖 The story</h2>'
-            f'<dl>{"".join(rows)}</dl>'
-            f'<p class="note" style="font-size:.8rem;color:#8b949e;margin-top:8px">Only facts we could source. Items tagged “Reported” are not fully confirmed.</p></section>')
+    body = preamble
+    if items:
+        body += (f'<dl>{"".join(rows)}</dl>'
+                 f'<p class="note" style="font-size:.8rem;color:#8b949e;margin-top:8px">Only facts we could source. Items tagged “Reported” are not fully confirmed.</p>')
+    title = '📖 The story' if items else 'About this statue'
+    return (f'<section class="story" id="story" aria-labelledby="story-title">'
+            f'<details class="sp-details"><summary><h2 id="story-title">{title}</h2></summary>'
+            f'{body}</details></section>')
 
 
 STORY_CSS = ('.story{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:4px 16px 14px;margin:22px 0;scroll-margin-top:12px}'
@@ -1253,6 +1261,154 @@ def checkin_box(s, data):
             f'<div class="checkin-msg" aria-live="polite" hidden></div></div>')
 
 
+
+def wrap_details(html, extra_class=''):
+    """Wrap a block that starts with an <h3> in a native <details> so it works without JS."""
+    m = re.match(r'(\s*)(<h3\b[^>]*>.*?</h3>)(.*)\s*\Z', html or '', re.S)
+    if not m:
+        return html
+    cls = 'sp-details' + (f' {extra_class}' if extra_class else '')
+    return f'{m.group(1)}<details class="{cls}"><summary>{m.group(2)}</summary>{m.group(3)}</details>'
+
+
+def series_badge_html(s):
+    if not s.get('series21'):
+        return ''
+    return ('<p class="series-badge"><a href="/21-nodes/">21 Nodes series</a></p>')
+
+
+def story_preamble(s):
+    """About text and who's-behind-it (removed from the facts table) for the story details."""
+    bits = []
+    if (s.get('note') or '').strip():
+        bits.append(f'<p class="note">{e(s["note"].strip())}</p>')
+    if (s.get('backers') or '').strip():
+        bk = e(s['backers'])
+        if s.get('backersSource') and s['backersSource'].get('url'):
+            bk += (f' <a href="{e(s["backersSource"]["url"])}" target="_blank" rel="noopener noreferrer">'
+                   f'Source: {e(s["backersSource"].get("label") or "source")}</a>')
+        bits.append(f'<p class="note"><strong>Who\'s behind it.</strong> {bk}</p>')
+    return ''.join(bits)
+
+
+def collect_source_items(s, data):
+    """Merge every source list on the statue page, keeping each URL once, in first-seen order."""
+    seen, out = set(), []
+
+    def add(url, label):
+        url = (url or '').strip()
+        if not url or url in seen:
+            return
+        seen.add(url)
+        out.append({'url': url, 'label': (label or url).strip() or url})
+
+    for x in s.get('sources') or []:
+        add(x.get('url'), x.get('label'))
+    for item in s.get('story') or []:
+        for x in item.get('sources') or []:
+            add(x.get('url'), x.get('label'))
+    visit = s.get('visit') or {}
+    for x in visit.get('sources') or []:
+        add(x.get('url'), x.get('label'))
+    if visit.get('accessSource'):
+        add(visit['accessSource'].get('url'), visit['accessSource'].get('label'))
+    if s.get('accessSource'):
+        add(s['accessSource'].get('url'), s['accessSource'].get('label'))
+    if s.get('backersSource'):
+        add(s['backersSource'].get('url'), s['backersSource'].get('label'))
+    w = ((data.get('walks') or {}).get(s.get('page')) or {})
+    for x in w.get('sources') or []:
+        add(x.get('url'), x.get('label'))
+    return out
+
+
+def combined_sources_html(s, data):
+    items = collect_source_items(s, data)
+    corr = (f'<p class="note" style="font-size:.85rem;color:#8b949e;margin-top:8px">Spotted a mistake? '
+            f'<a href="https://github.com/{REPO}/issues/new?title={e("Correction: " + s["name"])}" '
+            f'target="_blank" rel="noopener noreferrer">Suggest a correction</a>.</p>')
+    if not items:
+        return f'<section class="sources" id="sources">{corr}</section>'
+    return (f'<section class="sources" id="sources" aria-labelledby="sources-title">'
+            f'<details class="sp-details"><summary><h2 id="sources-title">Sources</h2></summary>'
+            f'{src_list(items)}</details>{corr}</section>')
+
+
+def nearby_others_html(s, data, n=3):
+    others = [o for o in data['statues']
+              if o is not s and not o.get('hidden') and not o.get('test')
+              and o.get('lat') is not None and o.get('lng') is not None]
+    others.sort(key=lambda o: km_between(s['lat'], s['lng'], o['lat'], o['lng']))
+    near = others[:n]
+    items = ''.join(
+        f'<li><a href="/{o["page"]}/">{e(o["label"])}</a>'
+        f'<span class="others-meta"> · {e(o["city"])}</span></li>'
+        for o in near)
+    return (f'<section class="others-near" id="other-statues" aria-labelledby="others-title">'
+            f'<h2 id="others-title">Other Satoshi statues nearby</h2>'
+            f'<ul class="others">{items}</ul>'
+            f'<p class="others-all"><a href="/?s={e(s["page"])}">See all on the map</a></p></section>')
+
+
+def statue_jump_html(s, data, has_story, has_photos):
+    links = []
+    if (data.get('walks') or {}).get(s['page']):
+        links.append(('#walk', 'Walk'))
+    if has_guide(s):
+        links.append(('#visiting', 'Visiting'))
+    if has_story:
+        links.append(('#story', 'Story'))
+    if statue_events(s, data):
+        links.append(('#events', 'Events'))
+    if has_photos:
+        links.append(('#visitor-photos', 'Photos'))
+    else:
+        links.append(('#photo', 'Photos'))
+    links.append(('#sources', 'Sources'))
+    links.append(('#comments', 'Comments'))
+    items = ''.join(f'<a href="{href}">{e(label)}</a>' for href, label in links)
+    return f'<nav class="statue-jump" aria-label="On this page">{items}</nav>'
+
+
+STATUE_LAYOUT_CSS = (
+    '.sp-where{font-size:.95rem;color:#c9d1d9;margin:0 0 8px}'
+    '.sp-locate .actions{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 8px}'
+    '.sp-locate .ss-share{margin:0 0 12px}'
+    '.facts{margin:16px 0}'
+    '.series-badge{display:block;margin:8px 0 0;font-size:.78rem;font-weight:700;line-height:1}'
+    '.series-badge a{color:#c9d1d9;text-decoration:none;border:1px solid #30363d;background:#161b22;'
+    'border-radius:999px;padding:5px 11px;display:inline-flex;align-items:center;gap:6px}'
+    '.series-badge a:hover,.series-badge a:focus-visible{border-color:#f7931a;color:#f7931a}'
+    '.statue-jump{position:sticky;top:0;z-index:30;display:flex;gap:2px;flex-wrap:nowrap;overflow-x:auto;'
+    '-webkit-overflow-scrolling:touch;background:#0d1117;border:1px solid #30363d;border-radius:8px;'
+    'padding:4px;margin:16px 0;scrollbar-width:thin}'
+    '.statue-jump a{flex:0 0 auto;white-space:nowrap;color:#58a6ff;font-size:.85rem;font-weight:600;'
+    'padding:10px 12px;min-height:44px;display:inline-flex;align-items:center;border-radius:6px;text-decoration:none}'
+    '.statue-jump a:hover{background:#161b22;color:#79c0ff}'
+    '.statue-jump a:focus-visible,.sp-details summary:focus-visible,.series-badge a:focus-visible,'
+    '.others-all a:focus-visible{outline:2px solid #f7931a;outline-offset:2px}'
+    '.sp-details{margin:8px 0 0}'
+    '.sp-details>summary{cursor:pointer;list-style:none;padding:8px 0;min-height:44px;display:flex;align-items:center;'
+    'gap:8px;font-weight:700;color:#f7931a;font-size:.95rem}'
+    '.sp-details>summary::-webkit-details-marker{display:none}'
+    '.sp-details>summary::before{content:"▸";display:inline-block;color:#8b949e;width:1em}'
+    '.sp-details[open]>summary::before{content:"▾"}'
+    '.sp-details>summary h2,.sp-details>summary h3{display:inline;margin:0;font-size:inherit;color:inherit;font-weight:inherit}'
+    '#walk,#visiting,#story,#events,#visitor-photos,#photo,#sources,#comments,#comments-title,#giveaway,#stay,'
+    '#other-statues{scroll-margin-top:64px}'
+    '.others-near .others{margin:8px 0}'
+    '.others-meta{color:#8b949e;font-size:.9rem}'
+    '.others-all{margin:8px 0 0}'
+    '.others-all a{color:#f7931a;font-weight:600}'
+    '@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.sp-details>summary::before{transition:none}}'
+    '@media (min-width:640px){html{scroll-behavior:smooth}}'
+    '.sp-hero{margin:12px 0 8px}'
+    '.sp-hero img{display:block;width:auto;max-width:100%;height:auto;margin-inline:auto}'
+    '.sp-hero figcaption{font-size:.8rem;margin-top:6px}'
+    '@media (max-width:639px){.sp-hero img{max-height:280px}}'
+)
+
+
 def statue_page(s, data):
     title = f"{s['label']} – Location, Directions & Photos"
     desc = describe(s)
@@ -1266,7 +1422,7 @@ def statue_page(s, data):
     if s.get('img'):
         src = s['img'] if s['img'].startswith('http') else '/' + s['img']
         wh = f' width="{s["imgW"]}" height="{s["imgH"]}"' if s.get('imgW') else ''
-        img_html = (f'<figure><img src="{e(src)}" alt="{e(alt)}"{wh} decoding="async" '
+        img_html = (f'<figure class="sp-hero"><img src="{e(src)}" alt="{e(alt)}"{wh} decoding="async" '
                     f'onerror="this.closest(\'figure\').remove()"><figcaption>{e(s["name"])} · {e(s["place"])}{credit_html(s)}</figcaption></figure>')
     artist = f'<a href="{e(s["artistUrl"])}" target="_blank" rel="noopener noreferrer">{e(s["artist"])}</a>' if s.get('artistUrl') else e(s['artist'])
     if s.get('creatorVerified') is False:
@@ -1281,21 +1437,7 @@ def statue_page(s, data):
         acc = e(first) + ' <a href="#visiting">More in Visiting ↓</a>'
     else:
         acc = 'Unknown. Check locally before you go.'
-    backers_row = ''
-    if (s.get('backers') or '').strip():
-        bk = e(s['backers'])
-        if s.get('backersSource'):
-            bk += f' <a href="{e(s["backersSource"]["url"])}" target="_blank" rel="noopener noreferrer">Source: {e(s["backersSource"]["label"])}</a>'
-        backers_row = f'\n      <dt>Who\'s behind it</dt><dd>{bk}</dd>'
     directions = f"https://www.google.com/maps/dir/?api=1&destination={s['lat']},{s['lng']}"
-    series = ''
-    if s.get('series21'):
-        series = (f'<div class="callout">Part of Valentina Picozzi’s <strong>21 Nodes</strong> series of Satoshi statues. '
-                  f'<a href="/21-nodes/">See all 21 Nodes →</a></div>')
-    others = ''.join(f'<li><a href="/{o["page"]}/">{e(o["label"])}</a></li>'
-                     for o in sorted(data['statues'], key=lambda o: -sort_year(o['year'])) if o is not s)
-    # stampable statues get the check-in box (with its own "Open on the map" link) near the top instead
-    map_btn = '' if s['status'] in CHECKABLE else f'\n      <a class="btn" href="/?s={s["page"]}">🗺️ Open on the map</a>'
     stamp = ('' if s['status'] in CHECKABLE else
              f'\n    <p class="note" style="margin-top:6px;color:#8b949e">{e(s.get("stamp_note") or "Not yet installed, so there’s no card to collect yet (not counted in the total).")}</p>')
     giscus_attrs = {
@@ -1304,45 +1446,55 @@ def statue_page(s, data):
         'data-strict': '1', 'data-reactions-enabled': '1', 'data-emit-metadata': '0', 'data-input-position': 'top',
         'data-theme': 'dark', 'data-lang': 'en', 'data-loading': 'lazy'}
     gattrs = ' '.join(f'{k}="{e(v)}"' for k, v in giscus_attrs.items())
-    out += f'''  <main>
+    preamble = story_preamble(s)
+    story = story_html(s, preamble)
+    gallery = gallery_html(s, data)
+    visit = visit_html(s, data)
+    walk = walk_html(s, data)
+    events = events_html(s, data)
+    jump = statue_jump_html(s, data, has_story=bool(story), has_photos=bool(gallery))
+    access_line = ''
+    if not has_guide(s) and acc and acc != 'Unknown. Check locally before you go.':
+        access_line = f'<p class="note sp-access"><strong>Access.</strong> {acc}</p>'
+    out += f'''  <style>{STATUE_LAYOUT_CSS}</style>
+  <main>
     <div class="crumbs"><a href="/">Map</a> › {e(s['label'])}</div>
     <h1>{e(s['label'])}</h1>
-    <p class="sub">{e(s['place'])} · {e(s['city'])}, {e(s['country'])}{pin_sub(s)}</p>
+    <p class="sub">{e(s['city'])}, {e(s['country'])}</p>
     {genesis_badge_html(s, data)}
+    {series_badge_html(s)}
     {confirmed_html(s, data)}
-    {alert_html(s)}{checkin_box(s, data)}{fountain_box(s, data)}
+    {alert_html(s)}{stamp}
     {img_html}
-    <div class="actions">
-      <a class="btn primary" href="{directions}" target="_blank" rel="noopener noreferrer">🧭 Get Directions</a>{map_btn}
-      <a class="btn" href="#comments">💬 Comments</a>
+    <div class="sp-locate">
+      <p class="sp-where">{e(s['place'])}, {e(s['city'])}, {e(s['country'])}{pin_sub(s)}</p>
+      {access_line}
+      <div class="actions">
+        <a class="btn primary" href="{directions}" target="_blank" rel="noopener noreferrer">🧭 Get Directions</a>
+        <a class="btn" href="/?s={s['page']}">🗺️ Open on the map</a>
+      </div>
+      {share_box(s)}
     </div>
+    {checkin_box(s, data)}{checkin_count_html(s)}
+    {fountain_box(s, data)}
+    {jump}
     <dl class="facts">
-      <dt>Location</dt><dd>{e(s['place'])}, {e(s['city'])}, {e(s['country'])}</dd>
-      <dt>Unveiled</dt><dd>{e(s.get('unveiled') or s['year'])}</dd>
-      <dt>Year</dt><dd>{e(s['year'])}</dd>
       <dt>Artist</dt><dd>{artist}</dd>
       <dt>Type</dt><dd>{e(s['type'])}</dd>
       <dt>Status</dt><dd>{status_badge(s['status'], s.get('statusLabel'))}</dd>
-      <dt>Access</dt><dd>{acc}</dd>{backers_row}
       <dt>Coordinates</dt><dd>{s['lat']}, {s['lng']}{pin_html(s)}</dd>
     </dl>
-    {share_box(s)}
-    {series}
-    <h2>About</h2>
-    <p class="note">{e(s['note'])}</p>{stamp}
-    {story_html(s)}
-    {visit_html(s, data)}{walk_html(s, data)}
-    {events_html(s, data)}
-    {gallery_html(s, data)}{checkin_count_html(s)}
+    {walk}
+    {visit}
+    {events}
+    {story}
+    {gallery}
     {photo_cta(s, data)}
-    <h2>Sources</h2>
-    {src_list(s.get('sources', []))}
-    <p class="note" style="font-size:.85rem;color:#8b949e;margin-top:8px">Spotted a mistake? <a href="https://github.com/{REPO}/issues/new?title={e('Correction: ' + s['name'])}" target="_blank" rel="noopener noreferrer">Suggest a correction</a>.</p>
-    <h2>Other Satoshi statues</h2>
-    <ul class="others">{others}</ul>
+    {combined_sources_html(s, data)}
     <h2 id="comments-title">Comments</h2>
     <p class="note" style="font-size:.85rem;color:#8b949e;margin-bottom:8px">Visit reports, tips and photo links. Powered by giscus (needs a GitHub account). Same thread as on the map.</p>
     <div id="comments"><script src="https://giscus.app/client.js" {gattrs} crossorigin="anonymous" async></script></div>
+    {nearby_others_html(s, data)}
     {signup_html(data, 'page')}
     {HOME_TIP['html']}
     {footer(data)}
@@ -3132,13 +3284,12 @@ def visit_html(s, data=None):
         rows.append(f'<h3>Hours &amp; access</h3><p class="note">{e(s["access"])}{src}</p>')
     mh = merchants_html(s, data or {})
     if mh:
-        rows.append(mh)
+        rows.append(wrap_details(mh))
     lh = lodging_html(s, data or {})
     if lh:
-        rows.append(lh)
-    srcs = (f'<h3>Guide sources</h3>{src_list(v["sources"])}' if v.get('sources') else '')
+        rows.append(wrap_details(lh))
     upd = f'<p class="note" style="font-size:.8rem;color:#8b949e;margin-top:8px">Guide updated {e(v["updated"])}.</p>' if v.get('updated') else ''
-    return f'<section class="visit" id="visiting" aria-labelledby="visiting-title"><h2 id="visiting-title">🧭 Visiting</h2>{"".join(rows)}{srcs}{upd}</section>'
+    return f'<section class="visit" id="visiting" aria-labelledby="visiting-title"><h2 id="visiting-title">🧭 Visiting</h2>{"".join(rows)}{upd}</section>'
 
 
 VISIT_CSS = ('.visit{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:4px 16px 14px;margin:22px 0;scroll-margin-top:12px}'
@@ -3271,10 +3422,12 @@ def walk_html(s, data):
                 for lk in links if lk.get('url') and lk.get('label')) + '</p>'
         items.append(f'<li{cls}><h3><span class="walk-n">{int(st["n"])}</span> {e(st["title"])}</h3>{body}</li>')
     checked = f'<p class="note walk-checked">Last checked: {e(fmt_last_checked(lc))}.</p>'
-    srcs = f'<h3>Walk sources</h3>{src_list(w["sources"])}' if w.get('sources') else ''
+    nstops = len(items)
+    stops_label = f'Show the {nstops} suggested stop{"s" if nstops != 1 else ""}'
     return ('\n    <style>' + WALK_CSS + '</style>'
             f'<section class="walk" id="walk" aria-labelledby="walk-title">{head}'
-            f'<ol class="walk-stops">{"".join(items)}</ol>{srcs}{checked}</section>')
+            f'<details class="sp-details walk-stops-wrap"><summary>{e(stops_label)}</summary>'
+            f'<ol class="walk-stops">{"".join(items)}</ol></details>{checked}</section>')
 
 
 WALK_CSS = ('.walk{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:4px 16px 14px;margin:22px 0;scroll-margin-top:12px}'
