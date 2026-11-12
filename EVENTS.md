@@ -78,3 +78,11 @@ Added 2026-10-29: **Le Paradigme Bitcoin 2027** (Jun 25–26, 2027, Coworking Bl
 
 - **Miami Bitcoin Summit 2027**: REMOVED. Official site miamibitcoinsummit.com shows a banner: "Sample website Nothing on this site is accurate. Used as an example only." Dates are not confirmed.
 - **BitcoinDay Naples 2027**: KEPT as Sat Jan 16, 2027. Confirmed on bitcoinday.io published content (`api/content.js` editions kicker "Sat · Jan 16 · 2027 — ~200 seats" and SEO description "Sat Jan 16, 2027"); the Jan 15 Carnivore Dinner is a separate side-event ticket, not the main conference. Buy-tickets path 404; homepage draft flag exists but is hidden while published content is served.
+
+## Checked 2026-11-12
+
+Added 2026-11-12: **Bitcoin Österreich 2027** (formerly Bitcoin Burgenland; Apr 16–17, 2027, Neufeldersee-Restaurant, Neufeldersee (Burgenland), Austria; organizer RETTE DEIN GELD; confirmed on rettedeingeld.at/bitcoin-oesterreich-2027/), ~39 km south of the Vienna statue.
+
+- **Bitcoin Zitadelle 2027** (Aug 5–8, 2027, Frankenfels, bitcoin-zitadelle.at) NOT added because ticket sales are invite-only/not public.
+- **Miami Bitcoin Summit** still NOT added because its site still shows the 'Sample website' banner.
+- **BTC Prague 2027** unchanged, May 6–8, 2027 in Prague (the venue is reportedly moving to Průmyslový palác, but city and dates are the same).
