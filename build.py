@@ -3150,9 +3150,21 @@ VISIT_CSS = ('.visit{background:#161b22;border:1px solid #30363d;border-radius:1
 
 
 # ---------- Self-guided walk (walks.json; selected statue pages) ----------
-# Preview-only guide: an illustrative suggested route, not turn-by-turn navigation.
+# Illustrative suggested route, not turn-by-turn navigation.
 # last_checked (YYYY-MM-DD) is the day the named stops were last verified. Re-checks
 # should only change that field, plus any drop or add of a named business.
+# load_walks() and check_walks() fail the build if last_checked is missing or invalid.
+
+WALK_DISCLAIMER = (
+    "This walk is a free suggestion, not a guided tour. Paths, opening hours, sea "
+    "conditions and payment options change, so check them yourself, use your own "
+    "judgment about safety, and walk at your own risk. The businesses named aren't "
+    "sponsors or partners of SatoshiStatues.com, we aren't paid to list them, and we "
+    "aren't responsible for them or their websites."
+)
+
+_WALK_LINK = re.compile(r'\[([^\]]+)\]\((https://[^)\s]+)\)')
+
 
 def load_walks():
     path = os.path.join(ROOT, 'walks.json')
@@ -3161,19 +3173,54 @@ def load_walks():
     with open(path, encoding='utf-8') as f:
         data = json.load(f)
     walks = data.get('walks') or {}
-    for page, w in walks.items():
-        assert w.get('title'), f'walks.json: {page} missing title'
-        assert w.get('last_checked'), f'walks.json: {page} missing last_checked'
-        datetime.date.fromisoformat(w['last_checked'])
-        assert w.get('stops'), f'walks.json: {page} missing stops'
-        for st in w['stops']:
-            assert st.get('n') and st.get('title') and st.get('paras'), f'walks.json: {page} stop incomplete'
+    check_walks(walks)
     return walks
+
+
+def check_walks(walks):
+    """Fail the build if any walk is missing a valid last_checked date."""
+    errors = []
+    if not walks:
+        return
+    for page, w in walks.items():
+        if not (w.get('title') or '').strip():
+            errors.append(f'walks.json: {page} missing title')
+        lc = (w.get('last_checked') or '').strip() if isinstance(w.get('last_checked'), str) else w.get('last_checked')
+        if not lc:
+            errors.append(f'walks.json: {page} missing last_checked')
+        else:
+            try:
+                datetime.date.fromisoformat(str(lc))
+            except ValueError:
+                errors.append(f'walks.json: {page} last_checked must be YYYY-MM-DD, got {lc!r}')
+        if not w.get('stops'):
+            errors.append(f'walks.json: {page} missing stops')
+        else:
+            for st in w['stops']:
+                if not (st.get('n') and st.get('title') and st.get('paras')):
+                    errors.append(f'walks.json: {page} stop incomplete')
+    if errors:
+        sys.exit('walks.json check failed:\n' + '\n'.join(errors))
 
 
 def fmt_last_checked(iso):
     d = datetime.date.fromisoformat(iso)
     return f'{d.strftime("%B")} {d.day}, {d.year}'
+
+
+def walk_rich(text, last_checked_iso):
+    """Escape walk copy, fill {last_checked} from walk.last_checked, and allow [label](https://...) links."""
+    text = text.replace('{last_checked}', fmt_last_checked(last_checked_iso))
+    parts = []
+    pos = 0
+    for m in _WALK_LINK.finditer(text):
+        parts.append(e(text[pos:m.start()]))
+        parts.append(
+            f'<a href="{e(m.group(2))}" target="_blank" rel="noopener noreferrer">{e(m.group(1))}</a>'
+        )
+        pos = m.end()
+    parts.append(e(text[pos:]))
+    return ''.join(parts)
 
 
 def walk_maps_url(w):
@@ -3187,7 +3234,9 @@ def walk_html(s, data):
     w = (data.get('walks') or {}).get(s['page'])
     if not w:
         return ''
-    meta_bits = [w.get('duration'), w.get('distance'), w.get('effort'), w.get('best_time')]
+    lc = w['last_checked']
+    suggested = w.get('suggested_time') or w.get('best_time')
+    meta_bits = [w.get('duration'), w.get('distance'), w.get('effort'), suggested]
     meta = ' · '.join(x for x in meta_bits if (x or '').strip())
     subtitle = w.get('place') or s.get('city') or ''
     head = f'<h2 id="walk-title">👣 Self-guided walk</h2>'
@@ -3198,7 +3247,8 @@ def walk_html(s, data):
     if meta:
         head += f'<p class="walk-meta">{e(meta)}</p>'
     if (w.get('intro') or '').strip():
-        head += f'<p class="note">{e(w["intro"])}</p>'
+        head += f'<p class="note">{walk_rich(w["intro"], lc)}</p>'
+    head += f'<p class="note walk-disclaimer">{e(WALK_DISCLAIMER)}</p>'
     if (w.get('bring') or '').strip():
         head += f'<p class="note">Bring {e(w["bring"])}.</p>'
     maps = walk_maps_url(w)
@@ -3207,18 +3257,20 @@ def walk_html(s, data):
         head += (f'<p class="walk-maps"><a class="btn" href="{e(maps)}" target="_blank" rel="noopener noreferrer">'
                  f'🗺️ {e(label)}</a></p>')
         if (w.get('maps_note') or '').strip():
-            head += f'<p class="note walk-maps-note">{e(w["maps_note"])}</p>'
+            head += f'<p class="note walk-maps-note">{walk_rich(w["maps_note"], lc)}</p>'
     items = []
     for st in w['stops']:
         cls = ' class="walk-highlight"' if st.get('highlight') else ''
-        body = ''.join(f'<p class="note">{e(para)}</p>' for para in st['paras'] if (para or '').strip())
+        body = ''.join(
+            f'<p class="note">{walk_rich(para, lc)}</p>' for para in st['paras'] if (para or '').strip()
+        )
         links = st.get('links') or []
         if links:
             body += '<p class="note walk-links">' + ' · '.join(
                 f'<a href="{e(lk["url"])}" target="_blank" rel="noopener noreferrer">{e(lk["label"])}</a>'
                 for lk in links if lk.get('url') and lk.get('label')) + '</p>'
         items.append(f'<li{cls}><h3><span class="walk-n">{int(st["n"])}</span> {e(st["title"])}</h3>{body}</li>')
-    checked = f'<p class="note walk-checked">Last checked: {e(fmt_last_checked(w["last_checked"]))}.</p>'
+    checked = f'<p class="note walk-checked">Last checked: {e(fmt_last_checked(lc))}.</p>'
     srcs = f'<h3>Walk sources</h3>{src_list(w["sources"])}' if w.get('sources') else ''
     return ('\n    <style>' + WALK_CSS + '</style>'
             f'<section class="walk" id="walk" aria-labelledby="walk-title">{head}'
@@ -3229,7 +3281,7 @@ WALK_CSS = ('.walk{background:#161b22;border:1px solid #30363d;border-radius:10p
             '.walk h2{margin:14px 0 4px}.walk h3{font-size:.95rem;color:#f7931a;margin:0 0 4px;display:flex;gap:8px;align-items:baseline}'
             '.walk-kicker{font-size:1.02rem;font-weight:700;color:#e6edf3;margin:0 0 4px}'
             '.walk-meta{font-size:.9rem;color:#c9d1d9;margin:0 0 10px}'
-            '.walk .note{margin:6px 0}'
+            '.walk .note{margin:6px 0}''.walk-disclaimer{font-size:.9rem;color:#c9d1d9;margin:10px 0 8px;padding:10px 12px;border:1px solid #30363d;border-radius:8px;background:#0d1117}'
             '.walk-maps{margin:12px 0 6px}.walk-maps .btn{width:100%;max-width:28rem}'
             '.walk-maps-note{font-size:.8rem;color:#8b949e}'
             '.walk-stops{list-style:none;padding:0;margin:10px 0 0}'
@@ -3866,6 +3918,12 @@ def main():
         if stale:
             print('stale (run python3 build.py):', ', '.join(stale))
             sys.exit(1)
+        for page, w in (data.get('walks') or {}).items():
+            rel = f"{page}/index.html"
+            content = outputs(data)[rel]
+            needle = f'Last checked: {fmt_last_checked(w["last_checked"])}'
+            if needle not in content:
+                sys.exit(f'{rel} is missing {needle!r}')
         print('up to date')
 
 
