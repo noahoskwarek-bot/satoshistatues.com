@@ -6,7 +6,7 @@ statues.json is the single source of truth. This script:
   * generates one static page per statue (/<page>/index.html)
   * generates /21-nodes/index.html, sitemap.xml, robots.txt and feed.xml (Atom)
   * generates /embed/ (map-only iframe page, noindex) and the 'Embed this map' snippet box on the home page
-  * renders 'Upcoming Bitcoin events nearby' on statue pages from events.json (see EVENTS.md)
+  * renders 'Upcoming Bitcoin events nearby' on statue pages from events.json, and a toggleable Events layer on the home map (see EVENTS.md)
   * renders 'The story' (statue.story) and the BTC Map 'Nearby places' list from merchants.json (see GUIDES.md)
   * renders 'Stay nearby (accepts bitcoin)' from lodging.json (statue pages + toggleable map layer; see GUIDES.md)
   * renders the 'Follow us on X' line (signup_html) on the home page, statue pages and 21 Nodes
@@ -3740,6 +3740,37 @@ def nearby_eligible(s):
     return s['status'] not in NOT_AT_SPOT_STATUSES and ((s.get('alert') or {}).get('type') or '') not in NOT_AT_SPOT_ALERTS
 
 
+def map_events(data):
+    """Upcoming verified events for the home map's Events layer, from the same events.json as statue pages.
+    Upcoming: end_date >= BUILD_DATE (end_date defaults to start_date for one-day events).
+    Verified: has a verification date and official source_url — both are required fields in events.json,
+    so every event that survives load_events() is treated as confirmed. Pins need lat/lng.
+    Past events remain in events.json but are not emitted; client JS hides any that end after this build."""
+    by_page = {s['page']: s for s in data['statues']}
+    out = []
+    for ev in data.get('events', []):
+        if not ev.get('verified') or not ev.get('source_url'):
+            continue
+        if ev['end_date'] < BUILD_DATE:
+            continue
+        if ev.get('lat') is None or ev.get('lng') is None:
+            continue
+        s = by_page.get(ev['statue'])
+        if not s:
+            continue
+        if ev.get('km') and ev['km'] >= 25:
+            near = f'about {round(ev["km"] / 10) * 10:.0f} km from {s["name"]}'
+        else:
+            near = f'near {s["name"]}'
+        out.append({'n': ev['name'], 'start': ev['start_date'], 'end': ev['end_date'],
+                    'dates': fmt_range(ev['start_date'], ev['end_date']),
+                    'city': ev['city'], 'country': ev['country'],
+                    'lat': ev['lat'], 'lng': ev['lng'], 'u': ev['url'],
+                    'p': s['page'], 's': s['name'], 'd': near, 'v': ev['verified']})
+    out.sort(key=lambda x: (x['start'], x['n']))
+    return out
+
+
 def map_stays(data):
     """Places to stay shown on statue pages, for the home map's toggleable 'Stays' layer (deduplicated by BTC Map id).
     Never stampable: they are not statues and are not in the statues array, passport or leaderboard."""
@@ -3772,6 +3803,7 @@ def build_index(data, text):
     js = '    const statues = ' + json.dumps(statues_js, ensure_ascii=False, indent=2).replace('\n', '\n    ') + ';'
     text = replace_block(text, 'STATUES', js, comment=('// ', ''))
     text = replace_block(text, 'STAYS', '    const stays = ' + json.dumps(map_stays(data), ensure_ascii=False) + ';', comment=('// ', ''))
+    text = replace_block(text, 'EVENTS', '    const events = ' + json.dumps(map_events(data), ensure_ascii=False) + ';', comment=('// ', ''))
     ldhtml, _ = home_ld(data)
     text = replace_block(text, 'JSONLD', '  ' + ldhtml)
     links = '        <ul>\n' + ''.join(

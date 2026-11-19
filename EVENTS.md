@@ -1,6 +1,7 @@
 # Upcoming Bitcoin events (events.json)
 
 Statue pages show an **Upcoming Bitcoin events nearby** section built from `events.json`.
+The home map uses the same list for its **Events** layer (on by default): only upcoming, verified events with coordinates are pinned, and past ones are hidden at build time and again in the browser.
 Edit `events.json`, then run `python3 build.py` and `python3 build.py --check`, and commit.
 
 ## Format
