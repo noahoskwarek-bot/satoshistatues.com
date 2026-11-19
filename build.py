@@ -3449,7 +3449,7 @@ WALK_CSS = ('.walk{background:#161b22;border:1px solid #30363d;border-radius:10p
 
 # ---------- Upcoming Bitcoin events nearby (events.json → statue pages) ----------
 # events.json: {"events": [{name, start_date, end_date?, city, country, lat?, lng?, url, statue, source_url, verified}]}
-# Only events confirmed on their official site. Past events are dropped at build time (end date < BUILD_DATE) and
+# Only events confirmed on an official source (organizer site or blog, X account, or organizer-posted Satlantis/Luma/Eventbrite/Meetup page; see EVENTS.md). Past events are dropped at build time (end date < BUILD_DATE) and
 # hidden again client-side (EVENTS_JS) so a page built earlier never shows a finished event between rebuilds.
 # No upcoming events for a statue → no section at all. Format documented in EVENTS.md.
 EVENT_RADIUS_KM = 300

@@ -35,13 +35,16 @@ Edit `events.json`, then run `python3 build.py` and `python3 build.py --check`, 
 | `lat`, `lng` | no (recommended) | Venue or city centre. When present the build checks the event is within 300 km of its statue and shows "about N km away" if it's 25 km or more. |
 | `url` | yes | The event's official website (linked, opens in a new tab). |
 | `statue` | yes | The nearest statue's `page` slug in `statues.json` (straight-line distance, max ~300 km). |
-| `source_url` | yes | The official page where the dates were confirmed. |
+| `source_url` | yes | The official page where the dates were confirmed (organizer site or blog, X post, or organizer-posted ticketing page). |
 | `verified` | yes | `YYYY-MM-DD` you last checked the dates. |
 
 ## Rules
 
-- Only add an event after confirming its dates on the **official** event site. Never infer dates from past editions or third-party listings.
+- Only add an event after confirming its dates on an **official** source. An announcement on the organizer's own blog, X account, or ticketing page (Satlantis, Luma, Eventbrite, Meetup) counts as official when the organizer posted it. Never infer dates from past editions or from third-party listings the organizer did not post.
+- Local meetups and community events are in scope if they have an organizer-posted page with confirmed dates.
 - Skip events farther than ~300 km from any statue, and don't assign events to statues that are only planned.
+- Each week, sweep the statue-city communities directly: Bitcoin Beach, Bitcoin Berlín SV, TBB Tokyo (Tokyo Bitcoin Base), Lugano Plan ₿, Bitcoin Office SV, plus local meetups within 300 km of each statue.
+- Check local news roundups such as ia.sv and investsalvador for multi-event weeks. Use those to find candidates, then confirm dates on an official (organizer-posted) source before adding.
 - Past events disappear automatically: the build drops events whose end date is before `BUILD_DATE`, and a tiny script on each page hides any that have ended since the page was built (and the whole section if none are left).
 - A statue with no upcoming events gets no section at all.
 - Each listed event also gets schema.org `Event` JSON-LD (name, dates, city/country, official URL).
@@ -57,11 +60,11 @@ Edit `events.json`, then run `python3 build.py` and `python3 build.py --check`, 
 
 ## Checked 2026-10-22 and not added
 
-- **Bitcoin Treasuries Conference 2027 (New York)**: Sep 28, 2027 appears only on the organizer's Luma page; bitcointreasuries.net/conference still shows the 2026 event, so the dates aren't confirmed on the official site yet.
+- **Bitcoin Treasuries Conference 2027 (New York)**: Sep 28, 2027 appeared on the organizer's Luma page on 2026-10-22, while bitcointreasuries.net/conference still showed the 2026 event. It was skipped then because the dates weren't on the main official site. Under the updated sourcing policy, an organizer-posted Luma page counts as official; re-check on the next weekly refresh before adding.
 - **The Sovereign Summit (Miami Beach, Feb 4–7, 2027)**: not Bitcoin-only (covers AI, energy and money).
 - **TOKEN2049 New York, Digital Assets Week NY, Blockchain Week UNGA, Vienna Blockchain Week 2027**: broad crypto, not Bitcoin events.
 - **Adopting Bitcoin Arnhem 2027 (May 28–29)**: ~700+ km from the nearest statue.
-- **Bitcoin Hanoi meetups**: small monthly meetups, location shared by DM only; not a conference.
+- **Bitcoin Hanoi meetups**: not added. Location was shared by DM only, with no public organizer-posted page confirming dates and venue. Meetups and community events are in scope when the organizer has published those details.
 
 Note (2026-10-22): the asia.b.tc header still reads "Aug 27–28", but its 2027 section says August 26–27, 2027, so the Bitcoin Asia 2027 listing stays as is.
 
@@ -87,3 +90,11 @@ Added 2026-11-12: **Bitcoin Österreich 2027** (formerly Bitcoin Burgenland; Apr
 - **Bitcoin Zitadelle 2027** (Aug 5–8, 2027, Frankenfels, bitcoin-zitadelle.at) NOT added because ticket sales are invite-only/not public.
 - **Miami Bitcoin Summit** still NOT added because its site still shows the 'Sample website' banner.
 - **BTC Prague 2027** unchanged, May 6–8, 2027 in Prague (the venue is reportedly moving to Průmyslový palác, but city and dates are the same).
+
+## Added 2026-11-19
+
+Added 2026-11-19: **Global Bitcoin Circular Economies Summit 2026** (Nov 19–20, 2026, El Zonte, El Salvador; organized by Bitcoin Beach and the Federation of Bitcoin Circular Economies; first time public, limited seats). Dates and El Zonte location confirmed on the organizer's blog (https://www.bitcoinbeach.com/summit-blog/bitcoin-circular-economies-summit-2026) and on the organizer-posted Satlantis registration page (https://www.satlantis.io/events/2311/global-bitcoin-circular-economies-summit). Coordinates are the Open Location Code center of short code FHW5+Q7X recovered against the El Zonte statue (full code 765GFHW5+Q7X → 13.49699, -89.44177, about 190 m from the statue), which third-party listings give as El Zonte Community Centre. The official blog and Satlantis page name El Zonte but do not themselves name the Community Centre or the plus code.
+
+Sourcing policy updated the same day so the weekly refresh can catch events like this (no standalone conference site required when the organizer posts an announcement on their blog, X account, or a ticketing page). Weekly sweeps now include statue-city communities (Bitcoin Beach, Bitcoin Berlín SV, TBB Tokyo, Lugano Plan ₿, Bitcoin Office SV, and local meetups within 300 km of each statue) and local news roundups such as ia.sv and investsalvador.
+
+- **Women in Bitcoin at Bitcoin Beach, Nov 21, 2026**: NOT added. No official organizer page was found confirming this event or its dates and venue (Bitcoin Beach blog and events page, Bitcoin Beach's Luma account, Satlantis, Eventbrite, Meetup, and local roundups ia.sv / investsalvador). Bitcoin Beach's own November list names the Summit on Nov 19–20 and does not mention Women in Bitcoin. A January 24, 2026 Women Bitcoin meetup in El Zonte is a different, earlier event. Third-party coverage of Festival Bitcoin Beach (Nov 21–22) is not an organizer-posted Women in Bitcoin listing and was not added.
