@@ -2,45 +2,6 @@
   "_comment": "Upcoming Bitcoin events shown on statue pages ('Upcoming Bitcoin events nearby'). Format: see EVENTS.md. Only add an event after confirming its dates on an official source: the organizer's own site or blog, their X account, or a ticketing page (Satlantis, Luma, Eventbrite, Meetup) the organizer posted. Never infer dates from past editions or from third-party listings the organizer did not post. Past events drop off automatically (build time + client-side check).",
   "events": [
     {
-      "name": "Plan ₿ Forum 2026",
-      "start_date": "2026-10-23",
-      "end_date": "2026-10-24",
-      "city": "Lugano",
-      "country": "Switzerland",
-      "lat": 46.0037,
-      "lng": 8.959,
-      "url": "https://planb.lugano.ch/planb-forum/",
-      "statue": "lugano",
-      "source_url": "https://planb.lugano.ch/planb-forum/",
-      "verified": "2026-10-21"
-    },
-    {
-      "name": "B-Only 2026",
-      "start_date": "2026-11-07",
-      "end_date": "2026-11-09",
-      "city": "Annecy",
-      "country": "France",
-      "lat": 45.8992,
-      "lng": 6.1294,
-      "url": "https://b-only.org/",
-      "statue": "lugano",
-      "source_url": "https://b-only.org/",
-      "verified": "2026-10-21"
-    },
-    {
-      "name": "Bitcoin Histórico 2026",
-      "start_date": "2026-11-11",
-      "end_date": "2026-11-12",
-      "city": "San Salvador",
-      "country": "El Salvador",
-      "lat": 13.6977,
-      "lng": -89.1918,
-      "url": "https://bitcoinhistorico.com/",
-      "statue": "el-zonte",
-      "source_url": "https://bitcoinhistorico.com/",
-      "verified": "2026-10-29"
-    },
-    {
       "name": "Global Bitcoin Circular Economies Summit 2026",
       "start_date": "2026-11-19",
       "end_date": "2026-11-20",
