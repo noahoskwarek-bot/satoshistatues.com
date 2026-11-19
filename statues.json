@@ -2094,10 +2094,10 @@
       "tz": "Asia/Ho_Chi_Minh",
       "unveiled": "1 Apr 2026",
       "series21": false,
-      "access": "Outdoors on Blockchain Hill inside the FPT University Hòa Lạc campus (university grounds); FPT says the spot has become a check-in place for students. Public visitor access and hours are unverified: check with the university before you go.",
+      "access": "Outdoors on Blockchain Hill inside the FPT University Hòa Lạc campus. FPT University says its campuses are open to the community and visitors, who can come and go freely at no charge; hours follow the university’s working schedule, and guided visits can be booked. Check with the university before you go.",
       "accessSource": {
-        "label": "FPT University (English)",
-        "url": "https://daihoc.fpt.edu.vn/en/news/FPT-Edu-Khanh-Thanh-Tuong-Cha-De-Bitcoin-Satoshi-Nakamoto-Tai-Hoa-Lac-Campus/"
+        "label": "FPT University (6 Jan 2026, Vietnamese)",
+        "url": "https://daihoc.fpt.edu.vn/cuoc-song-tai-dai-hoc-fpt/truong-dai-hoc-fpt-luon-san-sang-chao-don-khach-tham-quan/"
       },
       "sources": [
         {
@@ -2202,12 +2202,16 @@
         }
       ],
       "visit": {
-        "updated": "2026-11-05",
+        "updated": "2026-11-19",
         "getting_there": "FPT University’s Hòa Lạc campus is in the Education and Training Zone of Hòa Lạc Hi-Tech Park, Km29 Thăng Long Boulevard (FPT University’s address). OpenStreetMap shows a bus stop called “Đại học FPT Hòa Lạc” at the campus edge; routes and timetables are unverified.\n\nParking: unverified.",
         "exact_spot": "On Blockchain Hill, the pine-wooded hill on the campus that FPT renamed for the statue (FPT Education). The statue stands on a black stone pedestal among the pines. The hill isn’t mapped in OpenStreetMap, so the pin is the campus point (21.01353, 105.52526). Check-in works anywhere within 400 m of it, which covers the campus.",
         "photo_tip": "FPT says the statue fades away as you move from the side to the front, so take both angles.\n\nGeneric tip (not from a source): the polished steel reflects the sky, so an overcast day or side light avoids hot spots.",
-        "hours_access": "On university campus grounds. FPT says the area has become a check-in spot for students. Whether visitors from outside the university can walk in, and at what hours, is unverified (OpenStreetMap lists the campus as open daily 07:00–22:00, also unverified). Check with FPT University before you go.",
+        "hours_access": "On FPT University’s Hòa Lạc campus. FPT University says its campuses are open to the community and to visitors, who can come and go freely at no charge, and that opening hours follow the university’s working schedule (FPT University, 6 Jan 2026; the article covers FPT campuses in general and predates the statue). It also says guided visits can be booked. Check with the university before you go.",
         "sources": [
+          {
+            "label": "FPT University, ‘Trường Đại học FPT luôn sẵn sàng chào đón khách tham quan’ (6 Jan 2026, Vietnamese)",
+            "url": "https://daihoc.fpt.edu.vn/cuoc-song-tai-dai-hoc-fpt/truong-dai-hoc-fpt-luon-san-sang-chao-don-khach-tham-quan/"
+          },
           {
             "label": "FPT Education (1 Apr 2026, Vietnamese)",
             "url": "https://fpt.edu.vn/tin-tuc/fpt-edu-tin-tuc-chung/fpt-edu-khanh-thanh-tuong-cha-de-bitcoin-satoshi-nakamoto-tai-campus-hoa-lac"
