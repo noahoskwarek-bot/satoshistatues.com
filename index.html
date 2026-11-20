@@ -1878,7 +1878,8 @@
       if (!isCheckable(s)) {
         checkinHtml = `<span class="ghost-btn" style="cursor:default;opacity:0.7" title="${s.stamp_short ? "This statue isn't on the Satoshi Passport yet" : "This statue isn't installed yet"}">${s.stamp_short || 'No card yet (not installed)'}</span>`;
       } else if (isVisited(s)) {
-        checkinHtml = `<span class="stamp">✓ Card collected ${fmtDate(passport[s.slug].date)}</span><span class="card-share" data-card-slug="${s.slug}" style="display:contents"><button class="ghost-btn" type="button" data-card="share" onmouseenter="cardPhoto(bySlug('${s.slug}'));loadCardFonts()" ontouchstart="cardPhoto(bySlug('${s.slug}'));loadCardFonts()">📤 Share card</button></span>`;
+        preloadCollectible(s);
+        checkinHtml = `<span class="stamp">✓ Card collected ${fmtDate(passport[s.slug].date)}</span><span class="card-share" data-card-slug="${s.slug}" style="display:contents"><button class="ghost-btn" type="button" data-card="share" onmouseenter="cardPhoto(bySlug('${s.slug}'));loadCardFonts();preloadCollectible(bySlug('${s.slug}'))" ontouchstart="cardPhoto(bySlug('${s.slug}'));loadCardFonts();preloadCollectible(bySlug('${s.slug}'))">📤 Share card</button></span>`;
       } else {
         checkinHtml = `<button class="ghost-btn checkin-btn" type="button" data-checkin="${s.slug}">📍 Check in</button>`;
         const W = window.SS_CI_WHAT;
@@ -1951,6 +1952,7 @@
             const saved = savePassport();
             refreshVisitedUI(s);
             if (r.pow && r.pow.me) powMe = r.pow.me;
+            preloadCollectible(s);
             setMsg(s, 'ok', checkinOkHtml(s, saved, visitedCount(), checkable.length) + r.html + (/pc-reveal/.test(r.html) ? '' : shareRowHtml(s)));
             setTimeout(powMountReveal, 0);
           });
@@ -2034,6 +2036,85 @@
       if (sc && sc.code) return { rank: sc.rank, slug: s.slug, n: Number(sc.n), at: sc.at, code: sc.code, earns: !!sc.earns };
       return rankCardAt(s.slug);
     }
+    // When this device has a GPS-verified card with a verify code, Share / Share on X use that
+    // card's front PNG and its /c/CODE page (OG preview = the collectible). No code: keep the city graphic.
+    // The PNG is preloaded before the tap so iOS keeps user activation; if it isn't ready, share text + the /c/ link.
+    const COLLECTIBLE_PAGE = 'https://api.satoshistatues.workers.dev/c/';
+    const powShareCache = {};
+    function withPowCard(fn) {
+      if (window.PowCard) {
+        try { const r = fn(window.PowCard); return r && typeof r.then === 'function' ? r : Promise.resolve(r); }
+        catch (e) { return Promise.resolve(null); }
+      }
+      return new Promise(resolve => {
+        const sc = document.createElement('script');
+        sc.src = window.SS_POWCARD || '/pow-card.js';
+        sc.onload = () => {
+          if (!window.PowCard) { resolve(null); return; }
+          try { const r = fn(window.PowCard); if (r && typeof r.then === 'function') r.then(resolve, () => resolve(null)); else resolve(r); }
+          catch (e) { resolve(null); }
+        };
+        sc.onerror = () => resolve(null);
+        document.head.appendChild(sc);
+      });
+    }
+    function collectibleCard(s) {
+      if (!s) return null;
+      const c = homeCardFor(s);
+      return c && c.code ? c : null;
+    }
+    function collectibleUrl(card) {
+      if (!card || !card.code) return '';
+      if (window.PowCard && window.POW_CARD_DATA) return window.PowCard.shareUrl(card);
+      return COLLECTIBLE_PAGE + encodeURIComponent(card.code);
+    }
+    function collectibleText(s, card) {
+      const cached = s && powShareCache[s.slug];
+      if (cached && cached.text) return cached.text;
+      if (window.PowCard && window.POW_CARD_DATA && card) return window.PowCard.shareText(card);
+      const phrase = 'the Satoshi statue in ' + (s && s.city ? s.city : 'this city');
+      if (card && card.earns === false) return 'I walked to ' + phrase + ' and collected its Proof of Walk card 🟧 #ProofOfWalk #Bitcoin';
+      return 'I walked to ' + phrase + ' and got my first Proof of Walk card 🟧 #ProofOfWalk #Bitcoin';
+    }
+    function collectibleMeta(s) {
+      const card = collectibleCard(s);
+      if (!card) return null;
+      const cached = powShareCache[s.slug] || {};
+      return { card, url: cached.url || collectibleUrl(card), text: cached.text || collectibleText(s, card), ready: !!cached.ready, file: cached.file || null, blob: cached.blob || null, name: cached.name || '' };
+    }
+    function refreshCollectibleHrefs(s) {
+      const meta = collectibleMeta(s);
+      if (!meta || !meta.url) return;
+      document.querySelectorAll('[data-card-slug="' + s.slug + '"] [data-card="x"]').forEach(a => {
+        if (a.tagName === 'A') a.setAttribute('href', xIntent(meta.text, meta.url));
+      });
+    }
+    function preloadCollectible(s) {
+      const card = collectibleCard(s);
+      if (!card) return;
+      const cur = powShareCache[s.slug];
+      if (cur && (cur.ready || cur.promise)) return;
+      const entry = { ready: false, card, url: collectibleUrl(card), text: collectibleText(s, card) };
+      entry.promise = withPowCard(async P => {
+        await P.load();
+        entry.url = P.shareUrl(card);
+        entry.text = P.shareText(card);
+        const blob = await P.png('front', card, {});
+        const d = window.POW_CARD_DATA, st = d && d.statues[card.slug], ranks = d && d.ranks;
+        const k = P.rankKey(card.rank);
+        const share = ranks && ranks[k] ? ranks[k].share : k;
+        const name = 'proof-of-walk-' + ((st && st.page) || s.page) + '-' + share + (card.earns === false ? '-' + String(card.n).padStart(2, '0') : '') + '.png';
+        let file = null;
+        try { file = new File([blob], name, { type: 'image/png' }); } catch (e) {}
+        entry.blob = blob; entry.file = file; entry.name = name; entry.ready = true;
+        refreshCollectibleHrefs(s);
+      }).catch(() => { entry.promise = null; });
+      powShareCache[s.slug] = entry;
+    }
+    function preloadVisitedCollectibles() {
+      checkable.forEach(s => { if (isVisited(s) && collectibleCard(s)) preloadCollectible(s); });
+    }
+    window.SSCollectibleShare = { meta: collectibleMeta, preload: preloadCollectible, cache: powShareCache };
     const TIER = n => n === 21 ? ['Legendary', 5] : n === 20 ? ['Ultra rare', 4] : n >= 17 ? ['Rare', 3] : n >= 11 ? ['Uncommon', 2] : ['Common', 1];
     function cardsLineHtml() {
       const m = powMe, n = visitedCount(), total = checkable.length;
@@ -2111,6 +2192,7 @@
             const saved = savePassport();
             refreshVisitedUI(s);
             if (r.pow && r.pow.me) powMe = r.pow.me;
+            preloadCollectible(s);
             renderPassportList(s.slug);
             refreshBadge();
             show('ok', (saved
@@ -2143,7 +2225,7 @@
       fetch(window.SS_API + '/api/pow/me', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ device_id: dev }) })
         .then(r => r.json()).then(j => {
           if (!j || !j.ok) { el.hidden = true; return; }
-          powMe = j.me; renderPassportList();
+          powMe = j.me; renderPassportList(); preloadVisitedCollectibles();
           if (!j.me.rank || !j.me.rank.label) return idle();
           el.innerHTML = (j.me.order ? '⚡ <strong>Full Node</strong> on Proof of Walk · ' + j.me.distinct_stamps + ' cards'
             : j.me.genesis ? '🧱 <strong>Genesis Block</strong> on Proof of Walk · collect 1 more card to reach Full Node'
@@ -2406,10 +2488,33 @@
     function xIntent(text, url) { return `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`; }
     function shareRowHtml(s) {
       cardPhoto(s); loadCardFonts();
-      return `<div class="card-share" data-card-slug="${s.slug}"><button class="ghost-btn" type="button" data-card="share">📤 Share card</button><a class="ghost-btn" href="${xIntent(statueShareText(s), statueUrl(s))}" target="_blank" rel="noopener noreferrer">Share on X</a><button class="ghost-btn" type="button" data-card="save">⬇️ Save image</button><button class="ghost-btn" type="button" data-card="story">📱 Story</button></div>`;
+      preloadCollectible(s);
+      const meta = collectibleMeta(s);
+      const text = meta ? meta.text : statueShareText(s);
+      const url = meta ? meta.url : statueUrl(s);
+      return `<div class="card-share" data-card-slug="${s.slug}" data-share-kind="${meta ? 'collectible' : 'city'}"><button class="ghost-btn" type="button" data-card="share">📤 Share card</button><a class="ghost-btn" data-card="x" href="${xIntent(text, url)}" target="_blank" rel="noopener noreferrer">Share on X</a><button class="ghost-btn" type="button" data-card="save">⬇️ Save image</button><button class="ghost-btn" type="button" data-card="story">📱 Story</button></div>`;
     }
     // Synchronous up to navigator.share() so iOS keeps the tap's user activation.
+    function shareCollectible(s) {
+      const meta = collectibleMeta(s);
+      if (!meta) return false;
+      const packed = meta.text + (meta.url && meta.text.indexOf(meta.url) < 0 ? ' ' + meta.url : '');
+      if (meta.file && navigator.canShare && navigator.share && navigator.canShare({ files: [meta.file] })) {
+        navigator.share({ files: [meta.file], text: packed, title: 'Proof of Walk' })
+          .catch(e => { if (!e || e.name !== 'AbortError') { if (meta.blob) downloadBlob(meta.blob, meta.name); } });
+        return true;
+      }
+      if (navigator.share) {
+        navigator.share({ text: meta.text, url: meta.url, title: 'Proof of Walk' })
+          .catch(e => { if (!e || e.name !== 'AbortError') copyText(meta.url).then(ok => toast(ok ? 'Link to your card copied' : meta.url)); });
+        return true;
+      }
+      if (meta.blob) { downloadBlob(meta.blob, meta.name); return true; }
+      copyText(meta.url).then(ok => toast(ok ? 'Link to your card copied' : meta.url));
+      return true;
+    }
     function shareCard(s, size, complete) {
+      if (!complete && s && collectibleCard(s) && shareCollectible(s)) return;
       let f;
       try { f = cardFile({ statue: s, size, complete }); } catch (e) { toast("Couldn't create the image in this browser."); return; }
       const text = complete ? `${completeShareText()} ${SITE_URL}/` : s ? `${statueShareText(s)} ${statueUrl(s)}` : shareText();
@@ -2431,7 +2536,23 @@
         else shareCard(null, act === 'story' ? 'story' : undefined, true);
         return;
       }
-      if (act === 'save') { try { const f = cardFile({ statue: s }); downloadBlob(f.blob, f.name); } catch (e) { toast("Couldn't create the image in this browser."); } }
+      if (act === 'x') {
+        const meta = s && collectibleMeta(s);
+        if (meta && meta.url) { b.setAttribute('href', xIntent(meta.text, meta.url)); }
+        return;
+      }
+      if (act === 'save') {
+        const meta = s && collectibleMeta(s);
+        if (meta) {
+          if (meta.blob) { downloadBlob(meta.blob, meta.name || 'proof-of-walk-card.png'); return; }
+          preloadCollectible(s);
+          const p = powShareCache[s.slug] && powShareCache[s.slug].promise;
+          if (p) p.then(() => { const c = collectibleMeta(s); if (c && c.blob) downloadBlob(c.blob, c.name); else toast("Couldn't create the image in this browser."); });
+          else toast("Couldn't create the image in this browser.");
+          return;
+        }
+        try { const f = cardFile({ statue: s }); downloadBlob(f.blob, f.name); } catch (e) { toast("Couldn't create the image in this browser."); }
+      }
       else if (act === 'story') shareCard(s, 'story');
       else shareCard(s);
     });
@@ -2641,7 +2762,27 @@
     lbClaim();
     lbCounts();
     // Deep links: /?s=vienna or /#vienna (the statue pages' "Open on the map") zoom to street level and open the pin's popup.
-    // Other query params (?preview=complete, …) and #passport are left alone.
+    // Other query params (?preview=complete, ?preview=share-card, …) and #passport are left alone.
+    // Local preview only (?preview=share-card|share-card-city|share-row|share-row-city): in-memory El Zonte stamp,
+    // no localStorage write and no API writes. share-card includes a mock verify code so Share uses the collectible;
+    // share-card-city is the no-code fallback. share-row / share-row-city also show the post-check-in share row.
+    const PREVIEW_SHARE = new URLSearchParams(location.search).get('preview') || '';
+    const PREVIEW_SHARE_ON = /^(share-card|share-card-city|share-row|share-row-city)$/.test(PREVIEW_SHARE);
+    const PREVIEW_SHARE_WITH_CARD = PREVIEW_SHARE === 'share-card' || PREVIEW_SHARE === 'share-row';
+    function applySharePreview() {
+      if (!PREVIEW_SHARE_ON) return;
+      const ez = bySlug('el-zonte') || statues.find(st => st.page === 'el-zonte');
+      if (!ez) return;
+      if (!passport[ez.slug]) passport[ez.slug] = { date: '2026-11-19T18:00:00.000Z' };
+      if (PREVIEW_SHARE_WITH_CARD) {
+        powMe = { stamp_cards: { [ez.slug]: { rank: 'confirmed', n: 1, at: '2026-11-19T18:00:00.000Z', code: 'PW-PREV-CARD', earns: true } }, genesis_progress: 1, genesis_at: 3 };
+        preloadCollectible(ez);
+      }
+      refreshVisitedUI(ez);
+      if (PREVIEW_SHARE === 'share-row' || PREVIEW_SHARE === 'share-row-city') {
+        setMsg(ez, 'ok', checkinOkHtml(ez, true, visitedCount(), checkable.length) + shareRowHtml(ez));
+      }
+    }
     const DEEP_ZOOM = 15;
     function deepKey() {
       const q = new URLSearchParams(location.search).get('s');
@@ -2755,7 +2896,14 @@
       }, off, { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 });
     }
     // Run once the map and the (inline) statue markers are ready and layout has settled.
-    map.whenReady(() => requestAnimationFrame(() => requestAnimationFrame(openFromLocation)));
+    map.whenReady(() => requestAnimationFrame(() => requestAnimationFrame(() => {
+      applySharePreview();
+      if (PREVIEW_SHARE_ON && location.hash !== '#passport' && !statueFromLocation()) {
+        const ez = bySlug('el-zonte') || statues.find(st => st.page === 'el-zonte');
+        if (ez) focusStatue(ez);
+      }
+      openFromLocation();
+    })));
     window.addEventListener('hashchange', openFromLocation);
   </script>
   <script data-goatcounter="https://satoshistatues.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>

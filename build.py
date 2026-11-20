@@ -2848,7 +2848,7 @@ def pow_cards_page(data):
     <p class="note">Every card has a verify code like <strong>PW-7K3Q-9QX2</strong> and a QR code. Scan it, or type it on the <a href="/v/">verify page</a>: it shows only the statue, the date and the rank. No name, no exact time, no location.</p>
 
     <h2>Show yours off</h2>
-    <p class="note">Right after a check-in that earns a rank, tap <strong>Share</strong> under your card to post it, or save the image. The link you share goes to a page for that statue and rank, for example
+    <p class="note">After you check in, tap <strong>Share</strong> under your card to post it, or save the image. You can also open your passport later, tap the card and share it there. The link goes to a page for the exact card you collected — the statue, the rank at that check-in, the card number and rarity. Cards that don’t yet have a verify code still use the statue-and-rank page, for example
       {', '.join(f'<a href="/proof-of-walk/share/genesis-block/{s["page"]}/">Genesis Block at {e(s["city"])}</a>' for s in ex)}.</p>
     <p class="note">You can also download print-ready files of your card (front and back) from your card on the <a href="/proof-of-walk/">Proof of Walk</a> page. Ordering a printed card is coming soon.</p>
     <div class="actions"><a class="btn primary" href="/proof-of-walk/">👣 Proof of Walk</a><a class="btn" href="/leaderboard/">🏆 Leaderboard</a><a class="btn" href="/">🗺️ Find a statue</a></div>
