@@ -2,19 +2,6 @@
   "_comment": "Upcoming Bitcoin events shown on statue pages ('Upcoming Bitcoin events nearby'). Format: see EVENTS.md. Only add an event after confirming its dates on an official source: the organizer's own site or blog, their X account, or a ticketing page (Satlantis, Luma, Eventbrite, Meetup) the organizer posted. Never infer dates from past editions or from third-party listings the organizer did not post. Past events drop off automatically (build time + client-side check).",
   "events": [
     {
-      "name": "Global Bitcoin Circular Economies Summit 2026",
-      "start_date": "2026-11-19",
-      "end_date": "2026-11-20",
-      "city": "El Zonte",
-      "country": "El Salvador",
-      "lat": 13.49699,
-      "lng": -89.44177,
-      "url": "https://www.bitcoinbeach.com/summit-blog/bitcoin-circular-economies-summit-2026",
-      "statue": "el-zonte",
-      "source_url": "https://www.bitcoinbeach.com/summit-blog/bitcoin-circular-economies-summit-2026",
-      "verified": "2026-11-19"
-    },
-    {
       "name": "21MEETUP | Noviembre 2026",
       "start_date": "2026-11-21",
       "city": "Buenos Aires",
