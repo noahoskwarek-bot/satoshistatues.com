@@ -2573,6 +2573,7 @@ CARD_PRINT_NOTE = ('Ordering a printed card is optional and doesn’t change you
 # Exact line from Noah/Grant (2026-10-31 4:50 PM ET), shown under the tier % column on /proof-of-walk/cards/.
 CARD_RARITY_NOTE = "Rarity shows how often a design is drawn. It isn't a measure of value, and cards can't be bought, sold or traded here."
 CARD_OG_VER = 'v1'   # bump when the share images change, so X/Facebook/LinkedIn re-scrape
+CARD_PAIR_OG_VER = 'fb1'   # per-card /c/CODE share images with the card front AND back (Noah 2026-11-20); bump when they change
 CARD_SAYINGS = os.path.join(ROOT, 'tools', 'pow_sayings.json')   # copy of rank-cards/variants/sayings.json
 
 
@@ -2618,7 +2619,8 @@ def write_worker_cardshare(data):
     card-data.js, plus where the share images live. Written by build.py --worker."""
     st = {s['slug']: {'page': s['page'], 'label': s['label'], 'city': s['city'], 'country': s['country'],
                       'tz': s.get('tz') or 'UTC', 'phrase': card_phrase(s)} for s in card_statues(data)}
-    d = {'site': SITE, 'og_ver': CARD_OG_VER, 'og_path': 'img/cards/og/card/{rank}/{page}/{nn}.' + CARD_OG_VER + '.jpg',
+    # og_path: the front + back images (PowCard.ogPair, tools/render_combined_cards.mjs --only-pairs), next to the v1 front-only ones
+    d = {'site': SITE, 'og_ver': CARD_PAIR_OG_VER, 'og_path': 'img/cards/og/card/{rank}/{page}/{nn}.' + CARD_PAIR_OG_VER + '.jpg',
          'statues': st, 'quotes': [{'n': x['n'], 'q': x['quote'], 'by': x['by']} for x in card_quotes()],
          'ranks': {k: {'share': v[0], 'label': v[1], 'emoji': v[3]} for k, v in POW_RANKS.items()},
          'not_affiliated': CARD_NOT_AFFILIATED}

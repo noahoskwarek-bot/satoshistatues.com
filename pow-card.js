@@ -255,8 +255,13 @@
     c.fillStyle = ORANGE; f(c, 800, 26, 'PCInter'); spaced(c, 'GPS-VERIFIED CHECK-IN', W / 2, ly[0], 4, 'center');
     c.fillStyle = '#f5f1e6'; fit(c, st.label, 640, 32, 500, 'PCMono', 20); c.fillText(st.label, W / 2, ly[1]);
     var p = card.at ? localParts(card.at, st.tz) : null;
+    if (o.generic) {   // static share images (one per statue x rank x number): no date, no code; the QR opens the verify page
+      f(c, 500, 30, 'PCMono'); fit(c, st.subtitle, 640, 30, 500, 'PCMono', 18); c.fillText(st.subtitle, W / 2, ly[2]);
+      fit(c, 'Verify at satoshistatues.com/v', 640, 30, 500, 'PCMono', 18); c.fillText('Verify at satoshistatues.com/v', W / 2, ly[3]);
+    } else {
     f(c, 500, 30, 'PCMono'); c.fillText(p ? p.day + ' ' + p.mon + ' ' + p.year + (card.dateOnly ? '' : ' · ' + p.hm + ' ' + p.tz) : 'Date shown on your card', W / 2, ly[2]);   // dateOnly: public share page (date, no time)
     fit(c, 'Verify code: ' + (card.code || 'PW-XXXX-XXXX'), 640, 30, 500, 'PCMono', 18); c.fillText('Verify code: ' + (card.code || 'PW-XXXX-XXXX'), W / 2, ly[3]);
+    }
     if (xh) {
       var xt = xh + ' · Verified', xs = fit(c, xt, 560, 30, 800, 'PCInter', 18), xw = c.measureText(xt).width, x0 = W / 2 - (xw + 40) / 2;
       xCheck(c, x0 + 14, 849, 14); c.fillStyle = '#8ecdf8'; c.textAlign = 'left'; c.fillText(xt, x0 + 40, 849 + xs * .36); c.textAlign = 'center';
@@ -264,11 +269,11 @@
     // QR (EC level M, 4-module quiet zone) on a light tile: 300 units = 450 px on the print file
     var qx = xh ? 355 : 350, qy = xh ? 896 : 878, qs = xh ? 290 : 300; c.fillStyle = '#f5f1e6'; rr(c, qx, qy, qs, qs, 14); c.fill();
     if (window.qrcode) {
-      var qr = window.qrcode(0, 'M'); qr.addData(verifyUrl(card.code || 'PW-XXXX-XXXX')); qr.make();
+      var qr = window.qrcode(0, 'M'); qr.addData(o.generic ? siteOrigin() + '/v/' : verifyUrl(card.code || 'PW-XXXX-XXXX')); qr.make();
       var n = qr.getModuleCount(), m = qs / (n + 8); c.fillStyle = '#101217';
       for (var r = 0; r < n; r++) for (var col = 0; col < n; col++) if (qr.isDark(r, col)) c.fillRect(qx + (col + 4) * m, qy + (r + 4) * m, m + .3, m + .3);
     }
-    c.fillStyle = '#e6edf3'; f(c, 500, 26, 'PCInter'); c.fillText('Scan to verify this card', W / 2, 1214);
+    c.fillStyle = '#e6edf3'; f(c, 500, 26, 'PCInter'); c.fillText(o.generic ? 'Scan to verify a card' : 'Scan to verify this card', W / 2, 1214);
     c.fillStyle = '#9aa3ad'; f(c, 500, 19, 'PCInter'); wrap(c, d.credit, 820).forEach(function (l, i) { c.fillText(l, W / 2, 1258 + i * 26); });
     if (o.sample) { c.save(); c.translate(W / 2, H / 2); c.rotate(-.5); c.fillStyle = 'rgba(247,147,26,.18)'; f(c, 800, 150, 'PCInter'); c.fillText('SAMPLE', 0, 50); c.restore(); }
   }
@@ -327,6 +332,49 @@
     c.fillStyle = ORANGE; f(c, 800, 30, 'PCInter'); c.fillText('satoshistatues.com', X, 596);
     return canvas;
   }
+  // Front + back side by side in one landscape image (Noah 2026-11-20 4:09 PM ET: "It should show the front and back
+  // of card"). Used for Share / Save image. The back shows the check-in date only (no time), like the public /c/CODE page.
+  // 2170 x 1540: 70 px margin, 50 px gap, both faces at full 1000 x 1400, over the statue art blurred and darkened.
+  async function pair(canvas, card) {
+    await load(); var st = D().statues[card.slug], im = await art(st.page), M = 70, G = 50;
+    canvas.width = M * 2 + W * 2 + G; canvas.height = M * 2 + H; var c = canvas.getContext('2d');
+    c.fillStyle = '#0d1117'; c.fillRect(0, 0, canvas.width, canvas.height);
+    if (im) { c.save(); c.filter = 'blur(40px) brightness(.38)'; var s = Math.max(canvas.width / im.naturalWidth, canvas.height / im.naturalHeight) * 1.1;
+      c.drawImage(im, (canvas.width - im.naturalWidth * s) / 2, (canvas.height - im.naturalHeight * s) / 2, im.naturalWidth * s, im.naturalHeight * s); c.restore(); }
+    var fc = await render(document.createElement('canvas'), 'front', card, { size: 'portrait' });
+    var bc = await render(document.createElement('canvas'), 'back', Object.assign({}, card, { dateOnly: true }), { size: 'portrait' });
+    c.save(); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 40; c.shadowOffsetY = 12;
+    c.drawImage(fc, M, M); c.drawImage(bc, M + W + G, M); c.restore();
+    return canvas;
+  }
+  async function pngPair(card) { return blob(await pair(document.createElement('canvas'), card)); }
+  // Per-card share image with front + back (1200x630) for /c/CODE: one per statue x rank x card number like ogCard,
+  // so nothing private: front without date, back without date, code or the card's QR (its QR opens the verify page).
+  // Rendered by tools/render_combined_cards.mjs --pair to img/cards/og/card/<rank>/<statue>/NN.<CARD_PAIR_OG_VER>.jpg.
+  async function ogPair(canvas, card) {
+    await load(); var d = D(), st = d.statues[card.slug], k = rankKey(card.rank), n = card.n, t = tierOf(n), im = await art(st.page);
+    canvas.width = 1200; canvas.height = 630; var c = canvas.getContext('2d');
+    c.fillStyle = '#0d1117'; c.fillRect(0, 0, 1200, 630);
+    if (im) { c.save(); c.filter = 'blur(26px) brightness(.4)'; c.drawImage(im, -60, -400, 1320, 1760); c.restore(); }
+    var gc = { slug: card.slug, rank: card.rank, n: n }, CW = 410, CH = 574, Y = 28;
+    var fc = await render(document.createElement('canvas'), 'front', gc, { size: CW, generic: true });
+    var bc = await render(document.createElement('canvas'), 'back', gc, { size: CW, generic: true });
+    c.save(); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 26; c.drawImage(fc, 36, Y, CW, CH); c.drawImage(bc, 36 + CW + 24, Y, CW, CH); c.restore();
+    var X = 36 + CW * 2 + 24 + 34, MW = 1200 - X - 30; c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+    c.fillStyle = ORANGE; f(c, 800, 18, 'PCInter'); spaced(c, 'PROOF OF WALK', X, 92, 3);
+    var city = st.subtitle.split(',')[0]; c.fillStyle = '#fff'; fit(c, city, MW, 46, 800, 'PCInter', 24); c.fillText(city, X, 150);
+    c.fillStyle = '#e6edf3'; f(c, 700, 22, 'PCInter'); c.fillText('card', X, 180);
+    c.fillStyle = '#c9d1d9'; f(c, 500, 18, 'PCInter'); c.fillText('Rank at check-in', X, 238);
+    c.fillStyle = '#f2cc60'; f(c, 800, 24, 'PCInter');
+    wrap(c, d.ranks[k].label, MW).forEach(function (l, i) { c.fillText(l, X, 268 + i * 30); });
+    var nn = (n < 10 ? '0' : '') + n;
+    c.fillStyle = '#c9d1d9'; f(c, 500, 18, 'PCInter'); c.fillText('Card', X, 356);
+    c.fillStyle = '#f5f1e6'; f(c, 600, 26, 'PCMono'); c.fillText('No. ' + nn + ' / 21', X, 388);
+    c.fillStyle = t === 'Common' ? hsl(d.quotes[n - 1].hue, 55, 62) : rainbow(c, X, 0, X + MW, 0); f(c, 800, 20, 'PCInter'); c.fillText(t.toUpperCase(), X, 418);
+    c.fillStyle = '#e6edf3'; f(c, 500, 18, 'PCInter'); wrap(c, 'A real walk to a real statue, verified by GPS.', MW).forEach(function (l, i) { c.fillText(l, X, 476 + i * 24); });
+    c.fillStyle = ORANGE; f(c, 800, 20, 'PCInter'); c.fillText('satoshistatues.com', X, 586);
+    return canvas;
+  }
   // City-free rank share image (1200x630) for the launch rank pages /proof-of-walk/share/<rank>/ (and their old NN
   // links): the rank badge and seal, the rank name and its rule, no statue. img/cards/og/rank/<rank>.<ver>.jpg.
   async function ogRank(canvas, rank) {
@@ -379,7 +427,8 @@
         el.querySelectorAll('[data-flip]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); }); });
     });
     // Pre-render the PNG now so navigator.share runs inside the tap's user activation (iOS drops it after a slow fetch).
-    var fileBlob = await blob(faces[0]), file = null, blobUrl = URL.createObjectURL(fileBlob);
+    // Share / Save image: front and back side by side (Noah 2026-11-20). The print buttons below stay one side each.
+    var fileBlob = await pngPair(card), file = null, blobUrl = URL.createObjectURL(fileBlob);
     try { file = new File([fileBlob], name, { type: 'image/png' }); } catch (e) {}
     var save = el.querySelector('[data-pc="save"]'); save.href = blobUrl;
     save.addEventListener('click', function (ev) { analytics('save'); if (IOS) { ev.preventDefault(); var w = window.open(blobUrl, '_blank'); if (!w) location.href = blobUrl; toast(el, 'Press and hold the image to save it.'); } });
@@ -404,5 +453,5 @@
     });
     return el;
   }
-  window.PowCard = { load: load, render: render, png: png, og: og, ogCard: ogCard, ogRank: ogRank, mount: mount, cardPage: cardPage, shareUrl: shareUrl, shareText: shareText, localParts: localParts, rankKey: rankKey };
+  window.PowCard = { load: load, render: render, png: png, og: og, ogCard: ogCard, ogPair: ogPair, pair: pair, pngPair: pngPair, ogRank: ogRank, mount: mount, cardPage: cardPage, shareUrl: shareUrl, shareText: shareText, localParts: localParts, rankKey: rankKey };
 })();

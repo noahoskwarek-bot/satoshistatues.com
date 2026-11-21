@@ -2,6 +2,8 @@
 //   img/cards/og/<rank>/<page>.<ver>.jpg  1200x630 generic share images (no date, code or quote), 3 ranks x 12 statues
 //   img/cards/og/card/<rank>/<page>/NN.<ver>.jpg  1200x630 per-card share images for the Worker's /c/CODE pages:
 //     statue x rank at check-in x card number (3 x 12 x 21); --only-cards renders just these, --no-cards skips them
+//   img/cards/og/card/<rank>/<page>/NN.<pairver>.jpg  1200x630 front + back per-card images (PowCard.ogPair, CARD_PAIR_OG_VER);
+//     --only-pairs renders just these (combine with --only <slug> for one statue)
 //   img/cards/og/rank/<rank>.<ver>.jpg  1200x630 city-free rank images (always; --only-ranks renders just these)
 //   img/cards/sample-front.<ver>.jpg, sample-back.<ver>.jpg, sample-back-21.<ver>.jpg  600x840 explainer samples
 // Usage: node tools/render_combined_cards.mjs [--chrome /usr/bin/google-chrome] [--pw /path/to/node_modules/playwright-core] [--only <slug>]
@@ -17,6 +19,7 @@ const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? proces
 const pw = arg('--pw', process.env.PLAYWRIGHT_CORE || '/workspace/cc-tools/node_modules/playwright-core');
 const { chromium } = await import(pathToFileURL(join(pw, 'index.mjs')).href);
 const VER = (readFileSync(join(ROOT, 'build.py'), 'utf8').match(/CARD_OG_VER = '([^']+)'/) || [])[1] || 'v1';
+const PAIR_VER = (readFileSync(join(ROOT, 'build.py'), 'utf8').match(/CARD_PAIR_OG_VER = '([^']+)'/) || [])[1] || 'fb1';
 const TYPES = { '.txt': 'text/plain', '.html': 'text/html', '.js': 'text/javascript', '.jpg': 'image/jpeg', '.png': 'image/png', '.woff': 'font/woff', '.woff2': 'font/woff2', '.svg': 'image/svg+xml' };
 const srv = http.createServer((req, res) => {
   let p = decodeURIComponent(new URL(req.url, 'http://x').pathname); if (p.endsWith('/')) p += 'index.html';
@@ -35,6 +38,14 @@ const only = arg('--only', '');
 if (only) { if (!data.statues[only]) throw new Error('--only: unknown statue ' + only); data.statues = { [only]: data.statues[only] }; }
 const save = (rel, b64) => { const f = join(ROOT, rel); mkdirSync(dirname(f), { recursive: true }); writeFileSync(f, Buffer.from(b64, 'base64')); };
 let n = 0, m = 0;
+if (process.argv.includes('--only-pairs')) {   // front + back per-card images for the Worker's /c/CODE pages
+  let k2 = 0;
+  for (const [slug, st] of Object.entries(data.statues)) for (const [k, r] of Object.entries(data.ranks)) for (let c = 1; c <= 21; c++) {
+    const b64 = await page.evaluate(async ([slug, k, c]) => (await window.PowCard.ogPair(document.createElement('canvas'), { slug, rank: k, n: c })).toDataURL('image/jpeg', 0.8).split(',')[1], [slug, k, c]);
+    save(`img/cards/og/card/${r.share}/${st.page}/${String(c).padStart(2, '0')}.${PAIR_VER}.jpg`, b64); k2++;
+  }
+  console.log(`wrote ${k2} front + back per-card share images (${PAIR_VER})`); await browser.close(); srv.close(); process.exit(0);
+}
 const onlyCards = process.argv.includes('--only-cards'), noCards = process.argv.includes('--no-cards');
 if (!onlyCards) for (const [slug, st] of Object.entries(data.statues)) for (const [k, r] of Object.entries(data.ranks)) {
   const b64 = await page.evaluate(async ([slug, k]) => (await window.PowCard.og(document.createElement('canvas'), { slug, rank: k })).toDataURL('image/jpeg', 0.88).split(',')[1], [slug, k]);
