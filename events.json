@@ -15,6 +15,30 @@
       "verified": "2026-11-19"
     },
     {
+      "name": "21MEETUP | Noviembre 2026",
+      "start_date": "2026-11-21",
+      "city": "Buenos Aires",
+      "country": "Argentina",
+      "lat": -34.54648,
+      "lng": -58.48785,
+      "url": "https://luma.com/mitj8wxn",
+      "statue": "buenos-aires",
+      "source_url": "https://x.com/BitcoinAR/status/2123519708531970130",
+      "verified": "2026-11-21"
+    },
+    {
+      "name": "Bitcoin Maribor Meetup #35 2026",
+      "start_date": "2026-11-26",
+      "city": "Maribor",
+      "country": "Slovenia",
+      "lat": 46.53778,
+      "lng": 15.64122,
+      "url": "https://www.meetup.com/bitcoin-maribor/events/317510939/",
+      "statue": "kranj",
+      "source_url": "https://www.meetup.com/bitcoin-maribor/events/317510939/",
+      "verified": "2026-11-21"
+    },
+    {
       "name": "Bitcoin Japan 2026",
       "start_date": "2026-11-27",
       "end_date": "2026-11-28",
