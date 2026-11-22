@@ -2,18 +2,6 @@
   "_comment": "Upcoming Bitcoin events shown on statue pages ('Upcoming Bitcoin events nearby'). Format: see EVENTS.md. Only add an event after confirming its dates on an official source: the organizer's own site or blog, their X account, or a ticketing page (Satlantis, Luma, Eventbrite, Meetup) the organizer posted. Never infer dates from past editions or from third-party listings the organizer did not post. Past events drop off automatically (build time + client-side check).",
   "events": [
     {
-      "name": "21MEETUP | Noviembre 2026",
-      "start_date": "2026-11-21",
-      "city": "Buenos Aires",
-      "country": "Argentina",
-      "lat": -34.54648,
-      "lng": -58.48785,
-      "url": "https://luma.com/mitj8wxn",
-      "statue": "buenos-aires",
-      "source_url": "https://x.com/BitcoinAR/status/2123519708531970130",
-      "verified": "2026-11-21"
-    },
-    {
       "name": "Bitcoin Maribor Meetup #35 2026",
       "start_date": "2026-11-26",
       "city": "Maribor",
@@ -37,6 +25,18 @@
       "statue": "tokyo",
       "source_url": "https://btc-jpn.com/",
       "verified": "2026-10-21"
+    },
+    {
+      "name": "秋の夜長に、ビットコイン関連の“何か”を作っている人たちのお月見座談会 2026",
+      "start_date": "2026-11-28",
+      "city": "Tokyo",
+      "country": "Japan",
+      "lat": 35.68897,
+      "lng": 139.72854,
+      "url": "https://luma.com/d67mvqbg",
+      "statue": "tokyo",
+      "source_url": "https://x.com/mura0306/status/2122963839042109758",
+      "verified": "2026-11-22"
     },
     {
       "name": "Anti-Fragile Bitcoin 2026",
