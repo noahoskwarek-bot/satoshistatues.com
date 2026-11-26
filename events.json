@@ -51,6 +51,54 @@
       "verified": "2026-11-19"
     },
     {
+      "name": "Bitcoin Ljubljana Meetup #48 2026",
+      "start_date": "2026-12-02",
+      "city": "Ljubljana",
+      "country": "Slovenia",
+      "lat": 46.05803,
+      "lng": 14.50079,
+      "url": "https://www.meetup.com/bitcoin-ljubljana/events/317563218/",
+      "statue": "kranj",
+      "source_url": "https://www.meetup.com/bitcoin-ljubljana/events/317563218/",
+      "verified": "2026-11-26"
+    },
+    {
+      "name": "Bitcoin Self-Custody Workshop 2026",
+      "start_date": "2026-12-03",
+      "city": "Lugano",
+      "country": "Switzerland",
+      "lat": 46.01089,
+      "lng": 8.95821,
+      "url": "https://luma.com/08u73zly",
+      "statue": "lugano",
+      "source_url": "https://x.com/bitcoin_usi/status/2124881455541063728",
+      "verified": "2026-11-26"
+    },
+    {
+      "name": "TBB First Friday 2026",
+      "start_date": "2026-12-04",
+      "city": "Tokyo",
+      "country": "Japan",
+      "lat": 35.68897,
+      "lng": 139.72854,
+      "url": "https://luma.com/f5zsgbth",
+      "statue": "tokyo",
+      "source_url": "https://luma.com/f5zsgbth",
+      "verified": "2026-11-26"
+    },
+    {
+      "name": "Tokyo Bitcoin Base 忘年会 — Sats & Cheers 2026",
+      "start_date": "2026-12-23",
+      "city": "Tokyo",
+      "country": "Japan",
+      "lat": 35.68897,
+      "lng": 139.72854,
+      "url": "https://luma.com/fcpapgt8",
+      "statue": "tokyo",
+      "source_url": "https://luma.com/fcpapgt8",
+      "verified": "2026-11-26"
+    },
+    {
       "name": "BitcoinDay Naples 2027",
       "start_date": "2027-01-16",
       "city": "Naples, Florida",
