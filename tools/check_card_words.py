@@ -7,7 +7,7 @@ worth, resale, limited edition, chance, value, prize, pool, "your sats", "founta
 spin(s), slot(s), casino, gamble, hit(s), chase, valuable, lucky pull. No exceptions (the one approved rarity line on the
 cards page is allowed verbatim). Words are matched whole ('white', 'window' and 'chased'-free copy are fine).
 With --worker DIR it also scans the Worker's per-card share page module (DIR/src/share.js: its string literals).
-Print copy (the "Get a print" panel in pow-card.js, card-data.js print_* fields, the print lines on the cards page and
+Print copy (the foil-print panel in pow-card.js, card-data.js print_* fields, the print lines on the cards page and
 build.py's CARD_PRINT_NOTE even while ordering is switched off) is also checked for draw, giveaway, 1,021 and random
 (Noah 2026-10-31 2:26 PM ET).
 Usage: python3 tools/check_card_words.py [SITE_DIR]
@@ -30,7 +30,7 @@ def print_copy(root):
     js = open(os.path.join(root, 'pow-card.js'), encoding='utf-8').read()
     m = re.search(r"'<section class=\"pc-print\".*?</section>'", js, re.S)
     assert m, 'print panel not found in pow-card.js'
-    out.append(('pow-card.js (Get a print panel)', m.group(0)))
+    out.append(('pow-card.js (foil print panel)', m.group(0)))
     data = open(os.path.join(root, 'proof-of-walk', 'card-data.js'), encoding='utf-8').read()
     out += [('card-data.js ' + k, v) for k, v in re.findall(r'"(print_\w*)":"((?:[^"\\]|\\.)*)"', data)]
     page = open(os.path.join(root, 'proof-of-walk', 'cards', 'index.html'), encoding='utf-8').read()

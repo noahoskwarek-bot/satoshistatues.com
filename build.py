@@ -2344,11 +2344,20 @@ POW_JS = r"""<script src="/share.js"></script>
     var b = document.querySelector('[data-cg="' + String(r.slug).replace(/[^a-z0-9-]/g, '') + '"]'); if (!b) return false;
     b.click(); return true;
   }
+  function reopenPrintedCard(me) {
+    var code = ''; try { code = new URLSearchParams(location.search).get('print_ordered') || ''; } catch (e) { return false; }
+    if (!code || !me) return false;
+    var slug = null, cards = me.stamp_cards || {};
+    Object.keys(cards).forEach(function (s) { if (cards[s] && cards[s].code && String(cards[s].code).toUpperCase() === code.toUpperCase()) slug = s; });
+    if (!slug) return false;
+    var b = document.querySelector('[data-cg="' + String(slug).replace(/[^a-z0-9-]/g, '') + '"]'); if (!b) return false;
+    b.click(); return true;
+  }
   function loadMe() {
     var el = $('pow-me'); if (!el) return;
     if (!dev) { renderRecover(null); if (xNote && $('pow-rmsg')) $('pow-rmsg').textContent = xNote; el.innerHTML = '<div class="pow-rank">No rank yet</div><p class="pow-sub">Check in at a statue (within 150 m) to collect your first card. Open a statue on the <a href="/">map</a> or its page and tap <strong>Check in here</strong>.</p>' +
       '<h3 class="pow-cards-h">Your passport cards</h3><p class="cg-line">' + cardsLine(null) + '</p>' + gridHtml(null); wireGrid(el, null); return; }
-    post('/api/pow/me', { device_id: dev }).then(function (j) { if (j.ok) { renderMe(j.me); if (xPending) showConfirm(); else if (reopenStampedCard(j.me)) {} else if (location.hash === '#xlink' && $('xlink')) $('xlink').scrollIntoView({ block: 'center' }); } else off(el); }).catch(function () { off(el); });
+    post('/api/pow/me', { device_id: dev }).then(function (j) { if (j.ok) { renderMe(j.me); if (xPending) showConfirm(); else if (reopenPrintedCard(j.me)) {} else if (reopenStampedCard(j.me)) {} else if (location.hash === '#xlink' && $('xlink')) $('xlink').scrollIntoView({ block: 'center' }); } else off(el); }).catch(function () { off(el); });
   }
   function loadList() {
     var el = $('pow-list'); if (!el) return;
@@ -2653,13 +2662,13 @@ POW_RANKS = {  # rank key -> (share slug, label, badge text, emoji)
 CARD_CREDIT = ('Quotes attributed as shown. Headline from The Times, 3 Jan 2009, as embedded in Bitcoin’s genesis block. '
                'Not affiliated with or endorsed by The Times, any statue artist, owner or city.')   # approved D1
 CARD_NOT_AFFILIATED = 'Not affiliated with or endorsed by The Times, any statue artist, owner or city.'
-# Print ordering (spec §5.7) is not open yet. Until CARD_PRINT_ORDERING_OPEN is True the price/disclosure line below is
-# not emitted anywhere (not in card-data.js, not in any HTML). Print copy never uses draw, luck/lucky, chance, odds or
-# giveaway wording (Noah 2026-10-31 2:26 PM ET); tools/check_card_words.py checks this constant and the print panel.
-# The wording below is a shortened version of Grant's §5.6 line; have Grant re-check it before switching the flag on.
-CARD_PRINT_ORDERING_OPEN = False
+# Print ordering is open for the foil-print preview (strict 1-of-1 commemorative foil, $21 shipped).
+# Print copy never uses draw, luck/lucky, chance, odds or giveaway wording (Noah 2026-10-31 2:26 PM ET);
+# tools/check_card_words.py checks this constant and the print panel.
+CARD_PRINT_ORDERING_OPEN = True
 CARD_PRINT_NOTE = ('Ordering a printed card is optional and doesn’t change your rank or your card. '
-                   'Printed cards cost the same at every tier and are just for fun.')
+                   'It’s a commemorative keepsake of the card you already earned, $21 shipped worldwide. '
+                   'One physical foil print per earned card.')
 # Exact line from Noah/Grant (2026-10-31 4:50 PM ET), shown under the tier % column on /proof-of-walk/cards/.
 CARD_RARITY_NOTE = "Rarity shows how often a design is drawn. It isn't a measure of value, and cards can't be bought, sold or traded here."
 CARD_OG_VER = 'v1'   # bump when the share images change, so X/Facebook/LinkedIn re-scrape
@@ -2944,7 +2953,7 @@ def pow_cards_page(data):
     <h2>Show yours off</h2>
     <p class="note">After you check in, tap <strong>Share</strong> under your card to post it, or save the image. You can also open your passport later, tap the card and share it there. The link goes to a page for the exact card you collected — the statue, the rank at that check-in, the card number and rarity. Cards that don’t yet have a verify code still use the statue-and-rank page, for example
       {', '.join(f'<a href="/proof-of-walk/share/genesis-block/{s["page"]}/">Genesis Block at {e(s["city"])}</a>' for s in ex)}.</p>
-    <p class="note">You can also download print-ready files of your card (front and back) from your card on the <a href="/proof-of-walk/">Proof of Walk</a> page. Ordering a printed card is coming soon.</p>
+    <p class="note">From your card on the <a href="/proof-of-walk/">Proof of Walk</a> page you can order one commemorative holographic foil print of a card you already earned, $21 shipped worldwide. One physical foil print per earned card.</p>
     <div class="actions"><a class="btn primary" href="/proof-of-walk/">👣 Proof of Walk</a><a class="btn" href="/leaderboard/">🏆 Leaderboard</a><a class="btn" href="/">🗺️ Find a statue</a></div>
     <p class="credit">{e(CARD_CREDIT)} Card art is original illustration; the hooded walker is a generic figure, not any statue or person.</p>
     {footer(data)}
@@ -3778,7 +3787,8 @@ def embed_box_html():
 # The printable stamp passport (02ed73d) was retired (Noah 2026-10-31 4:52 PM ET): every GPS check-in is now a full
 # Proof of Walk card, so the old URL sends people to /proof-of-walk/. GitHub Pages has no server redirects: same
 # pattern as the share redirects (meta refresh + location.replace + canonical, noindex), not in the sitemap.
-# Card print files (pow-card.js "Get a print") are separate and stay.
+# DIY "Print front / Print back" files were removed from the card UI (Noah 2026-11-27: the 1-of-1 foil order replaces them).
+# The high-res renderer in pow-card.js stays for the offline TCGPrintery batch script.
 PASSPORT_PRINT_TARGET = SITE + '/proof-of-walk/'
 
 

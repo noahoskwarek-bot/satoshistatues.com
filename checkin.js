@@ -243,7 +243,7 @@ function powRankUpHtml(p, s) {
     : `<div class="ci-share"><a class="btn" href="https://x.com/intent/post?text=${encodeURIComponent(rankText)}&url=${encodeURIComponent(url)}" target="_blank" rel="noopener noreferrer">Share on X</a></div>`;
   return `<div class="lb-note pow-up">${head}</div>${share}`;
 }
-// Mount any card reveal that was just shown (pow-card.js renders the card, Share, Save image and Get a print).
+// Mount any card reveal that was just shown (pow-card.js renders the card, Share, Save image and the foil-print order).
 function powMountReveal() {
   const els = document.querySelectorAll('.pc-reveal[data-pc]:not([data-mounted])');
   if (!els.length) return;

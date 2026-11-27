@@ -1,5 +1,5 @@
 // Proof of Walk combined card (statue + rank + quote), design 2. Hand-written; the single renderer for every
-// surface: the card reveal right after a check-in (checkin.js), "Your cards" on /proof-of-walk/, the print files and
+// surface: the card reveal right after a check-in (checkin.js), "Your cards" on /proof-of-walk/, the foil-print order and
 // the generic share images (tools/render_combined_cards.mjs runs this same file in headless Chrome).
 // Data: /proof-of-walk/card-data.js (built by build.py from statues.json + the 21 sayings). QR: /vendor/qrcode.js
 // (MIT, Kazuhiko Arase). Fonts: Inter (site), IBM Plex Serif Medium Italic + IBM Plex Mono (OFL), all self-hosted.
@@ -24,7 +24,7 @@
     return new Promise(function (ok, bad) { var s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = bad; document.head.appendChild(s); });
   }
   function font(fam, url, desc) { try { var f = new FontFace(fam, 'url(' + url + ')', desc); document.fonts.add(f); return f.load().catch(function () {}); } catch (e) { return Promise.resolve(); } }
-  var CSS = '.pc{display:block;margin:12px 0}.pc-rank{text-align:center;font-size:.95rem;color:#e6edf3;margin:0 0 8px}.pc-rank strong{color:#f7931a}.pc-stage{max-width:420px;margin:0 auto}.pc-face{display:block;width:100%;height:auto;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.45)}.pc-face[hidden]{display:none}.pc-flip{display:flex;justify-content:center;gap:0;margin:10px auto 4px;width:max-content;border:1px solid #30363d;border-radius:999px;overflow:hidden}.pc-flip button{min-height:40px;padding:6px 18px;border:0;background:#161b22;color:#c9d1d9;font:600 .88rem inherit;font-family:inherit;cursor:pointer}.pc-flip button[aria-pressed=true]{background:#f7931a;color:#0d1117}.pc-share{max-width:420px;margin:10px auto 0;display:grid;gap:8px}.pc-main{width:100%;min-height:48px;font-size:1rem}.pc-fb{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.pc-fb .btn{justify-content:center;text-align:center;min-height:44px;font-size:.84rem;padding:8px 6px}.pc-xrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.pc-xrow .btn{justify-content:center;text-align:center;min-height:48px;font-size:.9rem;padding:8px 6px;white-space:nowrap}.pc-fb2{grid-template-columns:repeat(2,minmax(0,1fr))}.pc .btn.pc-stamp{background:#e7e9ea;color:#0d1117;border-color:#e7e9ea;font-weight:800}.pc .btn.pc-stamp:disabled{opacity:.7;cursor:wait}.pc-stamp-v{color:#1d9bf0;font-weight:900;margin-right:4px}.pc-xmsg{color:#f0883e}@media (max-width:370px){.pc-xrow .btn{font-size:.8rem;padding:8px 4px}}.pc-hint{font-size:.78rem;color:#8b949e;margin:0;text-align:center}.pc-toast{display:block;color:#3fb950;font-weight:600;min-height:1em}.pc button.btn{font-family:inherit;cursor:pointer}.pc .btn.primary{background:#f7931a;color:#0d1117;border-color:#f7931a}.pc-print{max-width:420px;margin:14px auto 0;background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px 14px}.pc-print h3{font-size:1rem;color:#e6edf3;margin:0 0 4px}.pc-sub{font-size:.84rem;color:#c9d1d9;margin:0 0 8px}.pc-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0}.pc-row .btn{justify-content:center;text-align:center;min-height:44px;font-size:.84rem}.pc-row .pc-soon{grid-column:1/-1;opacity:.55;cursor:not-allowed;border-style:dashed}.pc-fine{font-size:.74rem;color:#8b949e;margin:6px 0 0}';
+  var CSS = '.pc{display:block;margin:12px 0}.pc-rank{text-align:center;font-size:.95rem;color:#e6edf3;margin:0 0 8px}.pc-rank strong{color:#f7931a}.pc-stage{max-width:420px;margin:0 auto}.pc-face{display:block;width:100%;height:auto;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.45)}.pc-face[hidden]{display:none}.pc-flip{display:flex;justify-content:center;gap:0;margin:10px auto 4px;width:max-content;border:1px solid #30363d;border-radius:999px;overflow:hidden}.pc-flip button{min-height:40px;padding:6px 18px;border:0;background:#161b22;color:#c9d1d9;font:600 .88rem inherit;font-family:inherit;cursor:pointer}.pc-flip button[aria-pressed=true]{background:#f7931a;color:#0d1117}.pc-share{max-width:420px;margin:10px auto 0;display:grid;gap:8px}.pc-main{width:100%;min-height:48px;font-size:1rem}.pc-fb{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.pc-fb .btn{justify-content:center;text-align:center;min-height:44px;font-size:.84rem;padding:8px 6px}.pc-xrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.pc-xrow .btn{justify-content:center;text-align:center;min-height:48px;font-size:.9rem;padding:8px 6px;white-space:nowrap}.pc-fb2{grid-template-columns:repeat(2,minmax(0,1fr))}.pc .btn.pc-stamp{background:#e7e9ea;color:#0d1117;border-color:#e7e9ea;font-weight:800}.pc .btn.pc-stamp:disabled{opacity:.7;cursor:wait}.pc-stamp-v{color:#1d9bf0;font-weight:900;margin-right:4px}.pc-xmsg{color:#f0883e}@media (max-width:370px){.pc-xrow .btn{font-size:.8rem;padding:8px 4px}}.pc-hint{font-size:.78rem;color:#8b949e;margin:0;text-align:center}.pc-toast{display:block;color:#3fb950;font-weight:600;min-height:1em}.pc button.btn{font-family:inherit;cursor:pointer}.pc .btn.primary{background:#f7931a;color:#0d1117;border-color:#f7931a}.pc-print{max-width:420px;margin:14px auto 0;background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px 14px}.pc-print h3{font-size:1rem;color:#e6edf3;margin:0 0 4px}.pc-sub{font-size:.84rem;color:#c9d1d9;margin:0 0 8px}.pc-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0}.pc-row .btn{justify-content:center;text-align:center;min-height:44px;font-size:.84rem}.pc-row .pc-soon{grid-column:1/-1;opacity:.55;cursor:not-allowed;border-style:dashed}.pc-fine{font-size:.74rem;color:#8b949e;margin:6px 0 0}.pc-order{grid-column:1/-1;width:100%;font-weight:800}.pc-ordered{grid-column:1/-1;width:100%;background:#161b22;color:#3fb950;border:1px solid #238636;font-weight:800;opacity:1;cursor:default}.pc-banner{background:#12301c;border:1px solid #238636;color:#3fb950;border-radius:8px;padding:10px 12px;margin:0 0 10px;font-size:.9rem;font-weight:600}.pc-modal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.62)}.pc-modal[hidden]{display:none}.pc-md{background:#161b22;border:1px solid #30363d;border-radius:12px;max-width:420px;width:100%;padding:18px 16px;color:#e6edf3;box-shadow:0 16px 40px rgba(0,0,0,.5)}.pc-md h3{margin:0 0 8px;font-size:1.05rem;color:#e6edf3}.pc-md p{margin:0 0 8px;font-size:.9rem;color:#c9d1d9;line-height:1.45}.pc-md ul{margin:0 0 12px;padding:0 0 0 1.1em;color:#c9d1d9;font-size:.9rem;line-height:1.45}.pc-md li{margin:0 0 4px}.pc-md .pc-row{margin-top:12px}';
   function load() {
     if (loaded) return loaded;
     if (!document.getElementById('pc-css')) { var st = document.createElement('style'); st.id = 'pc-css'; st.textContent = CSS; document.head.appendChild(st); }
@@ -295,14 +295,18 @@
     c.fillStyle = '#9aa3ad'; f(c, 500, 19, 'PCInter'); wrap(c, d.credit, 820).forEach(function (l, i) { c.fillText(l, W / 2, 1258 + i * 26); });
     if (o.sample) { c.save(); c.translate(W / 2, H / 2); c.rotate(-.5); c.fillStyle = 'rgba(247,147,26,.18)'; f(c, 800, 150, 'PCInter'); c.fillText('SAMPLE', 0, 50); c.restore(); }
   }
-  // Render one side. size: 'portrait' (1000x1400), 'hd' (2000x2800), 'print' (1650x2250, bleed), or a number (width).
+  // Render one side. size: 'portrait' (1000x1400), 'hd' (2000x2800), 'print' (1650x2250, 1/8 in bleed),
+  // 'tcg' (1630x2220, TCGPrintery Standard 63x88 mm at 600 dpi plus 3 mm bleed), or a number (width).
   async function render(canvas, side, card, o) {
     o = o || {}; await load();
-    var print = o.size === 'print', scale = print ? 1.5 : o.size === 'hd' ? 2 : typeof o.size === 'number' ? o.size / W : 1;
-    canvas.width = print ? 1650 : Math.round(W * scale); canvas.height = print ? 2250 : Math.round(H * scale);
+    var print = o.size === 'print', tcg = o.size === 'tcg';
+    var scale = print ? 1.5 : tcg ? 1 : o.size === 'hd' ? 2 : typeof o.size === 'number' ? o.size / W : 1;
+    canvas.width = tcg ? 1630 : print ? 1650 : Math.round(W * scale);
+    canvas.height = tcg ? 2220 : print ? 2250 : Math.round(H * scale);
     var c = canvas.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, canvas.width, canvas.height);
-    if (print) c.translate(75, 75); c.scale(scale, scale);
-    await (side === 'back' ? back : front)(c, card, { print: print, generic: o.generic, sample: o.sample });
+    if (tcg) { c.translate(71, 71); c.scale(1488 / W, 2078 / H); }
+    else { if (print) c.translate(75, 75); c.scale(scale, scale); }
+    await (side === 'back' ? back : front)(c, card, { print: print || tcg, generic: o.generic, sample: o.sample });
     return canvas;
   }
   function blob(canvas) { return new Promise(function (ok) { canvas.toBlob(ok, 'image/png'); }); }
@@ -410,7 +414,7 @@
     c.fillStyle = ORANGE; f(c, 800, 34, 'PCInter'); c.fillText('satoshistatues.com', X, 570);
     return canvas;
   }
-  // ---------- UI: card view with flip, Share (Web Share API Level 2 + fallbacks) and Get a print ----------
+  // ---------- UI: card view with flip, Share (Web Share API Level 2 + fallbacks) and Order 1-of-1 Foil Card ----------
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); };
   var IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   function toast(el, msg) { var t = el.querySelector('.pc-toast'); if (!t) return; t.textContent = msg; clearTimeout(t._t); t._t = setTimeout(function () { t.textContent = ''; }, 2200); }
@@ -437,7 +441,77 @@
         try { sessionStorage.removeItem(STAMP_KEY); } catch (e) {}
       }).catch(function () { btn.disabled = false; btn.innerHTML = label; msg('Couldn’t reach the server. Please try again.'); try { sessionStorage.removeItem(STAMP_KEY); } catch (e) {} });
   }
-  async function mount(el, card, opt) {
+  function orderBtnHtml(card, opt) {
+    if (!card.code || !stampDevice() || (opt && opt.noOrder)) return '';
+    return '<button class="btn primary pc-order" type="button" data-pc="order">Order 1-of-1 Foil Card · $21 shipped</button>';
+  }
+  function markOrdered(el) {
+    var row = el.querySelector('[id^="pc-order-row-"]'); if (!row) return;
+    row.innerHTML = '<button class="btn pc-ordered" type="button" disabled aria-disabled="true">1-of-1 Foil Card Ordered ✓</button>';
+  }
+  function showPrintBanner(el, msg) {
+    var sec = el.querySelector('.pc-print'); if (!sec || el.querySelector('.pc-banner')) return;
+    var b = document.createElement('p'); b.className = 'pc-banner'; b.setAttribute('role', 'status'); b.textContent = msg;
+    sec.insertBefore(b, sec.firstChild);
+  }
+  function orderedParam() {
+    try { return new URLSearchParams(location.search).get('print_ordered') || ''; } catch (e) { return ''; }
+  }
+  function closePrintModal() { var m = document.getElementById('pc-print-modal'); if (m) m.remove(); }
+  function openPrintModal(card, el) {
+    closePrintModal();
+    var d = D(), st = d.statues[card.slug], city = st ? st.subtitle.split(',')[0] : '', n = serialOf(card);
+    var bits = [];
+    if (n) bits.push('Walker #' + n + (city ? ' in ' + city : ''));
+    if (xHandle(card)) bits.push(xHandle(card) + ' with a blue ✓ Verified');
+    bits.push('the /v/ QR on the back');
+    var of = bits.join(', ');
+    var modal = document.createElement('div');
+    modal.id = 'pc-print-modal'; modal.className = 'pc-modal'; modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true'); modal.setAttribute('aria-labelledby', 'pc-md-h');
+    modal.innerHTML = '<div class="pc-md"><h3 id="pc-md-h">Order a commemorative foil print</h3>' +
+      '<p>A standard 2.5″ × 3.5″ holographic foil trading card. This is a strict 1-of-1 print of your exact card' +
+      (of ? ' (' + esc(of) + ')' : '') + '.</p>' +
+      '<ul><li>$21 shipped worldwide.</li>' +
+      '<li>Printed in weekly batches. Ships in about 1–2 weeks.</li>' +
+      '<li>Optional commemorative keepsake of the card you already earned. Ordering does not change your rank or your card.</li></ul>' +
+      '<div class="pc-row"><button class="btn" type="button" data-pc="md-cancel">Cancel</button>' +
+      '<button class="btn primary" type="button" data-pc="md-go">Continue to checkout</button></div></div>';
+    document.body.appendChild(modal);
+    modal.addEventListener('click', function (ev) { if (ev.target === modal) closePrintModal(); });
+    modal.querySelector('[data-pc="md-cancel"]').addEventListener('click', closePrintModal);
+    modal.querySelector('[data-pc="md-go"]').addEventListener('click', function () { startPrintCheckout(card, el, modal.querySelector('[data-pc="md-go"]')); });
+    modal.querySelector('[data-pc="md-go"]').focus();
+  }
+  function startPrintCheckout(card, el, btn) {
+    var dev = stampDevice(), api = window.SS_API || '', idle = btn && btn.textContent;
+    if (!dev || !window.fetch || !api) { toast(el, 'Couldn’t start checkout on this device.'); return; }
+    if (btn) { btn.disabled = true; btn.textContent = 'Opening checkout…'; }
+    var success = location.origin + '/proof-of-walk/?print_ordered=' + encodeURIComponent(card.code);
+    var cancel = location.origin + (location.pathname || '/') + (location.search || '');
+    fetch(api + '/api/pow/print/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ device_id: dev, card_id: card.code, success_url: success, cancel_url: cancel }) })
+      .then(function (r) { return r.json().then(function (j) { return { status: r.status, j: j }; }); })
+      .then(function (x) {
+        if (x.j && x.j.ok && x.j.checkout_url) { location.href = x.j.checkout_url; return; }
+        if (btn) { btn.disabled = false; btn.textContent = idle; }
+        if (x.j && x.j.error === 'already_ordered') { closePrintModal(); markOrdered(el); toast(el, 'A foil print of this card has already been ordered.'); return; }
+        toast(el, (x.j && x.j.message) || 'Couldn’t start checkout. Please try again.');
+      })
+      .catch(function () { if (btn) { btn.disabled = false; btn.textContent = idle; } toast(el, 'Couldn’t reach the server. Please try again.'); });
+  }
+  function refreshOrderState(el, card, opt) {
+    if (!card.code || !stampDevice() || (opt && opt.noOrder)) return;
+    var returned = orderedParam() && orderedParam().toUpperCase() === String(card.code).toUpperCase();
+    if (returned) { markOrdered(el); showPrintBanner(el, 'Your commemorative foil print is confirmed. It’s a 1-of-1 keepsake of this card, $21 shipped, and goes out in the next weekly batch.'); }
+    var api = window.SS_API || ''; if (!api || !window.fetch) return;
+    fetch(api + '/api/pow/print/status?card_id=' + encodeURIComponent(card.code))
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j && j.ordered) { markOrdered(el); if (returned) showPrintBanner(el, 'Your commemorative foil print is confirmed. It’s a 1-of-1 keepsake of this card, $21 shipped, and goes out in the next weekly batch.'); }
+      }).catch(function () {});
+  }
+    async function mount(el, card, opt) {
     opt = opt || {}; await load(); var d = D(); if (!d.statues[card.slug]) { el.hidden = true; return; }
     var k = rankKey(card.rank), url = shareUrl(card), text = shareText(card), name = fileName(card);
     el.classList.add('pc');
@@ -458,10 +532,8 @@
       : '<div class="pc-fb">' + xBtn + saveBtn + copyBtn + '</div>') +
       (walkerLine(card) ? '<p class="pc-hint" style="color:#f7931a;font-weight:700">🚶 ' + esc(walkerLine(card)) + '</p>' : '') +
       '<p class="pc-hint">Your card shows your check-in date' + (xHandle(card) ? ', verify code and your ' + esc(xHandle(card)) + ' with a blue ✓ Verified' : ' and verify code') + '. <span class="pc-toast" role="status" aria-live="polite"></span></p></div>' +
-      '<section class="pc-print" aria-labelledby="pc-print-h-' + k + '"><h3 id="pc-print-h-' + k + '">🖨️ Get a print</h3>' +
-      '<p class="pc-sub">Print it yourself: print-ready files for the front and back, 1650 × 2250 px each (2.5 × 3.5 in card at 600 dpi, with 1/8 in bleed on every side). Trim to 2.5 × 3.5 in.</p>' +
-      '<div class="pc-row"><button class="btn" type="button" data-print="front">⬇️ Front (print PNG)</button><button class="btn" type="button" data-print="back">⬇️ Back (print PNG)</button></div>' +
-      '<div class="pc-row"><button class="btn pc-soon" type="button" disabled aria-disabled="true">Order a printed card, coming soon</button></div>' +
+      '<section class="pc-print" aria-label="Foil print">' +
+      '<div class="pc-row" id="pc-order-row-' + k + '">' + orderBtnHtml(card, opt) + '</div>' +
       (d.print_note ? '<p class="pc-fine">' + esc(d.print_note) + '</p>' : '') + '<p class="pc-fine">' + esc(d.not_affiliated) + '</p></section>';
     var faces = el.querySelectorAll('.pc-face');
     await Promise.all([render(faces[0], 'front', card, { size: 'portrait' }), render(faces[1], 'back', card, { size: 'portrait' })]);
@@ -470,7 +542,7 @@
         el.querySelectorAll('[data-flip]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); }); });
     });
     // Pre-render the PNG now so navigator.share runs inside the tap's user activation (iOS drops it after a slow fetch).
-    // Share / Save image: front and back side by side (Noah 2026-11-20). The print buttons below stay one side each.
+    // Share / Save image: front and back side by side (Noah 2026-11-20). DIY print-file buttons removed (Noah 2026-11-27: foil order replaces them). High-res render() / png() stay for the TCGPrintery batch script.
     var fileBlob = await pngPair(card), file = null, blobUrl = URL.createObjectURL(fileBlob);
     try { file = new File([fileBlob], name, { type: 'image/png' }); } catch (e) {}
     var save = el.querySelector('[data-pc="save"]'); save.href = blobUrl;
@@ -487,14 +559,9 @@
       if (!p) { el.classList.add('pc-nofile'); toast(el, 'Sharing isn’t available in this browser. Use the buttons below.'); return; }
       p.catch(function (e) { if (!e || e.name !== 'AbortError') { el.classList.add('pc-nofile'); toast(el, 'Use the buttons below to share.'); } });
     });
-    el.querySelectorAll('[data-print]').forEach(function (b) {
-      b.addEventListener('click', async function () {
-        var side = b.getAttribute('data-print'), idle = b.textContent; b.disabled = true; b.textContent = 'Preparing…';
-        var bl = await png(side, card, { size: 'print' }), u = URL.createObjectURL(bl), a = document.createElement('a');
-        a.href = u; a.download = name.replace('.png', '-' + side + '-print-1650x2250.png'); document.body.appendChild(a);
-        if (IOS) window.open(u, '_blank'); else a.click(); a.remove(); b.disabled = false; b.textContent = idle; analytics('print-' + side);
-      });
-    });
+    var ob = el.querySelector('[data-pc="order"]');
+    if (ob) ob.addEventListener('click', function () { analytics('print-order'); openPrintModal(card, el); });
+    refreshOrderState(el, card, opt);
     return el;
   }
   window.PowCard = { load: load, render: render, png: png, og: og, ogCard: ogCard, ogPair: ogPair, pair: pair, pngPair: pngPair, ogRank: ogRank, mount: mount, cardPage: cardPage, shareUrl: shareUrl, shareText: shareText, xTags: xTags, walkerLine: walkerLine, localParts: localParts, rankKey: rankKey };
