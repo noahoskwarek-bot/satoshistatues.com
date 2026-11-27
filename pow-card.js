@@ -24,7 +24,7 @@
     return new Promise(function (ok, bad) { var s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = bad; document.head.appendChild(s); });
   }
   function font(fam, url, desc) { try { var f = new FontFace(fam, 'url(' + url + ')', desc); document.fonts.add(f); return f.load().catch(function () {}); } catch (e) { return Promise.resolve(); } }
-  var CSS = '.pc{display:block;margin:12px 0}.pc-rank{text-align:center;font-size:.95rem;color:#e6edf3;margin:0 0 8px}.pc-rank strong{color:#f7931a}.pc-stage{max-width:420px;margin:0 auto}.pc-face{display:block;width:100%;height:auto;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.45)}.pc-face[hidden]{display:none}.pc-flip{display:flex;justify-content:center;gap:0;margin:10px auto 4px;width:max-content;border:1px solid #30363d;border-radius:999px;overflow:hidden}.pc-flip button{min-height:40px;padding:6px 18px;border:0;background:#161b22;color:#c9d1d9;font:600 .88rem inherit;font-family:inherit;cursor:pointer}.pc-flip button[aria-pressed=true]{background:#f7931a;color:#0d1117}.pc-share{max-width:420px;margin:10px auto 0;display:grid;gap:8px}.pc-main{width:100%;min-height:48px;font-size:1rem}.pc-fb{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.pc-fb .btn{justify-content:center;text-align:center;min-height:44px;font-size:.84rem;padding:8px 6px}.pc-hint{font-size:.78rem;color:#8b949e;margin:0;text-align:center}.pc-toast{display:block;color:#3fb950;font-weight:600;min-height:1em}.pc button.btn{font-family:inherit;cursor:pointer}.pc .btn.primary{background:#f7931a;color:#0d1117;border-color:#f7931a}.pc-print{max-width:420px;margin:14px auto 0;background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px 14px}.pc-print h3{font-size:1rem;color:#e6edf3;margin:0 0 4px}.pc-sub{font-size:.84rem;color:#c9d1d9;margin:0 0 8px}.pc-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0}.pc-row .btn{justify-content:center;text-align:center;min-height:44px;font-size:.84rem}.pc-row .pc-soon{grid-column:1/-1;opacity:.55;cursor:not-allowed;border-style:dashed}.pc-fine{font-size:.74rem;color:#8b949e;margin:6px 0 0}';
+  var CSS = '.pc{display:block;margin:12px 0}.pc-rank{text-align:center;font-size:.95rem;color:#e6edf3;margin:0 0 8px}.pc-rank strong{color:#f7931a}.pc-stage{max-width:420px;margin:0 auto}.pc-face{display:block;width:100%;height:auto;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.45)}.pc-face[hidden]{display:none}.pc-flip{display:flex;justify-content:center;gap:0;margin:10px auto 4px;width:max-content;border:1px solid #30363d;border-radius:999px;overflow:hidden}.pc-flip button{min-height:40px;padding:6px 18px;border:0;background:#161b22;color:#c9d1d9;font:600 .88rem inherit;font-family:inherit;cursor:pointer}.pc-flip button[aria-pressed=true]{background:#f7931a;color:#0d1117}.pc-share{max-width:420px;margin:10px auto 0;display:grid;gap:8px}.pc-main{width:100%;min-height:48px;font-size:1rem}.pc-fb{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.pc-fb .btn{justify-content:center;text-align:center;min-height:44px;font-size:.84rem;padding:8px 6px}.pc-xrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.pc-xrow .btn{justify-content:center;text-align:center;min-height:48px;font-size:.9rem;padding:8px 6px;white-space:nowrap}.pc-fb2{grid-template-columns:repeat(2,minmax(0,1fr))}.pc .btn.pc-stamp{background:#e7e9ea;color:#0d1117;border-color:#e7e9ea;font-weight:800}.pc .btn.pc-stamp:disabled{opacity:.7;cursor:wait}.pc-stamp-v{color:#1d9bf0;font-weight:900;margin-right:4px}.pc-xmsg{color:#f0883e}@media (max-width:370px){.pc-xrow .btn{font-size:.8rem;padding:8px 4px}}.pc-hint{font-size:.78rem;color:#8b949e;margin:0;text-align:center}.pc-toast{display:block;color:#3fb950;font-weight:600;min-height:1em}.pc button.btn{font-family:inherit;cursor:pointer}.pc .btn.primary{background:#f7931a;color:#0d1117;border-color:#f7931a}.pc-print{max-width:420px;margin:14px auto 0;background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px 14px}.pc-print h3{font-size:1rem;color:#e6edf3;margin:0 0 4px}.pc-sub{font-size:.84rem;color:#c9d1d9;margin:0 0 8px}.pc-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0}.pc-row .btn{justify-content:center;text-align:center;min-height:44px;font-size:.84rem}.pc-row .pc-soon{grid-column:1/-1;opacity:.55;cursor:not-allowed;border-style:dashed}.pc-fine{font-size:.74rem;color:#8b949e;margin:6px 0 0}';
   function load() {
     if (loaded) return loaded;
     if (!document.getElementById('pc-css')) { var st = document.createElement('style'); st.id = 'pc-css'; st.textContent = CSS; document.head.appendChild(st); }
@@ -57,11 +57,23 @@
   // without a code keep the old static page /proof-of-walk/share/<rank>/<statue>/ (those URLs stay unchanged).
   function cardPage(code) { return D().card_page && code ? D().card_page + encodeURIComponent(code) : ''; }
   function shareUrl(card) { var st = D().statues[card.slug]; return cardPage(card.code) || siteOrigin() + '/proof-of-walk/share/' + D().ranks[rankKey(card.rank)].share + '/' + st.page + '/'; }
+  // "Post on X" tags (PREVIEW, Noah approved 2026-11-27): always @satoshistatue21, plus the statue's verified official
+  // local host from statues.json local_host_x (card-data.js host_x) when there is one. Never a guessed handle.
+  var SITE_X = '@satoshistatue21';
+  function xTags(text, slug) {
+    var st = D() && D().statues[slug], h = st && /^@[A-Za-z0-9_]{1,15}$/.test(st.host_x || '') ? st.host_x : '', out = text;
+    if (!/@satoshistatue21\b/i.test(out)) out += ' ' + SITE_X;
+    if (h && out.toLowerCase().indexOf(h.toLowerCase()) < 0) out += ' ' + h;
+    return out;
+  }
+  function serialOf(card) { return card && Number.isInteger(Number(card.walker)) && Number(card.walker) >= 1 ? Number(card.walker) : 0; }
+  function walkerLine(card) { var n = serialOf(card), st = n && D().statues[card.slug]; return st ? 'Walker #' + n + ' in ' + st.subtitle.split(',')[0] : ''; }
   function shareText(card) {
-    var st = D().statues[card.slug], k = rankKey(card.rank);
-    if (card.earns === false) return 'I walked to ' + st.phrase + ' and collected its Proof of Walk card (rank at check-in: ' + D().ranks[k].label + ') 🟧 #ProofOfWalk #Bitcoin';
+    var st = D().statues[card.slug], k = rankKey(card.rank), wl = walkerLine(card);
+    var tail = wl ? ' · ' + wl : '';
+    if (card.earns === false) return xTags('I walked to ' + st.phrase + ' and collected its Proof of Walk card (rank at check-in: ' + D().ranks[k].label + ')' + tail + ' 🟧 #ProofOfWalk #Bitcoin', card.slug);
     var verb = { confirmed: 'got my first Proof of Walk card', genesis: 'earned Genesis Block', order: 'reached Full Node' }[k];
-    return 'I walked to ' + st.phrase + ' and ' + verb + ' 🟧 #ProofOfWalk #Bitcoin' + (card.code ? '' : ' satoshistatues.com');
+    return xTags('I walked to ' + st.phrase + ' and ' + verb + tail + ' 🟧 #ProofOfWalk #Bitcoin' + (card.code ? '' : ' satoshistatues.com'), card.slug);
   }
   function fileName(card) { return 'proof-of-walk-' + D().statues[card.slug].page + '-' + D().ranks[rankKey(card.rank)].share + (card.earns === false ? '-' + (card.n < 10 ? '0' : '') + card.n : '') + '.png'; }
   var TZ_ABBR = { 'Europe/': { 'GMT+1': 'CET', 'GMT+2': 'CEST' }, 'Asia/Tokyo': { 'GMT+9': 'JST' }, 'Asia/Ho_Chi_Minh': { 'GMT+7': 'ICT' },
@@ -205,6 +217,8 @@
     c.fillStyle = '#fff'; f(c, 800, sz, 'PCInter'); c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillText(h, cx - pw / 2 + 20 + 34 + 12, y + ph / 2 + 1);
     c.textBaseline = 'alphabetic'; c.textAlign = 'center'; c.fillStyle = '#8ecdf8'; f(c, 800, 18, 'PCInter'); spaced(c, '✓ VERIFIED', cx, y - 10, 4, 'center');
   }
+  // Walker serial (PREVIEW) prints on the BACK only (GPS box line); the front stays clean
+  // (Noah 2026-11-27 8:37 AM ET: "I want the front of card as clean as possible").
   // ---------- the two sides ----------
   async function front(c, card, o) {
     var d = D(), st = d.statues[card.slug], k = rankKey(card.rank), im = await art(st.page, o.print);
@@ -253,7 +267,11 @@
     var xh = xHandle(card), bh = xh ? 232 : 206, ly = xh ? [690, 734, 776, 816] : [694, 744, 790, 834];
     c.textAlign = 'center'; c.strokeStyle = 'rgba(247,147,26,.9)'; c.lineWidth = 2.5; rr(c, 150, 648, 700, bh, 18); c.fillStyle = 'rgba(0,0,0,.35)'; c.fill(); c.stroke();
     c.fillStyle = ORANGE; f(c, 800, 26, 'PCInter'); spaced(c, 'GPS-VERIFIED CHECK-IN', W / 2, ly[0], 4, 'center');
-    c.fillStyle = '#f5f1e6'; fit(c, st.label, 640, 32, 500, 'PCMono', 20); c.fillText(st.label, W / 2, ly[1]);
+    // walker number lives here on the back (never on the front); if the line would shrink below 24, the statue label
+    // drops its "Satoshi Statue " prefix so it stays legible ("Tokyo · Walker #1")
+    var mk = serialOf(card) && !o.generic ? ' · Walker #' + serialOf(card) : '', lbl = st.label + mk;
+    if (mk && fit(c, lbl, 640, 32, 500, 'PCMono', 18) < 24) lbl = st.subtitle.split(',')[0] + mk;
+    c.fillStyle = '#f5f1e6'; fit(c, lbl, 640, 32, 500, 'PCMono', 18); c.fillText(lbl, W / 2, ly[1]);
     var p = card.at ? localParts(card.at, st.tz) : null;
     if (o.generic) {   // static share images (one per statue x rank x number): no date, no code; the QR opens the verify page
       f(c, 500, 30, 'PCMono'); fit(c, st.subtitle, 640, 30, 500, 'PCMono', 18); c.fillText(st.subtitle, W / 2, ly[2]);
@@ -402,18 +420,43 @@
     var ok = false; try { ok = document.execCommand('copy'); } catch (e) {} ta.remove(); return Promise.resolve(ok);
   }
   function analytics(method) { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: 'pow-share-' + method, title: 'Proof of Walk share: ' + method, event: true }); } catch (e) {} }
+  // ---------- "Stamp your @handle": the existing Link your X flow (POST /api/x/start -> X sign-in -> Worker callback ->
+  // /proof-of-walk/?xt=...#xlink, where the passport page finishes the link). Before leaving, remember which card was open
+  // (sessionStorage satoshiXReturnCard) so the passport page reopens that card, now printed with the verified @handle.
+  var STAMP_KEY = 'satoshiXReturnCard', XMODE = 'satoshiXMode';
+  function stampDevice() { try { return localStorage.getItem('satoshiDevice.v1') || ''; } catch (e) { return ''; } }
+  function stampHandle(btn, card, el) {
+    var dev = stampDevice(), api = window.SS_API || '', msg = function (t) { var m = el.querySelector('.pc-xmsg'); if (m) m.textContent = t; };
+    if (!dev || !window.fetch) { msg('Couldn’t open X here. Try from your passport page.'); return; }
+    var label = btn.innerHTML; btn.disabled = true; btn.textContent = 'Opening X…'; msg('');
+    try { sessionStorage.setItem(STAMP_KEY, JSON.stringify({ slug: card.slug, from: location.pathname, at: Date.now() })); sessionStorage.setItem(XMODE, 'link'); } catch (e) {}
+    fetch(api + '/api/x/start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ device_id: dev }) })
+      .then(function (r) { return r.json(); }).then(function (j) {
+        if (j && j.ok && j.url) { location.href = j.url; return; }
+        btn.disabled = false; btn.innerHTML = label; msg((j && j.message) || 'Couldn’t open X. Please try again.');
+        try { sessionStorage.removeItem(STAMP_KEY); } catch (e) {}
+      }).catch(function () { btn.disabled = false; btn.innerHTML = label; msg('Couldn’t reach the server. Please try again.'); try { sessionStorage.removeItem(STAMP_KEY); } catch (e) {} });
+  }
   async function mount(el, card, opt) {
     opt = opt || {}; await load(); var d = D(); if (!d.statues[card.slug]) { el.hidden = true; return; }
     var k = rankKey(card.rank), url = shareUrl(card), text = shareText(card), name = fileName(card);
     el.classList.add('pc');
     var city = esc(d.statues[card.slug].subtitle.split(',')[0]);
+    // "Stamp your @handle" (PREVIEW, Noah via Matt 2026-11-27): next to Post on X, only for a real card (verify code) of a
+    // walker who hasn't linked X yet; hidden once linked (card.x set) or when the host page opts out (opt.noStamp).
+    var stampable = !xHandle(card) && !opt.noStamp && !!card.code && !!stampDevice();
+    var xBtn = '<a class="btn" data-pc="x" href="' + esc('https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url)) + '" target="_blank" rel="noopener noreferrer">Post on X</a>';
+    var saveBtn = '<a class="btn" data-pc="save" href="#" download="' + esc(name) + '">⬇️ Save image</a>', copyBtn = '<button class="btn" type="button" data-pc="copy">🔗 Copy link</button>';
     el.innerHTML = '<p class="pc-rank">' + (card.earns === false ? '🗺️ <strong>' + city + ' card ✓</strong> · ' + d.ranks[k].emoji + ' ' + esc(d.ranks[k].label)
       : d.ranks[k].emoji + ' <strong>' + esc(d.ranks[k].label) + ' ✓</strong> · ' + esc(d.statues[card.slug].label)) + '</p><div class="pc-stage"><canvas class="pc-face" data-side="front" role="img" aria-label="Your ' + esc(d.ranks[k].label) + ' card, front: ' + esc(d.statues[card.slug].label) + (xHandle(card) ? ', ' + esc(xHandle(card)) + ', verified' : '') + '"></canvas>' +
       '<canvas class="pc-face" data-side="back" hidden role="img" aria-label="Your card, back: card ' + card.n + ' of 21, verify code ' + esc(card.code || '') + '"></canvas></div>' +
       '<div class="pc-flip" role="group" aria-label="Card side"><button type="button" data-flip="front" aria-pressed="true">Front</button><button type="button" data-flip="back" aria-pressed="false">Back</button></div>' +
       '<div class="pc-share"><button class="btn primary pc-main" type="button" data-pc="share">📤 Share</button>' +
-      '<div class="pc-fb"><a class="btn" data-pc="x" href="' + esc('https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url)) + '" target="_blank" rel="noopener noreferrer">Post on X</a>' +
-      '<a class="btn" data-pc="save" href="#" download="' + esc(name) + '">⬇️ Save image</a><button class="btn" type="button" data-pc="copy">🔗 Copy link</button></div>' +
+      (stampable ? '<div class="pc-xrow">' + xBtn + '<button class="btn pc-stamp" type="button" data-pc="stamp" aria-describedby="pc-stamp-why"><span class="pc-stamp-v" aria-hidden="true">✓</span>Stamp your @handle</button></div>' +
+        '<div class="pc-fb pc-fb2">' + saveBtn + copyBtn + '</div>' +
+        '<p class="pc-hint" id="pc-stamp-why">Sign in on X to print your @handle on this card with a blue ✓ Verified. Optional. We only read your handle; we never post. <span class="pc-xmsg" role="status" aria-live="polite"></span></p>'
+      : '<div class="pc-fb">' + xBtn + saveBtn + copyBtn + '</div>') +
+      (walkerLine(card) ? '<p class="pc-hint" style="color:#f7931a;font-weight:700">🚶 ' + esc(walkerLine(card)) + '</p>' : '') +
       '<p class="pc-hint">Your card shows your check-in date' + (xHandle(card) ? ', verify code and your ' + esc(xHandle(card)) + ' with a blue ✓ Verified' : ' and verify code') + '. <span class="pc-toast" role="status" aria-live="polite"></span></p></div>' +
       '<section class="pc-print" aria-labelledby="pc-print-h-' + k + '"><h3 id="pc-print-h-' + k + '">🖨️ Get a print</h3>' +
       '<p class="pc-sub">Print it yourself: print-ready files for the front and back, 1650 × 2250 px each (2.5 × 3.5 in card at 600 dpi, with 1/8 in bleed on every side). Trim to 2.5 × 3.5 in.</p>' +
@@ -433,6 +476,7 @@
     var save = el.querySelector('[data-pc="save"]'); save.href = blobUrl;
     save.addEventListener('click', function (ev) { analytics('save'); if (IOS) { ev.preventDefault(); var w = window.open(blobUrl, '_blank'); if (!w) location.href = blobUrl; toast(el, 'Press and hold the image to save it.'); } });
     el.querySelector('[data-pc="x"]').addEventListener('click', function () { analytics('x-intent'); });
+    var sb = el.querySelector('[data-pc="stamp"]'); if (sb) sb.addEventListener('click', function () { analytics('x-stamp'); stampHandle(sb, card, el); });
     el.querySelector('[data-pc="copy"]').addEventListener('click', function () { analytics('copy'); copy(url).then(function (ok) { toast(el, ok ? 'Link copied' : url); }); });
     el.querySelector('[data-pc="share"]').addEventListener('click', function () {
       var p = null;
@@ -453,5 +497,5 @@
     });
     return el;
   }
-  window.PowCard = { load: load, render: render, png: png, og: og, ogCard: ogCard, ogPair: ogPair, pair: pair, pngPair: pngPair, ogRank: ogRank, mount: mount, cardPage: cardPage, shareUrl: shareUrl, shareText: shareText, localParts: localParts, rankKey: rankKey };
+  window.PowCard = { load: load, render: render, png: png, og: og, ogCard: ogCard, ogPair: ogPair, pair: pair, pngPair: pngPair, ogRank: ogRank, mount: mount, cardPage: cardPage, shareUrl: shareUrl, shareText: shareText, xTags: xTags, walkerLine: walkerLine, localParts: localParts, rankKey: rankKey };
 })();

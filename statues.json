@@ -266,6 +266,8 @@
         }
       ],
       "label": "Satoshi Statue Lugano",
+      "local_host_x": "@LuganoPlanB",
+      "local_host_x_source": "Lugano Plan ₿ (X @LuganoPlanB), the city of Lugano’s Bitcoin program named on the statue page",
       "statusLabel": "Back on display (Oct 2026)",
       "visit": {
         "updated": "2026-10-29",
@@ -440,6 +442,8 @@
         }
       ],
       "label": "Satoshi Statue El Zonte",
+      "local_host_x": "@Bitcoinbeach",
+      "local_host_x_source": "Bitcoin Beach (X @Bitcoinbeach, El Salvador): the statue is in the Bitcoin Beach community in El Zonte",
       "visit": {
         "updated": "2026-10-21",
         "getting_there": "We couldn't verify bus routes to El Zonte. OpenStreetMap shows an unnamed bus stop about 180 m from the statue, on the coastal road (Carretera del Litoral).\n\nParking: OpenStreetMap marks a surface parking area about 330 m away. Fees are unverified.",
@@ -589,6 +593,8 @@
         }
       ],
       "label": "Satoshi Statue Tokyo",
+      "local_host_x": "@TBB_EN",
+      "local_host_x_source": "Tokyo Bitcoin Base (X @TBB_EN): the statue stands outside the Base and was unveiled at its grand opening; events.json cites https://x.com/TBB_EN",
       "visit": {
         "updated": "2026-10-21",
         "getting_there": "Tokyo Bitcoin Base lists its access as a 6-minute walk from Yotsuya Station, and a 9-minute walk from both Ichigaya Station and Akebonobashi Station. That's from the venue's website as archived in Nov 2025. The live site showed a maintenance notice on 2026-10-21.\n\nPer OpenStreetMap, the nearest Yotsuya Station entrance is about 320 m away, and Akebonobashi (Toei Subway, S03) about 640 m. Parking is unverified.",
@@ -1939,6 +1945,8 @@
         }
       ],
       "label": "Satoshi Monument Buenos Aires",
+      "local_host_x": "@BitcoinAR",
+      "local_host_x_source": "ONG Bitcoin Argentina (X @BitcoinAR): ran the B·Arte art program that selected the monument; cited in this statue’s sources (https://x.com/BitcoinAR/status/2116131286360187206)",
       "pin_note": "Pin: Workplace by IRSA, Vedia 3892 (plaza spot approximate)",
       "story": [
         {

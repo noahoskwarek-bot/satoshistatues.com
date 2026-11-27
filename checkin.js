@@ -156,8 +156,10 @@ async function lbSubmit(s, c) {
       if (j.pow && j.pow.me && j.pow.me.rank && j.pow.me.rank.label && !j.pow.ranked_up)
         html += `<div class="lb-note">👣 ${powStatus(j.pow.me)} on <a href="/proof-of-walk/">Proof of Walk</a></div>`;
       if (!(me && (me.nickname || me.x)) && !lsGet(LB_NICK_SKIP)) html += lbNickForm('Show a name on the leaderboard? (optional)');
-      html += powRankUpHtml(j.pow, s);
-      if (j.pow && j.pow.me && !j.pow.me.x) html += xLinkPromptHtml();
+      const reveal = powRankUpHtml(j.pow, s);
+      html += reveal;
+      // a card reveal carries its own "Stamp your @handle" button (pow-card.js), so no second Link your X prompt
+      if (j.pow && j.pow.me && !j.pow.me.x && !/pc-reveal/.test(reveal)) html += xLinkPromptHtml();
       return { html, pow: j.pow || null };
     }
     if (status >= 400 && status < 500) return { rejected: true, html: `🏆 ${escHtml(j.message || "The check-in wasn't accepted.")}` };
@@ -196,8 +198,19 @@ document.addEventListener('click', ev => {
     const m = b.parentNode.querySelector('.x-msg'); if (m) m.textContent = j.message || "Couldn't open X. Please try again.";
   }).catch(() => { b.disabled = false; b.textContent = 'Link your X'; });
 }, true);
+// "Post on X" tags (PREVIEW, Noah approved 2026-11-27): always @satoshistatue21, plus the statue's verified official local
+// host (statues.json local_host_x -> data-host-x on the statue page) when there is one.
+function ciXTags(text, s) {
+  let out = text;
+  if (!/@satoshistatue21\b/i.test(out)) out += ' @satoshistatue21';
+  const h = s && /^@[A-Za-z0-9_]{1,15}$/.test(s.hostX || '') ? s.hostX : '';
+  if (h && out.toLowerCase().indexOf(h.toLowerCase()) < 0) out += ' ' + h;
+  return out;
+}
 function powCardRevealHtml(sc, slug, head) {
-  const card = { rank: sc.rank, slug, n: Number(sc.n), at: sc.at, code: sc.code, earns: !!sc.earns, ...(powXHandle ? { x: powXHandle } : {}) };
+  // walker: "Walker #N in <city>" (walker-serials PREVIEW), printed on the card back
+  const card = { rank: sc.rank, slug, n: Number(sc.n), at: sc.at, code: sc.code, earns: !!sc.earns, ...(powXHandle ? { x: powXHandle } : {}),
+    ...(sc.walker ? { walker: Number(sc.walker) } : {}) };
   return `${head ? `<div class="lb-note pow-up">${head}</div>` : ''}<div class="pc-reveal" data-pc="${escHtml(JSON.stringify(card))}"><p class="lb-note">🗺️ Your new card is on its way…</p></div>`;
 }
 function powRankUpHtml(p, s) {
@@ -225,8 +238,9 @@ function powRankUpHtml(p, s) {
     const card = { rank: k, slug: cc.earned.slug, n: Number(cc.n), at: cc.earned.at, code: cc.code, ...(powXHandle ? { x: powXHandle } : {}) };
     return `<div class="lb-note pow-up">${head}</div><div class="pc-reveal" data-pc="${escHtml(JSON.stringify(card))}"><p class="lb-note">🗺️ Your new card is on its way…</p></div>`;
   }
-  const share = window.SSShare ? window.SSShare.row(p.me.share, url, 'Share your rank')
-    : `<div class="ci-share"><a class="btn" href="https://x.com/intent/post?text=${encodeURIComponent(p.me.share)}&url=${encodeURIComponent(url)}" target="_blank" rel="noopener noreferrer">Share on X</a></div>`;
+  const rankText = ciXTags(p.me.share, s);
+  const share = window.SSShare ? window.SSShare.row(rankText, url, 'Share your rank')
+    : `<div class="ci-share"><a class="btn" href="https://x.com/intent/post?text=${encodeURIComponent(rankText)}&url=${encodeURIComponent(url)}" target="_blank" rel="noopener noreferrer">Share on X</a></div>`;
   return `<div class="lb-note pow-up">${head}</div>${share}`;
 }
 // Mount any card reveal that was just shown (pow-card.js renders the card, Share, Save image and Get a print).
@@ -279,7 +293,7 @@ function checkinTooFarHtml(s, d, accuracy) {
     const box = document.querySelector('[data-ss-checkin]');
     if (!box) return;
     const d = box.dataset;
-    const s = { slug: d.slug, name: d.name, city: d.city, label: d.label, page: d.page, lat: +d.lat, lng: +d.lng, checkins: +d.checkins || 0, checkin_radius_m: +d.radius || 0 };
+    const s = { slug: d.slug, name: d.name, city: d.city, label: d.label, page: d.page, lat: +d.lat, lng: +d.lng, checkins: +d.checkins || 0, checkin_radius_m: +d.radius || 0, hostX: d.hostX || '' };
     const checkable = (d.checkable || '').split(',').filter(Boolean);
     const btn = box.querySelector('[data-ss-checkin-btn]');
     const out = box.querySelector('.checkin-msg');
@@ -289,13 +303,13 @@ function checkinTooFarHtml(s, d, accuracy) {
     const show = (cls, html) => { out.className = `checkin-msg ${cls}`; out.innerHTML = html; out.hidden = false; };
     function shareText(p) {
       const what = /^Satoshi Statue /.test(s.label || '') ? `Satoshi in ${s.city}` : `the ${s.name} in ${s.city}`;
-      return `I found ${what} 🟠 ${visitedCount(p)}/${checkable.length} cards in my Satoshi Passport @satoshistatue21`;
+      return ciXTags(`I found ${what} 🟠 ${visitedCount(p)}/${checkable.length} cards in my Satoshi Passport @satoshistatue21`, s);
     }
     function shareRow(p) {
       const url = d.url;
       const more = `<div class="ci-share"><a class="btn" href="/?s=${s.page}">📤 Share card on the map</a><a class="btn" href="/#passport">🛂 My passport</a></div>`;
       // share.js (every statue page): share sheet + X with the check-in line. Older cached pages keep the X-only row.
-      if (window.SSShare && d.shareName) return window.SSShare.row(`I just checked in at ${d.shareName} ⚡`, url, 'Share your check-in') + more;
+      if (window.SSShare && d.shareName) return window.SSShare.row(ciXTags(`I just checked in at ${d.shareName} ⚡`, s), url, 'Share your check-in') + more;
       const x = `https://x.com/intent/post?text=${encodeURIComponent(shareText(p))}&url=${encodeURIComponent(url)}`;
       return `<div class="ci-share"><a class="btn" href="${x}" target="_blank" rel="noopener noreferrer">Share on X</a><a class="btn" href="/?s=${s.page}">📤 Share card on the map</a><a class="btn" href="/#passport">🛂 My passport</a></div>`;
     }

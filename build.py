@@ -589,9 +589,35 @@ SHARE_CSS = ('.ss-share{display:flex;flex-wrap:wrap;align-items:center;gap:8px;m
              '.f-msg.ok .ss-share-q,.checkin-msg.ok .ss-share-q{color:#e6edf3}')
 
 
+# "Post on X" tags (PREVIEW, Noah approved 2026-11-27): every statue/card X intent names @satoshistatue21 and, where
+# statues.json has a verified official local host (local_host_x), that host too. Never a guessed handle.
+SITE_X = '@satoshistatue21'
+LOCAL_HOST_RE = re.compile(r'^@[A-Za-z0-9_]{1,15}$')
+
+
+def check_local_hosts(data):
+    for st in data['statues']:
+        h = st.get('local_host_x')
+        if h is not None:
+            assert isinstance(h, str) and LOCAL_HOST_RE.match(h), f"statues.json: {st['page']} local_host_x must look like @handle"
+            assert h.lower() != SITE_X.lower(), f"statues.json: {st['page']} local_host_x is the site account"
+            assert st.get('local_host_x_source'), f"statues.json: {st['page']} local_host_x needs local_host_x_source (why it is the official host)"
+
+
+def x_tags(text, s=None):
+    """Append @satoshistatue21 (if missing) and the statue's local host (if any and missing) to an X share text."""
+    out = text
+    if not re.search(r'(?i)@satoshistatue21\b', out):
+        out += ' ' + SITE_X
+    h = (s or {}).get('local_host_x')
+    if h and not re.search(r'(?i)' + re.escape(h) + r'\b', out):
+        out += ' ' + h
+    return out
+
+
 def share_box(s):
     """Static share row for a statue page (works without JS: the X link is a plain link; share.js adds the share sheet)."""
-    text = f"Check out {share_name(s)} 🟠 Location, directions and photos"
+    text = x_tags(f"Check out {share_name(s)} 🟠 Location, directions and photos", s)
     url = page_url(s)
     x = f"https://x.com/intent/post?text={urllib.parse.quote(text, safe='')}&url={urllib.parse.quote(url, safe='')}"
     return (f'<style>{SHARE_CSS}</style><div class="ss-share" role="group" aria-label="Share this statue">'
@@ -615,6 +641,56 @@ POW_CARD_JS_URL = ''   # set in main() once statues.json is loaded (content-hash
 LIVE_COUNT_JS = """<script>(function(){var A=window.SS_API;if(!A||!window.fetch)return;fetch(A+"/api/counts").then(function(r){return r.json()}).then(function(j){if(!j||!j.ok)return;
 document.querySelectorAll("[data-count-slug]").forEach(function(el){var n=Math.max(j.counts[el.getAttribute("data-count-slug")]||0,+el.getAttribute("data-base")||0);
 if(n>0){el.textContent="\\uD83D\\uDC63 "+n+(n===1?" person has":" people have")+" checked in here";el.hidden=false}});}).catch(function(){});})();</script>"""
+
+
+# ---------- First Walker & First 21 (PREVIEW, Noah approved 2026-11-27) ----------
+# Each statue page lists the first 21 GPS-verified walkers there, in order (Worker GET /api/pow/first21?slug=…). A walker's
+# number is locked in by their first check-in. Walkers with a linked X account show @handle ✓, walkers with a nickname show
+# it, everyone else shows as "Walker #N". Commemorative copy only (Grant's rules): no prize, reward, odds or value words.
+FIRST21_CSS = ('.fw{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:14px 16px;margin:16px 0}'
+               '.fw h2{margin:0 0 4px;font-size:1.15rem}.fw-count{margin:0 0 10px;color:#c9d1d9;font-size:.92rem}.fw-count strong{color:#f7931a;font-size:1.05rem}'
+               '.fw-first{display:flex;align-items:center;gap:12px;background:#0d1117;border:1px solid rgba(247,147,26,.55);border-radius:10px;padding:10px 12px;margin:0 0 10px}'
+               '.fw-medal{font-size:1.7rem;line-height:1}.fw-first-k{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:#f7931a;font-weight:800}'
+               '.fw-first-n{font-size:1.1rem;font-weight:800;color:#e6edf3}.fw-first-d{font-size:.8rem;color:#8b949e}'
+               '.fw-empty{margin:0;color:#e6edf3;font-size:.95rem}.fw-empty strong{color:#f7931a}'
+               '.fw-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}'
+               '.fw-list li{display:flex;gap:6px;align-items:baseline;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:6px 8px;font-size:.86rem;min-width:0}'
+               '.fw-list .fw-n{color:#f7931a;font-weight:800;font-family:ui-monospace,Menlo,monospace;flex:none}.fw-list .fw-who{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#e6edf3}'
+               '.fw-list li.fw-open{border-style:dashed;opacity:.6}.fw-list li.fw-open .fw-who{color:#8b949e}.fw-xv{color:#1d9bf0;font-weight:800}'
+               '.fw-fine{font-size:.78rem;color:#8b949e;margin:10px 0 0}')
+FIRST21_EMPTY = ('No one has checked in here yet. <strong>Be the First Walker:</strong> walk to the statue, tap “Check in here” '
+                 'with GPS on, and your walk opens this list as Walker #1.')
+
+
+def first21_html(s):
+    if not POW_ON:
+        return ''
+    if s['status'] not in CHECKABLE:
+        body = (f'<p class="fw-count"><strong>0 / 21</strong></p><p class="fw-empty">This statue isn’t installed yet, so there’s no '
+                f'check-in here. The First 21 list opens when it is.</p>')
+        return f'<style>{FIRST21_CSS}</style><section class="fw" id="first-walkers" aria-labelledby="fw-h"><h2 id="fw-h">👣 First Walker &amp; First 21</h2>{body}</section>'
+    return (f'<style>{FIRST21_CSS}</style><section class="fw" id="first-walkers" data-fw-slug="{e(s["slug"])}" data-fw-city="{e(s["city"])}" aria-labelledby="fw-h">'
+            f'<h2 id="fw-h">👣 First Walker &amp; First 21</h2>'
+            f'<p class="fw-count"><strong data-fw-count>0 / 21</strong> walkers recorded at this statue</p>'
+            f'<div class="fw-first" data-fw-first><span class="fw-medal" aria-hidden="true">🥇</span><p class="fw-empty">{FIRST21_EMPTY}</p></div>'
+            f'<ol class="fw-list" data-fw-list hidden></ol>'
+            f'<p class="fw-fine">The first 21 GPS-verified walkers at this statue, in order. Each walker keeps their number for good. '
+            f'A name shows only if the walker set a nickname or linked X (✓); everyone else shows as Walker #N. Just for fun. '
+            f'<a href="/proof-of-walk/">Proof of Walk</a></p></section>')
+
+
+FIRST21_JS = r"""<script>(function(){var A=window.SS_API,box=document.querySelector('[data-fw-slug]');if(!A||!box||!window.fetch)return;
+var esc=function(t){return String(t==null?'':t).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+function who(w){return esc(w.name)+(w.x_linked?' <span class="fw-xv" title="Signed in with this X account. Not X’s verification badge.">✓</span>':'')}
+fetch(A+'/api/pow/first21?slug='+encodeURIComponent(box.getAttribute('data-fw-slug'))).then(function(r){return r.json()}).then(function(j){
+if(!j||!j.ok)return;var n=j.claimed||0,T=j.total||21;box.querySelector('[data-fw-count]').textContent=n+' / '+T;
+if(!n)return;var f=j.first,fb=box.querySelector('[data-fw-first]');
+fb.innerHTML='<span class="fw-medal" aria-hidden="true">🥇</span><div><div class="fw-first-k">First Walker in '+esc(j.city)+'</div>'+
+(f?'<div class="fw-first-n">'+who(f)+'</div><div class="fw-first-d">Walker #1 · '+esc(f.date)+'</div>':'<div class="fw-first-n">Walker #1</div>')+'</div>';
+var by={};(j.walkers||[]).forEach(function(w){by[w.serial]=w});var top=(j.next||1)-1;(j.walkers||[]).forEach(function(w){if(w.serial>top)top=w.serial});var h='';
+for(var i=1;i<=T;i++){var w=by[i];h+=w?'<li><span class="fw-n">#'+i+'</span><span class="fw-who">'+who(w)+'</span></li>'
+:'<li class="fw-open"><span class="fw-n">#'+i+'</span><span class="fw-who">'+(i<=top?'—':'open')+'</span></li>'}
+var ol=box.querySelector('[data-fw-list]');ol.innerHTML=h;ol.hidden=false;}).catch(function(){});})();</script>"""
 
 
 def footer(data, extra=''):
@@ -1242,6 +1318,8 @@ def checkin_box(s, data):
     attrs = {'data-slug': s['slug'], 'data-name': s['name'], 'data-label': s['label'], 'data-city': s['city'],
              'data-page': s['page'], 'data-url': page_url(s), 'data-share-name': share_name(s), 'data-lat': s['lat'], 'data-lng': s['lng'],
              'data-checkins': s.get('checkins', 0), 'data-checkable': stampable}
+    if s.get('local_host_x'):
+        attrs['data-host-x'] = s['local_host_x']   # checkin.js adds it to the "Share on X" text (with @satoshistatue21)
     # statue.checkin_radius_m (int, optional): wider check-in radius when only the site/campus is mapped (default 150 m,
     # the Worker's RADIUS_M); build.py --worker passes it to the Worker as radius_m so both sides agree.
     radius = int(s.get('checkin_radius_m') or 150)
@@ -1476,6 +1554,7 @@ def statue_page(s, data):
       {share_box(s)}
     </div>
     {checkin_box(s, data)}{checkin_count_html(s)}
+    {first21_html(s)}
     {fountain_box(s, data)}
     {jump}
     <dl class="facts">
@@ -1500,7 +1579,8 @@ def statue_page(s, data):
     {footer(data)}
   </main>
 '''
-    return out + share_script() + '\n' + (checkin_script() + '\n' if s['status'] in CHECKABLE else '') + fountain_script(s, data) + LIVE_COUNT_JS + '\n' + TAIL
+    return (out + share_script() + '\n' + (checkin_script() + '\n' if s['status'] in CHECKABLE else '') + fountain_script(s, data) + LIVE_COUNT_JS + '\n'
+            + (FIRST21_JS + '\n' if POW_ON and s['status'] in CHECKABLE else '') + TAIL)
 
 
 def timeline_statues(data):
@@ -2078,7 +2158,7 @@ POW_JS = r"""<script src="/share.js"></script>
   var RANK_EMOJI = { confirmed: '👣', genesis: '🧱', order: '⚡' };
   var cardFor = function (me, slug) {
     var sc = me && me.stamp_cards && me.stamp_cards[slug];
-    if (sc && sc.code) return { rank: sc.rank, slug: slug, n: Number(sc.n), at: sc.at, code: sc.code, earns: !!sc.earns };
+    if (sc && sc.code) return { rank: sc.rank, slug: slug, n: Number(sc.n), at: sc.at, code: sc.code, earns: !!sc.earns, walker: sc.walker ? Number(sc.walker) : undefined };
     var rk = comboCards(me).filter(function (c) { return c.slug === slug; })[0];
     if (rk) return rk;
     var st = (me && me.stamped || []).filter(function (x) { return x.slug === slug; })[0];
@@ -2254,11 +2334,21 @@ POW_JS = r"""<script src="/share.js"></script>
       xStart(this, 'restore', 'pow-rmsg');
     });
   }
+  // Back from "Stamp your @handle" (pow-card.js): once X is linked, reopen the card the walker was looking at, now with
+  // their verified @handle printed on it. Cancelled / failed sign-in: the marker is dropped and the usual note shows.
+  function reopenStampedCard(me) {
+    var r = null; try { r = JSON.parse(sessionStorage.getItem('satoshiXReturnCard') || 'null'); } catch (e) {}
+    if (!r) return false;
+    if (!(me && me.x && me.x.username) || Date.now() - (r.at || 0) > 30 * 60 * 1000) { try { sessionStorage.removeItem('satoshiXReturnCard'); } catch (e) {} return false; }
+    try { sessionStorage.removeItem('satoshiXReturnCard'); } catch (e) {}
+    var b = document.querySelector('[data-cg="' + String(r.slug).replace(/[^a-z0-9-]/g, '') + '"]'); if (!b) return false;
+    b.click(); return true;
+  }
   function loadMe() {
     var el = $('pow-me'); if (!el) return;
     if (!dev) { renderRecover(null); if (xNote && $('pow-rmsg')) $('pow-rmsg').textContent = xNote; el.innerHTML = '<div class="pow-rank">No rank yet</div><p class="pow-sub">Check in at a statue (within 150 m) to collect your first card. Open a statue on the <a href="/">map</a> or its page and tap <strong>Check in here</strong>.</p>' +
       '<h3 class="pow-cards-h">Your passport cards</h3><p class="cg-line">' + cardsLine(null) + '</p>' + gridHtml(null); wireGrid(el, null); return; }
-    post('/api/pow/me', { device_id: dev }).then(function (j) { if (j.ok) { renderMe(j.me); if (xPending) showConfirm(); else if (location.hash === '#xlink' && $('xlink')) $('xlink').scrollIntoView({ block: 'center' }); } else off(el); }).catch(function () { off(el); });
+    post('/api/pow/me', { device_id: dev }).then(function (j) { if (j.ok) { renderMe(j.me); if (xPending) showConfirm(); else if (reopenStampedCard(j.me)) {} else if (location.hash === '#xlink' && $('xlink')) $('xlink').scrollIntoView({ block: 'center' }); } else off(el); }).catch(function () { off(el); });
   }
   function loadList() {
     var el = $('pow-list'); if (!el) return;
@@ -2633,7 +2723,8 @@ def write_worker_cardshare(data):
 
 def card_data_js(data):
     st = {s['slug']: {'page': s['page'], 'title': s['city'].upper(), 'subtitle': f"{s['city']}, {s['country']}", 'label': s['label'],
-                      'tz': s.get('tz') or 'UTC', 'phrase': card_phrase(s), 'og_place': card_phrase(s)} for s in card_statues(data)}
+                      'tz': s.get('tz') or 'UTC', 'phrase': card_phrase(s), 'og_place': card_phrase(s),
+                      **({'host_x': s['local_host_x']} if s.get('local_host_x') else {})} for s in card_statues(data)}
     d = {'site': SITE, 'statues': st,
          'quotes': [{'n': x['n'], 'q': x['quote'], 'by': x['by'], 'hue': x['hue']} for x in card_quotes()],
          'ranks': {k: {'share': v[0], 'label': v[1], 'badge': v[2], 'emoji': v[3], 'rule': pow_rank_rule(data, k)} for k, v in POW_RANKS.items()},
@@ -2714,6 +2805,7 @@ VERIFY_JS = r"""<script>
     var xh = j.x_username && /^[A-Za-z0-9_]{1,15}$/.test(j.x_username) ? j.x_username : '';
     var XV = '<details class="xvd"><summary class="xv" title="Signed in with this X account. Not X’s verification badge." aria-label="Verified">✓</summary><span class="xtip" role="note"><strong>Verified:</strong> Signed in with this X account. Not X’s verification badge. <a href="#x-disclaimer">More</a></span></details>';
     show('<p class="v-ok">✅ GPS-verified check-in</p><p class="v-line"><strong>' + esc(j.statue.label) + '</strong> · ' + esc(j.date) + ' · ' + rk[1] + ' ' + esc(j.rank) + '</p>' +
+      (j.walker_line ? '<p class="v-line v-walker">🚶 <strong>' + esc(j.walker_line) + '</strong></p>' : '') +
       (xh ? '<div class="v-line v-x">X account verified by sign-in: <a href="https://x.com/' + xh + '" target="_blank" rel="noopener noreferrer nofollow"><strong>@' + esc(xh) + '</strong></a>' + XV + '</div>' : '') +
       '<img class="v-img" src="/img/cards/og/' + rk[0] + '/' + encodeURIComponent(j.statue.page) + '.__OGV__.jpg" width="1200" height="630" alt="' + esc(j.rank) + ' card for ' + esc(j.statue.label) + '">' +
       '<p class="note">This card was issued by satoshistatues.com for a real check-in within 150 m of the statue.</p>' +
@@ -2737,7 +2829,7 @@ def verify_page(data):
     out += f"""  <main>
     <div class="crumbs"><a href="/">Map</a> › <a href="/proof-of-walk/">Proof of Walk</a> › Verify</div>
     <h1>✅ Verify a Proof of Walk card</h1>
-    <p class="sub">Every card carries a code. It shows the statue, the date and the rank, plus the walker’s @handle if they linked their X account.</p>
+    <p class="sub">Every card carries a code. It shows the statue, the date, the rank and the walker’s number at that statue, plus the walker’s @handle if they linked their X account.</p>
     <div id="v-out" class="v-out" aria-live="polite"><p>Loading…</p></div>
     <form class="v-form" method="get" action="/v/"><label class="sr-only" for="v-code" style="position:absolute;left:-9999px">Verify code</label>
       <input id="v-code" name="c" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="PW-XXXX-XXXX"><button type="submit">Check</button></form>
@@ -3466,6 +3558,8 @@ def km_between(a_lat, a_lng, b_lat, b_lng):
     return 2 * 6371 * math.asin(math.sqrt(h))
 
 
+
+
 def load_events(data):
     path = os.path.join(ROOT, 'events.json')
     if not os.path.exists(path):
@@ -3791,7 +3885,7 @@ def map_stays(data):
 
 
 def build_index(data, text):
-    statues_js = [{k: v for k, v in s.items() if k not in ('slug', 'sources', 'accessSource', 'backersSource', 'label', 'visit', 'story', 'timeline')} for s in data['statues']]
+    statues_js = [{k: v for k, v in s.items() if k not in ('slug', 'sources', 'accessSource', 'backersSource', 'label', 'visit', 'story', 'timeline', 'local_host_x_source')} for s in data['statues']]
     genesis = set(pow_genesis_set(data))
     for s, src in zip(statues_js, data['statues']):
         s['label'] = src['label']
@@ -4069,6 +4163,7 @@ def main():
         refresh_checkins()
     data = load()
     data['events'] = load_events(data)
+    check_local_hosts(data)
     global POW_CARD_JS_URL
     POW_CARD_JS_URL = pow_card_js_url(data) if os.path.exists(os.path.join(ROOT, 'pow-card.js')) else ''
     if '--worker' in sys.argv:
